@@ -1,0 +1,48 @@
+/********************************************************************************************************
+ * @file     tlkmdi_stdio.h
+ *
+ * @brief    This is the header file for BTBLE SDK
+ *
+ * @author	 BTBLE GROUP
+ * @date         2,2022
+ *
+ * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *
+ *          Licensed under the Apache License, Version 2.0 (the "License");
+ *          you may not use this file except in compliance with the License.
+ *          You may obtain a copy of the License at
+ *
+ *              http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *          Unless required by applicable law or agreed to in writing, software
+ *          distributed under the License is distributed on an "AS IS" BASIS,
+ *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *          See the License for the specific language governing permissions and
+ *          limitations under the License.
+ *******************************************************************************************************/
+
+#ifndef TLKMDI_STDIO_H
+#define TLKMDI_STDIO_H
+
+
+
+#include "tlkmdi/tlkmdi_config.h"
+#include "tlkmdi/tlkmdi_define.h"
+#include "tlkmdi/tlkmdi_event.h"
+#include "tlkmdi/tlkmdi_comm.h"
+
+#include "tlkmdi/tlkmdi_audio.h"
+#include "tlkmdi/tlkmdi_audhfp.h"
+#include "tlkmdi/tlkmdi_audsnk.h"
+#include "tlkmdi/tlkmdi_audsrc.h"
+#include "tlkmdi/tlkmdi_audsco.h"
+#include "tlkmdi/tlkmdi_audmp3.h"
+#include "tlkmdi/tlkmdi_audplay.h"
+#include "tlkmdi/tlkmdi_audtone.h"
+
+
+extern bool tlkmdi_pmIsbusy(void);
+
+
+#endif //TLKMDI_STDIO_H
+
