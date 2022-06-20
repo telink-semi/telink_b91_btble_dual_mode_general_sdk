@@ -20,7 +20,7 @@
 * Support CVSD decoding
 * Support bluetooth modular management and application management
 * Support Audio modular management and application management
-* Supports Voice Noise Reduction
+* Support Voice Noise Reduction
 * Support Acoustic Echo Cancellation
 
 ### Bug Fixs
@@ -30,8 +30,8 @@
 * N/A
 
 ### CodeSize
-* Flash：488KB with log and 397KB without log
-* RAM: I-RAM is 92112B and D-RAM is 86824B（without log） I-RAM is 88792B and D-RAM is 83968B（with log
+* Flash: 488KB with log and 397KB without log
+* RAM: I-RAM is 92112B and D-RAM is 86824B (without log); I-RAM is 88792B and D-RAM is 83968B (with log)
 
 ### Dependency Updates
 * N/A
@@ -63,5 +63,5 @@
 * N/A
 
 ### CodeSize
-* Flash：带log为488KB，和不带log为397KB
-* 带有log情况下，I-RAM是92112字节和D-RAM是86824字节 不带有log情况下，RAM: I-RAM为88792字节和D-RAM是83968字节
+* Flash: 带log版本为488KB，不带log版本为397KB
+* RAM: 带log版本，I-RAM为92112B，D-RAM为86824B；不带log版本，I-RAM为88792B，D-RAM为83968B。
