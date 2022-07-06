@@ -41,9 +41,22 @@
 #define TLKAPP_BAT_FLAG_LOW_POWER         0x01
 
 
-
+/******************************************************************************
+ * Function: tlkapp_battery_init
+ * Descript: Initial the battery's gpio and register the callback.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_battery_init(void);
 
+/******************************************************************************
+ * Function: tlkapp_battery_check
+ * Descript: This function use to check the voltage.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_battery_check(void);
 
 

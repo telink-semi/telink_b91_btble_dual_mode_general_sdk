@@ -40,21 +40,33 @@ typedef struct{
 
 
 
-/**
- * @brief       This function is used to initialize system parameters and configuration.
- * @param[in]   none.
- * @return      none.
- */
+/******************************************************************************
+ * Function: tlkapp_system_init
+ * Descript: This function is used to initialize system parameters and configuration.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 int  tlkapp_system_init(void);
 
+/******************************************************************************
+ * Function: tlkapp_system_handler
+ * Descript: This function to control the mechine power off or restart 
+ *           and register the heart beat.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_system_handler(void);
 
 
-/**
- * @brief       Power Off.
- * @param[in]   none.
- * @return      none.
- */
+/******************************************************************************
+ * Function: tlkapp_system_poweroff
+ * Descript: This Function for power off the meachine.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_system_poweroff(void);
 
 

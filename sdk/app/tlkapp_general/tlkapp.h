@@ -26,28 +26,40 @@
 
 
 
-/**
- * @brief		user initialization when MCU power on or wake_up from deepSleep mode
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: tlkapp_init
+ * Descript: user initialization when MCU power on or wake_up from deepSleep mode.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 int tlkapp_init(void);
 
-/**
- * @brief		user initialization when MCU wake_up from deepSleep_retention mode
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: tlkapp_deepInit
+ * Descript: user initialization when MCU wake_up from deepSleep_retention mode.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 void tlkapp_deepInit(void);
 
-/**
- * @brief     BTBLE SDK main loop
- * @param[in]  none.
- * @return     none.
- */
+/******************************************************************************
+ * Function: tlkapp_process
+ * Descript: BTBLE SDK main loop.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 void tlkapp_process(void);
 
-
+/******************************************************************************
+ * Function: tlkapp_pmIsBusy
+ * Descript: user check is step into deepSleep_retention Mode or not.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 bool tlkapp_pmIsBusy(void);
 
 

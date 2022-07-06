@@ -49,7 +49,13 @@ static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen);
 #endif
 
 
-
+/******************************************************************************
+ * Function: tlkapp_debug_init
+ * Descript: Register the usb debug callback.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_debug_init(void)
 {
 	#if (TLK_USB_UDB_ENABLE)
@@ -58,13 +64,6 @@ int tlkapp_debug_init(void)
 
 	return TLK_ENONE;
 }
-
-
-
-
-
-
-
 
 
 #if (TLK_USB_UDB_ENABLE)
@@ -80,9 +79,9 @@ static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen)
 			flash_erase_sector(0xBF000);
 			break;
 
-		case 0x10:// clean all history pairing information 
+		case 0x10:
 			break;
-		case 0x11:// clean all history pairing information 
+		case 0x11:
 			break;
 		
 		case 0xf2:

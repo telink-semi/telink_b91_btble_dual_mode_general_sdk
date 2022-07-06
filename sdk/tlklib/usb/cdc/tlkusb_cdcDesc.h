@@ -27,6 +27,56 @@
 
 
 
+#define TLKUSB_CDC_STRING_PRODUCT       L"Telink B91 BTBLE CDC"
+#define TLKUSB_CDC_STRING_SERIAL        L"TLSR9218-CDC"
+
+
+typedef struct{
+	uint08 bFunctionLength;
+	uint08 bDescriptorType;
+	uint08 bDescriptorSubType;
+	uint16 bcdCDC;
+}tlkusb_cdcFunctionHead_t;
+typedef struct{
+	uint08 bFunctionLength;
+	uint08 bDescriptorType;
+	uint08 bDescriptorSubType;
+	uint08 bmCapabilities;
+}tlkusb_cdcFunctionAcm_t;
+typedef struct{
+	uint08 bFunctionLength;
+	uint08 bDescriptorType;
+	uint08 bDescriptorSubType;
+	uint08 bMasterInterface;
+	uint08 bSlaveInterface0;
+}tlkusb_cdcFunctionUnion_t;
+
+
+typedef struct{
+	// CDC Control Interface
+	tlkusb_cdcFunctionHead_t  cciHead;
+	tlkusb_cdcFunctionAcm_t   cdcACM;
+	tlkusb_cdcFunctionUnion_t cdcUnion;
+	tlkusb_cdcFunctionUnion_t cdcCall;
+	tlkusb_stdEndpointDesc_t  cdcNotyEdp;
+	// CDC Data Interface
+	tlkusb_stdInterfaceDesc_t dciInf;
+	tlkusb_stdEndpointDesc_t  dciOutEdp;
+	tlkusb_stdEndpointDesc_t  dciInEdp;
+}tlkusb_cdcFunctionsDesc_t;
+
+
+typedef struct {
+	tlkusb_stdConfigureDesc_t config;
+	tlkusb_stdAssociateDesc_t cdc1IAD;
+	tlkusb_stdInterfaceDesc_t cdc1Inf;
+	tlkusb_cdcFunctionsDesc_t cdc1Func;
+	#if (TLKUSB_CDC_SECOND_ENABLE)
+	tlkusb_stdAssociateDesc_t cdc2IAD;
+	tlkusb_stdInterfaceDesc_t cdc2Inf;
+	tlkusb_cdcFunctionsDesc_t cdc2Func;
+	#endif
+}tlkusb_cdcConfigDesc_t;
 
 
 

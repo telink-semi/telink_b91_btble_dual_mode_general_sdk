@@ -48,11 +48,13 @@ volatile uint32 AAAA_irq_test009 = 0;
 volatile uint32 AAAA_irq_test00A = 0;
 
 
-/**
- * @brief		This is main function
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: main
+ * Descript: This is main function.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 int main(void)
 {
     blc_pm_select_internal_32k_crystal();
@@ -76,12 +78,13 @@ int main(void)
     return 0;
 } 
 
-
-/**
- * @brief		System timer interrupt handler.
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: stimer_irq_handler
+ * Descript: System timer interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 _attribute_retention_code_ void stimer_irq_handler(void)
 {
 	AAAA_irq_test001 ++;
@@ -91,13 +94,13 @@ _attribute_retention_code_ void stimer_irq_handler(void)
 	AAAA_irq_test003 ++;
 }
 
-
-
-/**
- * @brief		Baseband interrupt handler.
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: rf_irq_handler
+ * Descript: Baseband interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 _attribute_retention_code_ void rf_irq_handler(void)
 {
 	AAAA_irq_test004 ++;
@@ -108,6 +111,14 @@ _attribute_retention_code_ void rf_irq_handler(void)
 
 extern void tlkusb_audirq_handler(void);
 extern void tlkusb_mscirq_handler(void);
+
+/******************************************************************************
+ * Function: usb_endpoint_irq_handler
+ * Descript: Usb endpoint interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 _attribute_retention_code_ 
 void usb_endpoint_irq_handler(void)
 {
@@ -124,6 +135,14 @@ void usb_endpoint_irq_handler(void)
 
 
 static volatile unsigned int tdebug_zb_bt_irq = 0;
+
+/******************************************************************************
+ * Function: zb_bt_irq_handler
+ * Descript: Bt Core interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 _attribute_retention_code_ void zb_bt_irq_handler(void)
 {
 	AAAA_irq_test009 ++;

@@ -73,9 +73,9 @@ static const tlkusb_udbConfigDesc_t sMmiUsbUdbConfigDesc = {
 		TLKUSB_UDB_INF_DBG, // bInterfaceNumber
 		0, // AlternateSetting
 		2, // bNumEndpoints
-		PRNT_CSCP_PrinterClass, // bInterfaceclass ->Printer
-		PRNT_CSCP_PrinterSubclass, // bInterfaceSubClass -> Control
-		PRNT_CSCP_BidirectionalProtocol,// bInterfaceProtocol
+		TLKUSB_PRNT_CSCP_PrinterClass, // bInterfaceclass ->Printer
+		TLKUSB_PRNT_CSCP_PrinterSubclass, // bInterfaceSubClass -> Control
+		TLKUSB_PRNT_CSCP_BidirectionalProtocol,// bInterfaceProtocol
 		TLKUSB_NO_DESCRIPTOR // iInterface,  same as iProduct in USB_Descriptor_Device_t, or else not working
 	},
 	// printer_in_endpoint
@@ -115,9 +115,9 @@ static const tlkusb_udbConfigDesc_t sMmiUsbUdbConfigDesc = {
 		TLKUSB_UDB_INF_VCD, // bInterfaceNumber
 		0, // AlternateSetting
 		2, // bNumEndpoints
-		PRNT_CSCP_PrinterClass, // bInterfaceclass ->Printer
-		PRNT_CSCP_PrinterSubclass, // bInterfaceSubClass -> Control
-		PRNT_CSCP_BidirectionalProtocol,// bInterfaceProtocol
+		TLKUSB_PRNT_CSCP_PrinterClass, // bInterfaceclass ->Printer
+		TLKUSB_PRNT_CSCP_PrinterSubclass, // bInterfaceSubClass -> Control
+		TLKUSB_PRNT_CSCP_BidirectionalProtocol,// bInterfaceProtocol
 		TLKUSB_NO_DESCRIPTOR // iInterface,  same as iProduct in USB_Descriptor_Device_t, or else not working
 	},
 	// printer_in_endpoint

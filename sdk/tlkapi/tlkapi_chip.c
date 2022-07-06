@@ -86,7 +86,7 @@ void tlkapi_chip_stackInit(void)
 		pStart[index] = TLKAPI_CHIP_STACK_CHACK_SIGN;
 	}
 }
-uint tlkapi_chip_stackUsed(void)
+uint tlkapi_chip_stackCheck(void)
 {
 	uint32 length;
 	volatile uint32 *pStart;
@@ -118,5 +118,19 @@ bool tlkapi_chip_stackOverflow(void)
 	else return false;
 }
 #endif
+
+
+extern unsigned int trng_rand(void);
+void tlkapi_random(uint08 *pBuff, uint16 buffLen)
+{
+	int i;
+	unsigned int randNums = 0;
+    /* if len is odd */
+	for(i=0; i<buffLen; i++ ){
+		if((i & 3) == 0) randNums = trng_rand();
+		pBuff[i] = randNums & 0xff;
+		randNums >>=8;
+	}
+}
 
 

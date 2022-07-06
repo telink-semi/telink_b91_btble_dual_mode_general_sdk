@@ -27,15 +27,21 @@
 
 
 
+#define BTP_SDP_AIRPODS_ENABLE            0
 
-#define BTP_SDP_AIRPODS_ENABLE  0
+#define BTP_SDP_PROFILE_MAX_HANDLE        0x001FFFFF
+
+#define BTP_SDP_BROWSE_GROUP_HANDLE       0x00100004
 
 
 #define BTP_SDP_SPP_HANDLE                0x00100001
 #define BTP_SDP_OPP_HANDLE                0x00100002
 #define BTP_SDP_FTP_HANDLE                0x00100003
+#define BTP_SERVER_SERVICE_HANDLE         0x00100005
+
 #define BTP_SDP_IAP_HANDLE                0x00100014
 
+#define BTP_SDP_HFP_HEADSET_HANDLE        0x00100009
 #define BTP_SDP_HFP_HF_HANDLE             0x00100010
 #define BTP_SDP_HFP_AG_HANDLE             0x00100011
 #define BTP_SDP_PNP_INFO_HANDLE           0x00100012

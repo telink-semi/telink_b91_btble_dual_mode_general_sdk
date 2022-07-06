@@ -24,7 +24,7 @@
 #ifndef TLKMMI_BTMGR_REC_H
 #define TLKMMI_BTMGR_REC_H
 
-#if (TLKMMI_BTREC_ENABLE)
+#if (TLKMMI_BTMGR_BTREC_ENABLE)
 
 
 
@@ -72,7 +72,7 @@ bool tlkmmi_btmgr_recIsScan(void);
 uint08 *tlkmmi_btmgr_recPageAddr(void);
 
 
-#endif //#if (TLKMMI_BTREC_ENABLE)
+#endif //#if (TLKMMI_BTMGR_BTREC_ENABLE)
 
 #endif //TLKMMI_BTMGR_REC_H
 

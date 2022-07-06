@@ -69,8 +69,8 @@
 								<option id="nds.c.link.option.libs.1698510065" name="Libraries (-l)" superClass="nds.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="dsp"/>
-									<listOptionValue builtIn="false" value="B91_btble_stack_nolog"/>
-									<listOptionValue builtIn="false" value="B91_btble_driver_nolog"/>
+									<listOptionValue builtIn="false" value="B91_btble_stack"/>
+									<listOptionValue builtIn="false" value="B91_btble_driver"/>
 									<listOptionValue builtIn="false" value="B91_mp3_dec"/>
 									<listOptionValue builtIn="false" value="B91_aec_ns"/>
 									<listOptionValue builtIn="false" value="B91_AGC"/>
@@ -101,7 +101,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="app/tlkapp_controller|vendor/_proj_bt_mesh_audio_|src/boot.c|vendor/PKE_Demo|vendor/SPI_Demo|vendor/TRNG_Demo|vendor/_proj_dualmode_headset_|stack/btle|vendor/Flash_Demo|vendor/_proj_audio_test|vendor/_proj_btble_headset_|vendor/UART_DEMO|vendor/UART_DEMO/9518_Debug_Demo|vendor/_proj_sniffer_test|vendor/ALG_REG_Demo|vendor/HSPI_Demo|vendor/_proj_hytera_ag_|vendor/VCD_LOG_Demo|vendor/9518_USB_Speaker_Demo|vendor/_proj_intercom_|vendor/_proj_bt_controlloer_|vendor/s7816_Demo|codec/lc3/src/dump.c|vendor/IIC_DEMO|vendor/_proj_bt_controller_|vendor/I2C_Demo|vendor/9518_HSPI_Demo|vendor/Debug_Demo|vendor/DebugPort_Demo|vendor/USB_MIC_Demo|9518_Flash_Demo|vendor/_proj_low_latency_headset_|vendor/9518_Debug_Demo|vendor/_proj_bt_headset_for_debug_|vendor/src|vendor/_proj_low_latency_|vendor/inquiry_demo|vendor/GPIO_DEMO|vendor/_proj_custom_ag_|vendor/_proj_feature_test_|vendor/GPIO_Demo|vendor/USB_Speaker_Demo|vendor/Timer_Demo|vendor/9518_SPI_Demo|vendor/RF_DEMO|codec/lc3a|codec/lc3|vendor/_proj_bt_dongle_|vendor/_proj_ext_codec_|vendor/Base_Test_Demo|vendor/_proj_bt_hid_|vendor/8258_USB_Speaker_Demo|vendor/_proj_le_audio_dongle_|vendor/_proj_usb_audio_/application|vendor/UART1_DEMO|codec/mp3_dec|codec/aac|vendor/8258_USB_MIC_Demo|vendor/_proj_dualmode_dongle_|vendor/_proj_tws_ ext_codec_|vendor/bt_demo|usbstd|vendor/NPE_Demo|vendor/_proj_usb_audio_|lib_src/lc3|vendor/PSPI_Demo|vendor/9518_USB_MIC_Demo|vendor/USB_Mouse_Demo|vendor/9518_USB_Mouse_Demo|vendor/PWM_DEMO|vendor/PSRAM_Demo|vendor/_proj_tws_|codec/lc3a_m1|alg_test_demo|vendor/_proj_headset_|vendor/9518_PSPI_Demo|codec/lc3_plus" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="app/tlkapp_bootloader|app/tlkapp_controller|vendor/_proj_bt_mesh_audio_|src/boot.c|vendor/PKE_Demo|vendor/SPI_Demo|vendor/TRNG_Demo|vendor/_proj_dualmode_headset_|stack/btle|vendor/Flash_Demo|vendor/_proj_audio_test|vendor/_proj_btble_headset_|vendor/UART_DEMO|vendor/UART_DEMO/9518_Debug_Demo|vendor/_proj_sniffer_test|vendor/ALG_REG_Demo|vendor/HSPI_Demo|vendor/_proj_hytera_ag_|vendor/VCD_LOG_Demo|vendor/9518_USB_Speaker_Demo|vendor/_proj_intercom_|vendor/_proj_bt_controlloer_|vendor/s7816_Demo|codec/lc3/src/dump.c|vendor/IIC_DEMO|vendor/_proj_bt_controller_|vendor/I2C_Demo|vendor/9518_HSPI_Demo|vendor/Debug_Demo|vendor/DebugPort_Demo|vendor/USB_MIC_Demo|9518_Flash_Demo|vendor/_proj_low_latency_headset_|vendor/9518_Debug_Demo|vendor/_proj_bt_headset_for_debug_|vendor/src|vendor/_proj_low_latency_|vendor/inquiry_demo|vendor/GPIO_DEMO|vendor/_proj_custom_ag_|vendor/_proj_feature_test_|vendor/GPIO_Demo|vendor/USB_Speaker_Demo|vendor/Timer_Demo|vendor/9518_SPI_Demo|vendor/RF_DEMO|codec/lc3a|codec/lc3|vendor/_proj_bt_dongle_|vendor/_proj_ext_codec_|vendor/Base_Test_Demo|vendor/_proj_bt_hid_|vendor/8258_USB_Speaker_Demo|vendor/_proj_le_audio_dongle_|vendor/_proj_usb_audio_/application|vendor/UART1_DEMO|codec/mp3_dec|codec/aac|vendor/8258_USB_MIC_Demo|vendor/_proj_dualmode_dongle_|vendor/_proj_tws_ ext_codec_|vendor/bt_demo|usbstd|vendor/NPE_Demo|vendor/_proj_usb_audio_|lib_src/lc3|vendor/PSPI_Demo|vendor/9518_USB_MIC_Demo|vendor/USB_Mouse_Demo|vendor/9518_USB_Mouse_Demo|vendor/PWM_DEMO|vendor/PSRAM_Demo|vendor/_proj_tws_|codec/lc3a_m1|alg_test_demo|vendor/_proj_headset_|vendor/9518_PSPI_Demo|codec/lc3_plus" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -205,7 +205,113 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="app/tlkapp_general|vendor/_proj_bt_mesh_audio_|src/boot.c|vendor/PKE_Demo|vendor/SPI_Demo|vendor/TRNG_Demo|vendor/_proj_dualmode_headset_|stack/btle|vendor/Flash_Demo|vendor/_proj_audio_test|vendor/_proj_btble_headset_|vendor/UART_DEMO|vendor/UART_DEMO/9518_Debug_Demo|vendor/_proj_sniffer_test|vendor/ALG_REG_Demo|vendor/HSPI_Demo|vendor/_proj_hytera_ag_|vendor/VCD_LOG_Demo|vendor/9518_USB_Speaker_Demo|vendor/_proj_intercom_|vendor/_proj_bt_controlloer_|vendor/s7816_Demo|codec/lc3/src/dump.c|vendor/IIC_DEMO|vendor/_proj_bt_controller_|vendor/I2C_Demo|vendor/9518_HSPI_Demo|vendor/Debug_Demo|vendor/DebugPort_Demo|vendor/USB_MIC_Demo|9518_Flash_Demo|vendor/_proj_low_latency_headset_|vendor/9518_Debug_Demo|vendor/_proj_bt_headset_for_debug_|vendor/src|vendor/_proj_low_latency_|vendor/inquiry_demo|vendor/GPIO_DEMO|vendor/_proj_custom_ag_|vendor/_proj_feature_test_|vendor/GPIO_Demo|vendor/USB_Speaker_Demo|vendor/Timer_Demo|vendor/9518_SPI_Demo|vendor/RF_DEMO|codec/lc3a|codec/lc3|vendor/_proj_bt_dongle_|vendor/_proj_ext_codec_|vendor/Base_Test_Demo|vendor/_proj_bt_hid_|vendor/8258_USB_Speaker_Demo|vendor/_proj_le_audio_dongle_|vendor/_proj_usb_audio_/application|vendor/UART1_DEMO|codec/mp3_dec|codec/aac|vendor/8258_USB_MIC_Demo|vendor/_proj_dualmode_dongle_|vendor/_proj_tws_ ext_codec_|vendor/bt_demo|usbstd|vendor/NPE_Demo|vendor/_proj_usb_audio_|lib_src/lc3|vendor/PSPI_Demo|vendor/9518_USB_MIC_Demo|vendor/USB_Mouse_Demo|vendor/9518_USB_Mouse_Demo|vendor/PWM_DEMO|vendor/PSRAM_Demo|vendor/_proj_tws_|codec/lc3a_m1|alg_test_demo|vendor/_proj_headset_|vendor/9518_PSPI_Demo|codec/lc3_plus" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="app/tlkapp_bootloader|app/tlkapp_general|vendor/_proj_bt_mesh_audio_|src/boot.c|vendor/PKE_Demo|vendor/SPI_Demo|vendor/TRNG_Demo|vendor/_proj_dualmode_headset_|stack/btle|vendor/Flash_Demo|vendor/_proj_audio_test|vendor/_proj_btble_headset_|vendor/UART_DEMO|vendor/UART_DEMO/9518_Debug_Demo|vendor/_proj_sniffer_test|vendor/ALG_REG_Demo|vendor/HSPI_Demo|vendor/_proj_hytera_ag_|vendor/VCD_LOG_Demo|vendor/9518_USB_Speaker_Demo|vendor/_proj_intercom_|vendor/_proj_bt_controlloer_|vendor/s7816_Demo|codec/lc3/src/dump.c|vendor/IIC_DEMO|vendor/_proj_bt_controller_|vendor/I2C_Demo|vendor/9518_HSPI_Demo|vendor/Debug_Demo|vendor/DebugPort_Demo|vendor/USB_MIC_Demo|9518_Flash_Demo|vendor/_proj_low_latency_headset_|vendor/9518_Debug_Demo|vendor/_proj_bt_headset_for_debug_|vendor/src|vendor/_proj_low_latency_|vendor/inquiry_demo|vendor/GPIO_DEMO|vendor/_proj_custom_ag_|vendor/_proj_feature_test_|vendor/GPIO_Demo|vendor/USB_Speaker_Demo|vendor/Timer_Demo|vendor/9518_SPI_Demo|vendor/RF_DEMO|codec/lc3a|codec/lc3|vendor/_proj_bt_dongle_|vendor/_proj_ext_codec_|vendor/Base_Test_Demo|vendor/_proj_bt_hid_|vendor/8258_USB_Speaker_Demo|vendor/_proj_le_audio_dongle_|vendor/_proj_usb_audio_/application|vendor/UART1_DEMO|codec/mp3_dec|codec/aac|vendor/8258_USB_MIC_Demo|vendor/_proj_dualmode_dongle_|vendor/_proj_tws_ ext_codec_|vendor/bt_demo|usbstd|vendor/NPE_Demo|vendor/_proj_usb_audio_|lib_src/lc3|vendor/PSPI_Demo|vendor/9518_USB_MIC_Demo|vendor/USB_Mouse_Demo|vendor/9518_USB_Mouse_Demo|vendor/PWM_DEMO|vendor/PSRAM_Demo|vendor/_proj_tws_|codec/lc3a_m1|alg_test_demo|vendor/_proj_headset_|vendor/9518_PSPI_Demo|codec/lc3_plus" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+					</sourceEntries>
+				</configuration>
+			</storageModule>
+			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
+		</cconfiguration>
+		<cconfiguration id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.320573319">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.320573319" moduleId="org.eclipse.cdt.core.settings" name="_TLKAPP_BOOTLOADER_">
+				<externalSettings/>
+				<extensions>
+					<extension id="com.andestech.ide.cdt.managedbuilder.core.CROSS_GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+				</extensions>
+			</storageModule>
+			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+				<configuration artifactExtension="elf" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.320573319" name="_TLKAPP_BOOTLOADER_" parent="config.nds.base" postbuildStep="&quot;${workspace_loc:/${ProjName}}/tlk_check_fw.bat&quot;   ${ConfigName}">
+					<folderInfo id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.320573319." name="/" resourcePath="">
+						<toolChain id="nds.nds32le-elf-mculib-v5f.base.755918511" name="nds32le-elf-mculib-v5f" superClass="nds.nds32le-elf-mculib-v5f.base">
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU.1573830475" name="CPU" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_LIST_CPU.1411819746" name="LIST_CPU" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_LIST_CPU"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CORE.79863686" name="CORE" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CORE"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_ARCH.178863057" name="ARCH" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_ARCH"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_ISA_REDUCE_REGS.1998322509" name="ISA_REDUCE_REGS" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_ISA_REDUCE_REGS"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_TARGET.841800018" name="TARGET" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_TARGET"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_ENDIAN.1721084431" name="ENDIAN" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_ENDIAN"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_LIB_C_DEFAULT.927441932" name="LIB_C_DEFAULT" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_LIB_C_DEFAULT"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_LIB_CPP_DEFAULT.67135283" name="LIB_CPP_DEFAULT" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_LIB_CPP_DEFAULT"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.RSE_TARGET.249075043" name="RSE_TARGET" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.RSE_TARGET" value="rse://LOCALHOST/~target/ADP-AE350-D25F-EAGLE-0106" valueType="string"/>
+							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.RSE_CONNECT.1135188286" name="RSE_CONNECT" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.RSE_CONNECT" value="ICE" valueType="string"/>
+							<targetPlatform archList="all" binaryParser="com.andestech.ide.cdt.managedbuilder.core.CROSS_GNU_ELF" id="target.nds.platform.base.v5.1215596232" name="Debug Platform" osList="all" superClass="target.nds.platform.base.v5"/>
+							<builder arguments="-j${NUMBER_OF_PROCESSORS}" buildPath="${workspace_loc:/Eagle_Driver_Demo}/9518_UART_DEMO" command="make" id="target.nds.builder.base.v5.1063827024" keepEnvironmentInBuildfile="false" name="Andes Make Builder" superClass="target.nds.builder.base.v5"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.archiver.base.1689632135" name="Andes Archiver" superClass="tool.nds32le-elf-mculib-v5f.archiver.base"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.cpp.compiler.base.516190681" name="Andes C++ Compiler" superClass="tool.nds32le-elf-mculib-v5f.cpp.compiler.base">
+								<option id="nds.cpp.compiler.option.debugging.level.880117698" name="Debug Level" superClass="nds.cpp.compiler.option.debugging.level" value="nds.cpp.compiler.debugging.level.max" valueType="enumerated"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.cpp.linker.base.2088859534" name="Andes C++ Linker" superClass="tool.nds32le-elf-mculib-v5f.cpp.linker.base">
+								<option defaultValue="-O0" id="nds.cpp.link.option.optimization.level.80306957" name="Optimization Level" superClass="nds.cpp.link.option.optimization.level" valueType="string"/>
+								<option defaultValue="true" id="nds32le-elf-mculib-v5f.cpp.link.option.noshared.base.346152718" name="No shared libraries (-static)" superClass="nds32le-elf-mculib-v5f.cpp.link.option.noshared.base" valueType="boolean"/>
+							</tool>
+							<tool command="$(CROSS_COMPILE)gcc" id="tool.nds32le-elf-mculib-v5f.c.compiler.base.2037487953" name="Andes C Compiler" superClass="tool.nds32le-elf-mculib-v5f.c.compiler.base">
+								<option id="nds.c.compiler.option.debugging.level.982592221" name="Debug Level" superClass="nds.c.compiler.option.debugging.level" value="nds.c.debugging.level.max" valueType="enumerated"/>
+								<option id="nds32le-elf-mculib-v5f.c.compiler.option.optimization.level.base.273053989" name="Optimization Level" superClass="nds32le-elf-mculib-v5f.c.compiler.option.optimization.level.base" value="nds.c.optimization.level.more" valueType="enumerated"/>
+								<option id="nds.c.compiler.option.optimization.lto.1586762970" name="Link Time Optimization (-flto)" superClass="nds.c.compiler.option.optimization.lto" value="true" valueType="boolean"/>
+								<option id="nds.c.compiler.option.optimization.removesections.function.1409897822" name="Remove unused function sections (-ffunction-sections)" superClass="nds.c.compiler.option.optimization.removesections.function" value="true" valueType="boolean"/>
+								<option id="nds.c.compiler.option.optimization.removesections.data.494394742" name="Remove unused data sections (-fdata-sections)" superClass="nds.c.compiler.option.optimization.removesections.data" value="true" valueType="boolean"/>
+								<option id="nds.c.compiler.option.misc.other.1792109856" name="Other flags" superClass="nds.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fshort-wchar -fuse-ld=bfd -mext-dsp -fpack-struct  -fno-delete-null-pointer-checks" valueType="string"/>
+								<option id="nds.c.compiler.option.cmodel.1439817322" name="Code Model" superClass="nds.c.compiler.option.cmodel" value="nds.c.compiler.option.cmodel.medium" valueType="enumerated"/>
+								<option id="nds.c.compiler.option.include.paths.2092645416" name="Include paths (-I)" superClass="nds.c.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/core}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+								</option>
+								<option id="nds.c.compiler.option.preprocessor.def.symbols.1711249073" name="Defined symbols (-D)" superClass="nds.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="TLKAPP_BOOTLOADER_ENABLE=1"/>
+								</option>
+								<option id="nds.c.compiler.option.misc.use-cc.toolchain.519580870" name="Compiler to use" superClass="nds.c.compiler.option.misc.use-cc.toolchain" value="nds.c.compiler.option.misc.use-cc.gcc" valueType="enumerated"/>
+								<inputType id="tool.nds.c.compiler.input.944208071" superClass="tool.nds.c.compiler.input"/>
+							</tool>
+							<tool command="$(CROSS_COMPILE)gcc" id="tool.nds32le-elf-mculib-v5f.c.linker.base.811603206" name="Andes C Linker" superClass="tool.nds32le-elf-mculib-v5f.c.linker.base">
+								<option defaultValue="-O0" id="nds.c.link.option.optimization.level.1378442676" name="Optimization Level" superClass="nds.c.link.option.optimization.level" value="-O2" valueType="string"/>
+								<option defaultValue="true" id="nds32le-elf-mculib-v5f.c.link.option.noshared.base.1374131350" name="No shared libraries (-static)" superClass="nds32le-elf-mculib-v5f.c.link.option.noshared.base" valueType="boolean"/>
+								<option id="nds.c.linker.option.cmodel.2045390447" name="Code Model" superClass="nds.c.linker.option.cmodel" value="-mcmodel=medium" valueType="string"/>
+								<option id="nds.c.link.option.LTO.202642925" name="Link Time Optimization (-flto)" superClass="nds.c.link.option.LTO" value="true" valueType="boolean"/>
+								<option id="nds.c.link.option.other.duplacitecompiler.1890623680" name="DuplaciteComplierOption" superClass="nds.c.link.option.other.duplacitecompiler" value="-g3 -mcpu=d25f -ffunction-sections -fdata-sections -fmessage-length=0 -fno-builtin -fomit-frame-pointer -fno-strict-aliasing -fno-jump-tables -fshort-wchar -fuse-ld=bfd -mext-dsp -fpack-struct -fno-delete-null-pointer-checks " valueType="string"/>
+								<option id="nds.c.link.option.removesections.1651008242" name="Remove unused sections (-ffunction-sections or -fdata-sections)" superClass="nds.c.link.option.removesections" value="true" valueType="boolean"/>
+								<option defaultValue="" id="nds.c.link.option.ldscript.1691643528" name="Linker Script (-T)" superClass="nds.c.link.option.ldscript" value="../boot.link" valueType="string"/>
+								<option id="nds.c.link.option.nostart.1081545383" name="Do not use standard start files (-nostartfiles)" superClass="nds.c.link.option.nostart" value="true" valueType="boolean"/>
+								<option id="nds.c.link.option.virtualhosting.895725618" name="Virtual Hosting (-mvh)" superClass="nds.c.link.option.virtualhosting" value="false" valueType="boolean"/>
+								<option id="nds.c.link.option.libs.1404429894" name="Libraries (-l)" superClass="nds.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="m"/>
+									<listOptionValue builtIn="false" value="dsp"/>
+									<listOptionValue builtIn="false" value="B91_btble_stack_nolog"/>
+									<listOptionValue builtIn="false" value="B91_btble_driver_nolog"/>
+									<listOptionValue builtIn="false" value="B91_mp3_dec"/>
+									<listOptionValue builtIn="false" value="B91_aec_ns"/>
+									<listOptionValue builtIn="false" value="B91_AGC"/>
+								</option>
+								<option id="nds.c.link.option.paths.1029343063" name="Library search path (-L)" superClass="nds.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/tlklib/lib}&quot;"/>
+								</option>
+								<option id="nds.c.link.option.ldflags.992808004" name="Linker flags" superClass="nds.c.link.option.ldflags" value="" valueType="string"/>
+								<inputType id="tool.nds.c.linker.input.1500322205" superClass="tool.nds.c.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.assembler.base.1400335294" name="Andes Assembler" superClass="tool.nds32le-elf-mculib-v5f.assembler.base">
+								<option defaultValue="-g" id="nds.both.asm.option.flags.152645651" name="Assembler flags" superClass="nds.both.asm.option.flags" valueType="string"/>
+								<inputType id="tool.nds.assembler.input.2057277077" superClass="tool.nds.assembler.input"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.nm.base.1224844943" name="NM (symbol listing)" superClass="tool.nds32le-elf-mculib-v5f.nm.base"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.readelf.base.2037577445" name="Readelf (ELF info listing)" superClass="tool.nds32le-elf-mculib-v5f.readelf.base"/>
+							<tool commandLinePattern="${COMMAND} ${FLAGS} &quot;${BuildArtifactFilePrefix}${BuildArtifactFileName}&quot; ${OUTPUT_FLAG} ${OUTPUT}" id="tool.nds32le-elf-mculib-v5f.objdump.base.1683826083" name="Objdump (disassembly)" superClass="tool.nds32le-elf-mculib-v5f.objdump.base">
+								<option id="nds.objdump.option.disable.863801159" name="Disable. (Do not auto-generate output file.)" superClass="nds.objdump.option.disable" value="false" valueType="boolean"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.objcopy.base.311126797" name="Objcopy (object content copy)" superClass="tool.nds32le-elf-mculib-v5f.objcopy.base">
+								<option id="nds.objcopy.option.disable.226444613" name="Disable. (Do not auto-generate output file.)" superClass="nds.objcopy.option.disable" value="true" valueType="boolean"/>
+							</tool>
+							<tool id="tool.nds32le-elf-mculib-v5f.size.base.40127545" name="Size (section size listing)" superClass="tool.nds32le-elf-mculib-v5f.size.base"/>
+							<tool id="tool.nds32le-elf-mculib-v5f.ldsag.base.106670642" name="LdSaG Tool" superClass="tool.nds32le-elf-mculib-v5f.ldsag.base"/>
+						</toolChain>
+					</folderInfo>
+					<sourceEntries>
+						<entry excluding="app/tlkapp_general|app/tlkapp_controller|vendor/_proj_bt_mesh_audio_|src/boot.c|vendor/PKE_Demo|vendor/SPI_Demo|vendor/TRNG_Demo|vendor/_proj_dualmode_headset_|stack/btle|vendor/Flash_Demo|vendor/_proj_audio_test|vendor/_proj_btble_headset_|vendor/UART_DEMO|vendor/UART_DEMO/9518_Debug_Demo|vendor/_proj_sniffer_test|vendor/ALG_REG_Demo|vendor/HSPI_Demo|vendor/_proj_hytera_ag_|vendor/VCD_LOG_Demo|vendor/9518_USB_Speaker_Demo|vendor/_proj_intercom_|vendor/_proj_bt_controlloer_|vendor/s7816_Demo|codec/lc3/src/dump.c|vendor/IIC_DEMO|vendor/_proj_bt_controller_|vendor/I2C_Demo|vendor/9518_HSPI_Demo|vendor/Debug_Demo|vendor/DebugPort_Demo|vendor/USB_MIC_Demo|9518_Flash_Demo|vendor/_proj_low_latency_headset_|vendor/9518_Debug_Demo|vendor/_proj_bt_headset_for_debug_|vendor/src|vendor/_proj_low_latency_|vendor/inquiry_demo|vendor/GPIO_DEMO|vendor/_proj_custom_ag_|vendor/_proj_feature_test_|vendor/GPIO_Demo|vendor/USB_Speaker_Demo|vendor/Timer_Demo|vendor/9518_SPI_Demo|vendor/RF_DEMO|codec/lc3a|codec/lc3|vendor/_proj_bt_dongle_|vendor/_proj_ext_codec_|vendor/Base_Test_Demo|vendor/_proj_bt_hid_|vendor/8258_USB_Speaker_Demo|vendor/_proj_le_audio_dongle_|vendor/_proj_usb_audio_/application|vendor/UART1_DEMO|codec/mp3_dec|codec/aac|vendor/8258_USB_MIC_Demo|vendor/_proj_dualmode_dongle_|vendor/_proj_tws_ ext_codec_|vendor/bt_demo|usbstd|vendor/NPE_Demo|vendor/_proj_usb_audio_|lib_src/lc3|vendor/PSPI_Demo|vendor/9518_USB_MIC_Demo|vendor/USB_Mouse_Demo|vendor/9518_USB_Mouse_Demo|vendor/PWM_DEMO|vendor/PSRAM_Demo|vendor/_proj_tws_|codec/lc3a_m1|alg_test_demo|vendor/_proj_headset_|vendor/9518_PSPI_Demo|codec/lc3_plus" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

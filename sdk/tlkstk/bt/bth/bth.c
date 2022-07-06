@@ -29,7 +29,7 @@
 #include "tlkstk/bt/bth/bth_handle.h"
 #include "tlkstk/bt/bth/bth_hcievt.h"
 #include "tlkstk/bt/bth/bth.h"
-
+#include "tlkstk/bt/bth/bth_acl.h"
 
 
 /******************************************************************************
@@ -157,18 +157,37 @@ int bth_sendEnterSleepCmd(void)
 	
 	pHandle = bth_handle_getFirstConnAcl();
 	if(pHandle == nullptr) return -TLK_ENOOBJECT;
-	
-	return bth_hci_sendSniffModeCmd(pHandle->aclHandle, HCI_CFG_SNIFF_MAX_INTERVAL,
-		HCI_CFG_SNIFF_MIN_INTERVAL, HCI_CFG_SNIFF_ATTEMPT, HCI_CFG_SNIFF_TIMEOUT);
+	if(pHandle->curMode == BTH_LM_SNIFF_MODE){
+		return TLK_ENONE;
+	}
+	if(pHandle->curMode == BTH_LM_ACTIVE_MODE){
+		if((pHandle->flags & BTH_ACL_FLAG_WAIT_SNIFF_RESULT) == 0){
+			bth_hci_sendSniffModeCmd(pHandle->aclHandle, HCI_CFG_SNIFF_MAX_INTERVAL,
+					HCI_CFG_SNIFF_MIN_INTERVAL, HCI_CFG_SNIFF_ATTEMPT, HCI_CFG_SNIFF_TIMEOUT);
+			pHandle->flags |= BTH_ACL_FLAG_WAIT_SNIFF_RESULT;
+
+		}
+	}
+
+	return TLK_ENONE;
 }
 int bth_sendLeaveSleepCmd(void)
 {
 	bth_acl_handle_t *pHandle;
-	
+
 	pHandle = bth_handle_getFirstConnAcl();
 	if(pHandle == nullptr) return -TLK_ENOOBJECT;
-	
-	return bth_hci_sendExitSniffModeCmd(pHandle->aclHandle);
+	if(pHandle->curMode == BTH_LM_ACTIVE_MODE){
+		return TLK_ENONE;
+	}
+	if(pHandle->curMode == BTH_LM_SNIFF_MODE){
+		if((pHandle->flags & BTH_ACL_FLAG_WAIT_UNSNIFF_RESULT) == 0){
+			bth_hci_sendExitSniffModeCmd(pHandle->aclHandle);
+			pHandle->flags |= BTH_ACL_FLAG_WAIT_UNSNIFF_RESULT;
+		}
+	}
+
+	return TLK_ENONE;
 }
 
 

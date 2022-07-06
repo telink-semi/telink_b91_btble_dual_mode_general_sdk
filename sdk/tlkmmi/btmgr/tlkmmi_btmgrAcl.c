@@ -25,7 +25,7 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_stdio.h"
-#if (TLKMMI_BTACL_ENABLE)
+#if (TLKMMI_BTMGR_BTACL_ENABLE)
 #include "tlkmdi/tlkmdi_btacl.h"
 #include "tlkmdi/tlkmdi_btinq.h"
 #include "tlkmdi/tlkmdi_btrec.h"
@@ -41,6 +41,7 @@
 #include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
 
 
+extern int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
 
 #if (TLK_MDI_BTINQ_ENABLE)
 static int tlkmmi_btmgr_reportCB(uint32 devClass, uint08 rssi, uint08 nameLen, uint08 *pBtaddr, uint08 *pBtName);
@@ -203,6 +204,7 @@ int tlkmmi_btmgr_connect(uint08 btaddr[6], uint16 timeout)
 	if(pBtDev != nullptr){
 		int ret;
 		sTlkMmiBtMgrAcl.devClass = pBtDev->devClass;
+		tmemcpy(sTlkMmiBtMgrAcl.btaddr,pBtDev->devAddr,6);
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: exist in peer - dev class - 0x%06x", pBtDev->devClass);
 		if(!tlkmmi_btmgr_recIsBusy()){
 			ret = tlkmdi_btacl_connect(btaddr, pBtDev->devClass, timeout);
@@ -227,16 +229,21 @@ int tlkmmi_btmgr_connect(uint08 btaddr[6], uint16 timeout)
 	#if !(TLK_MDI_BTINQ_ENABLE)
 	return -TLK_EFAIL;
 	#else
-	pBtInq = tlkmdi_btinq_getUsedItem(btaddr);
-	if(pBtInq != nullptr){
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: success - exist in inquiry");
-		return tlkmdi_btacl_connect(btaddr, pBtInq->devClass, timeout);
-	}
-	
+
 	if(tlkmmi_btmgr_recIsBusy()){
 		tlkmmi_btmgr_recClose();
 		sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_WAIT_REC;
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: execute - wait reconnect close");
+	}
+	pBtInq = tlkmdi_btinq_getUsedItem(btaddr);
+	if(pBtInq != nullptr){
+		int ret = -TLK_EBUSY;
+		sTlkMmiBtMgrAcl.devClass = pBtInq->devClass;
+		tmemcpy(sTlkMmiBtMgrAcl.btaddr,pBtInq->btaddr,6);
+		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: success - exist in inquiry");
+		sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_OPEN_CONN;
+		tlkmmi_adapt_insertTimer(&sTlkMmiBtMgrAcl.timer);
+		return ret;//tlkmdi_btacl_connect(btaddr, pBtInq->devClass, timeout);
 	}
 	if(tlkmdi_btinq_isBusy()){
 		tlkmdi_btinq_close();
@@ -345,7 +352,7 @@ static void tlkmmi_btmgr_aclConnectCB(uint16 handle, uint08 status, uint08 *pBtA
 }
 static void tlkmmi_btmgr_aclEncryptCB(uint16 handle, uint08 status, uint08 *pBtAddr)
 {
-	
+	bth_acl_enableSniffSet(handle, true);
 }
 static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtAddr)
 {
@@ -503,5 +510,5 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 }
 
 
-#endif //#if (TLKMMI_BTACL_ENABLE)
+#endif //#if (TLKMMI_BTMGR_BTACL_ENABLE)
 

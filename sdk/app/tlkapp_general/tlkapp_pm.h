@@ -33,9 +33,22 @@ typedef enum{
 	TLKAPP_PM_STATE_SLEEP,
 }TLKAPP_PM_STAGE_ENUM;
 
-
+/******************************************************************************
+ * Function: tlkapp_pm_init
+ * Descript: This function for initial the pm module.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int  tlkapp_pm_init(void);
 
+/******************************************************************************
+ * Function: tlkapp_pm_handler
+ * Descript: Callback for sdk.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_pm_handler(void);
 
 

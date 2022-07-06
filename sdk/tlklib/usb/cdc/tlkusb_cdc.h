@@ -26,10 +26,13 @@
 #if (TLKUSB_CDC_ENABLE)
 
 
+typedef void(*TlkUsbCdcRecvCB)(uint08 intfNum, uint08 *pData, uint08 dataLen);
 
+int tlkusb_cdc_init(void);
 
+void tlkusb_cdc_regRecvCB(TlkUsbCdcRecvCB cb);
 
-
+int tlkusb_cdc_sendData(uint08 intfNum, uint08 *pData, uint08 dataLen);
 
 
 #endif //#if (TLKUSB_CDC_ENABLE)

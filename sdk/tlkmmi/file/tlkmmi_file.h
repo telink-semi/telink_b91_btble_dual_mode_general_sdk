@@ -34,12 +34,14 @@
 
 
 #define TLKMMI_FILE_DBG_FLAG         (TLKMMI_FILE_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
-#define TLKMMI_FILE_DBG_SIGN         "[MMIFILE]"
+#define TLKMMI_FILE_DBG_SIGN         "[MMI]"
 
 
 
 
+int tlkmmi_file_init(void);
 
+bool tlkmmi_file_isBusy(void);
 
 
 

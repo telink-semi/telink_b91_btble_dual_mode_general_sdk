@@ -31,17 +31,14 @@
 #include "tlkdev/tlkdev_define.h"
 
 //Device
-#include "tlkdev/tlkdev_bat.h"
-#include "tlkdev/tlkdev_mic.h"
-#include "tlkdev/tlkdev_spk.h"
-#include "tlkdev/tlkdev_codec.h"
-#include "tlkdev/tlkdev_xt2602e.h"
-#include "tlkdev/tlkdev_xtsd04g.h"
+#include "tlkdev/sys/tlkdev_bat.h"
+#include "tlkdev/sys/tlkdev_mic.h"
+#include "tlkdev/sys/tlkdev_spk.h"
+#include "tlkdev/sys/tlkdev_codec.h"
+#include "tlkdev/sys/tlkdev_usb.h"
+#include "tlkdev/sys/tlkdev_nand.h"
+#include "tlkdev/sys/tlkdev_file.h"
 
-//Extend Device
-#include "tlkdev/tlkdev_nand.h"
-#include "tlkdev/tlkdev_file.h"
-#include "tlkdev/tlkdev_usb.h"
 
 
 

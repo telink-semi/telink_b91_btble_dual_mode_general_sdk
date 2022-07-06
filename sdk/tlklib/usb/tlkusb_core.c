@@ -376,23 +376,15 @@ static void tlkusb_getDeviceDescDeal(tlkusb_setup_req_t *pSetup)
 }
 static void tlkusb_getReportDescDeal(tlkusb_setup_req_t *pSetup)
 {
-	#if 0
-//	uint08 value_l = (sMmiUsbCtrlReq.wValue) & 0xff;
-	uint08 value_h = (sMmiUsbCtrlReq.wValue >> 8) & 0xff;
-	uint08 index_l = (sMmiUsbCtrlReq.wIndex) & 0xff;
-	switch(value_h){
-		case HID_DTYPE_HID:// HID Descriptor
-			break;
-		case HID_DTYPE_Report://Report Descriptor
-			sTlkUsbCtrl.stall = 1;
-			break;
-		case 0x23:// Phisical Descriptor
-			// TODO
-			break;
-		default:// other condition
-			break;
+	sTlkUsbCtrl.pRspData = tlkusb_module_getInfDesDesc(gTlkUsbCurModType, pSetup);
+	sTlkUsbCtrl.rspLen   = tlkusb_module_getInfDesLens(gTlkUsbCurModType, pSetup);
+	if(sTlkUsbCtrl.rspLen == 0 || sTlkUsbCtrl.pRspData == nullptr){
+		sTlkUsbCtrl.stall = 1;
+	}else{
+		if(pSetup->wLength < sTlkUsbCtrl.rspLen){
+			sTlkUsbCtrl.rspLen = pSetup->wLength;
+		}
 	}
-	#endif
 }
 
 

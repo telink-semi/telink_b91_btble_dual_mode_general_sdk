@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     app.c
+ * @file     tlkapp.c
  *
  * @brief    This is the source file for BTBLE SDK
  *
@@ -59,12 +59,10 @@ static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
 *******************************************************************************/  
 int tlkapp_init(void)
 {
-	/* random number generator must be initiated here( in the beginning of user_init_nromal).
-	 * When deepSleep retention wakeUp, no need initialize again */
   	g_plic_preempt_en = 1;
 	flash_plic_preempt_config(1, 1);
-	trng_init(); //random_generator_init();  //this is must
-	sdk_mode_select(1,0);
+	trng_init();
+	tlksdk_mode_select(1,0);
 	tlkapi_setSysMemBuffer(false, sTlkAppMemBuffer, TLKAPP_MEM_TOTAL_SIZE);
 	
 	tlkapp_irq_init();
@@ -108,6 +106,13 @@ void tlkapp_deepInit(void)
 	
 }
 
+/******************************************************************************
+ * Function: tlkapp_pmIsBusy
+ * Descript: user check is step into deepSleep_retention Mode or not.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 bool tlkapp_pmIsBusy(void)
 {
 	if(sTlkAppTimer != 0){
@@ -138,7 +143,7 @@ void tlkapp_process(void)
 	tlkapp_adapt_handler();
 	tlkapp_system_handler();
 	
-	////////////////////////////////////// PM entry   /////////////////////////////////
+	/*PM entry*/
 	#if(TLK_CFG_PM_ENABLE)
 	tlkapp_pm_handler();
 	#endif

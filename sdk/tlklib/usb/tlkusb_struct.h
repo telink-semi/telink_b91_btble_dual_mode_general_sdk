@@ -209,6 +209,18 @@ typedef struct
 
 typedef struct
 {
+	uint08 Size;
+    uint08 Type;
+	uint16 HIDSpec;
+	uint08 CountryCode;
+	uint08 TotalReportDescriptors;
+	uint08 HIDReportType;
+	uint16 HIDReportLength;
+}tlkusb_HidEndpointDesc_t;
+
+
+typedef struct
+{
 	uint08 bLength; /**< Size of the descriptor, in bytes. */
 	uint08 bDescriptorType; /**< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class.*/
 	uint08 Subtype;

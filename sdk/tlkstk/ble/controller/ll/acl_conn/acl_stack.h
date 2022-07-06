@@ -30,7 +30,7 @@
 #include "tlkstk/ble/ble_config.h"
 #include "tlkstk/ble/ble_format.h"
 #include "tlkstk/ble/controller/phy/phy_stack.h"
-#include "tlkalg/aes/tlkalg_aes_ccm.h"
+#include "tlkalg/crypt/aes/tlkalg_aes_ccm.h"
 
 
 #ifndef			FIX_BOUNDARY_RX_NO_DMALEN_REWRITE_CAUSE_SW_CRC_ERROR

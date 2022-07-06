@@ -24,7 +24,7 @@
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkmmi/tlkmmi_stdio.h"
 #include "tlkmmi/audio/tlkmmi_audio.h"
-#include "tlkdev/tlkdev_serial.h"
+#include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkapp_config.h"
 #include "tlkapp_pm.h"
 #include "tlkapp_system.h"
@@ -58,12 +58,16 @@ extern int bth_sendLeaveSleepCmd(void);
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 
-
-//static uint32 sTlkAppPmEnterTimer;
 static uint08 sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
 
 
-
+/******************************************************************************
+ * Function: tlkapp_pm_init
+ * Descript: This function for initial the pm module.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_pm_init(void)
 {
 	btble_pm_initPowerManagement_module();
@@ -82,6 +86,14 @@ int tlkapp_pm_init(void)
 		
 	return TLK_ENONE;
 }
+
+/******************************************************************************
+ * Function: tlkapp_pm_init_deepRetn
+ * Descript:
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 _attribute_bt_retention_code_
 void tlkapp_pm_init_deepRetn(void)
 {
@@ -96,19 +108,19 @@ void tlkapp_pm_init_deepRetn(void)
 //	plic_interrupt_complete(IRQ14_ZB_BT);//complete
 //    btc_ll_set_sniff_lp_mode(BT_SNIFF_LP_MODE_SUSPEND);
 }
-void tlkapp_pm_enableScan(void)
-{
-	btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
-	
-	//bth_hci_sendWriteScanEnableCmd(3);
-	btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);	
-	btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
-	tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "enable low power inquiry-page scan......");
-}
 
 
 extern uint32 gTlkAppSystemBusyTimer;
 
+static uint32 sTlkAppPmTraceTimer = 0;
+
+/******************************************************************************
+ * Function: tlkapp_pm_handler
+ * Descript: Callback for sdk.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_pm_handler(void)
 {
 	uint08 apiIsBusy = tlkapi_pmIsBusy();
@@ -123,24 +135,29 @@ void tlkapp_pm_handler(void)
 		//Solve the problem that Android phones are difficult to connect
 		gTlkAppSystemBusyTimer = 0;
 	}
+
+	if(sTlkAppPmTraceTimer == 0 || clock_time_exceed(sTlkAppPmTraceTimer, 1000000)){
+		sTlkAppPmTraceTimer = clock_time()|1;
+		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d %d %d %d", appIsBusy,
+			stkIsBusy, apiIsBusy, devIsBusy, mdiIsBusy, mmiIsBusy, padIsBusy);
+	}
 	
 	if(sTlkAppPmState == TLKAPP_PM_STATE_IDLE){
 		
 	}
-	if(1 || gTlkAppSystemBusyTimer != 0 || appIsBusy || stkIsBusy || apiIsBusy || devIsBusy || mdiIsBusy || mmiIsBusy || padIsBusy)
+	if(//1 ||
+			gTlkAppSystemBusyTimer != 0 || appIsBusy || stkIsBusy || apiIsBusy
+			|| devIsBusy || mdiIsBusy || mmiIsBusy || padIsBusy)
 	{
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
-		if(sTlkAppPmState == TLKAPP_PM_STATE_SLEEP){
-			int ret = bth_sendLeaveSleepCmd();
-			if(ret == TLK_ENONE || ret == -TLK_ENOOBJECT) sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
-		}
+		bth_sendLeaveSleepCmd();
 	}
 	else
 	{
+		btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);	
+		btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
 		btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
-		if(sTlkAppPmState == TLKAPP_PM_STATE_IDLE && bth_sendEnterSleepCmd() == TLK_ENONE){
-			sTlkAppPmState = TLKAPP_PM_STATE_SLEEP;
-		}
+		bth_sendEnterSleepCmd();
 	}
 }
 
@@ -158,12 +175,15 @@ void tlkapp_pm_handler(void)
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen)
 {
 	#if (TLK_CFG_USB_ENABLE)
-		usb_set_pin_dis();  //remove USB pin current leakage
+	    /*remove USB pin current leakage*/
+		usb_set_pin_dis();
 	#endif
 	
 	#if (TLK_DEV_XTSD04G_ENABLE)
 	if(tlkdev_nand_isPowerOn()){
+		#if (TLK_CFG_USB_ENABLE)
 		tlkdev_usb_shutdown();
+		#endif
 		tlkdev_nand_shutdown();
 		tlkdev_nand_powerOff();
 	}

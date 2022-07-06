@@ -203,6 +203,11 @@ void tlkapi_debug_process(void)
 	uint16 offset;
 	uint08 sendLen;
 	uint16 dataLen;
+
+//	#if (TLK_USB_UDB_ENABLE)
+//	extern void tlkusb_process(void);
+//	tlkusb_process();
+//	#endif
 	
 	pData = tlkapi_qfifo_getData(&sTlkApiDebugFifo);
 	if(pData == nullptr) return;
@@ -386,7 +391,10 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 	printf("[%04x]",serial);
 	if(pSign != nullptr) printf(pSign);
 	if(pHead != nullptr) printf(pHead);
-	vprintf(format, args);	
+	vprintf(format, args);
+	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+	printf("\r\n");
+	#endif
 	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
 	if(pBuff == nullptr) return;
 	dataLen = ((uint16)pBuff[1] << 8) | pBuff[0];

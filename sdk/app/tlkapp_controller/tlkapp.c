@@ -37,7 +37,6 @@
 #include "tlkapp.h"
 
 
-//extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 extern void trng_init(void);
 
 
@@ -53,18 +52,18 @@ volatile u32 AAAA_test009 = 0;
 volatile u32 AAAA_test00A = 0;
 
 
-/**
- * @brief		user initialization when MCU power on or wake_up from deepSleep mode
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: tlkapp_init
+ * Descript: user initialization when MCU power on or wake_up from deepSleep mode.
+ * Params: None.
+ * Return: TLK_ENONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_init(void)
 {
-	/* random number generator must be initiated here( in the beginning of user_init_nromal).
-	 * When deepSleep retention wakeUp, no need initialize again */
   	g_plic_preempt_en = 1;
-	trng_init(); //random_generator_init();  //this is must
-	sdk_mode_select(0,1);
+	trng_init();
+	tlksdk_mode_select(0,1);
 	AAAA_test001 ++;
 	tlkapp_irq_init();
 	tlkapi_init();
@@ -88,12 +87,13 @@ volatile u32 AAAA_test103 = 0;
 volatile u32 AAAA_test104 = 0;
 
 
-
-/**
- * @brief     BTBLE SDK main loop
- * @param[in]  none.
- * @return     none.
- */
+/******************************************************************************
+ * Function: tlkapp_process
+ * Descript: BTBLE SDK main loop.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_process(void)
 {
 	AAAA_test101 ++;	

@@ -40,6 +40,8 @@
 #include "reg_include/register_b91.h"
 
 
+#define IRQ_DEBUG_ENABLE			        0
+
 
 typedef struct
 {
@@ -354,9 +356,8 @@ typedef struct EXCEPT_HANDLER_S{
 	uint32_t irq_src;
 }EXCEPT_HANDLER_S_T;
 
-#define IRQ_DEBUG_ENABLE			        0
 
-#define IRQ_STACK_OVERFLOW_DEBUG_ENABLE		0
+
 
 #if IRQ_DEBUG_ENABLE
 extern _attribute_data_retention_sec_  volatile EXCEPT_HANDLER_S_T except_handler_b;
@@ -395,27 +396,10 @@ extern void irq_stack_check(uint32_t sp);
 			__asm volatile("addi sp,sp,8");\
 		}\
 		NESTED_IRQ_EXIT();\
+		except_handler_b.irq_src = 0xFF; \
 		reg_irq_done = src;\
 		NDS_FENCE_IORW;\
-	} while(0)
-#elif IRQ_STACK_OVERFLOW_DEBUG_ENABLE
-#define plic_isr(func, src)	\
-	do {	\
-		NESTED_IRQ_ENTER();	\
-		__asm volatile("addi sp,sp,-8");\
-		__asm volatile("sw t0,4(sp)");\
-		__asm volatile("li t0, 0x55555555");\
-		__asm volatile("sw t0,0(sp)");\
-		func ();\
-		register long sp asm("x2");\
-		irq_stack_check(sp);\
-		__asm volatile("lw t0,0(sp)");\
-		__asm volatile("lw t0,4(sp)");\
-		__asm volatile("addi sp,sp,8");\
-		NESTED_IRQ_EXIT();\
-		reg_irq_done = src;\
-		NDS_FENCE_IORW;\
-	} while(0)
+	} while(0) 
 #else
 #define plic_isr(func, src)	\
 	do {	\

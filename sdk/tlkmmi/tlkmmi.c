@@ -77,11 +77,14 @@ void tlkmmi_process(void)
 *******************************************************************************/
 bool tlkmmi_pmIsbusy(void)
 {
-	#if (TLKMMI_AUDIO_ENABLE)
-	return tlkmmi_audio_isBusy();
-	#else
-	return false;
+	bool isBusy = false;
+	#if (TLKMMI_FILE_ENABLE)
+	if(!isBusy) isBusy = tlkmmi_file_isBusy();
 	#endif
+	#if (TLKMMI_AUDIO_ENABLE)
+	if(!isBusy) isBusy = tlkmmi_audio_isBusy();
+	#endif
+	return isBusy;
 }
 
 

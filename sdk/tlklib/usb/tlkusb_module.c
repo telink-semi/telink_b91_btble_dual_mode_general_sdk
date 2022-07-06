@@ -16,6 +16,9 @@ extern const tlkusb_module_t gTlkUsbMscModule;
 #if (TLKUSB_CDC_ENABLE)
 extern const tlkusb_module_t gTlkUsbCdcModule;
 #endif
+#if (TLKUSB_HID_ENABLE)
+extern const tlkusb_module_t gTlkUsbHidModule;
+#endif
 #if (TLKUSB_USR_ENABLE)
 extern const tlkusb_module_t gTlkUsbUsrModule;
 #endif
@@ -38,6 +41,11 @@ static const tlkusb_module_t *sTlkUsbModule[TLKUSB_MODTYPE_MAX] =
 	#endif
 	#if (TLKUSB_CDC_ENABLE)
 	&gTlkUsbCdcModule,
+	#else
+	nullptr,
+	#endif
+	#if (TLKUSB_HID_ENABLE)
+	&gTlkUsbHidModule,
 	#else
 	nullptr,
 	#endif
@@ -168,14 +176,14 @@ uint16 tlkusb_module_getStringLens(uint08 modType, uint08 index)
 	}
 	return sTlkUsbModule[modType]->pDesc->GetStringLens(index);
 }
-uint16 tlkusb_module_getReportLens(uint08 modType, uint08 index)
+uint16 tlkusb_module_getInfDesLens(uint08 modType, tlkusb_setup_req_t *pSetup)
 {
 	if(modType >= TLKUSB_MODTYPE_MAX) return 0;
 	if(sTlkUsbModule[modType] == nullptr || sTlkUsbModule[modType]->pDesc == nullptr
-		|| sTlkUsbModule[modType]->pDesc->GetReportLens == nullptr){
+		|| sTlkUsbModule[modType]->pDesc->GetInfDesLens == nullptr){
 		return 0;
 	}
-	return sTlkUsbModule[modType]->pDesc->GetReportLens(index);
+	return sTlkUsbModule[modType]->pDesc->GetInfDesLens(pSetup);
 }
 
 uint08 *tlkusb_module_getDeviceDesc(uint08 modType)
@@ -205,14 +213,14 @@ uint08 *tlkusb_module_getStringDesc(uint08 modType, uint08 index)
 	}
 	return sTlkUsbModule[modType]->pDesc->GetStringDesc(index);
 }
-uint08 *tlkusb_module_getReportDesc(uint08 modType, uint08 index)
+uint08 *tlkusb_module_getInfDesDesc(uint08 modType, tlkusb_setup_req_t *pSetup)
 {
 	if(modType >= TLKUSB_MODTYPE_MAX) return nullptr;
 	if(sTlkUsbModule[modType] == nullptr || sTlkUsbModule[modType]->pDesc == nullptr
-		|| sTlkUsbModule[modType]->pDesc->GetReportDesc == nullptr){
+		|| sTlkUsbModule[modType]->pDesc->GetInfDesDesc == nullptr){
 		return nullptr;
 	}
-	return sTlkUsbModule[modType]->pDesc->GetReportDesc(index);
+	return sTlkUsbModule[modType]->pDesc->GetInfDesDesc(pSetup);
 }
 
 

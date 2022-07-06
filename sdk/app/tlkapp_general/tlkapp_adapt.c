@@ -163,7 +163,13 @@ int tlkapp_adapt_removeTimer(tlkapi_timer_t *pTimer)
 	return tlkapi_adapt_removeTimer(&sTlkAppAdapt, pTimer);
 }
 
-
+/******************************************************************************
+ * Function: tlkapp_adapt_printfTimer
+ * Descript:
+ * Params:
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_adapt_printfTimer(void)
 {
 	return tlkapi_adapt_printTimer(&sTlkAppAdapt);

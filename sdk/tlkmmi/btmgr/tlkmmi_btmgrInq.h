@@ -24,7 +24,7 @@
 #ifndef TLKMMI_BTMGR_INQ_H
 #define TLKMMI_BTMGR_INQ_H
 
-#if (TLKMMI_BTINQ_ENABLE)
+#if (TLKMMI_BTMGR_BTINQ_ENABLE)
 
 
 
@@ -63,7 +63,7 @@ int tlkmmi_btmgr_closeInquiry(void);
 
 
 
-#endif //#if (TLKMMI_BTINQ_ENABLE)
+#endif //#if (TLKMMI_BTMGR_BTINQ_ENABLE)
 
 #endif //TLKMMI_BTMGR_INQ_H
 

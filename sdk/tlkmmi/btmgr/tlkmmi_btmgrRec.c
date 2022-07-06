@@ -25,7 +25,7 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_stdio.h"
-#if (TLKMMI_BTREC_ENABLE)
+#if (TLKMMI_BTMGR_BTREC_ENABLE)
 #include "tlkmdi/tlkmdi_btacl.h"
 #include "tlkmdi/tlkmdi_btrec.h"
 #include "tlkprt/tlkprt_comm.h"
@@ -73,7 +73,7 @@ int tlkmmi_btmgr_recInit(void)
 *******************************************************************************/
 int tlkmmi_btmgr_recStart(uint08 *pDevAddr, uint32 devClass, bool enPage, bool enScan)
 {	
-	#if (TLKMMI_BTACL_ENABLE)
+	#if (TLKMMI_BTMGR_BTACL_ENABLE)
 	if(tlkmmi_btmgr_aclIsBusy()){
 		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recStart: failure - mmi acl busy");
 		return -TLK_EBUSY;
@@ -139,5 +139,5 @@ static void tlkmmi_btmgr_recOver(void)
 }
 
 
-#endif //#if (TLKMMI_BTREC_ENABLE)
+#endif //#if (TLKMMI_BTMGR_BTREC_ENABLE)
 

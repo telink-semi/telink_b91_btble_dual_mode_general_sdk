@@ -60,6 +60,8 @@ static uint32 sTlkUsbUdbVcdTicks;
 
 static int tlkusb_udbctrl_init(void)
 {
+	uint08 iso;
+	
 	reg_usb_ep_buf_addr(TLKUSB_UDB_EDP_DBG_IN) = 0x80;
 	reg_usb_ep_buf_addr(TLKUSB_UDB_EDP_DBG_OUT) = 0xC0;
 	#if (TLKUSB_UDB_VCD_ENABLE)
@@ -72,10 +74,14 @@ static int tlkusb_udbctrl_init(void)
 
 	sTlkUsbUdbVcdTicks = 0;
 
-	reg_usb_mdev &= ~BIT(3);			//vendor command: bRequest[7] = 0
+	reg_usb_mdev &= ~BIT(3); //vendor command: bRequest[7] = 0
 	
 	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC);
 	reg_usb_ep_ctrl(TLKUSB_UDB_EDP_DBG_OUT) = FLD_EP_DAT_ACK;
+
+	iso = reg_usb_iso_mode;
+	iso &= ~(1 << TLKUSB_UDB_EDP_DBG_OUT);
+	reg_usb_iso_mode = iso;
 	
 	return TLK_ENONE;
 }

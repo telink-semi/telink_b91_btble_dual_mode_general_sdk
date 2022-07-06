@@ -132,21 +132,12 @@ enum TLKUSB_SETUP_REQ_ENUM
 };
 
 
-enum HID_ClassRequests_t
-{
-	HID_REQ_GetReport = 0x01,
-	HID_REQ_GetIdle,
-	HID_REQ_GetProtocol,
-	HID_REQ_SetReport = 0x09,
-	HID_REQ_SetIdle,
-	HID_REQ_SetProtocol,
-};
 
-typedef enum{
-	PRNT_CSCP_PrinterClass = 0x07,
-	PRNT_CSCP_PrinterSubclass = 0x01,
-	PRNT_CSCP_BidirectionalProtocol = 0x02,
-}TLKUSB_PRINT_CSCP_ENUM;
+//typedef enum{
+//	PRNT_CSCP_PrinterClass = 0x07,
+//	PRNT_CSCP_PrinterSubclass = 0x01,
+//	PRNT_CSCP_BidirectionalProtocol = 0x02,
+//}TLKUSB_PRINT_CSCP_ENUM;
 
 
 
@@ -206,5 +197,4 @@ enum TLKUSB_CSCP_ENUM
 
 
 
-#endif //TLKUSB_DEFINE_H
-
+#endif //TLKUSB_DE

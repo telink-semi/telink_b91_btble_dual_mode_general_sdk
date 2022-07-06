@@ -24,7 +24,7 @@
 #ifndef TLKMMI_BTMGR_ACL_H
 #define TLKMMI_BTMGR_ACL_H
 
-#if (TLKMMI_BTACL_ENABLE)
+#if (TLKMMI_BTMGR_BTACL_ENABLE)
 
 
 #define TLKMMI_BTMGR_TIMEOUT          200000 //100ms
@@ -147,7 +147,7 @@ extern void tlkmdi_btmgr_regProfileConnectCB(TlkMmiBtMgrProfileConnectCallback c
 extern void tlkmdi_btmgr_regProfileDisconnCB(TlkMmiBtMgrProfileDisconnCallback discCB);
 
 
-#endif //#if (TLKMMI_BTACL_ENABLE)
+#endif //#if (TLKMMI_BTMGR_BTACL_ENABLE)
 
 #endif //TLKMMI_BTMGR_ACL_H
 

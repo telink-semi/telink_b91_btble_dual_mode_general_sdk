@@ -81,7 +81,7 @@ u16 btble_getCtlrState(void);
  * @param	sdk_mode:0--controller; 1--general .
  * @param   serial_mode::0--usb; 1--serial .
  */
-void sdk_mode_select(u8 sdk_mode,u8 serial_mode);
+void tlksdk_mode_select(u8 sdk_mode,u8 serial_mode);
 /**
  * @brief	this API can get sdk mode.
  * @param	sdk_mode:0--controller; 1--general .

@@ -95,7 +95,7 @@ extern void tlkmdi_btmgr_regProfileConnectCB(TlkMmiBtMgrProfileConnectCallback c
 extern void tlkmdi_btmgr_regProfileDisconnCB(TlkMmiBtMgrProfileDisconnCallback discCB);
 
 
-#if (TLKMMI_BTREC_ENABLE)
+#if (TLKMMI_BTMGR_BTREC_ENABLE)
 
 /******************************************************************************
  * Function: tlkmmi_btmgr_recStart
@@ -130,7 +130,7 @@ extern bool tlkmmi_btmgr_recIsScan(void);
 
 extern uint08 *tlkmmi_btmgr_recPageAddr(void);
 
-#endif //#if (TLKMMI_BTREC_ENABLE)
+#endif //#if (TLKMMI_BTMGR_BTREC_ENABLE)
 
 
 #endif 

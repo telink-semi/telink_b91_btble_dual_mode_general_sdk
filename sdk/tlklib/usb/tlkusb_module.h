@@ -35,6 +35,7 @@ typedef enum{
 	TLKUSB_MODTYPE_AUD,
 	TLKUSB_MODTYPE_MSC,
 	TLKUSB_MODTYPE_CDC,
+	TLKUSB_MODTYPE_HID,
 	TLKUSB_MODTYPE_USR,
 	TLKUSB_MODTYPE_MAX,
 }TLKUSB_MODTYPE_ENUM;
@@ -56,11 +57,11 @@ typedef struct{
 	uint16(*GetDeviceLens)(void);
 	uint16(*GetConfigLens)(void);
 	uint16(*GetStringLens)(uint08 index);
-	uint16(*GetReportLens)(uint08 index);
+	uint16(*GetInfDesLens)(tlkusb_setup_req_t *pSetup);
 	TLKUSB_MODULE_UINT08_PTR(*GetDeviceDesc)(void);
 	TLKUSB_MODULE_UINT08_PTR(*GetConfigDesc)(void);
 	TLKUSB_MODULE_UINT08_PTR(*GetStringDesc)(uint08 index); //Serial String Desc
-	TLKUSB_MODULE_UINT08_PTR(*GetReportDesc)(uint08 index); //
+	TLKUSB_MODULE_UINT08_PTR(*GetInfDesDesc)(tlkusb_setup_req_t *pSetup); //
 }tlkusb_modDesc_t;
 
 typedef struct{
@@ -85,12 +86,12 @@ int tlkusb_module_setInterface(uint08 modType, tlkusb_setup_req_t *pSetup, uint0
 uint16 tlkusb_module_getDeviceLens(uint08 modType);
 uint16 tlkusb_module_getConfigLens(uint08 modType);
 uint16 tlkusb_module_getStringLens(uint08 modType, uint08 index);
-uint16 tlkusb_module_getReportLens(uint08 modType, uint08 index);
+uint16 tlkusb_module_getInfDesLens(uint08 modType, tlkusb_setup_req_t *pSetup);
 
 uint08 *tlkusb_module_getDeviceDesc(uint08 modType);
 uint08 *tlkusb_module_getConfigDesc(uint08 modType);
 uint08 *tlkusb_module_getStringDesc(uint08 modType, uint08 index);
-uint08 *tlkusb_module_getReportDesc(uint08 modType, uint08 index);
+uint08 *tlkusb_module_getInfDesDesc(uint08 modType, tlkusb_setup_req_t *pSetup);
 
 
 

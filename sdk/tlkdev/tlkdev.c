@@ -22,11 +22,12 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev_stdio.h"
-#include "tlkdev/tlkdev_serial.h"
-#include "tlkdev/tlkdev_usb.h"
+#include "tlkdev/sys/tlkdev_serial.h"
+#include "tlkdev/sys/tlkdev_usb.h"
 #include "tlkdev/tlkdev.h"
 
 #include "drivers.h"
+
 
 extern void tlkusb_process(void);
 
@@ -45,7 +46,9 @@ int tlkdev_init(void)
 	tlkdev_serial_init();
 #endif
 
+#if (TLK_CFG_USB_ENABLE)
 	tlkdev_usb_init();
+#endif
 
 	return TLK_ENONE;
 }

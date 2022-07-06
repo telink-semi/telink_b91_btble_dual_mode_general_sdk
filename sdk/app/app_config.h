@@ -33,7 +33,9 @@
 #ifdef TLKAPP_CONTROLLER_ENABLE
 	#include "app/tlkapp_controller/tlkapp_config.h"
 #endif
-
+#ifdef TLKAPP_BOOTLOADER_ENABLE
+	#include "app/tlkapp_bootloader/tlkapp_config.h"
+#endif
 
 
 #ifndef JTAG_DEBUG_ENABLE

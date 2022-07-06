@@ -61,7 +61,7 @@
 
 #define			SL_STACK_VCD_EN				1
 /* Timing VCD id enable */
-#define			SL_STACK_TIMING_EN			0
+#define			SL_STACK_TIMING_EN			1
 #define			SL_STACK_RESET_EN			0
 /* schedule VCD id enable */
 #define			SL_STACK_SCH01_EN			1

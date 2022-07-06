@@ -65,6 +65,8 @@ typedef enum{
 	BTH_ACL_FLAG_WAIT_AUTH_RESULT = 0x0004,
 	BTH_ACL_FLAG_WAIT_CRYP_RESULT = 0x0008,
 	BTH_ACL_FLAG_WAIT_DISC_RESULT = 0x0010,
+	BTH_ACL_FLAG_WAIT_SNIFF_RESULT = 0x0020,
+	BTH_ACL_FLAG_WAIT_UNSNIFF_RESULT = 0x0040,
 }BTH_ACL_FLAGS_ENUM;
 
 
@@ -95,6 +97,14 @@ int  bth_acl_setPinCode(uint08 btaddr[6], uint08 pinCode[6]);
 *******************************************************************************/
 int  bth_acl_setLinkKey(uint08 btaddr[6], uint08 linkKey[16]);
 
+/******************************************************************************
+ * Function: bth_acl_enableSniffSet
+ * Descript: This interface be used to enable sniff setting.
+ * Params: @aclHandle[IN]--The acl link handle.
+ *         @enable[IN]--True-enable, false-disable.
+ * Reutrn: TLK_ENONE is set sucess, others means failure.
+*******************************************************************************/
+int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
 
 /******************************************************************************
  * Function: bth_acl_connect

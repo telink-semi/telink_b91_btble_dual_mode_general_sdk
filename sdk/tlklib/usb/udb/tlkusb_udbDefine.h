@@ -46,6 +46,13 @@ typedef enum{
 }TLKUSB_UDB_EDP_ENUM;
 
 
+typedef enum{
+	TLKUSB_PRNT_CSCP_PrinterClass = 0x07,
+	TLKUSB_PRNT_CSCP_PrinterSubclass = 0x01,
+	TLKUSB_PRNT_CSCP_BidirectionalProtocol = 0x02,
+}TLKUSB_PRINT_CSCP_ENUM; //CSCP-ClassSubClassProtocol
+
+
 
 #endif //#if (TLKUSB_UDB_ENABLE)
 

@@ -58,7 +58,7 @@ void tlkapi_process(void)
 
 	#if (TLKAPI_CHIP_STACK_CHECK_ENABLE)
 	if(sTlkApiStackCheckTimer == 0 || clock_time_exceed(sTlkApiStackCheckTimer, 3000000)){
-		uint length = tlkapi_chip_stackUsed();
+		uint length = tlkapi_chip_stackCheck();
 		sTlkApiStackCheckTimer = clock_time()|1;
 //		tlkapi_trace(TLKAPI_DBG_FLAG, TLKAPI_DBG_SIGN, "CurChipStackLength: depth-%d, isOver-%d", length, tlkapi_chip_stackOverflow());
 	}

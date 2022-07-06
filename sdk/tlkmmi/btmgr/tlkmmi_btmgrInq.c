@@ -25,7 +25,7 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_stdio.h"
-#if (TLKMMI_BTINQ_ENABLE)
+#if (TLKMMI_BTMGR_BTINQ_ENABLE)
 #include "tlkmdi/tlkmdi_btacl.h"
 #include "tlkmdi/tlkmdi_btinq.h"
 #include "tlkprt/tlkprt_comm.h"
@@ -74,7 +74,7 @@ int tlkmmi_btmgr_startInquiry(uint08 inqType, uint08 rssiThd, uint08 maxNumb, ui
 {
 	int ret;
 
-	#if (TLKMMI_BTACL_ENABLE)
+	#if (TLKMMI_BTMGR_BTACL_ENABLE)
 	if(tlkmmi_btmgr_aclIsBusy()) return -TLK_EBUSY;
 	#endif
 	
@@ -127,5 +127,5 @@ static void tlkmmi_btmgr_inquiryCompleteCB(void)
 
 
 
-#endif //TLKMMI_BTINQ_ENABLE
+#endif //TLKMMI_BTMGR_BTINQ_ENABLE
 

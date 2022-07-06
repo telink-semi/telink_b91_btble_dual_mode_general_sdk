@@ -42,7 +42,7 @@ typedef struct{
 	uint32 devClass;
 	uint08 curRole;
 	uint08 airMode;
-	uint08 waitAuth;
+	uint08 reserved;
     uint08 positive; //1:positive connect to the remote or 0: negtive be connected
 	uint08 switchCnt; //role_switch_req_cnt
 	uint08 scanMode; //page_scan_repetition_mode

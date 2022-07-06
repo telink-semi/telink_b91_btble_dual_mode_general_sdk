@@ -75,7 +75,7 @@ int tlkmmi_btmgr_ctrlInit(void)
 	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, bttemp, 6+2+4+1);
 	if(bttemp[0] == 0xFF && bttemp[1] == 0xFF){
 	    uint08 randValue[6];
-	    generateRandomNum(6, randValue);
+	    tlkapi_random(randValue, 6);
 	    bttemp[0] = randValue[5];
 	    bttemp[1] = randValue[4];
 	    bttemp[2] = randValue[3];

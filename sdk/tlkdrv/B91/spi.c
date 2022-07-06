@@ -25,10 +25,10 @@
 
 #include "timer.h"
 #include "compiler.h"
-static unsigned char s_hspi_tx_dma_chn;
-static unsigned char s_hspi_rx_dma_chn;
-static unsigned char s_pspi_tx_dma_chn;
-static unsigned char s_pspi_rx_dma_chn;
+unsigned char s_hspi_tx_dma_chn;
+unsigned char s_hspi_rx_dma_chn;
+unsigned char s_pspi_tx_dma_chn;
+unsigned char s_pspi_rx_dma_chn;
 
 dma_config_t hspi_tx_dma_config = {
 	.dst_req_sel 	= DMA_REQ_SPI_AHB_TX,//tx req

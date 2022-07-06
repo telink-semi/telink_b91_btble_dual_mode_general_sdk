@@ -53,6 +53,7 @@ void tlkmdi_adapt_handler(void);
  * Others: None.
 *******************************************************************************/
 bool tlkmdi_adapt_isbusy(void);
+bool tlkmdi_adapt_isPmBusy(void);
 
 /******************************************************************************
  * Function: tlkmdi_adapt_initTimer

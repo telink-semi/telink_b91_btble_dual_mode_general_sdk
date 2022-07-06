@@ -59,7 +59,13 @@ uint32 gTlkAppSystemBusyTimer = 0;
 static tlkapp_system_ctrl_t sTlkAppSystemCtrl;
 
 
-
+/******************************************************************************
+ * Function: tlkapp_system_init
+ * Descript: This function is used to initialize system parameters and configuration.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 int  tlkapp_system_init(void)
 {
 	tmemset(&sTlkAppSystemCtrl, 0, sizeof(tlkapp_system_ctrl_t));
@@ -72,6 +78,14 @@ int  tlkapp_system_init(void)
 	return TLK_ENONE;
 }
 
+/******************************************************************************
+ * Function: tlkapp_system_handler
+ * Descript: This function to control the mechine power off or restart 
+ *           and register the heart beat.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 void tlkapp_system_handler(void)
 {
 	if(sTlkAppSystemCtrl.powerTimer != 0 && clock_time_exceed(sTlkAppSystemCtrl.powerTimer, 300000)){
@@ -85,6 +99,14 @@ void tlkapp_system_handler(void)
 		sTlkAppSystemCtrl.heartNumb ++;
 	}	
 }
+
+/******************************************************************************
+ * Function: tlkapp_system_poweroff
+ * Descript: This Function for power off the meachine.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 void tlkapp_system_poweroff(void)
 {
 	usb_dp_pullup_en (0);
@@ -97,21 +119,23 @@ void tlkapp_system_poweroff(void)
 	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_HIGH, 0); 
 }
 
-/**
- * @brief       This function is used to handle connection completion events.
- * @param[in]   pBdAddr - Address of the device where the connection occurred.
- *              status - State of connection. 0-success, others-failure.
- * @return      none.
- */
+/******************************************************************************
+ * Function: tlkapp_system_connectCompleteEvt
+ * Descript: This function is used to handle connection completion events.
+ * Params: [IN]pBdAddr - Address of the device where the connection occurred.
+ *         [IN]status - State of connection. 0-success, others-failure.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 static void tlkapp_system_connectCompleteEvt(uint16 handle, uint08 status, uint08 *pBtAddr)
 {
 	gTlkAppSystemBusyTimer = 0;
 	
 	gTlkAppBtConnHandle = handle;
 
-	tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkapp_system_connectCompleteEvt:{handle-0x%04x,status-%d}", handle, status, 0, 0);	
+	tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkapp_system_connectCompleteEvt:{handle-0x%04x,status-%d}", handle, status);	
 
-	#if (TLKMMI_BTREC_ENABLE)
+	#if (TLKMMI_BTMGR_BTREC_ENABLE)
 	if(tlkmdi_btacl_getIdleCount() == 0){
 		tlkmmi_btmgr_recClose();
 		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkapp_system_connectCompleteEvt:001");	
@@ -121,12 +145,15 @@ static void tlkapp_system_connectCompleteEvt(uint16 handle, uint08 status, uint0
 	}
 	#endif
 }
-/**
- * @brief       This function is used to handle disconnection completion events.
- * @param[in]   pBdAddr - Address of the device where the disconnection occurred.
- *              reason - The reason of disconnected.
- * @return      none.
- */
+
+/******************************************************************************
+ * Function: tlkapp_system_disconnCompleteEvt
+ * Descript: This function is used to handle disconnection completion events.
+ * Params: [IN]pBdAddr - Address of the device where the disconnection occurred.
+ *         [IN]reason - The reason of disconnected.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 static void tlkapp_system_disconnCompleteEvt(uint16 handle, uint08 reason, uint08 *pBtAddr)
 {
 	gTlkAppSystemBusyTimer = clock_time()|1;
@@ -148,7 +175,7 @@ static void tlkapp_system_disconnCompleteEvt(uint16 handle, uint08 reason, uint0
 		}
 		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 	}else{
-		if(reason == BTH_HCI_ERROR_CONN_TIMEOUT){ //Start Reconnect
+		if(reason == BTH_HCI_ERROR_CONN_TIMEOUT && bth_getAclCount() == 0){ //Start Reconnect
 			bth_device_item_t *pItem = bth_device_getItem(pBtAddr, nullptr);
 			if(pItem != nullptr){
 				tlkmmi_btmgr_recStart(pBtAddr, pItem->devClass, true, true);

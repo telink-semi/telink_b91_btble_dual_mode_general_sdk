@@ -31,6 +31,12 @@
 #include "tlkmdi/tlkmdi_btinq.h"
 #include "tlkmdi/tlkmdi_btrec.h"
 #include "tlkmdi/tlkmdi_hfp.h"
+#if (TLK_MDI_DFU_ENABLE)
+#include "tlkmdi/tlkmdi_dfu.h"
+#endif
+#if (TLK_MDI_FILE_ENABLE)
+#include "tlkmdi/tlkmdi_file.h"
+#endif
 #include "tlkmdi/tlkmdi.h"
 
 
@@ -63,6 +69,12 @@ int tlkmdi_init(void)
 
 	#if (TLK_MDI_HFP_ENABLE)
 	tlkmdi_hfp_init();
+	#endif
+	#if (TLK_MDI_DFU_ENABLE)
+	tlkmdi_dfu_init();
+	#endif
+	#if (TLK_MDI_FILE_ENABLE)
+	tlkmdi_file_init();
 	#endif
 	#if (TLK_MDI_MP3_ENABLE)
 	tlkmdi_mp3_init();
@@ -111,7 +123,8 @@ void tlkmdi_process(void)
 *******************************************************************************/
 bool tlkmdi_pmIsbusy(void)
 {
-	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isbusy()) return true;
+//	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isbusy()) return true;
+	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()) return true;
 	return false;
 }
 

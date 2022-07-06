@@ -24,7 +24,7 @@
 #include "tlklib/usb/tlkusb_stdio.h"
 #if (TLKUSB_MSC_ENABLE)
 #include "drivers.h"
-#include "tlkdev/tlkdev_xt2602e.h"
+#include "tlkdev/ext/xtx/tlkdev_xt2602e.h"
 #include "tlklib/usb/msc/tlkusb_mscDefine.h"
 #include "tlklib/usb/msc/tlkusb_msc.h"
 #include "tlklib/usb/msc/tlkusb_mscDesc.h"
@@ -35,6 +35,8 @@ extern void usb_mass_storage_init(void);
 extern void tlkusb_core_handler(void);
 extern void mass_storage_task(void);
 
+extern bool tusb_init(void);
+extern void tud_task (void);
 
 static int  tlkusb_mscctrl_init(void);
 static void tlkusb_mscctrl_reset(void);
@@ -119,7 +121,7 @@ static void tlkusb_mscctrl_handler(void)
 	tud_task();
 	#endif
 
-	tlkusb_core_handler();
+//	tlkusb_core_handler();
 }
 
 static int tlkusb_mscctrl_getClassInf(tlkusb_setup_req_t *pSetup, uint08 infNumb)

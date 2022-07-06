@@ -31,39 +31,25 @@
 #define TLKMMI_FILE_IDLE_TIMEOUT      (3000000/TLKMMI_FILE_TIMEOUT)
 
 
-#define TLKMMI_FILE_UNIT_COUNT        (TLKMMI_FILE_P2M_COUNT+TLKMMI_FILE_M2P_COUNT)
-
-#define TLKMMI_FILE_WAITNUMB_MAX      16
-#define TLKMMI_FILE_WAITNUMB_DEF      8
-#define TLKMMI_FILE_INTERVAL_MIN      20 //2ms, unit:100us
-#define TLKMMI_FILE_UNITLENS_DEF      64
-#define TLKMMI_FILE_UNITLENS_MAX      64 
-#define TLKMMI_FILE_UNITLENS_MIN      16 
-
-
-typedef enum{
-	TLKMMI_FILE_ATTR_DIR_M2P = 0x01, //0x00-P2M
-}TLKMMI_FILE_ATTRS_ENUM;
-typedef enum{
-	TLKMMI_FILE_BUSY_NONE = 0x00,
-	TLKMMI_FILE_BUSY_SEND_START_RSP = 0x01,
-	TLKMMI_FILE_BUSY_SEND_CLOSE_RSP = 0x02,
-	TLKMMI_FILE_BUSY_SEND_PAUSE_RSP = 0x04,
-	TLKMMI_FILE_BUSY_SEND_CLOSE_EVT = 0x08,
-	TLKMMI_FILE_BUSY_SEND_SHAKE_EVT = 0x10,
-}TLKMMI_FILE_BUSYS_ENUM;
+#define TLKMMI_FILE_INTF_ITEM_COUNT        3
 
 
 
+typedef struct{
+	uint16 fileType; //Refer to TLKPRT_FILE_TYPE_ENUM
+	int(*Init)(void);
+	TlkmdiFileStartFunc Start;
+	TlkmdiFileCloseFunc Close;
+	TlkmdiFileParamFunc Param;
+	TlkmdiFileSaveFunc  Save;
+}tlkmmi_file_recvIntf_t;
 
 
 int tlkmmi_file_ctrlInit(void);
 
 
-void tlkmmi_file_start(uint08 peerPort, uint08 fileType, uint08 waitNumb, uint16 interval, uint16 unitLens,
-	uint32 fileSize, uint08 *pDigest, uint08 *pFileName, uint08 nameLens);
-void tlkmmi_file_pause(uint08 peerPort);
-void tlkmmi_file_close(uint08 peerPort, uint08 status, uint08 *pDigest);
+
+
 
 
 

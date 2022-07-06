@@ -124,10 +124,12 @@
 #define			SL01_task_music_dec				19
 
 
-#define			SL01_my_toggle1	                20
-#define			SL01_my_toggle2				    21
-#define			SL01_my_toggle3				    22
-
+#define			SL01_reserved_1	                20
+#define			SL01_reserved_2				    21
+#define			SL01_reserved_3				    22
+#define			SL01_reserved_4				    23
+#define			SL01_reserved_5				    24
+#define			SL01_reserved_6				    25
 // 8-bit data: cid0 - cid63
 
 #define			SL08_bt_inq_rx_state		    0
@@ -164,9 +166,11 @@
 #define			SL08_sch_update_next_id         24
 #define			SL08_sch_change_next_id         25
 
-#define			SL08_my_state                   26
-
-
+#define			SL08_reserved_state_1           26
+#define			SL08_reserved_state_2           27
+#define			SL08_reserved_state_3           28
+#define			SL08_reserved_state_4           29
+#define			SL08_reserved_state_5           30
 
 
 
@@ -197,6 +201,7 @@
 #define			SL16_esco_st					20
 #define			SL16_bt_sniff_sub_instant		21
 #define			SL16_bt_sniff_anchor_point		22
+
 
 #define			SL16_ec_rptr					31
 #define			SL16_bt_rsw_slotoffset			33

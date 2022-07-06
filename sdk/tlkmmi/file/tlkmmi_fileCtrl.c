@@ -26,419 +26,206 @@
 #if (TLKMMI_FILE_ENABLE)
 #include "tlkprt/tlkprt_stdio.h"
 #include "tlklib/fs/filesystem.h"
-#include "tlkalg/md5/tlkalg_md5.h"
+#include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"
+#include "tlkmdi/tlkmdi_file.h"
+#include "tlkmmi/file/tlkmmi_fileConfig.h"
 #include "tlkmmi/file/tlkmmi_file.h"
-#include "tlkmmi/file/tlkmmi_fileComm.h"
 #include "tlkmmi/file/tlkmmi_fileCtrl.h"
+//#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
+#include "tlkstk/bt/btp/btp_stdio.h"
+#include "tlkstk/bt/btp/spp/btp_spp.h"
+//#endif
 
 
-#define TLKMMI_FILE_NAME_LENS        80
+
+#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+static void tlkmmi_file_serialRecvProc(uint08 msgID, uint08 *pData, uint08 dataLen);
+static int  tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
+#endif
+#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
+static void tlkmmi_file_btSppRecvProc(uint16 aclHandle, uint08 rfcHandle, uint08 *pData, uint16 dataLen);
+static int  tlkmmi_file_btSppSendProc(uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
+#endif
+
+static tlkmmi_file_recvIntf_t *tlkmmi_file_getRecvIntf(uint16 fileType);
+
+static int tlkmmi_file_recvStart(tlkmdi_file_unit_t *pUnit, bool isFast);
+static int tlkmmi_file_recvClose(tlkmdi_file_unit_t *pUnit, uint08 status);
+static int tlkmmi_file_recvParam(tlkmdi_file_unit_t *pUnit, uint08 paramType, uint08 *pParam, uint08 paramLen);
+static int tlkmmi_file_recvSave(tlkmdi_file_unit_t *pUnit, uint32 offset, uint08 *pData, uint16 dataLen);
+static int tlkmmi_file_recvSend(uint08 optChn, uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
 
 
-typedef struct{
-	uint08 state;
-	uint08 busys;
-	uint08 attrs;
-	uint08 reason;
-	uint16 reserve;
-	uint16 timeout;
-	uint32 curNumb;
-	uint32 pktNumb;
-	uint08 minePort;
-	uint08 peerPort;
-	uint08 pathLens;
-	uint08 waitMask;
-	uint16 interval;
-	uint16 unitLens;
-	uint32 fileSize;
-	uint08 digest[16];
-	uint08 filePath[TLKMMI_FILE_NAME_LENS];
-	tlkapi_timer_t timer;
-	tlkalg_md5_contex_t context;
-	#if (TLK_FS_FAT_ENABLE)
-	FIL fileHandle;
-	#else
-	uint08 fileHandle;
-	#endif
-}tlkmmi_file_unit_t;
-typedef struct{
-	tlkmmi_file_unit_t unit[TLKMMI_FILE_UNIT_COUNT];
-}tlkmmi_file_ctrl_t;
-
-
-static bool tlkmmi_file_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
-static void tlkmmi_file_procs(tlkmmi_file_unit_t *pNode);
-
-static void tlkmmi_file_sendStartRspProc(tlkmmi_file_unit_t *pNode);
-static void tlkmmi_file_sendCloseRspProc(tlkmmi_file_unit_t *pNode);
-static void tlkmmi_file_sendPauseRspProc(tlkmmi_file_unit_t *pNode);
-static void tlkmmi_file_sendCloseEvtProc(tlkmmi_file_unit_t *pNode);
-static void tlkmmi_file_sendShakeEvtProc(tlkmmi_file_unit_t *pNode);
-
-static void tlkmmi_file_recvDataProc(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen);
-
-static void tlkmmi_file_resetNode(tlkmmi_file_unit_t *pNode);
-static tlkmmi_file_unit_t *tlkmmi_file_getIdleNode(void);
-static tlkmmi_file_unit_t *tlkmmi_file_getUsedNode(uint08 minePort);
-static tlkmmi_file_unit_t *tlkmmi_file_getUsedNodeByPeerPort(uint08 peerPort);
-
-static void tlkmmi_file_getOtaPath(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen);
-static void tlkmmi_file_getMp3Path(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen);
-static void tlkmmi_file_getTonePath(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen);
-static void tlkmmi_file_getPath(uint08 fileType, uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen);
-
-
-static tlkmmi_file_ctrl_t sTlkMmiFileCtrl;
+extern const tlkmmi_file_recvIntf_t gcTlkMmiFileDfuIntf;
+extern const tlkmmi_file_recvIntf_t gcTlkMmiFileMp3Intf;
+const static tlkmmi_file_recvIntf_t *scTlkMmiFileRecvIntfs[TLKMMI_FILE_INTF_ITEM_COUNT] = {
+	&gcTlkMmiFileDfuIntf,
+	&gcTlkMmiFileMp3Intf,
+};
 
 
 int tlkmmi_file_ctrlInit(void)
 {
-	tmemset(&sTlkMmiFileCtrl, 0, sizeof(tlkmmi_file_ctrl_t));
+	uint08 index;
+	uint08 usrAuthCode[16] = {0};
+	uint08 usrCrypCode[16] = {0};
+	const tlkmmi_file_recvIntf_t *pIntf;
+
+	for(index=0; index<TLKMMI_FILE_INTF_ITEM_COUNT; index++){
+		pIntf = scTlkMmiFileRecvIntfs[index];
+		if(pIntf != nullptr && pIntf->Init != nullptr) pIntf->Init();
+	}
+	tlkmdi_file_setRecvInfs(tlkmmi_file_recvStart, tlkmmi_file_recvClose, tlkmmi_file_recvParam, 
+		tlkmmi_file_recvSave, tlkmmi_file_recvSend);
+	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+	tlkmdi_comm_regFileCB(tlkmmi_file_serialRecvProc);
+	#endif
+	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+	btp_spp_regDataCB(tlkmmi_file_btSppRecvProc);
+	#endif
+
+	tmemcpy(usrAuthCode, "Telink File Tran", strlen("Telink File Tran"));
+	tmemcpy(usrCrypCode, "Telink File Tran", strlen("Telink File Tran"));
+	tlkmdi_file_setAuthCode(usrAuthCode);
+	tlkmdi_file_setCrypCode(usrCrypCode);
 	
 	return TLK_ENONE;
 }
 
-void tlkmmi_file_start(uint08 peerPort, uint08 fileType, uint08 waitNumb, uint16 interval, uint16 unitLens,
-	uint32 fileSize, uint08 *pDigest, uint08 *pFileName, uint08 nameLens)
+
+#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+static void tlkmmi_file_serialRecvProc(uint08 msgID, uint08 *pData, uint08 dataLen)
 {
-	uint08 pathLen;
-	uint08 minePort;
-	tlkmmi_file_unit_t *pNode;
-
-	if(fileSize == 0 || fileType == 0 || peerPort == 0 || unitLens < TLKMMI_FILE_UNITLENS_MIN || nameLens == 0){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - param{fileType-%d, peerPort-%d, unitLens-%d, nameLens-%d}", fileType, peerPort, unitLens, nameLens);
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
-		return;
-	}
-	if(waitNumb != 0 && waitNumb != 1 && waitNumb != 2 && waitNumb != 4 && waitNumb != 8 && waitNumb != 16
-		&& waitNumb != 32 && waitNumb != 64){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: error waitNumb %d{0,1,2,4,8,16,32,64}", waitNumb);
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
-		return;
-	}
-	if(waitNumb > TLKMMI_FILE_WAITNUMB_MAX) waitNumb = TLKMMI_FILE_WAITNUMB_MAX;
-	if(interval < TLKMMI_FILE_INTERVAL_MIN) interval = TLKMMI_FILE_INTERVAL_MIN;
-	if(unitLens > TLKMMI_FILE_UNITLENS_MAX) unitLens = TLKMMI_FILE_UNITLENS_MAX;
+	uint08 headLen;
+	uint08 header[8];
 	
-	pNode = tlkmmi_file_getUsedNodeByPeerPort(peerPort);
-	if(pNode != nullptr){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - exist %d", peerPort);
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EEXIST, nullptr, 0);
+	if(dataLen < 2){
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvCmdHandler: error length[%d]", dataLen);
 		return;
 	}
-	if(tlkmdi_comm_getVolidDatID(&minePort) != TLK_ENONE){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - no quota DatID");
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EQUOTA, nullptr, 0);
+		
+	headLen = 0;
+	header[headLen++] = 0x00; //Cmd Packet
+	tmemcpy(header+headLen, pData-4, 4);
+	headLen += 4;
+	header[headLen++] = pData[0];
+	header[headLen++] = pData[1];
+	if(header[4] < 2 || header[4] > dataLen){
+		tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvCmdHandler: error length");
 		return;
 	}
 	
-	pNode = tlkmmi_file_getIdleNode();
-	if(pNode == nullptr){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - no quota Node");
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EQUOTA, nullptr, 0);
-		return;
-	}
+	tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvCmdHandler: msgID-%d", msgID);
 	
-	pathLen = 0;
-	tlkmmi_file_getPath(fileType, pNode->filePath, TLKMMI_FILE_NAME_LENS, &pathLen);
-	if(pathLen == 0){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - filetype - %d", fileType);
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
-		return;
-	}
-	if(pathLen+nameLens+10 > TLKMMI_FILE_NAME_LENS){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - length %d %d %d",
-			pathLen, nameLens, TLKMMI_FILE_NAME_LENS);
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ELENGTH, nullptr, 0);
-		return;
-	}
-	tmemcpy(pNode->filePath+pathLen, pFileName, nameLens);
-	pathLen += nameLens;
-	#if (TLK_FS_FAT_ENABLE)
-	pNode->filePath[pathLen++] = '.';
-	pNode->filePath[pathLen++] = 0x00;
-	pNode->filePath[pathLen++] = 't';
-	pNode->filePath[pathLen++] = 0x00;
-	pNode->filePath[pathLen++] = 'm';
-	pNode->filePath[pathLen++] = 0x00;
-	pNode->filePath[pathLen++] = 'p';
-	pNode->filePath[pathLen++] = 0x00;
-	pNode->filePath[pathLen++] = 0x00;
-	pNode->filePath[pathLen++] = 0x00;
-	#endif
-	pNode->filePath[pathLen] = 0x00;
-	tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: path", pNode->filePath, pathLen);
-	
-	if(tlkapi_file_open(&pNode->fileHandle, (const FCHAR*)pNode->filePath,  TLKAPI_FM_OPEN_ALWAYS | TLKAPI_FM_WRITE) != TLK_ENONE){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: failure - open file");
-		tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
-		return;
-	}
-
-	tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_start: {fileType-%d, peerPort-%d, unitLens-%d, nameLens-%d}", fileType, peerPort, unitLens, nameLens);
-
-	pNode->state = TLK_STATE_CONNECT;
-	pNode->timeout = TLKMMI_FILE_IDLE_TIMEOUT;
-	pNode->pathLens = pathLen;
-	pNode->peerPort = peerPort;
-	pNode->minePort = minePort;
-	if(waitNumb == 0 || waitNumb == 1) pNode->waitMask = 0;
-	else pNode->waitMask = waitNumb-1;
-	pNode->interval = interval;
-	pNode->fileSize = fileSize;
-	pNode->unitLens = unitLens;
-	pNode->pktNumb  = (fileSize+unitLens-1)/unitLens;
-	tmemcpy(pNode->digest, pDigest, 16);
-	tlkalg_md5_init(&pNode->context);
-	tlkmmi_adapt_initTimer(&pNode->timer, tlkmmi_file_timer, pNode, TLKMMI_FILE_TIMEOUT);
-	tlkmdi_comm_regDatCB(pNode->minePort, tlkmmi_file_recvDataProc, true);
-	tlkmmi_adapt_insertTimer(&pNode->timer);
-	tlkmmi_file_sendStartRspProc(pNode);
+	tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_SERIAL, 0xFFFF, header, headLen, pData+2, dataLen-2);
 }
-void tlkmmi_file_pause(uint08 mineProt)
+static int tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen)
 {
-	tlkmmi_file_unit_t *pNode;
+	int ret;
+	uint08 value;
+	
+	if(headLen == 0 || headLen > 64){
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc: error headLen[%d]", headLen);
+		return -TLK_EFAIL;
+	}
 
-	pNode = tlkmmi_file_getUsedNode(mineProt);
-	if(pNode == nullptr){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_pause: failure - error node");
-		tlkmmi_file_sendPauseRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
-		return;
-	}
-	tlkmmi_file_sendPauseRspProc(pNode);
+//	tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc[Head]: ", pHead, headLen);
+//	tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc[Data]: ", pData, dataLen);
+//	tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc: headLen[%d], dataLen[%d]", headLen, dataLen);
+	value = 0;
+	tlkmdi_comm_getSendNumb(&value);
+	pHead[3] = value;
+	ret = tlkmdi_comm_send(pHead[0], pHead+1, headLen-1, pData, dataLen);
+	if(ret == TLK_ENONE) tlkmdi_comm_incSendNumb();
+	return ret;
 }
-void tlkmmi_file_close(uint08 mineProt, uint08 status, uint08 *pDigest)
+#endif //#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
+static void tlkmmi_file_btSppRecvProc(uint16 aclHandle, uint08 rfcHandle, uint08 *pData, uint16 dataLen)
 {
-	tlkmmi_file_unit_t *pNode;
-	
-	pNode = tlkmmi_file_getUsedNode(mineProt);
-	if(pNode == nullptr){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_close: failure - error node");
-		tlkmmi_file_sendCloseRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
+	if(dataLen < 7){
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_btSppRecvProc: error dataLen[%d]", dataLen);
 		return;
 	}
-	
-	if(status != TLKPRT_COMM_RSP_STATUE_SUCCESS){
-		pNode->reason = TLK_EFAIL;
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_close: failure - status %d", status);
-	}else if(pNode->curNumb != pNode->pktNumb){
-		pNode->reason = TLK_EFAIL;
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_close: failure - not complete %d %d", 
-			pNode->curNumb, pNode->pktNumb);
-	}else if(tmemcmp(pNode->digest, pDigest, 16) != 0){
-		pNode->reason = TLK_EFAIL;
-		tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN,, "tlkmmi_file_close: failure - RawDigest", pNode->digest, 16);
-		tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_close: failure - CalDigest", pDigest, 16);
-	}else{
-		tlkmdi_comm_regDatCB(pNode->minePort, nullptr, true);
-		tlkapi_file_close(&pNode->fileHandle);
-		#if (TLK_FS_FAT_ENABLE)
-		uint08 filePath[TLKMMI_FILE_NAME_LENS];
-		tmemcpy(filePath, pNode->filePath, pNode->pathLens-10);
-		tlkapi_file_rename((const FCHAR*)pNode->filePath, (const FCHAR*)filePath);
+	tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_BT_SPP, aclHandle, pData, 7, pData+7, dataLen-7);
+}
+static int tlkmmi_file_btSppSendProc(uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen)
+{
+	return btp_spp_sendData(handle, pHead, headLen, pData, dataLen);
+}
+#endif //#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
+
+
+static int tlkmmi_file_recvStart(tlkmdi_file_unit_t *pUnit, bool isFast)
+{
+	tlkmmi_file_recvIntf_t *pIntf;
+	if(pUnit == nullptr) return -TLK_EPARAM;
+	pIntf = tlkmmi_file_getRecvIntf(pUnit->fileType);
+	if(pIntf == nullptr || pIntf->Start == nullptr) return -TLK_ENOSUPPORT;
+	return pIntf->Start(pUnit, isFast);
+}
+static int tlkmmi_file_recvClose(tlkmdi_file_unit_t *pUnit, uint08 status)
+{
+	tlkmmi_file_recvIntf_t *pIntf;
+	pIntf = tlkmmi_file_getRecvIntf(pUnit->fileType);
+	if(pIntf == nullptr || pIntf->Close == nullptr) return -TLK_ENOSUPPORT;
+	return pIntf->Close(pUnit, status);
+}
+static int tlkmmi_file_recvParam(tlkmdi_file_unit_t *pUnit, uint08 paramType, uint08 *pParam, uint08 paramLen)
+{
+	tlkmmi_file_recvIntf_t *pIntf;
+	if(pUnit == nullptr) return -TLK_EPARAM;
+	pIntf = tlkmmi_file_getRecvIntf(pUnit->fileType);
+	if(pIntf == nullptr || pIntf->Param == nullptr) return -TLK_ENOSUPPORT;
+	return pIntf->Param(pUnit, paramType, pParam, paramLen);
+}
+
+static int tlkmmi_file_recvSave(tlkmdi_file_unit_t *pUnit, uint32 offset, uint08 *pData, uint16 dataLen)
+{
+	tlkmmi_file_recvIntf_t *pIntf;
+	if(pUnit == nullptr) return -TLK_EPARAM;
+	pIntf = tlkmmi_file_getRecvIntf(pUnit->fileType);
+	if(pIntf == nullptr || pIntf->Save == nullptr) return -TLK_ENOSUPPORT;
+	return pIntf->Save(pUnit, offset, pData, dataLen);
+}
+static int tlkmmi_file_recvSend(uint08 optChn, uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen)
+{
+	if(optChn == TLKMDI_FILE_OPTCHN_SERIAL){
+		#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+		return tlkmmi_file_serialSendProc(pHead, headLen, pData, dataLen);
 		#endif
+	}else if(optChn == TLKMDI_FILE_OPTCHN_BT_SPP){
+		#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
+		return tlkmmi_file_btSppSendProc(handle, pHead, headLen, pData, dataLen);
+		#endif
+	}else if(optChn == TLKMDI_FILE_OPTCHN_BT_ATT){
+		return -TLK_ENOSUPPORT;
+	}else if(optChn == TLKMDI_FILE_OPTCHN_LE_ATT){
+		return -TLK_ENOSUPPORT;
 	}
-	tlkmmi_file_sendCloseRspProc(pNode);
-	tlkmmi_file_sendCloseEvtProc(pNode);
+	return -TLK_ENOSUPPORT;
 }
 
 
-static bool tlkmmi_file_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static tlkmmi_file_recvIntf_t *tlkmmi_file_getRecvIntf(uint16 fileType)
 {
-	tlkmmi_file_unit_t *pNode;
-
-	pNode = (tlkmmi_file_unit_t*)pUsrArg;
-	if(pNode == nullptr || pNode->state != TLK_STATE_CONNECT){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_timer: timer fault!!!");
-		return false;
+	uint08 index;
+	for(index=0; index<TLKMMI_FILE_INTF_ITEM_COUNT; index++){
+		if(scTlkMmiFileRecvIntfs[index] != nullptr && scTlkMmiFileRecvIntfs[index]->fileType == fileType) break;
 	}
-	
-	if(pNode->timeout != 0) pNode->timeout--;
-	if(pNode->timeout == 0 && pNode->state == TLK_STATE_CONNECT){
-		pNode->state = TLK_STATE_DISCING;
-		pNode->reason = TLK_ETIMEOUT;
-		pNode->timeout = TLKMMI_FILE_IDLE_TIMEOUT;
-		tlkmmi_file_sendCloseEvtProc(pNode);
-	}else if(pNode->timeout == 0 && pNode->state == TLK_STATE_DISCING){
-		tlkmmi_file_resetNode(pNode);
-	}
-	tlkmmi_file_procs(pNode);
-	if(pNode->timeout != 0) return true;
-	return false;
-}
-static void tlkmmi_file_procs(tlkmmi_file_unit_t *pNode)
-{
-	if(pNode->busys == TLKMMI_FILE_BUSY_NONE) return;
-	if((pNode->busys & TLKMMI_FILE_BUSY_SEND_START_RSP) != 0){
-		pNode->busys &= ~TLKMMI_FILE_BUSY_SEND_START_RSP;
-		tlkmmi_file_sendStartRspProc(pNode);
-	}else if((pNode->busys & TLKMMI_FILE_BUSY_SEND_CLOSE_RSP) != 0){
-		pNode->busys &= ~TLKMMI_FILE_BUSY_SEND_CLOSE_RSP;
-		tlkmmi_file_sendCloseRspProc(pNode);
-	}else if((pNode->busys & TLKMMI_FILE_BUSY_SEND_PAUSE_RSP) != 0){
-		pNode->busys &= ~TLKMMI_FILE_BUSY_SEND_PAUSE_RSP;
-		tlkmmi_file_sendPauseRspProc(pNode);
-	}else if((pNode->busys & TLKMMI_FILE_BUSY_SEND_SHAKE_EVT) != 0){
-		pNode->busys &= ~TLKMMI_FILE_BUSY_SEND_SHAKE_EVT;
-		tlkmmi_file_sendShakeEvtProc(pNode);
-	}else if((pNode->busys & TLKMMI_FILE_BUSY_SEND_CLOSE_EVT) != 0){
-		pNode->busys &= ~TLKMMI_FILE_BUSY_SEND_CLOSE_EVT;
-		tlkmmi_file_sendCloseEvtProc(pNode);
-	}else{
-		pNode->busys = TLKMMI_FILE_BUSY_NONE;
-	}
+	if(index == TLKMMI_FILE_INTF_ITEM_COUNT) return nullptr;
+	return (tlkmmi_file_recvIntf_t*)scTlkMmiFileRecvIntfs[index];
 }
 
 
-static void tlkmmi_file_sendStartRspProc(tlkmmi_file_unit_t *pNode)
+#if 0
+void tlkmmi_file_getPath(uint08 fileType, uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen)
 {
-	int ret;
-	uint08 buffLen;
-	uint08 buffer[16];
-	buffLen = 0;
-	buffer[buffLen++] = pNode->peerPort;
-	buffer[buffLen++] = pNode->minePort;
-	buffer[buffLen++] = (pNode->interval & 0x00FF);
-	buffer[buffLen++] = (pNode->interval & 0xFF00) >> 8;
-	buffer[buffLen++] = (pNode->unitLens & 0x00FF);
-	buffer[buffLen++] = (pNode->unitLens & 0xFF00) >> 8;
-	ret = tlkmmi_file_sendStartRsp(TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, buffer, buffLen);
-	if(ret != TLK_ENONE){
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_START_RSP;
-	}
-}
-static void tlkmmi_file_sendCloseRspProc(tlkmmi_file_unit_t *pNode)
-{
-	int ret;
-	uint08 buffLen;
-	uint08 buffer[8];
-	buffLen = 0;
-	buffer[buffLen++] = pNode->peerPort;
-	ret = tlkmmi_file_sendCloseRsp(TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, buffer, buffLen);
-	if(ret != TLK_ENONE){
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_CLOSE_RSP;
-	}else{
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_CLOSE_EVT;
-	}
-}
-static void tlkmmi_file_sendPauseRspProc(tlkmmi_file_unit_t *pNode)
-{
-	int ret;
-	uint08 buffLen;
-	uint08 buffer[8];
-	buffLen = 0;
-	buffer[buffLen++] = pNode->peerPort;
-	ret = tlkmmi_file_sendPauseRsp(TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, buffer, buffLen);
-	if(ret != TLK_ENONE){
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_PAUSE_RSP;
-	}
-}
-static void tlkmmi_file_sendShakeEvtProc(tlkmmi_file_unit_t *pNode)
-{
-	int ret;
-	uint32 curNumb;
-	uint08 buffLen;
-	uint08 buffer[16];
-	
-	buffLen = 0;
-	curNumb = pNode->curNumb;
-	if(pNode->curNumb != pNode->pktNumb) curNumb += 1;
-	buffer[buffLen++] = pNode->peerPort;
-	buffer[buffLen++] = (pNode->curNumb & 0x000000FF);
-	buffer[buffLen++] = (pNode->curNumb & 0x0000FF00) >> 8;
-	buffer[buffLen++] = (pNode->curNumb & 0x00FF0000) >> 16;
-	buffer[buffLen++] = (pNode->curNumb & 0xFF000000) >> 24;
-	buffer[buffLen++] = (curNumb & 0x000000FF);
-	buffer[buffLen++] = (curNumb & 0x0000FF00) >> 8;
-	buffer[buffLen++] = (curNumb & 0x00FF0000) >> 16;
-	buffer[buffLen++] = (curNumb & 0xFF000000) >> 24;
-	ret = tlkmmi_file_sendShakeEvt(buffer, buffLen);
-	if(ret != TLK_ENONE){
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_SHAKE_EVT;
-	}
-}
-static void tlkmmi_file_sendCloseEvtProc(tlkmmi_file_unit_t *pNode)
-{
-	int ret;
-	uint08 buffLen;
-	uint08 buffer[8];
-	buffLen = 0;
-	buffer[buffLen++] = pNode->peerPort;
-	if(pNode->reason == 0x00) buffer[buffLen++] = TLKPRT_COMM_RSP_STATUE_SUCCESS;
-	else buffer[buffLen++] = TLKPRT_COMM_RSP_STATUE_FAILURE;
-	buffer[buffLen++] = pNode->reason;
-	ret = tlkmmi_file_sendCloseEvt(buffer, buffLen);
-	if(ret != TLK_ENONE){
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_CLOSE_EVT;
-	}else{
-		tlkmmi_file_resetNode(pNode);
-	}
-}
-
-static void tlkmmi_file_recvDataProc(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen)
-{
-	uint32 curNumb;
-	tlkmmi_file_unit_t *pNode;
-	pNode = tlkmmi_file_getUsedNode(datID);
-	if(pNode == nullptr || pNode->state != TLK_STATE_CONNECT || dataLen < 4){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: failure DatID or State");
-		return;
-	}
-	
-	curNumb = (((uint32)pData[3]) << 24) | (((uint32)pData[2]) << 16) | (((uint32)pData[1]) << 8) | pData[0];
-	if(dataLen > 4+pNode->unitLens || curNumb == 0){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: fault param {DataLen-%d,UnitLens-%d,RcvNumb-%d,CurNumb-%d}",
-			dataLen, pNode->unitLens, curNumb, pNode->curNumb);
-		return;
-	}
-	
-	if(pNode->waitMask == 0 || (curNumb & pNode->waitMask) == 0 || pNode->curNumb == pNode->pktNumb){
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_SHAKE_EVT;
-	}
-	if(pNode->curNumb+1 > curNumb){
-		tlkapi_warn(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: repeat packet {RcvNumb-%d,CurNumb-%d,PktNumb-%d}", 
-			curNumb, pNode->curNumb, pNode->pktNumb);
-	}else if(pNode->curNumb+1 < curNumb){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: stall packet {RcvNumb-%d,CurNumb-%d,PktNumb-%d}",
-			curNumb, pNode->curNumb, pNode->pktNumb);
-		pNode->busys |= TLKMMI_FILE_BUSY_SEND_SHAKE_EVT;
-	}else if(pNode->curNumb+1 > pNode->pktNumb){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: fault packet {RcvNumb-%d,CurNumb-%d,PktNumb-%d}",
-			curNumb, pNode->curNumb, pNode->pktNumb, 0);
-	}else{
-		int ret;
-		uint32 wrLens = 0;
-		if(pNode->curNumb+1 != pNode->pktNumb && dataLen != 4+pNode->unitLens){
-			tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: error number {dataLen-%d,unitLens-%d,curNumb-%d,PktNumb-%d}",
-				dataLen-4, pNode->unitLens, pNode->curNumb, pNode->pktNumb);
-			return;
-		}
-		pNode->curNumb = curNumb;
-		pNode->timeout = TLKMMI_FILE_IDLE_TIMEOUT;
-		tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvDataProc: {RcvNumb-%d,CurNumb-%d,PktNumb-%d,dataLen-%d}",
-			curNumb, pNode->curNumb, pNode->pktNumb, dataLen-4);
-		ret = tlkapi_file_write(&pNode->fileHandle, pData+4, dataLen-4, &wrLens);
-		if(ret == TLK_ENONE){
-			pNode->curNumb = curNumb;
-			pNode->timeout = TLKMMI_FILE_IDLE_TIMEOUT;
-			tlkalg_md5_update(&pNode->context, pData+4, dataLen-4);
-		}
-	}
-	if((pNode->busys & TLKMMI_FILE_BUSY_SEND_SHAKE_EVT) != 0){
-		pNode->busys &= ~TLKMMI_FILE_BUSY_SEND_SHAKE_EVT;
-		tlkmmi_file_sendShakeEvtProc(pNode);
-	}
-}
-
-
-
-static void tlkmmi_file_getPath(uint08 fileType, uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen)
-{
-	if(fileType == TLKPRT_FILE_TYPE_OTA){
-		tlkmmi_file_getOtaPath(pBuffer, buffLen, pGetLen);
+	if(fileType == TLKPRT_FILE_TYPE_DFU){
+		tlkmmi_file_getDfuPath(pBuffer, buffLen, pGetLen);
 	}else if(fileType == TLKPRT_FILE_TYPE_MP3){
 		tlkmmi_file_getMp3Path(pBuffer, buffLen, pGetLen);
 	}else if(fileType == TLKPRT_FILE_TYPE_TONE){
@@ -447,161 +234,81 @@ static void tlkmmi_file_getPath(uint08 fileType, uint08 *pBuffer, uint08 buffLen
 		if(pGetLen != nullptr) *pGetLen = 0;
 	}
 }
-static void tlkmmi_file_getOtaPath(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen)
+static void tlkmmi_file_getDfuPath(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen)
 {
 	uint08 dataLen = 0;
 	
-	#if !(TLK_FS_FAT_ENABLE)
-		if(buffLen >= 6){
-			pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen++] = (uint08)'O';
-			pBuffer[dataLen++] = (uint08)'T';
-			pBuffer[dataLen++] = (uint08)'A';
-			if(1) pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen+0] = 0x00;
-		}
-	#else
-		if(buffLen >= 16){
-			pBuffer[dataLen++] = (uint08)'1';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)':';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'O';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'T';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'A';
-			pBuffer[dataLen++] = 0x00;
-			if(1){
-				pBuffer[dataLen++] = (uint08)'/';
-				pBuffer[dataLen++] = 0x00;
-			}
-			pBuffer[dataLen+0] = 0x00;
-			pBuffer[dataLen+1] = 0x00;
-		}
-	#endif
+	if(buffLen >= 16){
+		pBuffer[dataLen++] = (uint08)'1';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)':';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'/';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'O';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'T';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'A';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'/';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen+0] = 0x00;
+		pBuffer[dataLen+1] = 0x00;
+	}
 	if(pGetLen != nullptr) *pGetLen = dataLen;
 }
 static void tlkmmi_file_getMp3Path(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen)
 {
 	uint08 dataLen = 0;
 	
-	#if !(TLK_FS_FAT_ENABLE)
-		if(buffLen >= 6){
-			pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen++] = (uint08)'M';
-			pBuffer[dataLen++] = (uint08)'P';
-			pBuffer[dataLen++] = (uint08)'3';
-			if(1) pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen+0] = 0x00;
-		}
-	#else
-		if(buffLen >= 16){
-			pBuffer[dataLen++] = (uint08)'1';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)':';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'M';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'P';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'3';
-			pBuffer[dataLen++] = 0x00;
-			if(1){
-				pBuffer[dataLen++] = (uint08)'/';
-				pBuffer[dataLen++] = 0x00;
-			}
-			pBuffer[dataLen+0] = 0x00;
-			pBuffer[dataLen+1] = 0x00;
-		}
-	#endif
+	if(buffLen >= 16){
+		pBuffer[dataLen++] = (uint08)'1';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)':';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'/';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'M';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'P';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'3';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'/';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen+0] = 0x00;
+		pBuffer[dataLen+1] = 0x00;
+	}
 	if(pGetLen != nullptr) *pGetLen = dataLen;
 }
 static void tlkmmi_file_getTonePath(uint08 *pBuffer, uint08 buffLen, uint08 *pGetLen)
 {
 	uint08 dataLen = 0;
-	
-	#if !(TLK_FS_FAT_ENABLE)
-		if(buffLen >= 7){
-			pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen++] = (uint08)'T';
-			pBuffer[dataLen++] = (uint08)'O';
-			pBuffer[dataLen++] = (uint08)'N';
-			pBuffer[dataLen++] = (uint08)'E';
-			if(1) pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen+0] = 0x00;
-		}
-	#else
-		if(buffLen >= 18){
-			pBuffer[dataLen++] = (uint08)'1';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)':';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'/';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'T';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'O';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'N';
-			pBuffer[dataLen++] = 0x00;
-			pBuffer[dataLen++] = (uint08)'E';
-			pBuffer[dataLen++] = 0x00;
-			if(1){
-				pBuffer[dataLen++] = (uint08)'/';
-				pBuffer[dataLen++] = 0x00;
-			}
-			pBuffer[dataLen+0] = 0x00;
-			pBuffer[dataLen+1] = 0x00;
-		}
-	#endif
+	if(buffLen >= 18){
+		pBuffer[dataLen++] = (uint08)'1';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)':';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'/';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'T';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'O';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'N';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'E';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen++] = (uint08)'/';
+		pBuffer[dataLen++] = 0x00;
+		pBuffer[dataLen+0] = 0x00;
+		pBuffer[dataLen+1] = 0x00;
+	}
 	if(pGetLen != nullptr) *pGetLen = dataLen;
 }
 
-static void tlkmmi_file_resetNode(tlkmmi_file_unit_t *pNode)
-{
-	if(pNode->state == TLK_STATE_CLOSED) return;
-	tlkmdi_comm_regDatCB(pNode->minePort, nullptr, true);
-	tlkmmi_adapt_removeTimer(&pNode->timer);
-	tlkapi_file_close(&pNode->fileHandle);
-	tmemset(pNode, 0, sizeof(tlkmmi_file_unit_t));
-}
-static tlkmmi_file_unit_t *tlkmmi_file_getIdleNode(void)
-{
-	uint08 index;
-	for(index=0; index<TLKMMI_FILE_UNIT_COUNT; index++){
-		if(sTlkMmiFileCtrl.unit[index].state == TLK_STATE_CLOSED) break;
-	}
-	if(index == TLKMMI_FILE_UNIT_COUNT) return nullptr;
-	return &sTlkMmiFileCtrl.unit[index];
-}
-static tlkmmi_file_unit_t *tlkmmi_file_getUsedNode(uint08 minePort)
-{
-	uint08 index;
-	if(minePort == 0) return nullptr;
-	for(index=0; index<TLKMMI_FILE_UNIT_COUNT; index++){
-		if(sTlkMmiFileCtrl.unit[index].state != TLK_STATE_CLOSED
-			&& sTlkMmiFileCtrl.unit[index].minePort == minePort) break;
-	}
-	if(index == TLKMMI_FILE_UNIT_COUNT) return nullptr;
-	return &sTlkMmiFileCtrl.unit[index];
-}
-static tlkmmi_file_unit_t *tlkmmi_file_getUsedNodeByPeerPort(uint08 peerPort)
-{
-	uint08 index;
-	if(peerPort == 0) return nullptr;
-	for(index=0; index<TLKMMI_FILE_UNIT_COUNT; index++){
-		if(sTlkMmiFileCtrl.unit[index].state != TLK_STATE_CLOSED
-			&& sTlkMmiFileCtrl.unit[index].peerPort == peerPort) break;
-	}
-	if(index == TLKMMI_FILE_UNIT_COUNT) return nullptr;
-	return &sTlkMmiFileCtrl.unit[index];
-}
-
+#endif
 
 
 #endif //#if (TLKMMI_FILE_ENABLE)

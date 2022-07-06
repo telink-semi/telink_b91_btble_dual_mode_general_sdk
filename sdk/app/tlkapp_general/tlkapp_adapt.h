@@ -25,26 +25,108 @@
 #define TLKAPP_ADAPT_H
 
 
-
+/******************************************************************************
+ * Function: tlkapp_adapt_init
+ * Descript: 
+ * Params:
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 int  tlkapp_adapt_init(void);
+
+/******************************************************************************
+ * Function: tlkapp_adapt_run_once
+ * Descript: 
+ * Params:
+ *     @adapt[IN]--The adapt self-manages handle.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_adapt_handler(void);
 
+/******************************************************************************
+ * Function: tlkapp_adapt_initTimer
+ * Descript: 
+ * Params:
+ *     @pTimer[IN]--
+ *     @pUsrArg[IN]--
+ *     @timeout[IN]--Unit: us.
+ *     @timerCB[IN]--
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 int  tlkapp_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout);
 int  tlkapp_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, void *pUsrArg);
 void tlkapp_adapt_deinitTimer(tlkapi_timer_t *pTimer);
 void tlkapp_adapt_deinitProcs(tlkapi_procs_t *pProcs);
 
+/******************************************************************************
+ * Function: tlkapp_adapt_isHaveTimer, tlkapp_adapt_isHaveProcs
+ * Descript: 
+ * Params:
+ *     @pAdapt[IN]--
+ *     @pTimer[IN]--
+ *     @pProcs[IN]--
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 bool tlkapp_adapt_isHaveTimer(tlkapi_timer_t *pTimer);
 bool tlkapp_adapt_isHaveProcs(tlkapi_procs_t *pProcs);
 
+/******************************************************************************
+ * Function: tlkapp_adapt_appendAgent, tlkapp_adapt_removeAgent
+ * Descript: 
+ * Params:
+ *     @pAdapt[IN]--
+ *     @pAgent[IN]--
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 int  tlkapp_adapt_appendProcs(tlkapi_procs_t *pProcs);
 int  tlkapp_adapt_removeProcs(tlkapi_procs_t *pProcs);
 
-
+/******************************************************************************
+ * Function: tlkapp_adapt_updateTimer
+ * Descript: Insert a timer timer into the Adapter.
+ * Params:
+ *     @pAdapt[IN]--The adapt self-manages handle.
+ *     @pTimer[IN]--Timer.
+ *     @timeout[IN]--Unit: us.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int  tlkapp_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout);
+
+/******************************************************************************
+ * Function: tlkapp_adapt_insertTimer
+ * Descript: Insert a timer timer into the Adapter.
+ * Params:
+ *     @pAdapt[IN]--The adapt self-manages handle.
+ *     @pTimer[IN]--Timer.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
+
 int  tlkapp_adapt_insertTimer(tlkapi_timer_t *pTimer);
+
+/******************************************************************************
+ * Function: tlkapp_adapt_removeTimer
+ * Descript: Remove a timer timer from the Adapter.
+ * Params:
+ *     @pAdapt[IN]--The adapt self-manages handle.
+ *     @pTimer[IN]--Timer.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int  tlkapp_adapt_removeTimer(tlkapi_timer_t *pTimer);
 
+/******************************************************************************
+ * Function: tlkapp_adapt_printfTimer
+ * Descript:
+ * Params:
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_adapt_printfTimer(void);
 
 

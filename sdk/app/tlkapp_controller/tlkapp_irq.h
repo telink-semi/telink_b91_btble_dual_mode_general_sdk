@@ -25,7 +25,14 @@
 #define TLKAPP_IRQ_H
 
 
-
+/******************************************************************************
+ * Function: tlkapp_irq_init
+ * Descript: Set the start address of interrupt ISR function table mapping to
+ *           MCU hardware interrupt entry
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_irq_init(void);
 
 

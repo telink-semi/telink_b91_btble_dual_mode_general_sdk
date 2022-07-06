@@ -42,7 +42,12 @@ typedef void(*tlkmdi_comm_datCB)(uint08 datID, uint16 number, uint08 *pData, uin
 int tlkmdi_comm_init(void);
 
 
-int tlkmdi_comm_getVolidDatID(uint08 *pDatID);
+int tlkmdi_comm_getValidDatID(uint08 *pDatID);
+
+void tlkmdi_comm_incSendNumb(void);
+void tlkmdi_comm_setSendNumb(uint08 value);
+void tlkmdi_comm_getSendNumb(uint08 *pValue);
+
 
 /******************************************************************************
  * Function: tlkmdi_comm_regDatCB.
@@ -240,6 +245,7 @@ int tlkmdi_comm_sendRsp(uint08 mType, uint08 cmdID, uint08 status, uint08 reason
 int tlkmdi_comm_sendEvt(uint08 mType, uint08 msgID, uint08 *pData, uint08 dataLen);
 int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
 
+int tlkmdi_comm_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 
 
 #endif //TLKMDI_COMM_H

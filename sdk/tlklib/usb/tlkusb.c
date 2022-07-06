@@ -32,6 +32,16 @@
 #if (TLKUSB_AUD_ENABLE)
 #include "tlklib/usb/aud/tlkusb_aud.h"
 #endif
+#if (TLKUSB_CDC_ENABLE)
+#include "tlklib/usb/cdc/tlkusb_cdc.h"
+#endif
+#if (TLKUSB_HID_ENABLE)
+#include "tlklib/usb/aud/tlkusb_hid.h"
+#endif
+#if (TLKUSB_USR_ENABLE)
+#include "tlklib/usb/usr/tlkusb_usr.h"
+#endif
+
 
 extern uint08 gTlkUsbCurModType;
 
@@ -50,8 +60,16 @@ int tlkusb_init(uint16 usbID)
 	#if (TLKUSB_AUD_ENABLE)
 	tlkusb_aud_init();
 	#endif
+	#if (TLKUSB_CDC_ENABLE)
+	tlkusb_cdc_init();
+	#endif
+	#if (TLKUSB_HID_ENABLE)
+	tlkusb_hid_init();
+	#endif
+	#if (TLKUSB_USR_ENABLE)
+	tlkusb_usr_init();
+	#endif
 	
-
 	return TLK_ENONE;
 }
 

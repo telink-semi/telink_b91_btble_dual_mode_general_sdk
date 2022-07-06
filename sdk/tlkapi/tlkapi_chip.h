@@ -39,11 +39,12 @@ void tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_ENUM clock);
 
 #if (TLKAPI_CHIP_STACK_CHECK_ENABLE)
 void tlkapi_chip_stackInit(void);
-uint tlkapi_chip_stackUsed(void);
+uint tlkapi_chip_stackCheck(void);
 uint tlkapi_chip_stackDepth(void);
 bool tlkapi_chip_stackOverflow(void);
 #endif
 
+void tlkapi_random(uint08 *pBuff, uint16 buffLen);
 
 
 #endif 

@@ -27,7 +27,13 @@
 
 
 
-
+/******************************************************************************
+ * Function: tlkapp_debug_init
+ * Descript: Register the usb debug callback.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_debug_init(void);
 
 

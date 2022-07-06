@@ -46,7 +46,13 @@ _attribute_data_retention_ static uint08 sTlkAppBatLevel = 100;
 _attribute_data_retention_ static tlkapi_timer_t sTlkAppBatTimer;
 
 
-
+/******************************************************************************
+ * Function: tlkapp_battery_init
+ * Descript: Initial the battery's gpio and register the callback.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_battery_init(void)
 {
 #if (TLKDEV_CFG_BAT_ENABLE)
@@ -69,6 +75,13 @@ int tlkapp_battery_init(void)
 	return TLK_ENONE;
 }
 
+/******************************************************************************
+ * Function: tlkapp_battery_check
+ * Descript: This function use to check the voltage.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_battery_check(void)
 {
 #if (TLKDEV_CFG_BAT_ENABLE)
@@ -93,7 +106,7 @@ int tlkapp_battery_check(void)
 		return -TLK_EFAIL;
 	}
 	
-	//////////////// get adc sample data and sort these data ////////////////
+	/*get adc sample data and sort these data */
 	for(index=0; index<8; index++){
 		adcData[index] = adcBuff[index];
 		if(index != 0 && adcData[index] < adcData[index-1]){

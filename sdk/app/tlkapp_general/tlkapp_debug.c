@@ -49,6 +49,8 @@ extern bool tlkusb_setModule(uint08 modtype); //TLKUSB_MODTYPE_ENUM
 #endif
 extern int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout);;
 extern int tlkmmi_phone_bookSetParam(uint08 posi, uint08 type, uint08 sort, uint16 offset, uint16 number);
+extern int tlkdev_xtsd04g_format(void);
+
 
 #if (TLK_USB_UDB_ENABLE)
 static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen);
@@ -63,6 +65,13 @@ static void tlkapp_debug_cmdSimulateKeyHandler(uint08 *pData, uint08 dataLen);
 extern uint16 gTlkAppBtConnHandle;
 
 
+/******************************************************************************
+ * Function: tlkapp_debug_init
+ * Descript: This function use to register callback for usb or cmd.
+ * Params: None.
+ * Return: TLK_NONE is success.
+ * Others: None.
+*******************************************************************************/
 int tlkapp_debug_init(void)
 {
 	#if (TLK_USB_UDB_ENABLE)

@@ -38,6 +38,12 @@
 #include "drivers.h"
 
 
+extern int tlkdev_xtsd04g_read(uint08 *pBuff, uint32 sector, uint08 sectCnt);
+extern int tlkdev_xtsd04g_write(uint08 *pData, uint32 sector, uint08 sectCnt);
+extern void tlkdev_xtsd04g_spiCsLow(void);
+extern uint08 tlkdev_xtsd04g_waitReady(void);
+extern uint32 tlkdev_xtsd04g_getSectorCount(void);
+extern void tlkdev_xtsd04g_spiCsHigh(void);
 
 
 

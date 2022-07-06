@@ -34,17 +34,17 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010000 //Application, 5.1.0.0
+#define TLK_APP_VERSION              0x05010001 //Application, 5.1.0.0
 #endif
 #define TLK_LIB_VERSION              0x05010000 //Libary, 5.1.0.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
-#define TLK_PRT_VERSION              0x0100 //Protocol, 1.0
+#define TLK_PRT_VERSION              0x0100 //Protocol, 1.0.0
 
 /******************************************************************************
  * Macro: 
  * Descr: 
 *******************************************************************************/
-#define TLK_CFG_FLASH_CAP            0x100000 //0x80000=512k, 0x100000=1024KB, 0x200000=2048KB, 0x400000=4096KB
+#define TLK_CFG_FLASH_CAP            0x200000 //0x80000=512k, 0x100000=1024KB, 0x200000=2048KB, 0x400000=4096KB
 
 /******************************************************************************
  * Macro: 
@@ -78,10 +78,10 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           0
+#define TLK_CFG_DBG_ENABLE           1
 #endif
 #ifndef TLK_CFG_USB_ENABLE
-#define TLK_CFG_USB_ENABLE           0
+#define TLK_CFG_USB_ENABLE           1
 #endif
 
 /******************************************************************************
@@ -170,6 +170,12 @@
 #ifndef TLK_MDI_HFP_ENABLE
 #define TLK_MDI_HFP_ENABLE           (1)
 #endif
+#ifndef TLK_MDI_FILE_ENABLE
+#define TLK_MDI_FILE_ENABLE          (1)
+#endif
+#ifndef TLK_MDI_DFU_ENABLE
+#define TLK_MDI_DFU_ENABLE           (0)
+#endif
 #ifndef TLK_MDI_AUD_ENABLE
 #define TLK_MDI_AUD_ENABLE           (1)
 #endif
@@ -186,13 +192,10 @@
  *     @TLK_DEV_XT2602E_ENABLE--Enable or disable NAND Flash (XT26G02E).
 *******************************************************************************/
 #ifndef TLK_DEV_XTSD04G_ENABLE
-#define TLK_DEV_XTSD04G_ENABLE       (0 && TLK_CFG_DEV_ENABLE)
+#define TLK_DEV_XTSD04G_ENABLE       (1 && TLK_CFG_DEV_ENABLE)
 #endif
 #ifndef TLK_DEV_XT2602E_ENABLE
-#define TLK_DEV_XT2602E_ENABLE       (1 && TLK_CFG_DEV_ENABLE)
-#endif
-#ifndef TLK_DEV_XT2604C_ENABLE
-#define TLK_DEV_XT2604C_ENABLE       (0 && TLK_CFG_DEV_ENABLE) //Not supported
+#define TLK_DEV_XT2602E_ENABLE       (0 && TLK_CFG_DEV_ENABLE)
 #endif
 #ifndef TLK_DEV_SERIAL_ENABLE
 #define TLK_DEV_SERIAL_ENABLE        (1)
@@ -213,7 +216,7 @@
 #define TLK_FS_FAT_ENABLE            (1 && TLK_CFG_FS_ENABLE && TLK_DEV_XTSD04G_ENABLE)
 #endif
 #ifndef TLK_FS_PFF_ENABLE
-#define TLK_FS_PFF_ENABLE            (1 && TLK_CFG_FS_ENABLE && TLK_DEV_XT2602E_ENABLE)
+#define TLK_FS_PFF_ENABLE            (0 && TLK_CFG_FS_ENABLE && TLK_DEV_XT2602E_ENABLE)
 #endif
 
 
@@ -225,8 +228,11 @@
 #define TLK_CFG_FLASH_PLAY_LIST_LENS          0x02000 //0xE6000~0xE7FFF
 #define TLK_CFG_FLASH_PLAY_INFO_ADDR          (0xEE000+TLK_CFG_FLASH_CAP-0x100000)
 
-#define TLK_CFG_FLASH_PBAP_LIST_ADDR          (0xC0000+TLK_CFG_FLASH_CAP-0x100000) 
-#define TLK_CFG_FLASH_PBAP_LIST_LENS          0x10000 //0xC0000~0xCFFFF
+#define TLK_CFG_FLASH_OTA_PARAM_ADDR          (0xC0000+TLK_CFG_FLASH_CAP-0x100000) 
+
+
+#define TLK_CFG_FLASH_PBAP_LIST_ADDR          (0xC1000+TLK_CFG_FLASH_CAP-0x100000) 
+#define TLK_CFG_FLASH_PBAP_LIST_LENS          0x0F000 //0xC0000~0xCFFFF
 
 #define TLK_CFG_FLASH_FACTORY_ADDR            (0xE9000+TLK_CFG_FLASH_CAP-0x100000) //Factory Param
 
@@ -272,7 +278,7 @@
 #define TLKAPI_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
 #endif
 #ifndef TLKDEV_CFG_DBG_ENABLE
-#define TLKDEV_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
+#define TLKDEV_CFG_DBG_ENABLE                 (0 && TLK_CFG_DBG_ENABLE)
 #endif
 #ifndef TLKDEV_CFG_VCD_ENABLE
 #define TLKDEV_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
@@ -280,15 +286,10 @@
 #ifndef TLKMDI_CFG_DBG_ENABLE
 #define TLKMDI_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
 #endif
-#ifndef TLKMDI_CFG_VCD_ENABLE
-#define TLKMDI_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
-#endif
 #ifndef TLKMMI_CFG_DBG_ENABLE
 #define TLKMMI_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
 #endif
-#ifndef TLKMMI_CFG_VCD_ENABLE
-#define TLKMMI_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
-#endif
+
 
 
 

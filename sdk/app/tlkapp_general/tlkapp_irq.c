@@ -36,28 +36,39 @@ volatile int dma_irq_rx_cnt=0;
 volatile int dma_irq_tx_cnt=0;
 
 
-
+/******************************************************************************
+ * Function: dma_irq_handler
+ * Descript: DMA interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void dma_irq_handler(void)
 {
 	dma_irq_cnt++;
 	unsigned char uart_dma_irq_src = reg_dma_tc_isr;
 	plic_interrupt_complete(IRQ5_DMA);
-	if((uart_dma_irq_src & FLD_DMA_CHANNEL4_IRQ))//dma 0
+	/*dma 0*/
+	if((uart_dma_irq_src & FLD_DMA_CHANNEL4_IRQ))
 	{
 		reg_dma_tc_isr |= FLD_DMA_CHANNEL4_IRQ;
 		dma_irq_rx_cnt++;
 	}
-	if(( uart_dma_irq_src &FLD_DMA_CHANNEL5_IRQ))////dma 1
+	/*dma 1*/
+	if(( uart_dma_irq_src &FLD_DMA_CHANNEL5_IRQ))
 	{
 		reg_dma_tc_isr |= FLD_DMA_CHANNEL5_IRQ;
 		dma_irq_tx_cnt++;
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//		IRQ Table
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// interrupt handle
+/******************************************************************************
+ * Function: IRQ Table and interrupt handler
+ * Descript:
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 extern void default_irq_entry(void);
 extern void trap_entry(void);
 
@@ -143,10 +154,7 @@ _attribute_retention_code_ void  entry_irq19(void)
 {
 	plic_isr (uart0_irq_handler, IRQ19_UART0);
 }
-/**
- * @brief pspi interrupt handler.
- * @return none
- */
+
 extern void pspi_irq_handler(void);
 void  entry_irq23(void) __attribute__ ((interrupt ("machine") , aligned(4)));
 _attribute_retention_code_ void  entry_irq23(void)
@@ -199,15 +207,18 @@ __attribute__((section(".retention_data"))) interrupt_ptr_t   g_interrupt_tbl[64
 };
 
 
-/**
- * @brief		set the start address of interrupt ISR function table mapping to  MCU hardware interrupt entry
- * @param[in]	none
- * @return      none
- */
-
+/******************************************************************************
+ * Function: tlkapp_irq_init
+ * Descript: Set the start address of interrupt ISR function table mapping to
+ *           MCU hardware interrupt entry
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkapp_irq_init(void)
 {
-	//set the start address of interrupt ISR function table mapping to  MCU hardware interrupt entry
+	/*set the start address of interrupt ISR function table 
+	mapping to  MCU hardware interrupt entry*/
 	write_csr(NDS_MTVEC, (unsigned long)g_interrupt_tbl);
 }
 

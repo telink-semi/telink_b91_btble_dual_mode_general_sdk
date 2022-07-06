@@ -38,11 +38,13 @@ extern void btc_core_isr(void);
 
 
 
-/**
- * @brief		This is main function
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: main
+ * Descript: This is main function.
+ * Params: None.
+ * Return: 0 is successs.
+ * Others: None.
+*******************************************************************************/
 int main(void)
 {
     blc_pm_select_internal_32k_crystal();
@@ -64,25 +66,26 @@ int main(void)
     return 0;
 } 
 
-
-/**
- * @brief		System timer interrupt handler.
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: stimer_irq_handler
+ * Descript: System timer interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 _attribute_retention_code_ void stimer_irq_handler(void)
 {
     btc_ll_system_tick_isr();
     ble_ll_system_tick_isr();
 }
 
-
-
-/**
- * @brief		Baseband interrupt handler.
- * @param[in]	none
- * @return      none
- */
+/******************************************************************************
+ * Function: rf_irq_handler
+ * Descript: Baseband interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 _attribute_retention_code_ void rf_irq_handler(void)
 {
 	ble_sdk_rf_irq_handler();
@@ -91,6 +94,14 @@ _attribute_retention_code_ void rf_irq_handler(void)
 
 extern void tlkusb_audirq_handler(void);
 extern void tlkusb_mscirq_handler(void);
+/******************************************************************************
+ * Function: usb_endpoint_irq_handler
+ * Descript: This function for audio interrupt handler 
+ *           and USB MSC interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 _attribute_retention_code_ 
 void usb_endpoint_irq_handler(void)
 {
@@ -106,6 +117,13 @@ void usb_endpoint_irq_handler(void)
 #if (TLK_DEV_XT2602E_ENABLE)
 volatile unsigned int nnn=0;
 extern volatile uint08 gTlkDevPspiEndIrqFlag;
+/******************************************************************************
+ * Function: pspi_irq_handler
+ * Descript: This function for spi interrupt handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 _attribute_retention_code_ void pspi_irq_handler(void)
 {
 	if(spi_get_irq_status(PSPI_MODULE,SPI_END_INT))
@@ -115,6 +133,14 @@ _attribute_retention_code_ void pspi_irq_handler(void)
 	}
 }
 #endif
+
+/******************************************************************************
+ * Function: zb_bt_irq_handler
+ * Descript: This function for Bt core handler.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
 _attribute_retention_code_ void zb_bt_irq_handler(void)
 {
     btc_core_isr();

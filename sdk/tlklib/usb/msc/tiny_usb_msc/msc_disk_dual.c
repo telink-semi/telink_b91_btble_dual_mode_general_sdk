@@ -55,6 +55,8 @@
 // CFG_EXAMPLE_MSC_READONLY defined]
 
 
+extern int tlkdev_xtsd04g_read(uint08 *pBuff, uint32 sector, uint08 sectCnt);
+extern int tlkdev_xtsd04g_write(uint08 *pData, uint32 sector, uint08 sectCnt);
 
 
 enum

@@ -26,76 +26,60 @@
 
 
 typedef enum{
-	TLKPRT_FILE_TYPE_OTA  = 0x01,
-	TLKPRT_FILE_TYPE_MP3  = 0x05,
-	TLKPRT_FILE_TYPE_TONE = 0x06,
+	TLKPRT_FILE_TYPE_DFU  = 0x81,
+	TLKPRT_FILE_TYPE_MP3  = 0x91,
+	TLKPRT_FILE_TYPE_TONE = 0xA1,
 }TLKPRT_FILE_TYPE_ENUM;
 typedef enum{
-	TLKPRT_FILE_STATUS_SOMPLETE = 0x00,
-	TLKPRT_FILE_STATUS_SUCCESS = 0x00,
-	TLKPRT_FILE_STATUS_FAILURE = 0x01,
+	TLKPRT_FILE_STATUS_SUCCESS       = 0x00,
+	TLKPRT_FILE_STATUS_FAILURE       = 0x81,
+	TLKPRT_FILE_STATUS_ERR_PARAM     = 0x82,
+	TLKPRT_FILE_STATUS_NULL_NAME     = 0x83,
+	TLKPRT_FILE_STATUS_ERR_DIGEST    = 0x84,
+	TLKPRT_FILE_STATUS_TRAN_STOP     = 0x85,
+	TLKPRT_FILE_STATUS_TRAN_FAULT    = 0x86,
+	TLKPRT_FILE_STATUS_TRAN_TIMEOUT  = 0x87,
+	TLKPRT_FILE_STATUS_ERR_FORMAT    = 0x88,
+	TLKPRT_FILE_STATUS_ERR_LENGTH    = 0x89,
+	TLKPRT_FILE_STATUS_ERR_PORT      = 0x8A,
+	TLKPRT_FILE_STATUS_REPEAT        = 0x8B,
+	TLKPRT_FILE_STATUS_NO_QUOTA      = 0x8C,
+	TLKPRT_FILE_STATUS_NO_READY      = 0x8D,
+	TLKPRT_FILE_STATUS_AUTH_STALL    = 0x90,
+	TLKPRT_FILE_STATUS_AUTH_FAILURE  = 0x91,
+	TLKPRT_FILE_STATUS_DEC_FAILURE   = 0x92,
+	TLKPRT_FILE_STATUS_NOSUPP_CRYPT  = 0x96,
+	TLKPRT_FILE_STATUS_NOSUPP_COMPR  = 0x97,
+	TLKPRT_FILE_STATUS_NOSUPP_DIGEST = 0x98,
 }TLKPRT_FILE_STATUS_ENUM;
+
+
+#define TLKPRT_FILE_VERSION             0x0102
+
+
 typedef enum{
-	TLKPRT_FILE_REASON_NONE = 0x00,
-	TLKPRT_FILE_REASON_REJECT  = 0x80,
-	TLKPRT_FILE_REASON_TIMEOUT,
-	TLKPRT_FILE_REASON_ERR_PARAM,
-	TLKPRT_FILE_REASON_ERR_DIGEST,
-	TLKPRT_FILE_REASON_NOT_SUPPORT,	
-}TLKPRT_FILE_REASON_ENUM;
+	TLKPRT_FILE_COMPR_FEATURE_LZ4    = 0x00000001,
+	TLKPRT_FILE_COMPR_FEATURE_LZ4_HC = 0x00000002,
+
+	TLKPRT_FILE_COMPR_FEATURE_MASK   = 0
+		| TLKPRT_FILE_COMPR_FEATURE_LZ4
+		| TLKPRT_FILE_COMPR_FEATURE_LZ4_HC,
+}TLKPRT_FILE_COMPR_FEATURE_ENUM;
+
+typedef enum{
+	TLKPRT_FILE_DIGEST_FEATURE_CRC32 = 0x00000001,
+	TLKPRT_FILE_DIGEST_FEATURE_MD5   = 0x00000002,
+
+	TLKPRT_FILE_DIGEST_FEATURE_MASK   = 0
+		| TLKPRT_FILE_DIGEST_FEATURE_CRC32,
+}TLKPRT_FILE_DIGEST_FEATURE_ENUM;
 
 
-typedef struct{
-	uint08 minePort;
-	uint08 fileType;
-	uint08 waitNumb;
-	uint08 nameLens;
-	uint16 interval; //Unit:100us
-	uint16 unitLens; //Single Packet Length
-	uint32 fileSize;
-	uint08 digest[16];
-	uint08 fileName[64];
-}tlkprt_file_startCmd_t;
-typedef struct{
-	uint08 peerPort;
-	uint08 minePort;
-	uint16 interval; //Unit:100us
-	uint16 unitLens;
-}tlkprt_file_startRsp_t;
-
-typedef struct{
-	uint08 dbport;
-}tlkprt_file_pauseCmd_t;
-typedef struct{
-	uint08 dbport;
-	uint08 status;
-	uint08 reason;
-}tlkprt_file_pauseRsp_t;
-
-typedef struct{
-	uint08 dbport;
-	uint08 status;
-	uint08 digest[16];
-}tlkprt_file_closeCmd_t;
-typedef struct{
-	uint08 dbport;
-	uint08 status;
-	uint08 reason;
-}tlkprt_file_closeRsp_t;
-
-
-typedef struct{
-	uint08 dbport;
-	uint08 status;
-	uint08 reason;
-}tlkprt_file_closeEvt_t;
-typedef struct{
-	uint08 dbport;
-	uint32 curNumb;
-	uint32 getNumb;
-}tlkprt_file_shakeEvt_t;
-
-
+typedef enum{
+	TLKPRT_FILE_CSIGN_NONE = 0x00,
+	TLKPRT_FILE_CSIGN_AUTH = 0x81,
+	TLKPRT_FILE_CSIGN_CRYP = 0x82,
+}TLKPRT_FILE_CSIGN_ENUM;
 
 
 #endif //TLKPRT_FILE_H
