@@ -31,7 +31,7 @@
 
 #define TLKMDI_FILE_TIMEOUT            100000 //us
 #define TLKMDI_FILE_TIMEOUT_MS         100
-#define TLKMDI_FILE_IDLE_TIMEOUT       (3000/TLKMDI_FILE_TIMEOUT_MS) //3s
+#define TLKMDI_FILE_IDLE_TIMEOUT       (3000/TLKMDI_FILE_TIMEOUT_MS)//(3000/TLKMDI_FILE_TIMEOUT_MS) //3s
 
 
 #define TLKMDI_FILE_NAME_SIZE           64
@@ -298,7 +298,7 @@ void tlkmdi_file_recvHandler(uint08 optChn, uint16 handle, uint08 *pHead, uint16
 
 
 
-#endif //#if (TLK_MDI_DFU_ENABLE)
+#endif //#if (TLK_MDI_FILE_ENABLE)
 
 #endif //TLK_MDI_FILE_ENABLE
 

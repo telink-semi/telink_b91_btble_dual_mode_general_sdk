@@ -23,7 +23,7 @@
 #ifndef TLKUSB_USR_DEFINE_H
 #define TLKUSB_USR_DEFINE_H
 
-#if (TLKUSB_USR_ENABLE)
+#if (TLK_USB_USR_ENABLE)
 
 
 
@@ -168,7 +168,7 @@ typedef struct
 
 
 
-#endif //#if (TLKUSB_USR_ENABLE)
+#endif //#if (TLK_USB_USR_ENABLE)
 
 #endif //TLKUSB_USR_DEFINE_H
 

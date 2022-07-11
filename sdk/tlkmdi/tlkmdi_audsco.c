@@ -278,6 +278,14 @@ static int tlkmdi_sco_codecChgEvt(uint08 *pData, uint16 dataLen)
 	return TLK_ENONE;
 }
 
+volatile uint32 AAAA_irq_test211 = 0;
+volatile uint32 AAAA_irq_test212 = 0;
+volatile uint32 AAAA_irq_test213 = 0;
+volatile uint32 AAAA_irq_test214 = 0;
+volatile uint32 AAAA_irq_test215 = 0;
+volatile uint32 AAAA_irq_test216 = 0;
+volatile uint32 AAAA_irq_test217 = 0;
+volatile uint32 AAAA_irq_test218 = 0;
 
 _attribute_bt_ram_code_
 static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *pData, int dataLen) // NOTE: This is in IRQ
@@ -294,13 +302,16 @@ static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *pData, int dataLen) // 
 	if(sTlkMdiScoCtrl.dropSpkNumb != 0) return;
 
 //	tlkapi_array(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_addSpkEncFrame", pData, 16);
-	
+
+	AAAA_irq_test211 ++;
 	pBuffer = tlkapi_qfifo_getBuff(&sTlkMdiScoSpkFifo);
+	AAAA_irq_test212 ++;
 	if(pBuffer != nullptr && pData != nullptr && pData[0] == BTH_HCI_TYPE_SCO_DATA){
 		uint16 tempLen;
 		uint16 syncHead = pData[1] + (pData[2] << 8);
 		pBuffer[0] = 0;
 		pBuffer[1] = 0;
+		AAAA_irq_test213 ++;
 		#if TLKMDI_SCO_SCO_LOSS_TEST
 		sTlkMdiScoErrIndex ++ ;
 		if(sTlkMdiScoErrIndex >= 100){
@@ -320,7 +331,9 @@ static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *pData, int dataLen) // 
             pBuffer[0] = TLKMDI_SCO_PACKET_LOSS_FLAG;
 		}
 		tlkapi_qfifo_dropBuff(&sTlkMdiScoSpkFifo);
+		AAAA_irq_test214 ++;
 	}
+	AAAA_irq_test215 ++;
 }
 
 uint08 sTlkMdiMicMuteIndex = 0;
@@ -336,6 +349,7 @@ static void tlkmdi_sco_getMicEncFrame(uint08 id, uint08 *pBuff, int buffLen) // 
 	uint08 *pData;
 
 	if(!sTlkMdiScoCtrl.enable) return;
+	AAAA_irq_test216 ++;
 //	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_getMicEncFrame: len - %d", len);
 	pData = tlkapi_qfifo_getData(&sTlkMdiScoMicFifo);
 	if(pData != nullptr){
@@ -366,6 +380,7 @@ static void tlkmdi_sco_getMicEncFrame(uint08 id, uint08 *pBuff, int buffLen) // 
 			tmemcpy(pBuff, silencePkt, copyLen);
 		}
 	}
+	AAAA_irq_test217 ++;
 //	tlkapi_array(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_getMicEncFrame: ", pBuff, 16);	
 }
 

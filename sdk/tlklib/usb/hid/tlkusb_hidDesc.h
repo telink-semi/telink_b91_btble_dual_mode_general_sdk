@@ -23,7 +23,7 @@
 #ifndef TLKUSB_HID_DESC_H
 #define TLKUSB_HID_DESC_H
 
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 
 
 
@@ -51,7 +51,7 @@ typedef struct {
 
 
 
-#endif //#if (TLKUSB_HID_ENABLE)
+#endif //#if (TLK_USB_HID_ENABLE)
 
 #endif //TLKUSB_HID_DESC_H
 

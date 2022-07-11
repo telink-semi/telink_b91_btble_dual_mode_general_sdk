@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
 #include "tlklib/usb/msc/tlkusb_mscDefine.h"
 #include "tlklib/usb/msc/tlkusb_msc.h"
 #include "tlklib/usb/msc/tlkusb_mscDesc.h"
@@ -72,7 +72,7 @@ static const tlkusb_stdStringDesc_t sMmiUsbMscSerial1Desc = {
 };
 #endif
 
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
 static const tlkusb_stdDeviceDesc_t sMmiUsbMscDeviceDesc = { 
 	sizeof(tlkusb_stdDeviceDesc_t), //
 	TLKUSB_TYPE_DEVICE , // Header
@@ -199,5 +199,5 @@ static uint08 *tlkusb_mscdesc_getStringDesc(uint08 index)
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_MSC_ENABLE)
 

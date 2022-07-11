@@ -23,7 +23,7 @@
 #include "drivers.h" 
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 #include "tlklib/usb/udb/tlkusb_udbDefine.h"
 #include "tlklib/usb/udb/tlkusb_udbDesc.h"
 #include "tlklib/usb/udb/tlkusb_udb.h"
@@ -153,5 +153,5 @@ static uint08 *tlkusb_udbdesc_getConfigDesc(void)
 
 
 
-#endif //#if (TLKUSB_UDB_ENABLE)
+#endif //#if (TLK_USB_UDB_ENABLE)
 

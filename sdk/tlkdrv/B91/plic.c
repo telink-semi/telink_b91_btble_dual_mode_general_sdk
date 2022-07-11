@@ -34,15 +34,31 @@ _attribute_data_retention_sec_ unsigned char      g_plic_preempt_en = 1;
  * FUNCTION DEFINITIONS
  ****************************************************************************************
  */
-_attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec(unsigned char preempt_en ,unsigned char threshold)
+
+volatile uint32 sCoreCriticalCount0 = 0;
+volatile uint32 sCoreCriticalCount1 = 0;
+
+volatile uint32 AAAA_plic_test001 = 0;
+volatile uint32 AAAA_plic_test002 = 0;
+volatile uint32 AAAA_plic_test003 = 0;
+volatile uint32 AAAA_plic_test004 = 0;
+volatile uint32 AAAA_plic_test005 = 0;
+
+_attribute_ram_code_sec_noinline_ 
+unsigned int core_enter_critical(unsigned char preempt_en, unsigned char threshold)
 {
-	unsigned int r;
-	if(g_plic_preempt_en&&preempt_en)
+	unsigned int r = 0;
+	if(g_plic_preempt_en && preempt_en && threshold != 0)
 	{
 		unsigned int r_inq = core_disable_interrupt();
-		g_plic_preempt_en |= BIT(1);
-		plic_set_threshold(threshold);
-		r=0;
+		unsigned char thrd = reg_irq_threshold & 0xFF;
+		sCoreCriticalCount0 ++;
+		if(thrd < threshold){
+			plic_set_threshold(threshold);
+		}else{
+			AAAA_plic_test001 ++;
+			AAAA_plic_test003 ++;
+		}
 		core_restore_interrupt(r_inq);
 	}
 	else
@@ -51,52 +67,31 @@ _attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec(unsigned 
 	}
 	return r ;
 }
-_attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec2(unsigned char preempt_en ,unsigned char threshold)
+_attribute_ram_code_sec_noinline_ 
+void core_leave_critical(unsigned char preempt_en, unsigned int r)
 {
-	unsigned int r;
-	if(g_plic_preempt_en&&preempt_en)
-	{
-		 unsigned int r_inq = core_disable_interrupt();
-		g_plic_preempt_en |= BIT(2);
-
-		plic_set_threshold(threshold);
-		
-		r = 0;
-		core_restore_interrupt(r_inq);
-
-	}
-	else
-	{
-
-	   r = core_disable_interrupt();
-	}
-
-
-	return r ;
-}
-_attribute_retention_code_ void  plic_exit_critical_sec2(unsigned char preempt_en ,unsigned int r)
-{
-
-	if (g_plic_preempt_en&&preempt_en)
+	if(g_plic_preempt_en && preempt_en)
 	{
 		unsigned int r_inq = core_disable_interrupt();
-		g_plic_preempt_en &= ~BIT(2);
-
-		plic_set_threshold(0);
-
+		if(sCoreCriticalCount0 == 1){
+			plic_set_threshold(0);
+		}
+		if(sCoreCriticalCount0 == 0) AAAA_plic_test002 ++;
+		if(sCoreCriticalCount0 != 0) sCoreCriticalCount0--;
+		if(sCoreCriticalCount0 == 0) AAAA_plic_test003 = 0;
 		core_restore_interrupt(r_inq);
 	}
 	else
 	{
 		core_restore_interrupt(r);
 	}
-
-
 }
+
+
+_attribute_ram_code_sec_noinline_
 void default_irq_handler(void)
 {
 	//printf("Default interrupt handler\n");
-
 }
 void stimer_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
 void analog_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
@@ -162,29 +157,7 @@ void npe_comb_irq_handler(void) __attribute__((weak, alias("default_irq_handler"
 void pm_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
 void eoc_irq_handler(void) __attribute__((weak, alias("default_irq_handler")));
 
-typedef void (*func_isr_t) (void);
 
-_attribute_bt_data_retention_ trap_func_t plic_trap_proc = NULL;	//for user action when release to customer.
-
-void plic_trap_func_register(trap_func_t f)
-{
-	plic_trap_proc = f;
-}
-
-_attribute_retention_code_ void  plic_exit_critical_sec(unsigned char preempt_en ,unsigned int r)
-{
-	if (g_plic_preempt_en&&preempt_en)
-	{
-		unsigned int r_inq = core_disable_interrupt();
-		g_plic_preempt_en &= ~BIT(1);
-		plic_set_threshold(0);
-		core_restore_interrupt(r_inq);
-	}
-	else
-	{
-		core_restore_interrupt(r);
-	}
-}
 
 
 _attribute_bt_data_retention_ volatile int irq_stack_overflow=0;
@@ -246,11 +219,6 @@ _attribute_retention_code_ __attribute__((weak)) void except_handler(long cause,
 								except_handler_e.sp, 
 								except_handler_e.gp);
 			#endif
-
-			if (plic_trap_proc != NULL && i > 20)
-			{
-				plic_trap_proc();
-			}
 		}
 	}
 }

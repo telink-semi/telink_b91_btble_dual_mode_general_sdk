@@ -23,7 +23,7 @@
 #include "drivers.h" 
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 #include "tlklib/usb/udb/tlkusb_udbDefine.h"
 #include "tlklib/usb/udb/tlkusb_udb.h"
 
@@ -224,5 +224,5 @@ static void mmi_pdebug_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 
 
 
-#endif //#if (TLKUSB_UDB_ENABLE)
+#endif //#if (TLK_USB_UDB_ENABLE)
 

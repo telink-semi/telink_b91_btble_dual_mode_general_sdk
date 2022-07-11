@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 #include "tlklib/usb/hid/tlkusb_hidConfig.h"
 #include "tlklib/usb/hid/tlkusb_hidDefine.h"
 #include "tlklib/usb/hid/tlkusb_hid.h"
@@ -69,7 +69,7 @@ static const tlkusb_stdStringDesc_t sMmiUsbHidSerialDesc = {
 	TLKUSB_HID_STRING_SERIAL
 };
 
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 static const tlkusb_stdDeviceDesc_t sMmiUsbHidDeviceDesc = { 
 	sizeof(tlkusb_stdDeviceDesc_t), //
 	TLKUSB_TYPE_DEVICE , // Header
@@ -260,5 +260,5 @@ static uint08 *tlkusb_hiddesc_getInfDesDesc(tlkusb_setup_req_t *pSetup)
 
 
 
-#endif //#if (TLKUSB_HID_ENABLE)
+#endif //#if (TLK_USB_HID_ENABLE)
 

@@ -23,7 +23,7 @@
 #ifndef TLKUSB_USR_CTRL_H
 #define TLKUSB_USR_CTRL_H
 
-#if (TLKUSB_USR_ENABLE)
+#if (TLK_USB_USR_ENABLE)
 
 
 
@@ -33,7 +33,7 @@
 
 
 
-#endif //#if (TLKUSB_USR_ENABLE)
+#endif //#if (TLK_USB_USR_ENABLE)
 
 #endif //TLKUSB_USR_CTRL_H
 

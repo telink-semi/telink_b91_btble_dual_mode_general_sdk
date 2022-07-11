@@ -40,13 +40,6 @@ extern	uint32 sdcardblocknum;
 volatile static uint08 sTlkDevNandIsReady = 0;
 volatile static uint08 sTlkDevNandIsEnable = false;
 
-volatile uint32 AAAA_dev_test001 = 0;
-volatile uint32 AAAA_dev_test002 = 0;
-volatile uint32 AAAA_dev_test003 = 0;
-volatile uint32 AAAA_dev_test004 = 0;
-volatile uint32 AAAA_dev_test005 = 0;
-volatile uint32 AAAA_dev_test006 = 0;
-volatile uint32 AAAA_dev_test007 = 0;
 
 
 int tlkdev_nand_init(void)
@@ -54,22 +47,16 @@ int tlkdev_nand_init(void)
 	sTlkDevNandIsReady = false;
 	#if (TLK_DEV_XTSD04G_ENABLE)
 		uint08 temp[512] = {0};
-		AAAA_dev_test001 ++;
 		if(tlkdev_xtsd04g_init() != TLK_ENONE) return -TLK_EFAIL;
-		AAAA_dev_test002 ++;
 		tlkdev_xtsd04g_read(temp, 0, 1);
-		AAAA_dev_test003 ++;
 		if((temp[510] != 0x55) || (temp[511] != 0xaa)) return -TLK_EFAIL;
-		AAAA_dev_test004 ++;
 		
 		sdcardblocknum = tlkdev_xtsd04g_getSectorCount();
 		uint32_t sdcardfatblocknum = (temp[461]<<24) + (temp[460]<<16) + (temp[459]<<8) + temp[458];
 		if((sdcardfatblocknum != (sdcardblocknum - SDDISK_SECTOR_OFFSET))){
-			AAAA_dev_test005 ++;
 			tlkdev_xtsd04g_format();
 			tlkapi_trace(TLKDEV_NAND_DBG_FLAG, TLKDEV_NAND_DBG_SIGN, "sdcard format end, please restart");
 		}
-		AAAA_dev_test006 ++;
 	#endif
 	#if (TLK_DEV_XT2602E_ENABLE)
 		tlkdev_xt2602e_init();

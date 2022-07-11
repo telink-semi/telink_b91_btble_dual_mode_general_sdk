@@ -23,7 +23,7 @@
 #ifndef TLKUSB_CDC_H
 #define TLKUSB_CDC_H
 
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 
 
 typedef void(*TlkUsbCdcRecvCB)(uint08 intfNum, uint08 *pData, uint08 dataLen);
@@ -35,7 +35,7 @@ void tlkusb_cdc_regRecvCB(TlkUsbCdcRecvCB cb);
 int tlkusb_cdc_sendData(uint08 intfNum, uint08 *pData, uint08 dataLen);
 
 
-#endif //#if (TLKUSB_CDC_ENABLE)
+#endif //#if (TLK_USB_CDC_ENABLE)
 
 #endif //TLKUSB_CDC_H
 

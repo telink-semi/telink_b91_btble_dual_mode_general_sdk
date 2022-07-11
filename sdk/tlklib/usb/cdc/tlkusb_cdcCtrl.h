@@ -23,7 +23,7 @@
 #ifndef TLKUSB_CDC_CTRL_H
 #define TLKUSB_CDC_CTRL_H
 
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 
 
 
@@ -54,7 +54,7 @@ typedef struct{
 
 
 
-#endif //#if (TLKUSB_CDC_ENABLE)
+#endif //#if (TLK_USB_CDC_ENABLE)
 
 #endif //TLKUSB_CDC_CTRL_H
 

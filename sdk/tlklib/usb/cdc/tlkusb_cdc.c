@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 #include "tlklib/usb/cdc/tlkusb_cdcConfig.h"
 #include "tlklib/usb/cdc/tlkusb_cdcDefine.h"
 #include "tlklib/usb/cdc/tlkusb_cdc.h"
@@ -82,6 +82,6 @@ int tlkusb_cdc_sendData(uint08 intfNum, uint08 *pData, uint08 dataLen)
 }
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_MSC_ENABLE)
 
 

@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 #include "tlklib/usb/cdc/tlkusb_cdcConfig.h"
 #include "tlklib/usb/cdc/tlkusb_cdcDefine.h"
 #include "tlklib/usb/cdc/tlkusb_cdc.h"
@@ -70,7 +70,7 @@ static const tlkusb_stdStringDesc_t sMmiUsbCdcSerialDesc = {
 
 
 
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 static const tlkusb_stdDeviceDesc_t sMmiUsbCdcDeviceDesc = { 
 	sizeof(tlkusb_stdDeviceDesc_t), //
 	TLKUSB_TYPE_DEVICE , // Header
@@ -347,5 +347,5 @@ static uint08 *tlkusb_cdcdesc_getInfDesDesc(tlkusb_setup_req_t *pSetup)
 
 
 
-#endif //#if (TLKUSB_CDC_ENABLE)
+#endif //#if (TLK_USB_CDC_ENABLE)
 

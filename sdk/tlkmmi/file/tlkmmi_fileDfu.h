@@ -74,9 +74,6 @@
 
 
 
-
-
-
 #if (TLK_CFG_FLASH_CAP < 0x200000 && (TLKMMI_FILE_DFU_SAVE_METHOD == TLKMMI_FILE_DFU_SAVE_INNER))
 	#error "The inner flash is too small to store the firmware in it."
 #endif

@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     udisk.h
+ * @file     filesystem.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -20,41 +20,13 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
+#ifndef TLKLIB_FS_H
+#define TLKLIB_FS_H
 
-#pragma once
 
-
-/* Enable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-extern "C" {
+#if (TLK_FS_FAT_ENABLE)
+#include "tlklib/fs/fatfs/ff.h"
 #endif
 
-/**
- * @brief      This is mass storage interrupt handler function.
- * @return     none.
- */
-_attribute_ram_code_sec_ void mass_storage_irq_handler(void);
-/**
- * @brief      This function serves to initialization nand spi flash.
- * @param[in]  reset - para = 1, nandflash will be initial.
- * @return     none.
- */
-void nand_flash_fat_init(int reset);
-void usb_mass_storage_init(void);
-/**
- * @brief      This is mass storage task.
- * @return     none.
- */
-void mass_storage_task(void);
 
-/**
- * @brief      This function serves to remap address get from usb to fat16 in nand flash.
- * @param[in]  adr - the address get from usb
- * @return     the remap address in nand flash.
- */
-unsigned int  fat_remap(unsigned int adr);
-/* Disable C linkage for C++ Compilers: */
-#if defined(__cplusplus)
-}
-#endif
-
+#endif //TLKLIB_FS_H

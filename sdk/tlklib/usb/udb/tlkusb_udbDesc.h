@@ -23,7 +23,7 @@
 #ifndef TLKUSB_UDB_DESC_H
 #define TLKUSB_UDB_DESC_H
 
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 
 
 
@@ -45,7 +45,7 @@ typedef struct{
 
 
 
-#endif //#if (TLKUSB_UDB_ENABLE)
+#endif //#if (TLK_USB_UDB_ENABLE)
 
 #endif //TLKUSB_UDB_DESC_H
 

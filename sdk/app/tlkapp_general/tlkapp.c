@@ -27,7 +27,6 @@
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_stdio.h"
 #include "tlkprt/tlkprt_comm.h"
-#include "tlklib/fs/filesystem.h"
 #include "tlkmdi/tlkmdi.h"
 
 #include "tlkstk/ble/ble.h"

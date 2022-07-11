@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file     tlkdev_usb.c
+ * @file     tlkmdi_usb
  *
- * @brief    This is the source file for BTBLE SDK
+ * @brief    This is the header file for BTBLE SDK
  *
  * @author	 BTBLE GROUP
  * @date         2,2022
@@ -20,41 +20,24 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
+#ifndef TLKMDI_USB_H
+#define TLKMDI_USB_H
 
-#include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
-#if (TLK_CFG_USB_ENABLE)
-#include "tlkdev/sys/tlkdev_nand.h"
-#include "tlkdev/sys/tlkdev_usb.h"
-
-#include "drivers.h"
-
-#define TLKDEV_USB_DBG_FLAG         (TLKDEV_CFG_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
-#define TLKDEV_USB_DBG_SIGN         "[DEVUSB]"
-
-#define TLKDEV_USB_DBGID_FLASH_ADDR         (0x200BFFF0)     // usb id flash store address
+#if (TLK_MDI_USB_ENABLE)
 
 
-extern int tlkusb_init(uint16 usbID);
 
 
-int tlkdev_usb_init(void)
-{
-	/////////////////////////////////  USB ////////////////////////////////////////////////
-//	uint16 usbID = 0x120;
-//	uint08 flag = *(uint08 *)(TLKDEV_USB_DBGID_FLASH_ADDR);
-//	usbID = (0xff == flag)?0x120:(0x0100 + flag);
-	tlkusb_init(0x120);
-	/* increase 1mA when test low power, so disable USB when PM used */
-		
-	return TLK_ENONE;
-}
-
-void tlkdev_usb_shutdown(void)
-{
-	gpio_shutdown(GPIO_PA5|GPIO_PA6);
-}
+int tlkmdi_usb_init(void);
 
 
-#endif
+void tlkmdi_usb_shutdown(void);
+
+void tlkmdi_usb_process(void);
+
+
+
+#endif //#if (TLK_MDI_USB_ENABLE)
+
+#endif //TLKMDI_USB_H
 

@@ -93,14 +93,11 @@ static hspi_pin_config_t sTlkDevXtsd04gHspiPinCfg = {
 };
 #endif
 
-extern char usb_msc;
-extern uint32 sdcardblocknum;
+uint32 sdcardblocknum;
 volatile char sTlkDevXtsd04gEnterFlag = 0;
 
 static uint08 sTlkDevXtsd04gSDType=0;
 
-
-extern uint08 _mscd_buf[];
 
 
 const uint08 sdmsc_disk_mbr[16] =
@@ -143,18 +140,6 @@ const uint08 sdmsc_disk_root_dir[64] = //------------- Block2: Root Directory --
 
 
 
-volatile uint32 AAAA_dev_test011 = 0;
-volatile uint32 AAAA_dev_test012 = 0;
-volatile uint32 AAAA_dev_test013 = 0;
-volatile uint32 AAAA_dev_test014 = 0;
-volatile uint32 AAAA_dev_test015 = 0;
-volatile uint32 AAAA_dev_test016 = 0;
-volatile uint32 AAAA_dev_test017 = 0;
-volatile uint32 AAAA_dev_test018 = 0;
-volatile uint32 AAAA_dev_test019 = 0;
-volatile uint32 AAAA_dev_test01A = 0;
-volatile uint32 AAAA_dev_test01B = 0;
-volatile uint32 AAAA_dev_test01C = 0;
 
 int tlkdev_xtsd04g_init(void)
 {
@@ -162,10 +147,9 @@ int tlkdev_xtsd04g_init(void)
     uint16 retry;
     uint08 buf[10];
 	uint16 i;
+	uint08 buffer[32];
 
-	AAAA_dev_test011 ++;
 	if(sTlkDevXtsd04gEnterFlag != 0){
-		AAAA_dev_test012 ++;
 		#if(TLKDEV_XTSD04G_DEBUG_ENABLE)
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "sd_nand_flash_init Reentry");
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
@@ -173,14 +157,12 @@ int tlkdev_xtsd04g_init(void)
 		#endif
 		return 0x11;
 	}
-
-	AAAA_dev_test013 ++;
+	
 	sTlkDevXtsd04gEnterFlag = 1;
 	delay_ms(10); // delay_ms(50); delay 250ms for voltage setup.
 	
 	tlkdev_xtsd04g_gpioConfig();
 
-	AAAA_dev_test014 ++;
 	//74 clock
  	for(i=0;i<10;i++){
  		tlkdev_xtsd04g_writeByte(0xFF);
@@ -193,9 +175,7 @@ int tlkdev_xtsd04g_init(void)
 		if(r1 == 0x01) break;
 		delay_us(100);
 	}
-	AAAA_dev_test015 ++;
 	if(r1 != 0x01){
-		AAAA_dev_test016++;
 		#if(TLKDEV_XTSD04G_DEBUG_ENABLE)
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "sd_nand_flash_init");
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "enable spi mode fail");
@@ -207,7 +187,6 @@ int tlkdev_xtsd04g_init(void)
 		return 0xaa;
 	}
 
-	AAAA_dev_test017++;
 	//wait for busy
 	sTlkDevXtsd04gSDType=0;
 	retry=500;
@@ -219,7 +198,6 @@ int tlkdev_xtsd04g_init(void)
 		delay_ms(1);
 	}while(r1&&retry--);
 
-	AAAA_dev_test018++;
 	if(retry == 0){
 		#if(TLKDEV_XTSD04G_DEBUG_ENABLE)
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "sd_nand_flash_init");
@@ -232,7 +210,6 @@ int tlkdev_xtsd04g_init(void)
 		return 0xbb;
 	}
 
-	AAAA_dev_test019++;
 	r1 = tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD04G_CMD_58,0,0X01);
 	if(r1==0)
 	{
@@ -247,7 +224,6 @@ int tlkdev_xtsd04g_init(void)
 		return 0xcc;
 	}
 
-	AAAA_dev_test01A++;
 	//get Capacity
 	uint08 csd[16] = {0};
 	uint32 Capacity;
@@ -259,9 +235,8 @@ int tlkdev_xtsd04g_init(void)
 	r1=tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD04G_CMD_09,0,0x01);
 	if(r1==0)
 	{
-		r1=tlkdev_xtsd04g_spiRecvData(_mscd_buf,16);
-		if(r1==0x00)tmemcpy(csd,_mscd_buf,16);//in order to align(4) for dma
-		//share _mscd_buf, In order to save ram occupation
+		r1=tlkdev_xtsd04g_spiRecvData(buffer,16);
+		if(r1==0x00)tmemcpy(csd,buffer,16);//in order to align(4) for dma
 	}
 
 	if(r1!=0)
@@ -288,9 +263,7 @@ int tlkdev_xtsd04g_init(void)
 	tlkdev_xtsd04g_switchHighSpeed();
 	
 	sTlkDevXtsd04gEnterFlag = 0;
-
-	AAAA_dev_test01B++;
-
+	
 	return TLK_ENONE;
 }
 
@@ -298,7 +271,7 @@ int tlkdev_xtsd04g_init(void)
 int tlkdev_xtsd04g_format(void)
 {
 	uint32 lba = 0;
-	uint08 fat16block[512] = {0};//share _mscd_buf, In order to save ram occupation
+	uint08 fat16block[512] = {0};
 	uint32 sdcardfatblocknum = sdcardblocknum - SDDISK_SECTOR_OFFSET;
 	
 	//write DBR
@@ -377,11 +350,8 @@ void tlkdev_xtsd04g_switchHighSpeed(void)
 int tlkdev_xtsd04g_read(uint08 *pBuff, uint32 sector, uint08 sectCnt)
 {
 	if(sTlkDevXtsd04gEnterFlag != 0){
-		#if(TLKDEV_XTSD04G_DEBUG_ENABLE)
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "tlkdev_xtsd04g_read Reentry");
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
-		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
-		#endif
 		return 0x11;
 	}
 	
@@ -400,11 +370,8 @@ int tlkdev_xtsd04g_read(uint08 *pBuff, uint32 sector, uint08 sectCnt)
 int tlkdev_xtsd04g_write(uint08 *pData, uint32 sector, uint08 sectCnt)
 {
 	if(sTlkDevXtsd04gEnterFlag != 0){
-		#if(TLKDEV_XTSD04G_DEBUG_ENABLE)
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "tlkdev_xtsd04g_write Reentry");
 		tlkapi_trace(TLKDEV_XTSD04G_DBG_FLAG, TLKDEV_XTSD04G_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
-		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
-		#endif
 		return 0x11;
 	}
 	
@@ -423,14 +390,14 @@ int tlkdev_xtsd04g_write(uint08 *pData, uint32 sector, uint08 sectCnt)
 uint08 tlkdev_xtsd04g_readBa512(uint08 *buf, uint32 sector)
 {
 	uint08 r1;
+	uint08 buffer[512] = {0};
 	if(sTlkDevXtsd04gSDType!=TLKDEV_XTSD04G_TYPE_V2HC)sector <<= 9;
 
 	r1=tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD04G_CMD_17,sector,0X01);
 	if(r1==0)
 	{
-		r1=tlkdev_xtsd04g_spiRecvData(_mscd_buf,512);
-		if(r1==0x00)tmemcpy(buf,_mscd_buf,512);//in order to align(4) for dma
-		//share _mscd_buf, In order to save ram occupation
+		r1=tlkdev_xtsd04g_spiRecvData(buffer,512);
+		if(r1==0x00)tmemcpy(buf,buffer,512);//in order to align(4) for dma
 	}
 	tlkdev_xtsd04g_spiDisSelect();
 	return r1;
@@ -438,14 +405,14 @@ uint08 tlkdev_xtsd04g_readBa512(uint08 *buf, uint32 sector)
 uint08 tlkdev_xtsd04g_writeBa512(uint08 *buf, uint32 sector)
 {
 	uint08 r1;
+	uint08 buffer[512] = {0};
 	if(sTlkDevXtsd04gSDType!=TLKDEV_XTSD04G_TYPE_V2HC)sector *= 512;
 
 	r1=tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD04G_CMD_24,sector,0X01);
 	if(r1==0)
 	{
-		tmemcpy(_mscd_buf,buf,512);//in order to align(4) for dma
-		//share _mscd_buf, In order to save ram occupation
-		r1=tlkdev_xtsd04g_spiSendData(_mscd_buf,0xFE);
+		tmemcpy(buffer,buf,512);//in order to align(4) for dma
+		r1=tlkdev_xtsd04g_spiSendData(buffer,0xFE);
 	}
 	tlkdev_xtsd04g_spiDisSelect();
 	return r1;
@@ -477,17 +444,16 @@ void tlkdev_xtsd04g_powerOff(void)
 
 
 
-extern uint08 _mscd_buf[];
 uint08 tlkdev_xtsd04g_getCID(uint08 *cid_data)
 {
     uint08 r1;
+	uint08 buffer[32];
 
     r1=tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD04G_CMD_10,0,0x01);
     if(r1==0x00)
 	{
-		r1=tlkdev_xtsd04g_spiRecvData(_mscd_buf,16);
-		if(r1==0x00)tmemcpy(cid_data,_mscd_buf,16);//in order to align(4) for dma
-		//share _mscd_buf, In order to save ram occupation
+		r1=tlkdev_xtsd04g_spiRecvData(buffer,16);
+		if(r1==0x00)tmemcpy(cid_data,buffer,16);//in order to align(4) for dma
     }
 	tlkdev_xtsd04g_spiDisSelect();
 	if(r1)return 1;
@@ -497,12 +463,12 @@ uint08 tlkdev_xtsd04g_getCID(uint08 *cid_data)
 uint08 tlkdev_xtsd04g_getCSD(uint08 *csd_data)
 {
     uint08 r1;
+	uint08 buffer[32];
     r1=tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD04G_CMD_09,0,0x01);
     if(r1==0)
 	{
-		r1=tlkdev_xtsd04g_spiRecvData(_mscd_buf,16);
-		if(r1==0x00)tmemcpy(csd_data,_mscd_buf,16);//in order to align(4) for dma
-		//share _mscd_buf, In order to save ram occupation
+		r1=tlkdev_xtsd04g_spiRecvData(buffer,16);
+		if(r1==0x00)tmemcpy(csd_data,buffer,16);//in order to align(4) for dma
     }
 	tlkdev_xtsd04g_spiDisSelect();
 	if(r1)return 1;

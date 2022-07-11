@@ -22,21 +22,19 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
 #include "drivers.h"
 #include "tlkdev/ext/xtx/tlkdev_xt2602e.h"
 #include "tlklib/usb/msc/tlkusb_mscDefine.h"
 #include "tlklib/usb/msc/tlkusb_msc.h"
 #include "tlklib/usb/msc/tlkusb_mscDesc.h"
 #include "tlklib/usb/msc/tlkusb_mscCtrl.h"
+#include "tlklib/usb/msc/tlkusb_mscScsi.h"
+
 
 extern void nand_flash_fat_init(int reset);
-extern void usb_mass_storage_init(void);
 extern void tlkusb_core_handler(void);
-extern void mass_storage_task(void);
 
-extern bool tusb_init(void);
-extern void tud_task (void);
 
 static int  tlkusb_mscctrl_init(void);
 static void tlkusb_mscctrl_reset(void);
@@ -64,11 +62,14 @@ const tlkusb_modCtrl_t sTlkUsbMscModCtrl = {
 
 
 
+
 static int tlkusb_mscctrl_init(void)
 {
 	tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
 
 	core_disable_interrupt();
+
+	tlkusb_msc_scsiInit();
 	
 	reg_usb_ep_buf_addr(TLKUSB_MSC_EDP_IN) = 0x80;
 	reg_usb_ep_buf_addr(TLKUSB_MSC_EDP_OUT) = 0xC0;
@@ -76,13 +77,17 @@ static int tlkusb_mscctrl_init(void)
 	#if (TLK_DEV_XT2602E_ENABLE)
 	nand_flash_fat_init(0);
 	tlkdev_xt2602e_init();
-	usb_mass_storage_init();
-	#elif (TLK_DEV_XTSD04G_ENABLE)
-	tusb_init();
 	#endif
 
 	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC | FLD_CTRL_EP_AUTO_INTF);
-	reg_usb_ep_max_size = 8;
+	reg_usb_ep_max_size = 64;
+	
+	reg_usb_ep_irq_mask = BIT(TLKUSB_MSC_EDP_OUT)| BIT(TLKUSB_MSC_EDP_IN);			//audio in/out interrupt enable
+	reg_usb_iso_mode = 0;
+	reg_usb_ep8_fifo_mode = 0;	// no fifo mode
+	usbhw_reset_ep_ptr(TLKUSB_MSC_EDP_OUT);
+	reg_usb_ep_ctrl(TLKUSB_MSC_EDP_OUT) = FLD_EP_DAT_ACK;
+	
 
 	plic_interrupt_disable(IRQ15_ZB_RT);
 	plic_interrupt_disable(IRQ12_ZB_DM);
@@ -96,42 +101,43 @@ static int tlkusb_mscctrl_init(void)
 	plic_interrupt_disable(IRQ2_ALG);
 	plic_interrupt_disable(IRQ25_GPIO);
 	
-	plic_interrupt_enable(IRQ11_USB_ENDPOINT);
-	plic_set_priority(IRQ11_USB_ENDPOINT, 3);
-	core_enable_interrupt();
-
-	reg_usb_ep_ctrl(TLKUSB_MSC_EDP_OUT) = FLD_EP_DAT_ACK;
-	
+//	plic_interrupt_enable(IRQ11_USB_ENDPOINT);
+//	plic_set_priority(IRQ11_USB_ENDPOINT, 3);
+//	core_enable_interrupt();
+		
 	return TLK_ENONE;
 }
 static void tlkusb_mscctrl_reset(void)
 {
-	reg_usb_ep_ctrl(TLKUSB_MSC_EDP_OUT) = FLD_EP_DAT_ACK;
+	reg_usb_ep_ctrl(TLKUSB_MSC_EDP_OUT) = FLD_EP_DAT_ACK; 
+	tlkusb_msc_scsiReset();
 }
 static void tlkusb_mscctrl_deinit(void)
 {
 	plic_interrupt_disable(IRQ11_USB_ENDPOINT);
-	
 }
 static void tlkusb_mscctrl_handler(void)
 {
-	#if (TLK_DEV_XT2602E_ENABLE)
-	mass_storage_task();
-	#elif (TLK_DEV_XTSD04G_ENABLE)
-	tud_task();
-	#endif
-
-//	tlkusb_core_handler();
+	tlkusb_msc_scsiHandler();
 }
+
 
 static int tlkusb_mscctrl_getClassInf(tlkusb_setup_req_t *pSetup, uint08 infNumb)
 {
-	
+	if(infNumb == TLKUSB_MSC_INF_MSC && pSetup->bRequest == 0xFE){
+		uint08 count = tlkusb_msc_getDiskCount();
+		if(count != 0){
+			usbhw_write_ctrl_ep_data(count-1);
+			return TLK_ENONE;
+		}
+	}
 	return -TLK_ENOSUPPORT;
 }
+
+
+
 static int tlkusb_mscctrl_setClassInf(tlkusb_setup_req_t *pSetup, uint08 infNumb)
 {
-	
 	return -TLK_ENOSUPPORT;
 }
 static int tlkusb_mscctrl_getClassEdp(tlkusb_setup_req_t *pSetup, uint08 edpNumb)
@@ -167,7 +173,6 @@ static int tlkusb_mscctrl_setInterface(tlkusb_setup_req_t *pSetup, uint08 infNum
 
 
 
-
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_MSC_ENABLE)
 
 

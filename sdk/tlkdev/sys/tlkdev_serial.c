@@ -28,6 +28,7 @@
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 
+#include "tlkstk/inner/tlkstk_myudb.h"
 
 
 typedef enum{
@@ -88,17 +89,6 @@ static tlkdev_serial_recvCB sTlkDevSerialRecvCB;
 
 
 
-void tlkdev_serial_test(void)
-{
-//	uint08 rxData = reg_uart_data_buf(TLKDEV_SERIAL_PORT, uart_rx_byte_index[TLKDEV_SERIAL_PORT]) ;
-//	uart_rx_byte_index[TLKDEV_SERIAL_PORT] ++;
-//	uart_rx_byte_index[TLKDEV_SERIAL_PORT] &= 0x03;
-//	tlkapi_fifo_writeByte(&sTlkApiRecvFifo, rxData);
-//	my_dump_str_data(1, "rv:", &rxData, 1);
-
-//	tlkmdi_comm_sendSysEvt(TLKPRT_COMM_EVTID_SYS_READY, nullptr, 0);
-}
-
 _attribute_ram_code_sec_ 
 void uart1_irq_handler(void)
 {
@@ -114,9 +104,14 @@ void uart1_irq_handler(void)
 //				my_dump_str_data(TLKDEV_CFG_DBG_ENABLE, "rv:", &rxData, 1);
 			}
 		}
+		if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR)){
+			uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
+			// it will clear rx_fifo and rx_err_irq ,rx_buff_irq,so it won't enter rx_buff interrupt.
+			uart_reset(TLKDEV_SERIAL_PORT); //clear hardware pointer
+			uart_clr_rx_index(TLKDEV_SERIAL_PORT); //clear software pointer
+		}
 	#else
 	    if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_TXDONE)){
-//			my_dump_str_data(TLKDEV_CFG_DBG_ENABLE, "irq 01:", 0, 0);
 		    uart_clr_tx_done(TLKDEV_SERIAL_PORT);
 			if(sTlkDevSerialSendIsBusy){
 				tlkapi_qfifo_dropData(&sTlkApiSendFifo);
@@ -124,13 +119,12 @@ void uart1_irq_handler(void)
 			}
 		}
 	    if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXDONE)){ //A0-SOC can't use RX-DONE status,so this interrupt can noly used in A1-SOC.
+			uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
 			uint32 *pBuffer = (uint32*)tlkapi_qfifo_getBuff(&sTlkApiRecvFifo);
-//			my_dump_str_data(TLKDEV_CFG_DBG_ENABLE, "irq 02:", 0, 0);
 			if(pBuffer != nullptr){
 				pBuffer[0] = uart_get_dma_rev_data_len(TLKDEV_SERIAL_PORT, TLKDEV_SERIAL_DMA_RX);
 				tlkapi_qfifo_dropBuff(&sTlkApiRecvFifo);
 			}
-			uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
 			pBuffer = (uint32*)tlkapi_qfifo_getBuff(&sTlkApiRecvFifo);
 			if(pBuffer == nullptr){
 				sTlkDevSerialRecvIsBusy = true;
@@ -139,13 +133,23 @@ void uart1_irq_handler(void)
 				uart_receive_dma(TLKDEV_SERIAL_PORT, (uint08*)(pBuffer+1), TLKDEV_SERIAL_RECV_BUFF_SIZE);
 			}
 	    }
+		if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_TXBUF_IRQ_STATUS)){
+			
+		}
+		if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXBUF_IRQ_STATUS)){
+//			uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
+//			uart_reset(TLKDEV_SERIAL_PORT); 
+//			sTlkDevSerialRecvIsBusy = true;
+		}
+		if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR)){
+			uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
+			// it will clear rx_fifo and rx_err_irq ,rx_buff_irq,so it won't enter rx_buff interrupt.
+			uart_reset(TLKDEV_SERIAL_PORT); //clear hardware pointer
+			sTlkDevSerialRecvIsBusy = true;
+		}
 	#endif
-	if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR)){
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
-		// it will clear rx_fifo and rx_err_irq ,rx_buff_irq,so it won't enter rx_buff interrupt.
-		uart_reset(TLKDEV_SERIAL_PORT); //clear hardware pointer
-		uart_clr_rx_index(TLKDEV_SERIAL_PORT); //clear software pointer
-	}
+	
+
 }
 
 int tlkdev_serial_init(void)
@@ -195,6 +199,7 @@ int tlkdev_serial_init(void)
 		
 		uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_RXDONE_MASK);
 		uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_TXDONE_MASK); 
+		uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_ERR_IRQ_MASK);
 
 		plic_interrupt_enable(IRQ18_UART1);
 		plic_set_priority(IRQ18_UART1, 2);
@@ -324,6 +329,11 @@ void tlkdev_serial_handler(void)
 {
 	#if (TLKDEV_SERIAL_DMA_ENABLE)
 		uint08 *pBuffer;
+		if((reg_dma_tc_isr & FLD_DMA_CHANNEL5_IRQ) != 0){
+			reg_dma_tc_isr |= FLD_DMA_CHANNEL5_IRQ;
+			uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
+			sTlkDevSerialRecvIsBusy = true;
+		}
 		if(!sTlkDevSerialSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkApiSendFifo) != 0){
 			pBuffer = tlkapi_qfifo_getData(&sTlkApiSendFifo);
 			if(pBuffer == nullptr || (pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
@@ -360,7 +370,6 @@ static void tlkdev_serial_recvHandler(void)
 	uint16 calCrc;
 	#if !(TLKDEV_SERIAL_DMA_ENABLE)
 		while(tlkapi_fifo_readByte(&sTlkApiRecvFifo, &rbyte) == TLK_ENONE){
-//			my_dump_str_data(1, "recv0:", &rbyte, 1);
 			tlkapi_serial_makeFrame(rbyte);
 			if(sTlkDevSerialMakeState != TLKDEV_SERIAL_MSTATE_READY) continue;
 			rawCrc = ((uint16)(sTlkDevSerialFrame[sTlkDevSerialMakeDataLen-3])<<8)

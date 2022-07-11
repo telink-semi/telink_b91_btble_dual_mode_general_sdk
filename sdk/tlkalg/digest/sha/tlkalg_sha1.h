@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     diskio.h
+ * @file     tlkalg_sha1.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -21,46 +21,33 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-/*-----------------------------------------------------------------------
-/  PFF - Low level disk interface modlue include file    (C)ChaN, 2014
-/-----------------------------------------------------------------------*/
-
-#ifndef _DISKIO_DEFINED
-#define _DISKIO_DEFINED
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "pff.h"
-#if (TLK_DEV_XT2602E_ENABLE)
-
-/* Status of Disk Functions */
-typedef BYTE	DSTATUS;
+#ifndef TLKALG_SHA1_H
+#define TLKALG_SHA1_H
 
 
-/* Results of Disk Functions */
-typedef enum {
-	RES_OK = 0,		/* 0: Function succeeded */
-	RES_ERROR,		/* 1: Disk error */
-	RES_NOTRDY,		/* 2: Not ready */
-	RES_PARERR		/* 3: Invalid parameter */
-} DRESULT;
+
+#define TLKALG_SHA1_HASH_SIZE      (160/8)
 
 
-/*---------------------------------------*/
-/* Prototypes for disk control functions */
+typedef struct{
+	uint32 state[5];
+	uint32 count[2];
+	uint08 buff[64];
+}tlkalg_sha1_contex_t;
+typedef struct{
+	uint08 value[TLKALG_SHA1_HASH_SIZE];
+}tlkalg_sha1_digest_t;
 
-DSTATUS disk_initialize (void);
-DRESULT disk_readp (BYTE* buff, DWORD sector, UINT offser, UINT count);
-DRESULT disk_writep (BYTE* buff, DWORD sc);
 
-#define STA_NOINIT		0x01	/* Drive not initialized */
-#define STA_NODISK		0x02	/* No medium in the drive */
 
-#ifdef __cplusplus
-}
-#endif
+void tlkalg_sha1_init(tlkalg_sha1_contex_t *pContext);
+void tlkalg_sha1_update(tlkalg_sha1_contex_t *pContext, uint08 *pData, uint32 dataLen);
+void tlkalg_sha1_finish(tlkalg_sha1_contex_t *pContext, tlkalg_sha1_digest_t *pHash);
 
-#endif	/* _DISKIO_DEFINED */
-#endif
+void tlkalg_sha1_result(uint08 *pData, uint32 dataLen, tlkalg_sha1_digest_t *pDigest);
+
+
+
+
+#endif //TLKALG_SHA1_H
+

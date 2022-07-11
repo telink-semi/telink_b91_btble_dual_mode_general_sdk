@@ -94,7 +94,6 @@ int tlkmmi_audio_init(void)
 }
 static void tlkmmi_audio_initTimer(void)
 {
-	plic_interrupt_enable(IRQ4_TIMER0);
 	plic_set_priority(IRQ4_TIMER0, 1);
 	
 	reg_tmr_tick(TLKMMI_AUDIO_TIMER_ID) = 0;
@@ -108,6 +107,8 @@ static void tlkmmi_audio_initTimer(void)
 	reg_tmr_ctrl0 &= (~FLD_TMR1_MODE);
 	reg_tmr_ctrl0 |= (TIMER_MODE_SYSCLK<<4);
 	#endif
+
+	plic_interrupt_enable(IRQ4_TIMER0);
 }
 
 /******************************************************************************
@@ -210,7 +211,16 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
 	else return false;
 }
 
+volatile uint32 AAAA_irq_test201 = 0;
+volatile uint32 AAAA_irq_test202 = 0;
+volatile uint32 AAAA_irq_test203 = 0;
+volatile uint32 AAAA_irq_test204 = 0;
+volatile uint32 AAAA_irq_test205 = 0;
+volatile uint32 AAAA_irq_test206 = 0;
+volatile uint32 AAAA_irq_test207 = 0;
+volatile uint32 AAAA_irq_test208 = 0;
 
+extern volatile u32 AAAA_hci_test101;
 /******************************************************************************
  * Function: timer0_irq_handler
  * Descript: The timer interrupt handler.
@@ -221,15 +231,17 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
 void timer0_irq_handler(void)
 {
 	uint32 timeIntval = 0;
-	
+
+	AAAA_irq_test201 ++;
 	tlkmmi_audio_closeTimer();
 
 //	my_dump_str_data(TLKMMI_AUDIO_DBG_ENABLE, "timer0_irq_handler: ", 0, 0);
-	
+	AAAA_irq_test202 ++;
 	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_NONE) return;
 
+	AAAA_irq_test203 ++;
 	uint32 r = read_csr(NDS_MIE);
-	irq_restore(r | BIT(11));
+	core_restore_interrupt(r | BIT(11));
 
 	if(!tlkmmi_audio_modinfIrqProc(gTlkMmiAudioCurOptype)){
 		tlkdev_spk_mute();
@@ -240,10 +252,10 @@ void timer0_irq_handler(void)
 		else if(timeIntval < 500) timeIntval = 500;
 		else if(timeIntval > 1000000) timeIntval = 1000000;
 	}
+		
 	hci_host_to_controller();
 	
-	irq_restore(r);
-
+	AAAA_irq_test204 ++;
 	
 	if(gTlkMmiAudioCurOptype != TLKMMI_AUDIO_OPTYPE_NONE){
 		tlkmmi_audio_startTimer(timeIntval);
@@ -252,10 +264,13 @@ void timer0_irq_handler(void)
 		gTlkMmiAudioTmrState = 0;
 		gTlkMmiAudioTmrCount = 0;
 	}
+	AAAA_irq_test205 ++;
+
+	core_restore_interrupt(r);
 }
 static void tlkmmi_audio_startTimer(uint32 intervalUs)
 {
-	uint32 r = irq_disable();
+	uint32 r = core_disable_interrupt();
 	reg_tmr_tick(TLKMMI_AUDIO_TIMER_ID) = 0;
 	reg_tmr_capt(TLKMMI_AUDIO_TIMER_ID) = intervalUs*sys_clk.pclk;
 	#if (TLKMMI_AUDIO_TIMER_ID == TIMER0)
@@ -269,11 +284,11 @@ static void tlkmmi_audio_startTimer(uint32 intervalUs)
 	reg_tmr_ctrl0 |= (TIMER_MODE_SYSCLK<<4);
 	reg_tmr_ctrl0 |= FLD_TMR1_EN;
 	#endif
-	irq_restore(r);
+	core_restore_interrupt(r);
 }
 static void tlkmmi_audio_closeTimer(void)
 {
-	uint32 r = irq_disable();
+	uint32 r = core_disable_interrupt();
 	#if (TLKMMI_AUDIO_TIMER_ID == TIMER0)
 	reg_tmr_ctrl0 &= (~FLD_TMR0_EN); //stop TIMER0
 	timer_clr_irq_status(FLD_TMR_STA_TMR0);
@@ -281,7 +296,7 @@ static void tlkmmi_audio_closeTimer(void)
 	reg_tmr_ctrl0 &= (~FLD_TMR1_EN);
 	timer_clr_irq_status(FLD_TMR_STA_TMR1);
 	#endif
-	irq_restore(r);
+	core_restore_interrupt(r);
 }
 
 

@@ -23,7 +23,6 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkdev/sys/tlkdev_serial.h"
-#include "tlkdev/sys/tlkdev_usb.h"
 #include "tlkdev/tlkdev.h"
 
 #include "drivers.h"
@@ -46,10 +45,6 @@ int tlkdev_init(void)
 	tlkdev_serial_init();
 #endif
 
-#if (TLK_CFG_USB_ENABLE)
-	tlkdev_usb_init();
-#endif
-
 	return TLK_ENONE;
 }
 
@@ -59,9 +54,7 @@ void tlkdev_process(void)
 	#if !TLKAPP_HCI_USB_MODE
 	tlkdev_serial_handler();
 	#endif
-	#if (TLK_CFG_USB_ENABLE)
-	tlkusb_process();
-	#endif
+	
 	#if (TLK_CFG_WDG_ENABLE)
 	wd_clear();
 	#endif

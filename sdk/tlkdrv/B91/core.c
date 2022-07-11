@@ -39,7 +39,12 @@
 	 plic_set_feature(FLD_FEATURE_VECTOR_MODE_EN);//enable vectored in PLI
 #endif
 	set_csr(NDS_MSTATUS,1<<3);
+#if (0)
 	set_csr(NDS_MIE,1<<11 | 1 << 7 | 1 << 3);
+#else
+	set_csr(NDS_MIE, 1<<11);
+#endif
+	NDS_FENCE_IORW;
 }
 
 

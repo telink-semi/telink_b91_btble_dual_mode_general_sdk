@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 #include "drivers.h"
 #include "tlklib/usb/aud/tlkusb_audDefine.h"
 #include "tlklib/usb/aud/tlkusb_audDesc.h"
@@ -157,5 +157,5 @@ static int tlkusb_audctrl_setInterface(tlkusb_setup_req_t *pSetup, uint08 infNum
 
 
 
-#endif //#if (TLKUSB_AUD_ENABLE)
+#endif //#if (TLK_USB_AUD_ENABLE)
 

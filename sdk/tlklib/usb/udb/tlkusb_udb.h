@@ -24,7 +24,7 @@
 #define TLKUSB_UDB_H
 
 
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 
 
 typedef void(*TlkUsbUsrDebugCB)(uint08 *pData, uint16 dataLen);
@@ -44,7 +44,7 @@ void tlkusb_udb_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16
 int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen);
 
 
-#endif //#if (TLKUSB_UDB_ENABLE)
+#endif //#if (TLK_USB_UDB_ENABLE)
 
 #endif //TLKUSB_UDB_H
 

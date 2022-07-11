@@ -23,7 +23,7 @@
 #ifndef TLKUSB_AUDIO_H
 #define TLKUSB_AUDIO_H
 
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 
 
 
@@ -52,7 +52,7 @@ extern int tlkusb_audspk_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 e
 
 
 
-#endif //#if (TLKUSB_AUD_ENABLE)
+#endif //#if (TLK_USB_AUD_ENABLE)
 
 #endif //TLKUSB_AUDIO_H
 

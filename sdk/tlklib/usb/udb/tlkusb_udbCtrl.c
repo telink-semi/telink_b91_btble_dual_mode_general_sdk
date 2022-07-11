@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 #include "drivers.h"
 #include "tlklib/usb/udb/tlkusb_udbDefine.h"
 #include "tlklib/usb/udb/tlkusb_udb.h"

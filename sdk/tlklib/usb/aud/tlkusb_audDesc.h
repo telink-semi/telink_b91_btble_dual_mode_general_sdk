@@ -23,7 +23,7 @@
 #ifndef TLKUSB_AUDIO_DESC_H
 #define TLKUSB_AUDIO_DESC_H
 
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 
 
 
@@ -57,7 +57,7 @@ typedef struct {
 
 
 
-#endif //#if (TLKUSB_AUD_ENABLE)
+#endif //#if (TLK_USB_AUD_ENABLE)
 
 #endif //TLKUSB_AUDIO_DESC_H
 

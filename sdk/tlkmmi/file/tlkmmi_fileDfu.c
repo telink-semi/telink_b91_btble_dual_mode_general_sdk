@@ -25,8 +25,8 @@
 #include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_FILE_DFU_ENABLE)
 #include "tlkprt/tlkprt_stdio.h"
-#include "tlklib/fs/filesystem.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"
@@ -97,7 +97,7 @@ static int tlkmmi_file_dfuInit(void)
 	#if (TLKMMI_FILE_DFU_BK_RESUME_ENABLE)
 	int ret;
 	#endif
-		
+	
 	tmemset(&sTlkMmiFileDfuCtrl, 0, sizeof(tlkmmi_file_dfuCtrl_t));
 	#if (TLKMMI_FILE_DFU_BK_RESUME_ENABLE)
 		tlkapi_save2_init(&sTlkMmiFileDfuCtrl.saveCtrl, TLKMMI_FILE_DFU_SAVE_SIGN, TLKMMI_FILE_DFU_SAVE_VERS,
@@ -119,12 +119,12 @@ static int tlkmmi_file_dfuInit(void)
 		}
 		#endif
 	#endif
-
+	
 	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
 		tlkmdi_comm_getValidDatID(&sTlkMdiFileDfuPort);
 		tlkmdi_comm_regDatCB(sTlkMdiFileDfuPort, tlkmmi_file_dfuData, true);
 	#endif
-		
+	
 	return TLK_ENONE;
 }
 
@@ -316,6 +316,7 @@ static int tlkmmi_file_dfuParam(tlkmdi_file_unit_t *pUnit, uint08 paramType, uin
 			tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_dfuParam[GET_START]: error optChn[%d]", optChn);
 			return -TLK_ENOSUPPORT;
 		}
+		if(param.unitLens > pUnit->unitLens) param.unitLens = pUnit->unitLens & 0x0F;
 		return tlkmdi_file_setRecvStartParam(pUnit, &param);
 	}	
 	

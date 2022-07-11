@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     filesystem.h
+ * @file     tlkmdi_hid.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -21,20 +21,31 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#pragma once
+#ifndef TLKMDI_HID_H
+#define TLKMDI_HID_H
+
+#if (TLK_MDI_HID_ENABLE)
+
+typedef enum{
+    TLKMDI_HID_GETREPORT_ID = 0,
+	TLKMDI_HID_SETREPORT_ID,
+	TLKMDI_HID_CONTROL_ID,
+	TLKMDI_HID_OUTPUT_ID,
+}tlkmdi_hid_evt_id_t;
+
+typedef void (*tlkmdi_hid_callback_t)(uint16 aclHandle, uint16 report_type, uint16 report_id, uint16* datalen, uint08* pData, tlkmdi_hid_evt_id_t evtID);
 
 
+void tlkmdi_hid_init();
+void tlkmdi_hid_connect(uint16 aclHandle);
+void tlkmid_hid_disconnect(uint16 aclHandle);
+void tlkmdi_hid_deinit(uint16 aclHandle);
+void tlkmdi_hid_send_data(uint08 *pData, uint16 dataLen, uint16 aclHandle);
 
-#include "tlk_config.h"
+void tlkmdi_hid_register_callback(tlkmdi_hid_callback_t callback);
+void tlkmdi_hid_unregister_callback();
 
-#if (TLK_FS_PFF_ENABLE)
-#include "tlklib/fs/pff/pff.h"
-#endif
+#endif //#if (TLK_MDI_HID_ENABLE)
 
-#if (TLK_FS_FAT_ENABLE)
-#include "tlklib/fs/fatfs/ff.h"
-#endif
-
-
-
+#endif //TLKMDI_HID_H
 

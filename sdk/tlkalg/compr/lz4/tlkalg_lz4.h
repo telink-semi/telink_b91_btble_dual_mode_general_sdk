@@ -156,7 +156,6 @@ LZ4LIB_API const char* LZ4_versionString (void);   /**< library version string; 
  *                or 0 if compression fails
  * Note : This function is protected against buffer overflow scenarios (never writes outside 'dst' buffer, nor read outside 'source' buffer).
  */
-// 成功返回写入缓冲区的字节数，失败返回0
 LZ4LIB_API int LZ4_compress_default(const char* src, char* dst, int srcSize, int dstCapacity);
 
 /*! LZ4_decompress_safe() :

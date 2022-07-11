@@ -26,19 +26,22 @@
 #include "tlklib/usb/tlkusb_desc.h"
 #if (TLK_CFG_USB_ENABLE)
 #include "drivers.h"
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 #include "tlklib/usb/udb/tlkusb_udb.h"
 #endif
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 #include "tlklib/usb/aud/tlkusb_aud.h"
 #endif
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 #include "tlklib/usb/cdc/tlkusb_cdc.h"
 #endif
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 #include "tlklib/usb/aud/tlkusb_hid.h"
 #endif
-#if (TLKUSB_USR_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
+#include "tlklib/usb/msc/tlkusb_msc.h"
+#endif
+#if (TLK_USB_USR_ENABLE)
 #include "tlklib/usb/usr/tlkusb_usr.h"
 #endif
 
@@ -54,20 +57,23 @@ int tlkusb_init(uint16 usbID)
 	usb_set_pin_en();
 	
 	tlkusb_core_init(usbID);
-	#if (TLKUSB_UDB_ENABLE)
+	#if (TLK_USB_UDB_ENABLE)
 	tlkusb_udb_init();
 	#endif
-	#if (TLKUSB_AUD_ENABLE)
+	#if (TLK_USB_AUD_ENABLE)
 	tlkusb_aud_init();
 	#endif
-	#if (TLKUSB_CDC_ENABLE)
+	#if (TLK_USB_CDC_ENABLE)
 	tlkusb_cdc_init();
 	#endif
-	#if (TLKUSB_HID_ENABLE)
+	#if (TLK_USB_HID_ENABLE)
 	tlkusb_hid_init();
 	#endif
-	#if (TLKUSB_USR_ENABLE)
+	#if (TLK_USB_USR_ENABLE)
 	tlkusb_usr_init();
+	#endif
+	#if (TLK_USB_MSC_ENABLE)
+	tlkusb_msc_init();
 	#endif
 	
 	return TLK_ENONE;

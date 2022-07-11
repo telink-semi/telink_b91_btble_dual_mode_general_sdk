@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
 #include "drivers.h"
 #include "tlklib/usb/msc/tlkusb_mscDefine.h"
 #include "tlklib/usb/msc/tlkusb_msc.h"
@@ -38,6 +38,11 @@ const tlkusb_module_t gTlkUsbMscModule = {
 	&sTlkUsbMscModDesc,
 	&sTlkUsbMscModCtrl,
 };
+static uint08 sTlkUsbMscUnitCount = 0;
+static tlkusb_msc_unit_t *spTlkUsbMscUnit[TLKUSB_MSC_UNIT_COUNT];
+
+
+
 
 
 int tlkusb_msc_init(void)
@@ -46,20 +51,35 @@ int tlkusb_msc_init(void)
 }
 
 
-extern void mass_storage_irq_handler();
-extern void dcd_int_handler(uint08 rhport);
-_attribute_retention_code_
-void tlkusb_mscirq_handler(void)
+int tlkusb_msc_appendDisk(tlkusb_msc_unit_t *pUnit)
 {
-	#if (TLK_DEV_XT2602E_ENABLE)
-	mass_storage_irq_handler();
-	#elif (TLK_DEV_XTSD04G_ENABLE)
-	dcd_int_handler(0);
-	#endif
+	if(pUnit == nullptr || pUnit->blkSize == 0 || (pUnit->blkSize & 0x3F) != 0
+		|| pUnit->blkCount < 100 || pUnit->Read == nullptr || pUnit->Write == nullptr){
+		return -TLK_EPARAM;
+	}
+	spTlkUsbMscUnit[sTlkUsbMscUnitCount++] = pUnit;
+	return TLK_ENONE;
+}
+
+
+uint08 tlkusb_msc_getDiskCount(void)
+{
+	return sTlkUsbMscUnitCount;
+}
+tlkusb_msc_unit_t *tlkusb_msc_getDisk(uint08 lun)
+{
+	if(lun >= sTlkUsbMscUnitCount) return nullptr;
+	return spTlkUsbMscUnit[lun];
 }
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+
+
+
+
+
+
+#endif //#if (TLK_USB_MSC_ENABLE)
 
 

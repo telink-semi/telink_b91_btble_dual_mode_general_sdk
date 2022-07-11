@@ -24,6 +24,7 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmmi/tlkmmi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"
+#include "tlkmmi/hid/tlkmmi_hid.h"
 #include "tlkmmi/tlkmmi.h"
 
 
@@ -52,7 +53,9 @@ int tlkmmi_init(void)
 	#if (TLKMMI_FILE_ENABLE)
 	tlkmmi_file_init();
 	#endif
-
+    #if (TLKMMI_HID_DBG_ENABLE)
+    tlkmmi_hid_init();
+    #endif
 	return TLK_ENONE;
 }
 
@@ -65,7 +68,7 @@ int tlkmmi_init(void)
 *******************************************************************************/
 void tlkmmi_process(void)
 {
-	tlkmmi_adapt_handler();	
+	tlkmmi_adapt_handler();
 }
 
 /******************************************************************************

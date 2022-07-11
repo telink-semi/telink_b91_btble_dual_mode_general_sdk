@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 #include "tlklib/usb/cdc/tlkusb_cdcConfig.h"
 #include "tlklib/usb/cdc/tlkusb_cdcDefine.h"
 #include "tlklib/usb/cdc/tlkusb_cdc.h"
@@ -266,5 +266,5 @@ static void tlkusb_cdcctrl_read32(uint32* value)
 
 
 
-#endif //#if (TLKUSB_CDC_ENABLE)
+#endif //#if (TLK_USB_CDC_ENABLE)
 

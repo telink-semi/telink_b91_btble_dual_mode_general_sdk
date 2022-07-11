@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 #include "drivers.h"
 #include "tlklib/usb/aud/tlkusb_audDefine.h"
 #include "tlklib/usb/aud/tlkusb_audDesc.h"
@@ -94,5 +94,5 @@ uint tlkusb_aud_getFeatureMute(int id)
 
 
 
-#endif //#if (TLKUSB_AUD_ENABLE)
+#endif //#if (TLK_USB_AUD_ENABLE)
 

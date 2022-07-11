@@ -25,8 +25,8 @@
 #include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
 #include "tlkprt/tlkprt_stdio.h"
-#include "tlklib/fs/filesystem.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"

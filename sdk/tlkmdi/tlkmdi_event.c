@@ -26,8 +26,8 @@
 
 
 
-extern unsigned int plic_enter_critical_sec2(unsigned char preempt_en ,unsigned char threshold);
-extern void plic_exit_critical_sec2(unsigned char preempt_en ,unsigned int r);
+extern unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
+extern void core_leave_critical(unsigned char preempt_en ,unsigned int r);
 
 static int tlkmdi_event_push(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen);
 static int tlkmdi_event_pop(uint08 *pMajorID, uint08 *pMinorID, uint08 *pBuff, uint08 buffLen, uint08 *pLength);
@@ -154,7 +154,7 @@ static int tlkmdi_event_push(uint08 majorID, uint08 minorID, uint08 *pData, uint
 		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_push: failure - msg too long  %d", dataLen);
 		return -TLK_EPARAM;
 	}
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	pBuff = tlkapi_qfifo_getBuff(&sTlkMdiEventQFifo);
 	if(pBuff == nullptr){
 		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_push: failure - no quota");
@@ -168,7 +168,7 @@ static int tlkmdi_event_push(uint08 majorID, uint08 minorID, uint08 *pData, uint
 		tlkapi_qfifo_dropBuff(&sTlkMdiEventQFifo);
 		ret = TLK_ENONE;
 	}
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 static int tlkmdi_event_pop(uint08 *pMajorID, uint08 *pMinorID, uint08 *pBuff, uint08 buffLen, uint08 *pLength)
@@ -182,7 +182,7 @@ static int tlkmdi_event_pop(uint08 *pMajorID, uint08 *pMinorID, uint08 *pBuff, u
 		return -TLK_EPARAM;
 	}
 
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	pData = tlkapi_qfifo_getData(&sTlkMdiEventQFifo);
 	if(pData == nullptr){
 		ret = -TLK_EEMPTY;
@@ -196,7 +196,7 @@ static int tlkmdi_event_pop(uint08 *pMajorID, uint08 *pMinorID, uint08 *pBuff, u
 		tlkapi_qfifo_dropData(&sTlkMdiEventQFifo);
 		ret = TLK_ENONE;
 	}
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 

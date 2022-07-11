@@ -35,7 +35,6 @@
 #include "tlkdev/sys/tlkdev_mic.h"
 #include "tlkdev/sys/tlkdev_spk.h"
 #include "tlkdev/sys/tlkdev_codec.h"
-#include "tlkdev/sys/tlkdev_usb.h"
 #include "tlkdev/sys/tlkdev_nand.h"
 #include "tlkdev/sys/tlkdev_file.h"
 

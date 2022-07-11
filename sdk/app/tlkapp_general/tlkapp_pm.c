@@ -181,8 +181,8 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 	
 	#if (TLK_DEV_XTSD04G_ENABLE)
 	if(tlkdev_nand_isPowerOn()){
-		#if (TLK_CFG_USB_ENABLE)
-		tlkdev_usb_shutdown();
+		#if (TLK_MDI_USB_ENABLE)
+		tlkmdi_usb_shutdown();
 		#endif
 		tlkdev_nand_shutdown();
 		tlkdev_nand_powerOff();

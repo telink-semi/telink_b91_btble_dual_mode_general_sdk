@@ -188,6 +188,7 @@ static inline void plic_set_pending (irq_source_e src)
 static inline void plic_set_threshold (unsigned char threshold)
 {
 	reg_irq_threshold=threshold;
+	NDS_FENCE_IORW;
 }
 
 /**
@@ -200,6 +201,7 @@ static inline void plic_set_threshold (unsigned char threshold)
 static inline void plic_set_priority (irq_source_e src, irq_priority_e priority)
 {
 	reg_irq_src_priority(src)=priority;
+	NDS_FENCE_IORW;
 }
 
 
@@ -211,7 +213,7 @@ static inline void plic_set_priority (irq_source_e src, irq_priority_e priority)
 static inline void plic_interrupt_enable(irq_source_e  src)
 {
 	reg_irq_src(src) |= BIT(src%32);
-
+	NDS_FENCE_IORW;
 }
 
 /**
@@ -222,6 +224,7 @@ static inline void plic_interrupt_enable(irq_source_e  src)
 static inline void plic_interrupt_disable(irq_source_e  src)
 {
 	reg_irq_src(src) &= (~ BIT(src%32));
+	NDS_FENCE_IORW;
 }
 
 /**
@@ -252,20 +255,14 @@ static inline  unsigned int plic_interrupt_claim(irq_source_e  src)
  * @param[in]   threshold  - interrupt threshold.when the interrupt priority> interrupt threshold,the function process will be disturb by interrupt.
  * @return  none
 */
-_attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec(unsigned char preempt_en ,unsigned char threshold);
-
-
-_attribute_retention_code_ void  plic_exit_critical_sec2(unsigned char preempt_en ,unsigned int r);
-
-_attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec2(unsigned char preempt_en ,unsigned char threshold);
-
+_attribute_ram_code_sec_noinline_ unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
 /**
  * @brief    This function serves to config plic when exit some function process such as flash.
  * @param[in]   preempt_en - 1 can disturb by interrupt, 0 can disturb by interrupt.
  * @param[in]    r         - the value of mie register to restore.
  * @return  none
 */
-_attribute_ram_code_sec_noinline_   void  plic_exit_critical_sec(unsigned char preempt_en ,unsigned int r);
+_attribute_ram_code_sec_noinline_   void  core_leave_critical(unsigned char preempt_en ,unsigned int r);
 
 /*******************************      BLE/BT Use     ******************************/
 typedef enum{//todo
@@ -411,9 +408,7 @@ extern void irq_stack_check(uint32_t sp);
 	} while(0)
 #endif
 
-typedef void (* trap_func_t)(void);
-void plic_trap_func_register(trap_func_t f);
-extern trap_func_t plic_trap_proc;
+
 
 
 #endif

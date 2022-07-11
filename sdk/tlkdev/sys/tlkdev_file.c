@@ -23,7 +23,7 @@
 
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev_stdio.h"
-#include "tlklib/fs/filesystem.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkdev/sys/tlkdev_nand.h"
 #include "tlkdev/sys/tlkdev_file.h"

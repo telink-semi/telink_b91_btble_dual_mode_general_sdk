@@ -4,52 +4,52 @@
 #include "tlklib/usb/tlkusb_desc.h"
 #include "tlklib/usb/tlkusb_module.h"
 
-#if (TLKUSB_UDB_ENABLE)
+#if (TLK_USB_UDB_ENABLE)
 extern const tlkusb_module_t gTlkUsbUdbModule;
 #endif
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 extern const tlkusb_module_t gTlkUsbAudModule;
 #endif
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
 extern const tlkusb_module_t gTlkUsbMscModule;
 #endif
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 extern const tlkusb_module_t gTlkUsbCdcModule;
 #endif
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 extern const tlkusb_module_t gTlkUsbHidModule;
 #endif
-#if (TLKUSB_USR_ENABLE)
+#if (TLK_USB_USR_ENABLE)
 extern const tlkusb_module_t gTlkUsbUsrModule;
 #endif
 static const tlkusb_module_t *sTlkUsbModule[TLKUSB_MODTYPE_MAX] = 
 {
-	#if (TLKUSB_UDB_ENABLE)
+	#if (TLK_USB_UDB_ENABLE)
 	&gTlkUsbUdbModule,
 	#else
 	nullptr,
 	#endif
-	#if (TLKUSB_AUD_ENABLE)
+	#if (TLK_USB_AUD_ENABLE)
 	&gTlkUsbAudModule,
 	#else
 	nullptr,
 	#endif
-	#if (TLKUSB_MSC_ENABLE)
+	#if (TLK_USB_MSC_ENABLE)
 	&gTlkUsbMscModule,
 	#else
 	nullptr,
 	#endif
-	#if (TLKUSB_CDC_ENABLE)
+	#if (TLK_USB_CDC_ENABLE)
 	&gTlkUsbCdcModule,
 	#else
 	nullptr,
 	#endif
-	#if (TLKUSB_HID_ENABLE)
+	#if (TLK_USB_HID_ENABLE)
 	&gTlkUsbHidModule,
 	#else
 	nullptr,
 	#endif
-	#if (TLKUSB_USR_ENABLE)
+	#if (TLK_USB_USR_ENABLE)
 	&gTlkUsbUsrModule,
 	#else
 	nullptr,

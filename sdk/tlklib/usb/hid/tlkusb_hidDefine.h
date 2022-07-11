@@ -23,7 +23,7 @@
 #ifndef TLKUSB_HID_DEFINE_H
 #define TLKUSB_HID_DEFINE_H
 
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 
 
 typedef enum{
@@ -169,7 +169,7 @@ typedef enum{
 
 
 
-#endif //#if (TLKUSB_HID_ENABLE)
+#endif //#if (TLK_USB_HID_ENABLE)
 
 #endif //TLKUSB_HID_DEFINE_H
 

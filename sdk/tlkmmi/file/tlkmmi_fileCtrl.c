@@ -25,8 +25,8 @@
 #include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
 #include "tlkprt/tlkprt_stdio.h"
-#include "tlklib/fs/filesystem.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"
@@ -150,11 +150,24 @@ static void tlkmmi_file_btSppRecvProc(uint16 aclHandle, uint08 rfcHandle, uint08
 		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_btSppRecvProc: error dataLen[%d]", dataLen);
 		return;
 	}
-	tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_BT_SPP, aclHandle, pData, 7, pData+7, dataLen-7);
+//	tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btSppRecv: %x", aclHandle);
+	if(pData[0] == TLKPRT_COMM_PTYPE_DAT){
+		tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_BT_SPP, aclHandle, pData, 6, pData+6, dataLen-6);
+	}else{
+		tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_BT_SPP, aclHandle, pData, 7, pData+7, dataLen-7);
+	}
 }
 static int tlkmmi_file_btSppSendProc(uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen)
 {
-	return btp_spp_sendData(handle, pHead, headLen, pData, dataLen);
+	int ret;
+	ret = btp_spp_sendData(handle, pHead, headLen, pData, dataLen);
+	if(ret == TLK_ENONE){
+		//tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btSppSend[Head]:", pHead, headLen);
+		//tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btSppSend[Data]:", pData, dataLen > 16 ? 16 : dataLen);
+	}else{
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btSppSend: failure");
+	}
+	return ret;
 }
 #endif //#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
 

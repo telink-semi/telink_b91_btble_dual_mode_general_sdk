@@ -55,7 +55,7 @@ _attribute_data_retention_ static tlkapi_timer_t sTlkAppBatTimer;
 *******************************************************************************/
 int tlkapp_battery_init(void)
 {
-#if (TLKDEV_CFG_BAT_ENABLE)
+#if (TLKDEV_SYS_BAT_ENABLE)
 	tlkdev_bat_init(TLKAPP_BAT_GPIO_PIN, TLKAPP_BAT_ADC_PIN);
 	tlkapp_adapt_initTimer(&sTlkAppBatTimer, tlkapp_battery_timer, nullptr, TLKAPP_BAT_CHECK_INTERVAL);
 	tlkapp_adapt_insertTimer(&sTlkAppBatTimer);
@@ -84,7 +84,7 @@ int tlkapp_battery_init(void)
 *******************************************************************************/
 int tlkapp_battery_check(void)
 {
-#if (TLKDEV_CFG_BAT_ENABLE)
+#if (TLKDEV_SYS_BAT_ENABLE)
 	int j;
 	uint16 temp;
 	uint08 index;

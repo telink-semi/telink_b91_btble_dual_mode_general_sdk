@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev_stdio.h"
-#if (TLKDEV_CFG_BAT_ENABLE)
+#if (TLKDEV_SYS_BAT_ENABLE)
 #include "tlkdev/sys/tlkdev_bat.h"
 #include "drivers.h"
 
@@ -377,5 +377,5 @@ _attribute_ram_code_ void app_battery_power_check(u16 alram_vol_mv)
 #endif
 
 
-#endif //TLKDEV_CFG_BAT_ENABLE
+#endif //TLKDEV_SYS_BAT_ENABLE
 

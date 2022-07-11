@@ -1179,6 +1179,7 @@ static void tlkmdi_file_sendStartTranRspProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendStartTranRspProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_START_TRAN;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendStartAuthRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1219,6 +1220,7 @@ static void tlkmdi_file_sendStartAuthRspProc(tlkmdi_file_unit_t *pUnit)
 		else pUnit->flags |= TLKMDI_FILE_FLAG_WAIT_SET_DATA_SCH | TLKMDI_FILE_FLAG_WAIT_SET_FILE_NAME;
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_START_TRAN;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendCryptShakeRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1245,6 +1247,7 @@ static void tlkmdi_file_sendCryptShakeRspProc(tlkmdi_file_unit_t *pUnit)
 		pUnit->flags |= TLKMDI_FILE_FLAG_WAIT_SET_DATA_SCH | TLKMDI_FILE_FLAG_WAIT_SET_FILE_NAME;
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_CRYPT_SHAKE;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendSetDataSchRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1268,6 +1271,7 @@ static void tlkmdi_file_sendSetDataSchRspProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendSetDataSchRspProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_SET_DATA_SCH;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendSetFileNameRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1291,6 +1295,7 @@ static void tlkmdi_file_sendSetFileNameRspProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendSetFileNameRspProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_SET_FILE_NAME;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendFastStartRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1314,6 +1319,7 @@ static void tlkmdi_file_sendFastStartRspProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendFastStartRspProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_FAST_START;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendStartDataRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1346,6 +1352,7 @@ static void tlkmdi_file_sendStartDataRspProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendStartDataRspProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_START_DATA;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendCloseTranRspProc(tlkmdi_file_unit_t *pUnit)
@@ -1367,6 +1374,7 @@ static void tlkmdi_file_sendCloseTranRspProc(tlkmdi_file_unit_t *pUnit)
 	if(tlkmdi_file_sendRspPkt(pUnit->optChn, pUnit->handle, status, reason, TLKPRT_COMM_CMDID_FILE_CLOSE_TRAN, 
 		pUnit->dataPort, csign, buffer, dataLen, &pUnit->serial) != TLK_ENONE){
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_CLOSE_TRAN;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}else{
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendCloseTranRspProc");
 		if((pUnit->flags & TLKMDI_FILE_FLAG_START) != 0){
@@ -1395,6 +1403,7 @@ static void tlkmdi_file_sendCloseTranEvtProc(tlkmdi_file_unit_t *pUnit)
 	if(tlkmdi_file_sendEvtPkt(pUnit->optChn, pUnit->handle, TLKPRT_COMM_EVTID_FILE_CLOSE, pUnit->dataPort,
 		csign, buffer, dataLen, &pUnit->serial) != TLK_ENONE){
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_CLOSE_TRAN_EVT;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}else{
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendCloseTranEvtProc");
 	}
@@ -1418,6 +1427,7 @@ static void tlkmdi_file_sendSyncShakeEvtProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendSyncShakeEvtProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_SYNC_SHAKE_EVT;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 static void tlkmdi_file_sendSyncStallEvtProc(tlkmdi_file_unit_t *pUnit)
@@ -1439,6 +1449,7 @@ static void tlkmdi_file_sendSyncStallEvtProc(tlkmdi_file_unit_t *pUnit)
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_sendSyncShakeEvtProc");
 	}else{
 		pUnit->busys |= TLKMDI_FILE_BUSY_SEND_SYNC_STALL_EVT;
+		tlkmdi_adapt_insertTimer(&pUnit->timer);
 	}
 }
 

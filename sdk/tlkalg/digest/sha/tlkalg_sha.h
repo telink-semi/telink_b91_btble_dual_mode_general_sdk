@@ -26,9 +26,8 @@
 
 
 
+#include "tlkalg/digest/sha/tlkalg_sha1.h"
 #include "tlkalg/digest/sha/tlkalg_sha256.h"
-
-
 
 
 

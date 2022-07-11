@@ -31,9 +31,7 @@
 #include "tlkmdi/tlkmdi_btinq.h"
 #include "tlkmdi/tlkmdi_btrec.h"
 #include "tlkmdi/tlkmdi_hfp.h"
-#if (TLK_MDI_DFU_ENABLE)
-#include "tlkmdi/tlkmdi_dfu.h"
-#endif
+#include "tlkmdi/tlkmdi_usb.h"
 #if (TLK_MDI_FILE_ENABLE)
 #include "tlkmdi/tlkmdi_file.h"
 #endif
@@ -70,8 +68,8 @@ int tlkmdi_init(void)
 	#if (TLK_MDI_HFP_ENABLE)
 	tlkmdi_hfp_init();
 	#endif
-	#if (TLK_MDI_DFU_ENABLE)
-	tlkmdi_dfu_init();
+	#if (TLK_MDI_USB_ENABLE)
+	tlkmdi_usb_init();
 	#endif
 	#if (TLK_MDI_FILE_ENABLE)
 	tlkmdi_file_init();
@@ -112,6 +110,9 @@ void tlkmdi_process(void)
 {
 	tlkmdi_adapt_handler();
 	tlkmdi_event_handler();
+	#if (TLK_MDI_USB_ENABLE)
+	tlkmdi_usb_process();
+	#endif
 }
 
 /******************************************************************************

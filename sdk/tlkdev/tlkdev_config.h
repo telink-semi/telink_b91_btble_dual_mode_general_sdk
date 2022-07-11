@@ -27,10 +27,10 @@
 
 
 
-#define TLKDEV_CFG_BAT_ENABLE         1
+#define TLKDEV_SYS_BAT_ENABLE         1
 
 
-
+#define TLKDEV_EXT_PUYA_P25Q32H_ENABLE         0
 
 
 

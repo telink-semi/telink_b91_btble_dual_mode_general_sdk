@@ -24,7 +24,7 @@
 #ifndef TLKDEV_BAT_H
 #define TLKDEV_BAT_H
 
-#if (TLKDEV_CFG_BAT_ENABLE)
+#if (TLKDEV_SYS_BAT_ENABLE)
 
 
 #if 0
@@ -67,7 +67,7 @@ int tlkdev_bat_getVoltage(uint16 *pVoltage);
 
 
 
-#endif //TLKDEV_CFG_BAT_ENABLE
+#endif //TLKDEV_SYS_BAT_ENABLE
 
 #endif //TLKDEV_BAT_H
 

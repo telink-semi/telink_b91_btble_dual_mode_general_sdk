@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 #include "tlklib/usb/tlkusb_desc.h"
 #include "tlklib/usb/aud/tlkusb_audDefine.h"
 #include "tlklib/usb/aud/tlkusb_audDesc.h"
@@ -272,6 +272,6 @@ static uint08 *tlkusb_auddesc_getStringDesc(uint08 index)
 
 
 
-#endif //#if (TLKUSB_AUD_ENABLE)
+#endif //#if (TLK_USB_AUD_ENABLE)
 
 

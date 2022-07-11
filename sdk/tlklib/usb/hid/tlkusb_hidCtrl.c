@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 #include "drivers.h"
 #include "tlklib/usb/hid/tlkusb_hidConfig.h"
 #include "tlklib/usb/hid/tlkusb_hidDefine.h"
@@ -112,5 +112,5 @@ static int tlkusb_hidctrl_setInterface(tlkusb_setup_req_t *pSetup, uint08 infNum
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_HID_ENABLE)
 

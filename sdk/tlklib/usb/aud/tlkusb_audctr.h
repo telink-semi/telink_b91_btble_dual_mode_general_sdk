@@ -23,7 +23,7 @@
 #ifndef TLKUSB_AUDIO_CTR_H
 #define TLKUSB_AUDIO_CTR_H
 
-#if (TLKUSB_AUD_ENABLE)
+#if (TLK_USB_AUD_ENABLE)
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-#endif //#if (TLKUSB_AUD_ENABLE)
+#endif //#if (TLK_USB_AUD_ENABLE)
 
 #endif //TLKUSB_AUDIO_CTR_H
 

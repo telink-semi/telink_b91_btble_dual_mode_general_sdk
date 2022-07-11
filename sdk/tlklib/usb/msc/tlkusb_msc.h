@@ -23,7 +23,22 @@
 #ifndef TLKUSB_MSC_H
 #define TLKUSB_MSC_H
 
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
+
+
+
+typedef struct{
+	uint08 isReady;
+	uint08 hotPlug; //1-Enable, 0-Disable
+	uint16 blkSize;
+	uint32 blkCount;
+	char *pVendorStr; //<=8
+	char *pProductStr; //<=16
+	char *pVersionStr; //<=4
+	int(*Init)(void);
+	int(*Read)(uint32 blkOffs, uint16 blkNumb, uint08 *pBuff);
+	int(*Write)(uint32 blkOffs, uint16 blkNumb, uint08 *pData);
+}tlkusb_msc_unit_t;
 
 
 
@@ -31,10 +46,16 @@
 
 int tlkusb_msc_init(void);
 
+int tlkusb_msc_appendDisk(tlkusb_msc_unit_t *pUnit);
+
+
+uint08 tlkusb_msc_getDiskCount(void);
+tlkusb_msc_unit_t *tlkusb_msc_getDisk(uint08 lun);
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+
+#endif //#if (TLK_USB_MSC_ENABLE)
 
 #endif //TLKUSB_MSC_H
 

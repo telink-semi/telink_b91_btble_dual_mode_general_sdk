@@ -26,7 +26,7 @@
 #include "tlkmdi/tlkmdi_stdio.h"
 #if TLK_MDI_MP3_ENABLE
 #include "drivers.h"
-#include "tlklib/fs/filesystem.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_audmp3.h"
 #include "tlkalg/audio/mp3/tlkalg_mp3.h"

@@ -26,12 +26,7 @@
 
 
 
-#define TLKUSB_UDB_ENABLE        (1 && TLK_USB_UDB_ENABLE)
-#define TLKUSB_MSC_ENABLE        (1 && TLK_USB_MSC_ENABLE)
-#define TLKUSB_AUD_ENABLE        (1 && TLK_USB_AUD_ENABLE)
-#define TLKUSB_CDC_ENABLE        (1 && TLK_CFG_USB_ENABLE)
-#define TLKUSB_HID_ENABLE        (0 && TLK_CFG_USB_ENABLE)
-#define TLKUSB_USR_ENABLE        (0 && TLK_CFG_USB_ENABLE)
+
 
 //VCD - MSC - AUD   Mutex
 

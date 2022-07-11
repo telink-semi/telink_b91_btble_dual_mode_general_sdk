@@ -23,7 +23,17 @@
 #ifndef TLKUSB_MSC_DEFINE_H
 #define TLKUSB_MSC_DEFINE_H
 
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
+
+
+#define TLKUSB_MSC_BLOCK_SIZE           512 //64*n
+#define TLKUSB_MSC_UNIT_COUNT           2
+
+#define TLKUSB_MSC_VENDOR_STRING_DEF    "TLK-DISK" // length<=8
+#define TLKUSB_MSC_PRODUCE_STRING_DEF   "Telink Disk Demo" // length<=16
+#define TLKUSB_MSC_VERSION_STRING_DEF   "1.01" // length<=4
+
+
 
 
 typedef enum{
@@ -177,7 +187,7 @@ typedef struct
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_MSC_ENABLE)
 
 #endif //TLKUSB_MSC_DEFINE_H
 

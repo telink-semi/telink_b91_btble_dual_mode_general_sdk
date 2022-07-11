@@ -31,10 +31,6 @@
 extern void trap_entry(void);
 
 
-volatile int dma_irq_cnt=0;
-volatile int dma_irq_rx_cnt=0;
-volatile int dma_irq_tx_cnt=0;
-
 
 /******************************************************************************
  * Function: dma_irq_handler
@@ -43,22 +39,19 @@ volatile int dma_irq_tx_cnt=0;
  * Return: None.
  * Others: None.
 *******************************************************************************/
-void dma_irq_handler(void)
+_attribute_retention_code_ void dma_irq_handler(void)
 {
-	dma_irq_cnt++;
 	unsigned char uart_dma_irq_src = reg_dma_tc_isr;
 	plic_interrupt_complete(IRQ5_DMA);
 	/*dma 0*/
 	if((uart_dma_irq_src & FLD_DMA_CHANNEL4_IRQ))
 	{
 		reg_dma_tc_isr |= FLD_DMA_CHANNEL4_IRQ;
-		dma_irq_rx_cnt++;
 	}
 	/*dma 1*/
 	if(( uart_dma_irq_src &FLD_DMA_CHANNEL5_IRQ))
 	{
 		reg_dma_tc_isr |= FLD_DMA_CHANNEL5_IRQ;
-		dma_irq_tx_cnt++;
 	}
 }
 

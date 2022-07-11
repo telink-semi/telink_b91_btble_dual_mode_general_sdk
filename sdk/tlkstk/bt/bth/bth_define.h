@@ -65,15 +65,13 @@
 #define HCI_LP_ENABLE_SNIFF_MODE_MASK       0x04
 #define HCI_LP_ENABLE_PARK_MODE_MASK        0x08
 
-//#define HCI_CFG_SNIFF_MAX_INTERVAL     0x0320
-#define HCI_CFG_SNIFF_MAX_INTERVAL       0x180 // 100ms
+#define HCI_CFG_SNIFF_MAX_INTERVAL       0x320 // 500ms
 #define HCI_CFG_SNIFF_MIN_INTERVAL       0x170
-//#define HCI_CFG_SNIFF_MIN_INTERVAL     0x0300
 #define HCI_CFG_SNIFF_ATTEMPT            0x04
 #define HCI_CFG_SNIFF_TIMEOUT            0x00
 
-#define ALLOW_ROLE_SWITCH_YES               0x01
-#define ALLOW_ROLE_SWITCH_NO                0x00
+#define ALLOW_ROLE_SWITCH_YES            0x01
+#define ALLOW_ROLE_SWITCH_NO             0x00
 
 #define BTH_ROLE_MASTER             0 //we set as master in all acl link 
 #define BTH_ROLE_SLAVE              1 //we set as slave  in all acl link 

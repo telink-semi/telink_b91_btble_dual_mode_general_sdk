@@ -23,7 +23,7 @@
 #ifndef TLKUSB_MSC_DESC_H
 #define TLKUSB_MSC_DESC_H
 
-#if (TLKUSB_MSC_ENABLE)
+#if (TLK_USB_MSC_ENABLE)
 
 
 //#define TLK_DEV_XTSD04G_ENABLE             (0 && TLK_CFG_FS_ENABLE)
@@ -31,7 +31,7 @@
 
 
 #define TLKUSB_MSC_STRING_PRODUCT       L"Telink B91 BTBLE Storage"
-#define TLKUSB_MSC_STRING_SERIAL0       L"TLSR9218-XTSD04G"
+#define TLKUSB_MSC_STRING_SERIAL0       L"TLSR9218-XTSD04G0"
 #define TLKUSB_MSC_STRING_SERIAL1       L"TLSR9218-XT2602E"
 
 
@@ -47,7 +47,7 @@ typedef struct {
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_MSC_ENABLE)
 
 #endif //TLKUSB_MSC_DESC_H
 

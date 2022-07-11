@@ -23,7 +23,7 @@
 #ifndef TLKUSB_HID_CONST_H
 #define TLKUSB_HID_CONST_H
 
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 
 
 const uint08 cTlkUsbHidKeyboardDesc[] = {
@@ -147,7 +147,7 @@ const uint08 cTlkUsbHidMouseDesc[] = {
 
 
 
-#endif //#if (TLKUSB_HID_ENABLE)
+#endif //#if (TLK_USB_HID_ENABLE)
 
 #endif //TLKUSB_HID_CONST_H
 

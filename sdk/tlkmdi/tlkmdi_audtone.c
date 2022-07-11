@@ -26,7 +26,7 @@
 #include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMDI_CFG_AUDTONE_ENABLE)
 #include "tlkmdi/tlkmdi_audio.h"
-#include "tlklib/fs/filesystem.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_audmp3.h"
 #include "tlkmdi/tlkmdi_audplay.h"

@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010001 //Application, 5.1.0.0
+#define TLK_APP_VERSION              0x05010009 //Application, 5.1.0.0
 #endif
 #define TLK_LIB_VERSION              0x05010000 //Libary, 5.1.0.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -102,6 +102,15 @@
 #endif
 #ifndef TLK_USB_UDB_ENABLE
 #define TLK_USB_UDB_ENABLE           (1 && TLK_CFG_USB_ENABLE)
+#endif
+#ifndef TLK_USB_CDC_ENABLE
+#define TLK_USB_CDC_ENABLE           (1 && TLK_CFG_USB_ENABLE)
+#endif
+#ifndef TLK_USB_HID_ENABLE
+#define TLK_USB_HID_ENABLE           (0 && TLK_CFG_USB_ENABLE)
+#endif
+#ifndef TLK_USB_USR_ENABLE
+#define TLK_USB_USR_ENABLE           (0 && TLK_CFG_USB_ENABLE)
 #endif
 
 /******************************************************************************
@@ -173,16 +182,18 @@
 #ifndef TLK_MDI_FILE_ENABLE
 #define TLK_MDI_FILE_ENABLE          (1)
 #endif
-#ifndef TLK_MDI_DFU_ENABLE
-#define TLK_MDI_DFU_ENABLE           (0)
-#endif
 #ifndef TLK_MDI_AUD_ENABLE
 #define TLK_MDI_AUD_ENABLE           (1)
 #endif
 #ifndef TLK_MDI_MP3_ENABLE
 #define TLK_MDI_MP3_ENABLE           (1 && TLK_CFG_FS_ENABLE)
 #endif
-
+#ifndef TLK_MDI_HID_ENABLE
+#define TLK_MDI_HID_ENABLE           (1)
+#endif
+#ifndef TLK_MDI_USB_ENABLE
+#define TLK_MDI_USB_ENABLE           (1 && TLK_CFG_USB_ENABLE)
+#endif
 
 /******************************************************************************
  * Macro: TLK_DEV_xxxxx_ENABLE
@@ -238,8 +249,11 @@
 
 #define TLK_CFG_FLASH_VOLUME_ADDR             (0xEA000+TLK_CFG_FLASH_CAP-0x100000) //play,SRC,SNK,SCO,HFP-HF,HFP-AG,Tone-local,Tone-headset
 
-#define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED000+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
-#define TLK_CFG_FLASH_BT_ADDR_ADDR            (0xFF000+TLK_CFG_FLASH_CAP-0x100000) //ADDR  -- Bind to the tool and do not change
+//#define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED000+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
+//#define TLK_CFG_FLASH_BT_ADDR_ADDR            (0xFF000+TLK_CFG_FLASH_CAP-0x100000) //ADDR  -- Bind to the tool and do not change
+#define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED000) //NAME  -- Bind to the tool and do not change
+#define TLK_CFG_FLASH_BT_ADDR_ADDR            (0xFF000) //ADDR  -- Bind to the tool and do not change
+
 
 #define TLK_CFG_FLASH_EQ_TEST_ADDR            (0xEF000+TLK_CFG_FLASH_CAP-0x100000) //music EQ and speech EQ para
 

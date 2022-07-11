@@ -95,8 +95,7 @@
 typedef enum{
 	FLD_FEATURE_PREEMPT_PRIORITY_INT_EN = BIT(0),
 	FLD_FEATURE_VECTOR_MODE_EN 			= BIT(1),
-}
-feature_e;
+}feature_e;
 
 /* Disable the Machine external, timer and software interrupts until setup is done */
 /** @brief Disable interrupts globally in the system.
@@ -123,11 +122,9 @@ feature_e;
 //}
 
  
-//void core_enable_interrupt(void);
-
 unsigned int core_disable_interrupt(void);
 
-void core_restore_interrupt(u32 en);
+void core_restore_interrupt(unsigned int en);
 
 
 /* Enable the Machine External/Timer/Sofware interrupt bit in MIE. */

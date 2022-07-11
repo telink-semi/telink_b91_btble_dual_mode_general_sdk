@@ -23,7 +23,7 @@
 #ifndef TLKUSB_HID_H
 #define TLKUSB_HID_H
 
-#if (TLKUSB_HID_ENABLE)
+#if (TLK_USB_HID_ENABLE)
 
 
 
@@ -34,7 +34,7 @@ int tlkusb_hid_init(void);
 
 
 
-#endif //#if (TLKUSB_HID_ENABLE)
+#endif //#if (TLK_USB_HID_ENABLE)
 
 #endif //TLKUSB_HID_H
 

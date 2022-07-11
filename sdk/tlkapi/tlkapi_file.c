@@ -21,7 +21,7 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlklib/fs/filesystem.h"
+#include "tlklib/fs/tlklib_fs.h"
 #include "tlkapi/tlkapi_file.h"
 
 
@@ -29,8 +29,8 @@
 #if (TLK_CFG_FS_ENABLE)
 
 
-extern unsigned int plic_enter_critical_sec2(unsigned char preempt_en ,unsigned char threshold);
-extern void plic_exit_critical_sec2(unsigned char preempt_en ,unsigned int r);
+extern unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
+extern void core_leave_critical(unsigned char preempt_en ,unsigned int r);
 
 
 FATFS gTlkFileFatFs;
@@ -82,13 +82,13 @@ int tlkapi_file_strlen(FCHAR *pPath)
 int tlkapi_file_size(FIL *pFile)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_size(pFile);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = gTlkFileFatFs.fsize;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -104,13 +104,13 @@ int tlkapi_file_size(FIL *pFile)
 int tlkapi_file_open(FIL *pFile, const FCHAR* path, uint08 mode)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_open(pFile, path, mode); //int
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_open(path);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -125,13 +125,13 @@ int tlkapi_file_open(FIL *pFile, const FCHAR* path, uint08 mode)
 int tlkapi_file_close(FIL *pFile)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_close(pFile);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = TLK_ENONE;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -147,13 +147,13 @@ int tlkapi_file_close(FIL *pFile)
 int tlkapi_file_seek(FIL *pFile, uint32 ofs)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_lseek(pFile, ofs);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_lseek(ofs);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -171,13 +171,13 @@ int tlkapi_file_seek(FIL *pFile, uint32 ofs)
 int tlkapi_file_read(FIL *pFile, void* buff, uint32 btr, uint32* br)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_read(pFile, buff, btr, br);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_read(buff, btr, br);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -195,13 +195,13 @@ int tlkapi_file_read(FIL *pFile, void* buff, uint32 btr, uint32* br)
 int tlkapi_file_write(FIL *pFile, const void* buff, uint32 btw, uint32* bw)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_write(pFile, buff, btw, bw);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_write(buff, btw, bw);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -217,13 +217,13 @@ int tlkapi_file_write(FIL *pFile, const void* buff, uint32 btw, uint32* bw)
 int tlkapi_file_opendir(DIR *pDir, const FCHAR* path)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_opendir(pDir, path);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_opendir(pDir, path);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -238,13 +238,13 @@ int tlkapi_file_opendir(DIR *pDir, const FCHAR* path)
 int tlkapi_file_closedir(DIR *pDir)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_closedir(pDir);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -260,13 +260,13 @@ int tlkapi_file_closedir(DIR *pDir)
 int tlkapi_file_readdir(DIR *pDir, FILINFO* fno)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_readdir(pDir, (FILINFO*)fno);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_readdir(pDir, (FILINFO*)fno);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -284,13 +284,13 @@ int tlkapi_file_readdir(DIR *pDir, FILINFO* fno)
 int tlkapi_file_findfirst(DIR *pDir, FILINFO* fno, const FCHAR* path, const FCHAR* pattern)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_findfirst(pDir, fno, path, pattern);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -306,13 +306,13 @@ int tlkapi_file_findfirst(DIR *pDir, FILINFO* fno, const FCHAR* path, const FCHA
 int tlkapi_file_findnext(DIR *pDir, FILINFO* fno)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_findnext(pDir, fno);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -327,13 +327,13 @@ int tlkapi_file_findnext(DIR *pDir, FILINFO* fno)
 int tlkapi_file_mkdir(const FCHAR* path)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_mkdir(path);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -348,13 +348,13 @@ int tlkapi_file_mkdir(const FCHAR* path)
 int tlkapi_file_unlink(const FCHAR* path)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_unlink(path);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -370,13 +370,13 @@ int tlkapi_file_unlink(const FCHAR* path)
 int tlkapi_file_rename(const FCHAR* path_old, const FCHAR* path_new)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_rename(path_old, path_new);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -392,13 +392,13 @@ int tlkapi_file_rename(const FCHAR* path_old, const FCHAR* path_new)
 int tlkapi_file_mount(const FCHAR* path, uint08 opt)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_mount(&gTlkFileFatFs, path, opt);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = pf_mount(&gTlkFileFatFs);
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -412,13 +412,13 @@ int tlkapi_file_mount(const FCHAR* path, uint08 opt)
 int tlkapi_file_mkfs(const FCHAR* path, const void* opt, void* work, uint32 len)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_mkfs(path, opt, work, len);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 
@@ -432,13 +432,13 @@ int tlkapi_file_mkfs(const FCHAR* path, const void* opt, void* work, uint32 len)
 int tlkapi_file_fdisk(uint08 pdrv, const uint32 ptbl[], void* work)
 {
 	int ret;
-	unsigned int r=plic_enter_critical_sec2(1,1);
+	unsigned int r=core_enter_critical(1,1);
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_fdisk(pdrv, (const LBA_t*)ptbl, work);
 	#elif (TLK_FS_PFF_ENABLE)
 		ret = 0xFF;
 	#endif
-	plic_exit_critical_sec2(1,r);
+	core_leave_critical(1,r);
 	return ret;
 }
 

@@ -23,7 +23,7 @@
 #ifndef TLKUSB_CDC_DEFINE_H
 #define TLKUSB_CDC_DEFINE_H
 
-#if (TLKUSB_CDC_ENABLE)
+#if (TLK_USB_CDC_ENABLE)
 
 
 
@@ -94,7 +94,7 @@ typedef enum{
 
 
 
-#endif //#if (TLKUSB_CDC_ENABLE)
+#endif //#if (TLK_USB_CDC_ENABLE)
 
 #endif //TLKUSB_CDC_DEFINE_H
 

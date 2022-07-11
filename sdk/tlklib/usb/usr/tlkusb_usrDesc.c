@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
-#if (TLKUSB_USR_ENABLE)
+#if (TLK_USB_USR_ENABLE)
 #include "tlklib/usb/aud/tlkusb_usrDefine.h"
 #include "tlklib/usb/aud/tlkusb_usr.h"
 #include "tlklib/usb/aud/tlkusb_usrDesc.h"
@@ -43,6 +43,6 @@
 
 
 
-#endif //#if (TLKUSB_MSC_ENABLE)
+#endif //#if (TLK_USB_USR_ENABLE)
 
 

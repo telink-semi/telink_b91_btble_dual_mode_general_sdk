@@ -38,6 +38,8 @@
 #define BTP_SDP_OPP_HANDLE                0x00100002
 #define BTP_SDP_FTP_HANDLE                0x00100003
 #define BTP_SERVER_SERVICE_HANDLE         0x00100005
+#define BTP_SDP_HID_DEV_HANDLE            0x00100006
+
 
 #define BTP_SDP_IAP_HANDLE                0x00100014
 
