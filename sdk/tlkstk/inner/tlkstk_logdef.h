@@ -94,6 +94,8 @@
 #define         SLET_bt_sniff_prog              30
 #define         SLET_last_id_filter             31
 #define			SLET_bt_crc_err					20
+#define			SLET_acl_rx_chg_fcnt_sniff 		21
+
 
 // 1-bit data: 0/1 for hardware signal: PA4/PB1; bid2 - bid31
 #define         SL01_TX_EN                  	0
@@ -201,6 +203,11 @@
 #define			SL16_esco_st					20
 #define			SL16_bt_sniff_sub_instant		21
 #define			SL16_bt_sniff_anchor_point		22
+
+#define			SL16_reserved_state16_1           26
+#define			SL16_reserved_state16_2           27
+#define			SL16_reserved_state16_3           28
+
 
 
 #define			SL16_ec_rptr					31

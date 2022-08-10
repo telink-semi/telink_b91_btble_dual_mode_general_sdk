@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     tlkdev_nand.c
+ * @file     main.c
  *
  * @brief    This is the source file for BTBLE SDK
  *
@@ -20,41 +20,39 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
+#include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlklib/fs/tlklib_fs.h"
-#include "tlkapi/tlkapi_file.h"
-#include "tlkdev/sys/tlkdev_nand.h"
-#include "tlkdev/sys/tlkdev_file.h"
+#include "tlkapp_config.h"
+#include "tlkapp.h"
 
-
-extern void nand_flash_fat_init(int reset);
+#include "tlkapp_dfu.h"
 
 
 
-int tlkdev_file_init(void)
+
+/******************************************************************************
+ * Function: main
+ * Descript: This is main function.
+ * Params: None.
+ * Return: 0 is successs.
+ * Others: None.
+*******************************************************************************/
+int main(void)
 {
-	tlkdev_nand_powerOn();
+    blc_pm_select_internal_32k_crystal();
+
+    sys_init(DCDC_1P4_LDO_1P8,VBAT_MAX_VALUE_GREATER_THAN_3V6);
 	
-	#if (TLK_DEV_XT2602E_ENABLE)
-		nand_flash_fat_init(0);
-		#if (TLK_FS_PFF_ENABLE)
-		tlkapi_file_mount("", 0);
-		#endif
-	#endif
-	#if (TLK_DEV_XTSD04G_ENABLE)
-	if(tlkdev_nand_isReady()){
-		#if (TLK_FS_FAT_ENABLE)
-		tlkapi_file_mount(L"1:", 1);
-		#endif
+    CCLK_48M_HCLK_48M_PCLK_24M;
+		
+    tlkapp_init();
+
+    core_enable_interrupt();
+
+	while(1)
+	{
+		tlkapp_process();
 	}
-	#endif
-	
-	return TLK_ENONE;
-}
-
-
-
-
+    return 0;
+} 
 

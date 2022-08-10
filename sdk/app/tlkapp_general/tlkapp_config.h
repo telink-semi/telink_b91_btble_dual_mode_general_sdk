@@ -31,7 +31,7 @@
 #define TLKAPP_DBG_SIGN         "[APP]"
 
 
-#define TLKAPP_WAKEUP_PIN       GPIO_PE1
+#define TLKAPP_WAKEUP_PIN       GPIO_PA2
 
 
 #define TLKAPP_MEM_TOTAL_SIZE            (40*1024) //MP3(36740)+SrcEnc(4048) = 36740+4048=40788  -- Worst scenario: Music playing on the headphone
@@ -39,19 +39,6 @@
 
 #define TLKAPP_CFG_BAT_CHECK_ENABLE      0
 
-
-
-/********************************************************************
- * BLE configuration
- *******************************************************************/
-#define	MAX_BT_ACL_LINK							2				//BT LINK:  acl
-#define	MAX_BLE_LINK							2				//BLE LINK: adv & acl
-#define	EM_BT_AUDIOBUF_SIZE						256
-#define ACL_DATA_BUF_SIZE            			800
-
-
-#define BLMS_MAX_CONN_MASTER_NUM				0
-#define	BLMS_MAX_CONN_SLAVE_NUM					1
 
 
 

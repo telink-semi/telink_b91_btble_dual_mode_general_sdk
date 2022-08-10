@@ -58,7 +58,7 @@ static const tlkusb_stdStringDesc_t sMmiUsbMscProductDesc = {
 /** Serial number string. This is a Unicode string containing the device's unique serial number, expressed as a
  *  series of uppercase hexadecimal digits.
  */
-#if (TLK_DEV_XTSD04G_ENABLE)
+#if (TLK_DEV_XTSD01G_ENABLE)
 static const tlkusb_stdStringDesc_t sMmiUsbMscSerial0Desc = {
 	2+sizeof(TLKUSB_MSC_STRING_SERIAL0)-2,
 	TLKUSB_TYPE_STRING,
@@ -162,7 +162,7 @@ static uint16 tlkusb_mscdesc_getStringLens(uint08 index)
 	if(index == TLKUSB_STRING_INDEX_PRODUCT){
 		return sizeof(TLKUSB_MSC_STRING_PRODUCT);
 	}else if(index == TLKUSB_STRING_INDEX_SERIAL){
-		#if (TLK_DEV_XTSD04G_ENABLE)
+		#if (TLK_DEV_XTSD01G_ENABLE)
 		return sizeof(TLKUSB_MSC_STRING_SERIAL0);
 		#else
 		return sizeof(TLKUSB_MSC_STRING_SERIAL0);
@@ -185,7 +185,7 @@ static uint08 *tlkusb_mscdesc_getStringDesc(uint08 index)
 	if(index == TLKUSB_STRING_INDEX_PRODUCT){
 		return (uint08*)(&sMmiUsbMscProductDesc);
 	}else if(index == TLKUSB_STRING_INDEX_SERIAL){
-		#if (TLK_DEV_XTSD04G_ENABLE)
+		#if (TLK_DEV_XTSD01G_ENABLE)
 		return (uint08*)(&sMmiUsbMscSerial0Desc);
 		#else
 		return (uint08*)(&sMmiUsbMscSerial1Desc);

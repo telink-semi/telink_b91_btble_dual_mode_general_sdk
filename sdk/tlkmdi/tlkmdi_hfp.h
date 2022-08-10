@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     tlkmdi_hfp
+ * @file     tlkmdi_hfp.h
  *
  * @brief    This is the header file for BTBLE SDK
  *

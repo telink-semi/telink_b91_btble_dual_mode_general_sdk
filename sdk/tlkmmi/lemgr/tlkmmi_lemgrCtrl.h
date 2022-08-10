@@ -28,11 +28,26 @@
 
 
 
+typedef struct{
+	uint08 nameLen;
+	uint08 leaddr[12];
+	uint08 lename[TLK_CFG_FLASH_LE_NAME_LENS];
+}tlkmmi_lemgr_ctrl_t;
 
 
 int tlkmmi_lemgr_ctrlInit(void);
 
+uint08 tlkmmi_lemgr_getNameLen(void);
 
+uint08 *tlkmmi_lemgr_getName(void);
+uint08 *tlkmmi_lemgr_getAddr(void);
+
+int tlkmmi_lemgr_setName(uint08 *pName, uint08 nameLen);
+int tlkmmi_lemgr_setAddr(uint08 *pAddr);
+int tlkmmi_lemgr_setAddr1(uint08 *pPubAddr, uint08 *pRndAddr);
+
+bool tlkmmi_lemgr_volumeInc(void);
+bool tlkmmi_lemgr_volumeDec(void);
 
 
 

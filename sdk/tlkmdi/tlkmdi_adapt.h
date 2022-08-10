@@ -106,7 +106,7 @@ int  tlkmdi_adapt_removeProcs(tlkapi_procs_t *pProcs);
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int  tlkmdi_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout);
+int  tlkmdi_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
 /******************************************************************************
  * Function: tlkmdi_adapt_insertTimer
  * Descript: Insert a timer timer into the Adapter.

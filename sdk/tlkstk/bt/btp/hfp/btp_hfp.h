@@ -212,8 +212,14 @@ extern int btp_hfphf_acceptWaitAndHoldActive(uint16 aclHandle);
 *******************************************************************************/
 extern int btp_hfphf_hungUpActiveAndResumeHold(uint16 aclHandle);
 
-
-
+/******************************************************************************
+ * Function: HFP hf verfy IOS device interface
+ * Descript: This interface be used by hf to verfy peer device is IOS OS.
+ * Params:
+ *         @aclHandle[IN]--The acl link identifier.
+ * Return: true(Yes)/false(No).
+*******************************************************************************/
+extern bool btp_hfphf_isIosDev(uint16 aclHandle);
 
 #endif /* BTP_HFP_H */
 

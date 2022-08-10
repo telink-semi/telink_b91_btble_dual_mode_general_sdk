@@ -214,14 +214,14 @@ _attribute_ram_code_sec_noinline_ void flash_read_page_ram(unsigned long addr, u
 
 	mspi_write(0x00);			/* dummy,  to issue clock */
 	mspi_wait();
-	mspi_fm_rd_en();			/* auto mode, mspi_get() automatically triggers mspi_write(0x00) once. */
+	mspi_fm_rd_trig_en();			/* auto mode, mspi_get() automatically triggers mspi_write(0x00) once. */
 	mspi_wait();
 	/* get data */
 	for(unsigned int i = 0; i < len; ++i){
 		*buf++ = mspi_get();
 		mspi_wait();
 	}
-	mspi_fm_rd_dis();			/* off read auto mode */
+	mspi_fm_rd_trig_dis();			/* off read auto mode */
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 	AAAA_flash_test006 ++;
@@ -462,14 +462,14 @@ _attribute_ram_code_sec_noinline_ unsigned int flash_read_mid_ram(void){
 	flash_send_cmd(FLASH_GET_JEDEC_ID);
 	mspi_write(0x00);			/* dummy,  to issue clock */
 	mspi_wait();
-	mspi_fm_rd_en();			/* auto mode, mspi_get() automatically triggers mspi_write(0x00) once. */
+	mspi_fm_rd_trig_en();			/* auto mode, mspi_get() automatically triggers mspi_write(0x00) once. */
 	mspi_wait();
 
 	for(j = 0; j < 3; ++j){
 		((unsigned char*)(&flash_mid))[j] = mspi_get();
 		mspi_wait();
 	}
-	mspi_fm_rd_dis();			/* off read auto mode */
+	mspi_fm_rd_trig_dis();			/* off read auto mode */
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 
@@ -513,14 +513,14 @@ _attribute_ram_code_sec_noinline_ void flash_read_uid_ram(unsigned char idcmd,un
 	}
 	mspi_write(0x00);				/* dummy,  to issue clock */
 	mspi_wait();
-	mspi_fm_rd_en();				/* auto mode, mspi_get() automatically triggers mspi_write(0x00) once. */
+	mspi_fm_rd_trig_en();				/* auto mode, mspi_get() automatically triggers mspi_write(0x00) once. */
 	mspi_wait();
 
 	for(j = 0; j < 16; ++j){
 		*buf++ = mspi_get();
 		mspi_wait();
 	}
-	mspi_fm_rd_dis();				/* off read auto mode */
+	mspi_fm_rd_trig_dis();				/* off read auto mode */
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 

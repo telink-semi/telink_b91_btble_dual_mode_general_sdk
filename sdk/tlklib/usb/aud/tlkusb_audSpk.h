@@ -36,6 +36,7 @@ typedef struct {
 	uint08 mute;
 	uint16 curVol;
 	uint16 volStep;
+	uint32 sampleRate;
 }tlkusb_audspk_ctrl_t;
 
 
@@ -52,8 +53,10 @@ uint tlkusb_audspk_getVolume(void);
 void tlkusb_audspk_setVolume(uint16 volume);
 void tlkusb_audspk_enterMute(bool enable);
 
-int tlkusb_audspk_setCmdDeal(int type);
-int tlkusb_audspk_getCmdDeal(int req, int type);
+int tlkusb_audspk_setInfCmdDeal(int type);
+int tlkusb_audspk_getInfCmdDeal(int req, int type);
+
+int tlkusb_audspk_setEdpCmdDeal(int type);
 
 
 

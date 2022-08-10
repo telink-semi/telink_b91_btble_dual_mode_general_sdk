@@ -120,10 +120,38 @@
 #define	TLKMMI_LEMGR_MTU_S_BUFF_SIZE_MAX            CAL_MTU_BUFF_SIZE(TLKMMI_LEMGR_ATT_MTU_SLAVE_RX_MAX_SIZE)
 
 
+#define TLKMMI_LEMGR_TIMEOUT          200000 //100ms
+#define TLKMMI_LEMGR_TIMEOUT_MS       200
+
+#define TLKMMI_LEMGR_ADV_TIMEOUT_MIN       500 //Unit:ms
+#define TLKMMI_LEMGR_ADV_TIMEOUT_DEF       60000
+#define TLKMMI_LEMGR_ADV_TIMEOUT_MAX       180000
+
+
+
+typedef struct{
+	uint16 connHandle;
+	uint08 connAddr[6];
+	uint16 timeout;
+	uint08 isStart;
+	uint32 advTime;
+	tlkapi_timer_t timer;
+}tlkmmi_lemgr_acl_t;
+
 int tlkmmi_lemgr_aclInit(void);
 
 
 
+int tlkmmi_lemgr_startAdv(uint32 timeout, uint08 advType);
+int tlkmmi_lemgr_closeAdv(void);
+
+int tlkmmi_lemgr_disconn(uint16 handle, uint08 *pPeerAddr);
+
+int tlkmmi_lemgr_setAclName(uint08 *pName, uint08 nameLen);
+int tlkmmi_lemgr_setAclAddr(uint08 *pAddr, uint08 addrLen);
+
+bool tlkmmi_lemgr_aclVolumeInc(void);
+bool tlkmmi_lemgr_aclVolumeDec(void);
 
 
 #endif //TLKMMI_LEMGR_ENABLE

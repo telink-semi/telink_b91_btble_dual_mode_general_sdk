@@ -32,8 +32,8 @@
 #include "drivers.h"
 
 
-int tlkusb_audspk_setCmdDeal(int type);
-int tlkusb_audspk_getCmdDeal(int req, int type);		
+int tlkusb_audspk_setInfCmdDeal(int type);
+int tlkusb_audspk_getInfCmdDeal(int req, int type);		
 
 
 static tlkusb_audspk_ctrl_t sTlkUsbAudSpkCtrl;
@@ -41,7 +41,8 @@ static tlkusb_audspk_ctrl_t sTlkUsbAudSpkCtrl;
 int tlkusb_audspk_init(void)
 {
 	tmemset(&sTlkUsbAudSpkCtrl, 0, sizeof(tlkusb_audspk_ctrl_t));
-	
+
+	sTlkUsbAudSpkCtrl.sampleRate = TLKUSB_AUD_SPK_SAMPLE_RATE;
 	tlkusb_audspk_setVolume(TLKUSB_AUDSPK_VOL_MAX);
 
 	return TLK_ENONE;
@@ -54,7 +55,7 @@ int tlkusb_audspk_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum)
 	uint08 value_h = (pSetup->wValue >> 8) & 0xff;
 	switch(Entity){
 		case USB_SPEAKER_FEATURE_UNIT_ID:
-			ret = tlkusb_audspk_getCmdDeal(pSetup->bRequest, value_h);
+			ret = tlkusb_audspk_getInfCmdDeal(pSetup->bRequest, value_h);
 			break;
 		default:
 			break;
@@ -70,14 +71,14 @@ int tlkusb_audspk_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum)
 int tlkusb_audspk_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum)
 {
 	int ret = -TLK_ENOSUPPORT;
-	uint08 property = pSetup->bRequest;
-	uint08 value_l = (pSetup->wValue) & 0xff;
+//	uint08 property = pSetup->bRequest;
+//	uint08 value_l = (pSetup->wValue) & 0xff;
 	uint08 value_h = (pSetup->wValue >> 8) & 0xff;
 	uint08 Entity = (pSetup->wIndex >> 8) & 0xff;
 	
 	switch(Entity){
 		case USB_SPEAKER_FEATURE_UNIT_ID:
-			ret = tlkusb_audspk_setCmdDeal(value_h);
+			ret = tlkusb_audspk_setInfCmdDeal(value_h);
 			break;
 		default:
 			break;
@@ -97,10 +98,10 @@ uint tlkusb_audspk_getVolume(void)
 void tlkusb_audspk_setVolume(uint16 volume)
 {
 	sTlkUsbAudSpkCtrl.curVol = volume;
-	if(volume < TLKUSB_AUDMIC_VOL_MIN){
+	if(volume < TLKUSB_AUDSPK_VOL_MIN){
 		sTlkUsbAudSpkCtrl.volStep = 0;
 	}else{
-		sTlkUsbAudSpkCtrl.volStep = (volume - TLKUSB_AUDMIC_VOL_MIN) / TLKUSB_AUDMIC_VOL_RES;
+		sTlkUsbAudSpkCtrl.volStep = (volume - TLKUSB_AUDSPK_VOL_MIN) / TLKUSB_AUDSPK_VOL_RES;
 	}
 }
 void tlkusb_audspk_enterMute(bool enable)
@@ -111,19 +112,19 @@ void tlkusb_audspk_enterMute(bool enable)
 
 
 
-int tlkusb_audspk_setCmdDeal(int type)
+int tlkusb_audspk_setInfCmdDeal(int type)
 {
 	if(type == AUDIO_FEATURE_MUTE){
 		sTlkUsbAudSpkCtrl.mute = usbhw_read_ctrl_ep_data();
 	}else if(type == AUDIO_FEATURE_VOLUME){
-		u16 val = usbhw_read_ctrl_ep_u16();
+		uint16 val = usbhw_read_ctrl_ep_u16();
 		tlkusb_audspk_setVolume(val);
 	}else{
 		return -TLK_ENOSUPPORT;
 	}
 	return TLK_ENONE;
 }
-int tlkusb_audspk_getCmdDeal(int req, int type)
+int tlkusb_audspk_getInfCmdDeal(int req, int type)
 {
 	if(type == AUDIO_FEATURE_MUTE){
 		usbhw_write_ctrl_ep_data(sTlkUsbAudSpkCtrl.mute);
@@ -150,6 +151,19 @@ int tlkusb_audspk_getCmdDeal(int req, int type)
 	return TLK_ENONE;
 }
 
+int tlkusb_audspk_setEdpCmdDeal(int type)
+{
+	if(type == AUDIO_EPCONTROL_SamplingFreq){
+		uint32 value = usbhw_read_ctrl_ep_data();
+		sTlkUsbAudSpkCtrl.sampleRate = value;
+		value = usbhw_read_ctrl_ep_data();
+		sTlkUsbAudSpkCtrl.sampleRate |= value << 8;
+		value = usbhw_read_ctrl_ep_data();
+		sTlkUsbAudSpkCtrl.sampleRate |= value << 16;
+		// TODO: Sample Rate Changed
+	}
+	return TLK_ENONE;
+}
 
 
 

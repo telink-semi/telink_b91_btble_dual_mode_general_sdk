@@ -26,6 +26,8 @@
 
 
 #define TLKAPP_DFU_MAX_SIZE             (0xBE000)
+#define TLKAPP_DFU_MIN_SIZE             (0x400)
+
 
 #define TLKAPP_DFU_LOAD_INNER           1
 #define TLKAPP_DFU_LOAD_OUTER           2

@@ -35,230 +35,119 @@
 #include "tlkmmi/lemgr/tlkmmi_lemgrAtt.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAcl.h"
 
+#define TLKMMI_LEMGR_NAME_DEF     "TLK-BLE"
 
+
+static tlkmmi_lemgr_ctrl_t gTlkMmiLemgrCtrl = {0};
 
 
 int tlkmmi_lemgr_ctrlInit(void)
 {
-
+	uint08 index;
+		
+	// Read Local Name
+	tlkapi_flash_read(TLK_CFG_FLASH_LE_NAME_ADDR, gTlkMmiLemgrCtrl.lename, TLK_CFG_FLASH_LE_NAME_LENS-1);
+	for(index=0; index<TLK_CFG_FLASH_LE_NAME_LENS-1; index++){
+		if(gTlkMmiLemgrCtrl.lename[index] == 0xFF || gTlkMmiLemgrCtrl.lename[index] == 0x00) break;
+	}
+	if(index == 0){
+		index = strlen(TLKMMI_LEMGR_NAME_DEF);
+		tmemcpy(gTlkMmiLemgrCtrl.lename, TLKMMI_LEMGR_NAME_DEF, index);
+	}
+	gTlkMmiLemgrCtrl.nameLen = index;
+	gTlkMmiLemgrCtrl.lename[index] = 0x00;
+	
 	return TLK_ENONE;
 }
 
 
 
-void app_ble_volumeInc(void)
+bool tlkmmi_lemgr_volumeInc(void)
 {
-	uint08 index;
-	uint16 consumer_key;
-	for(index=TLKMMI_LEMGR_MASTER_MAX_NUM; index < (TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM); index++){ //slave index is from "TLKMMI_LEMGR_MASTER_MAX_NUM" to "TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM - 1"
-		if(conn_dev_list[index].conn_state){
-			consumer_key = 0x00e9; //MKEY_VOL_UP;
-			blc_gatt_pushHandleValueNotify(conn_dev_list[index].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
-			consumer_key = 0;
-			blc_gatt_pushHandleValueNotify(conn_dev_list[index].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
-		}
-	}
+	return tlkmmi_lemgr_aclVolumeInc();
 }
-void app_ble_volumeDec(void)
+bool tlkmmi_lemgr_volumeDec(void)
 {
-	uint08 index;
-	uint16 consumer_key;
-	for(index=TLKMMI_LEMGR_MASTER_MAX_NUM; index < (TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM); index++){ //slave index is from "TLKMMI_LEMGR_MASTER_MAX_NUM" to "TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM - 1"
-		if(conn_dev_list[index].conn_state){
-			consumer_key = 0x00ea; //MKEY_VOL_DN;
-			blc_gatt_pushHandleValueNotify(conn_dev_list[index].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
-			consumer_key = 0;
-			blc_gatt_pushHandleValueNotify(conn_dev_list[index].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
-		}
-	}
+	return tlkmmi_lemgr_aclVolumeDec();
 }
 
-
-#if 0//(UI_KEYBOARD_ENABLE)
-
-_attribute_ble_data_retention_	int 	key_not_released;
-
-
-#define CONSUMER_KEY   	   			1
-#define OTHER_KEY 		  	   		2
-
-_attribute_ble_data_retention_	uint08 		key_type;
-
-
-/**
- * @brief   Check changed key value.
- * @param   none.
- * @return  none.
- */
-void key_change_proc(void)
+uint08 tlkmmi_lemgr_getNameLen(void)
 {
-
-	uint08 key0 = kb_event.keycode[0];
-	uint08 key1 = kb_event.keycode[1];
-//	uint08 key_buf[8] = {0,0,0,0,0,0,0,0};
-
-	key_not_released = 1;
-	if(kb_event.cnt > 2)
-	{
-
-	}
-	if (kb_event.cnt == 2)   //two key press
-	{
-		if((key0 == KEY_SW2 && key1 == KEY_SW4) || (key0 == KEY_SW4 && key1 == KEY_SW2))//scan device
-		{
-			my_dump_str_data(TLKMMI_LEMGR_DBG_ENABLE, "scan device", 0, 0);
-		}
-		if((key0 == KEY_SW3 && key1 == KEY_SW4) || (key0 == KEY_SW4 && key1 == KEY_SW3))//cancel scan device
-		{
-			my_dump_str_data(TLKMMI_LEMGR_DBG_ENABLE, "cancel scan device", 0, 0);
-		}
-	}
-	else if(kb_event.cnt == 1)
-	{
-		if(key0 == KEY_SW2 || key0 == KEY_SW3)  //used for BLE consumer key volume up/down
-		{
-			key_type = CONSUMER_KEY;
-			uint16 consumer_key;
-			if(key0 == KEY_SW3){  	//volume up
-				consumer_key = 0x00e9; //MKEY_VOL_UP;
-				my_dump_str_data(TLKMMI_LEMGR_DBG_ENABLE, "UI send Vol+", 0, 0);
-			}
-			else if(key0 == KEY_SW2){ //volume down
-				consumer_key = 0x00ea; //MKEY_VOL_DN;
-				my_dump_str_data(TLKMMI_LEMGR_DBG_ENABLE, "UI send Vol-", 0, 0);
-			}
-
-
-			/*Here is just Telink Demonstration effect. Cause the demo board has limited key to use, when Vol+/Vol- key pressed, we
-			send media key "Vol+" or "Vol-" to master for all slave in connection.
-			For users, you should known that this is not a good method, you should manage your device and GATT data transfer
-			according to  conn_dev_list[]
-			 * */
-			for(int i=TLKMMI_LEMGR_MASTER_MAX_NUM; i < (TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM); i++){ //slave index is from "TLKMMI_LEMGR_MASTER_MAX_NUM" to "TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM - 1"
-				if(conn_dev_list[i].conn_state){
-					blc_gatt_pushHandleValueNotify (conn_dev_list[i].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08 *)&consumer_key, 2);
-				}
-			}
-		}
-		else{
-			key_type = OTHER_KEY;
-
-			if(key0 == KEY_SW4)
-			{
-				my_dump_str_data(TLKMMI_LEMGR_DBG_ENABLE, "SW4 press", 0, 0);
-			}
-			else if(key0 == KEY_SW5)
-			{
-				my_dump_str_data(TLKMMI_LEMGR_DBG_ENABLE, "SW5 press", 0, 0);
-			}
-
-		}
-
-	}
-	else   //kb_event.cnt == 0,  key release
-	{
-		key_not_released = 0;
-		if(key_type == CONSUMER_KEY)
-		{
-			uint16 consumer_key = 0;
-			//Here is just Telink Demonstration effect. for all slave in connection, send release for previous "Vol+" or "Vol-" to master
-			for(int i=TLKMMI_LEMGR_MASTER_MAX_NUM; i < (TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM); i++){ //slave index is from "TLKMMI_LEMGR_MASTER_MAX_NUM" to "TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM - 1"
-				if(conn_dev_list[i].conn_state){
-					blc_gatt_pushHandleValueNotify ( conn_dev_list[i].conn_handle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08 *)&consumer_key, 2);
-				}
-			}
-		}
-		else{
-
-		}
-	}
-
-
+	return gTlkMmiLemgrCtrl.nameLen;
 }
 
-#define GPIO_WAKEUP_KEYPROC_CNT				3
-
-_attribute_data_retention_	static u32 keyScanTick = 0;
-_attribute_data_retention_	static int gpioWakeup_keyProc_cnt = 0;
-
-/**
- * @brief      keyboard task handler
- * @param[in]  e    - event type
- * @param[in]  p    - Pointer point to event parameter.
- * @param[in]  n    - the length of event parameter.
- * @return     none.
- */
-void proc_keyboard (uint08 e, uint08 *p, int n)
+/******************************************************************************
+ * Function: tlkmmi_lemgr_getName
+ * Descript: Get BT Name.
+ * Params:
+ * Return: Return Bt name is success.
+ * Others: None.
+*******************************************************************************/
+uint08 *tlkmmi_lemgr_getName(void)
 {
-	//when key press gpio wakeup suspend, proc keyscan at least GPIO_WAKEUP_KEYPROC_CNT times
-	//regardless of 8000 us interval
-	if(e == CONTR_EVT_PM_GPIO_EARLY_WAKEUP){
-		gpioWakeup_keyProc_cnt = GPIO_WAKEUP_KEYPROC_CNT;
-	}
-	else if(gpioWakeup_keyProc_cnt){
-		gpioWakeup_keyProc_cnt --;
-	}
+	return gTlkMmiLemgrCtrl.lename;
+}
 
-
-	if(gpioWakeup_keyProc_cnt || clock_time_exceed(keyScanTick, 8000)){
-		keyScanTick = clock_time();
-	}
-	else{
-		return;
-	}
-
-
-	kb_event.keycode[0] = 0;
-	int det_key = kb_scan_key (0, 1);
-
-	if (det_key){
-		key_change_proc();
-	}
+/******************************************************************************
+ * Function: tlkmmi_lemgr_getAddr
+ * Descript: Get the Bt address. 
+ * Params:
+ * Return: Return Bt Address.
+ * Others: None.
+*******************************************************************************/
+uint08 *tlkmmi_lemgr_getAddr(void)
+{
+	return gTlkMmiLemgrCtrl.leaddr;
 }
 
 
-
-
-/**
- * @brief      keyboard initialization
- * @param[in]  none
- * @return     none.
- */
-void keyboard_init(void)
+int tlkmmi_lemgr_setName(uint08 *pName, uint08 nameLen)
 {
-#if (TLK_CFG_PM_ENABLE)
-	/////////// keyboard GPIO wakeup init ////////
-	u32 pin[] = KB_DRIVE_PINS;
-	for (int i=0; i<(sizeof (pin)/sizeof(*pin)); i++){
-		pm_set_gpio_wakeup (pin[i], WAKEUP_LEVEL_HIGH, 1);  //drive pin pad high level wakeup deepsleep
-	}
-
-	btble_contr_registerControllerEventCallback (CONTR_EVT_PM_GPIO_EARLY_WAKEUP, &proc_keyboard);
-#endif
+	uint08 btBuffer[TLK_CFG_FLASH_BT_NAME_LENS];
+	uint08 leBuffer[TLK_CFG_FLASH_LE_NAME_LENS];
+	
+	if(pName == nullptr || nameLen == 0) return -TLK_EPARAM;
+	if(nameLen > TLK_CFG_FLASH_LE_NAME_LENS-1) nameLen = TLK_CFG_FLASH_LE_NAME_LENS-1;
+	
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_NAME_ADDR, btBuffer, TLK_CFG_FLASH_BT_NAME_LENS);
+	tlkapi_flash_read(TLK_CFG_FLASH_LE_NAME_ADDR, leBuffer, TLK_CFG_FLASH_LE_NAME_LENS);
+	
+	tmemset(leBuffer, 0xFF, TLK_CFG_FLASH_LE_NAME_LENS);
+	tmemcpy(leBuffer, pName, nameLen);
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_LE_NAME_ADDR & 0xFFFFF000);
+	tlkapi_flash_write(TLK_CFG_FLASH_BT_NAME_ADDR, btBuffer, TLK_CFG_FLASH_BT_NAME_LENS);
+	tlkapi_flash_write(TLK_CFG_FLASH_LE_NAME_ADDR, leBuffer, TLK_CFG_FLASH_LE_NAME_LENS);
+	
+	tmemcpy(gTlkMmiLemgrCtrl.lename, pName, nameLen);
+	gTlkMmiLemgrCtrl.nameLen = nameLen;
+	gTlkMmiLemgrCtrl.lename[nameLen] = 0x00;
+	return tlkmmi_lemgr_setAclName(pName, nameLen);
+}
+int tlkmmi_lemgr_setAddr(uint08 *pAddr)
+{
+	uint08 btBuffer[6];
+	uint08 leBuffer[12];
+	
+	if(pAddr == nullptr) return -TLK_EPARAM;
+	
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, btBuffer, 6);
+	tlkapi_flash_read(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
+	
+	tmemcpy(leBuffer, pAddr, 6);
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_LE_ADDR_ADDR & 0xFFFFF000);
+	tlkapi_flash_write(TLK_CFG_FLASH_BT_ADDR_ADDR, btBuffer, 6);
+	tlkapi_flash_write(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
+	
+	tmemcpy(gTlkMmiLemgrCtrl.leaddr, pAddr, 6);
+	return tlkmmi_lemgr_setAclName(gTlkMmiLemgrCtrl.leaddr, 6);
 }
 
-
-
-/**
- * @brief      callback function of Controller Event "CONTR_EVT_PM_SLEEP_ENTER"
- * @param[in]  e - BT BLE Controller Event type
- * @param[in]  p - data pointer of event
- * @param[in]  n - data length of event
- * @return     none
- */
-_attribute_ram_code_ void app_set_kb_wakeup(uint08 e, uint08 *p, int n)
+int tlkmmi_lemgr_setAddr1(uint08 *pPubAddr, uint08 *pRndAddr)
 {
-#if (TLK_CFG_PM_ENABLE)
-	//sleep time > 50ms, add GPIO PAD wakeup
-	if(((u32)(btble_pm_getSystemWakeupTick() - clock_time())) > 50 * SYSTEM_TIMER_TICK_1MS){
-		btble_pm_setWakeupSource(PM_WAKEUP_PAD);  //gpio pad wakeup suspend/deepsleep
-	}
-#endif
+	tmemcpy(gTlkMmiLemgrCtrl.leaddr,   pPubAddr, 6);
+	tmemcpy(gTlkMmiLemgrCtrl.leaddr+6, pRndAddr, 6);
+	return TLK_ENONE;
 }
-
-#endif
-
-
 
 
 

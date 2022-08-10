@@ -47,6 +47,7 @@
 #include "tlkapi/tlkapi_mem.h"
 #include "tlkapi/tlkapi_string.h"
 #include "tlkapi/tlkapi_debug.h"
+#include "tlkapi/tlkapi_timer.h"
 
 
 extern int  tlkapi_init(void);

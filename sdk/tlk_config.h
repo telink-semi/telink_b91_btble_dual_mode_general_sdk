@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010009 //Application, 5.1.0.0
+#define TLK_APP_VERSION              0x05010100 //Application, 5.1.0.0
 #endif
 #define TLK_LIB_VERSION              0x05010000 //Libary, 5.1.0.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -57,7 +57,7 @@
 #define TLK_CFG_OS_ENABLE            0
 #endif
 #ifndef TLK_CFG_PM_ENABLE
-#define TLK_CFG_PM_ENABLE            0
+#define TLK_CFG_PM_ENABLE            1
 #endif
 #ifndef TLK_CFG_WDG_ENABLE
 #define TLK_CFG_WDG_ENABLE           0 //WatchDog
@@ -78,10 +78,13 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           1
+#define TLK_CFG_DBG_ENABLE           0
 #endif
 #ifndef TLK_CFG_USB_ENABLE
-#define TLK_CFG_USB_ENABLE           1
+#define TLK_CFG_USB_ENABLE           0
+#endif
+#ifndef TLK_CFG_PTS_ENABLE
+#define TLK_CFG_PTS_ENABLE           0
 #endif
 
 /******************************************************************************
@@ -149,7 +152,6 @@
 #ifndef TLK_STK_BTP_ENABLE
 #define TLK_STK_BTP_ENABLE           (1 && TLK_STK_BTH_ENABLE)
 #endif
-
 #ifndef TLK_STK_BTACl_NUMB
 #define TLK_STK_BTACl_NUMB           2
 #endif
@@ -160,7 +162,7 @@
 #define TLK_STK_BTPSM_NUMB           8
 #endif
 #ifndef TLK_STK_BTCHN_NUMB
-#define TLK_STK_BTCHN_NUMB           (TLK_STK_BTACl_NUMB*6)
+#define TLK_STK_BTCHN_NUMB           (TLK_STK_BTACl_NUMB*8)
 #endif
 
 /******************************************************************************
@@ -176,37 +178,46 @@
 #ifndef TLK_MDI_BTREC_ENABLE
 #define TLK_MDI_BTREC_ENABLE         (1 && TLK_MDI_BTACL_ENABLE)
 #endif
+#ifndef TLK_MDI_BTATT_ENABLE
+#define TLK_MDI_BTATT_ENABLE         (1 && TLK_STK_BTP_ENABLE)
+#endif
+#ifndef TLK_MDI_BTHID_ENABLE
+#define TLK_MDI_BTHID_ENABLE         (1 && TLK_STK_BTP_ENABLE)
+#endif
+
 #ifndef TLK_MDI_HFP_ENABLE
 #define TLK_MDI_HFP_ENABLE           (1)
+#endif
+#ifndef TLK_MDI_AUDIO_ENABLE
+#define TLK_MDI_AUDIO_ENABLE         (1)
 #endif
 #ifndef TLK_MDI_FILE_ENABLE
 #define TLK_MDI_FILE_ENABLE          (1)
 #endif
-#ifndef TLK_MDI_AUD_ENABLE
-#define TLK_MDI_AUD_ENABLE           (1)
-#endif
 #ifndef TLK_MDI_MP3_ENABLE
 #define TLK_MDI_MP3_ENABLE           (1 && TLK_CFG_FS_ENABLE)
 #endif
-#ifndef TLK_MDI_HID_ENABLE
-#define TLK_MDI_HID_ENABLE           (1)
+#ifndef TLK_MDI_KEY_ENABLE
+#define TLK_MDI_KEY_ENABLE           (1)
 #endif
 #ifndef TLK_MDI_USB_ENABLE
 #define TLK_MDI_USB_ENABLE           (1 && TLK_CFG_USB_ENABLE)
 #endif
-
+#ifndef TLK_MDI_FS_ENABLE
+#define TLK_MDI_FS_ENABLE            (1 && TLK_CFG_FS_ENABLE)
+#endif
+#ifndef TLK_MDI_PTS_ENABLE
+#define TLK_MDI_PTS_ENABLE           (0 && TLK_CFG_PTS_ENABLE)
+#endif
 /******************************************************************************
  * Macro: TLK_DEV_xxxxx_ENABLE
  * Descr: Enable or disable related devices by configuration.
  * Items:
- *     @TLK_DEV_XTSD04G_ENABLE--Enable or disable NAND Flash (XTSD04G).
- *     @TLK_DEV_XT2602E_ENABLE--Enable or disable NAND Flash (XT26G02E).
+ *     @TLK_DEV_XTSD01G_ENABLE--Enable or disable NAND Flash (XTSD04G).
+ *     @TLK_DEV_XT26G0X_ENABLE--Enable or disable NAND Flash (XT26G02E).
 *******************************************************************************/
-#ifndef TLK_DEV_XTSD04G_ENABLE
-#define TLK_DEV_XTSD04G_ENABLE       (1 && TLK_CFG_DEV_ENABLE)
-#endif
-#ifndef TLK_DEV_XT2602E_ENABLE
-#define TLK_DEV_XT2602E_ENABLE       (0 && TLK_CFG_DEV_ENABLE)
+#ifndef TLK_DEV_XTSD01G_ENABLE
+#define TLK_DEV_XTSD01G_ENABLE       (1 && TLK_CFG_DEV_ENABLE)
 #endif
 #ifndef TLK_DEV_SERIAL_ENABLE
 #define TLK_DEV_SERIAL_ENABLE        (1)
@@ -224,11 +235,9 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_FS_FAT_ENABLE
-#define TLK_FS_FAT_ENABLE            (1 && TLK_CFG_FS_ENABLE && TLK_DEV_XTSD04G_ENABLE)
+#define TLK_FS_FAT_ENABLE            (1 && TLK_CFG_FS_ENABLE)
 #endif
-#ifndef TLK_FS_PFF_ENABLE
-#define TLK_FS_PFF_ENABLE            (0 && TLK_CFG_FS_ENABLE && TLK_DEV_XT2602E_ENABLE)
-#endif
+
 
 
 /******************************************************************************
@@ -249,11 +258,13 @@
 
 #define TLK_CFG_FLASH_VOLUME_ADDR             (0xEA000+TLK_CFG_FLASH_CAP-0x100000) //play,SRC,SNK,SCO,HFP-HF,HFP-AG,Tone-local,Tone-headset
 
-//#define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED000+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
-//#define TLK_CFG_FLASH_BT_ADDR_ADDR            (0xFF000+TLK_CFG_FLASH_CAP-0x100000) //ADDR  -- Bind to the tool and do not change
-#define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED000) //NAME  -- Bind to the tool and do not change
-#define TLK_CFG_FLASH_BT_ADDR_ADDR            (0xFF000) //ADDR  -- Bind to the tool and do not change
 
+#define TLK_CFG_FLASH_LE_NAME_ADDR            (0xED000+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
+#define TLK_CFG_FLASH_LE_NAME_LENS            32
+#define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED100+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
+#define TLK_CFG_FLASH_BT_NAME_LENS            32
+#define TLK_CFG_FLASH_LE_ADDR_ADDR            (0xFF000+TLK_CFG_FLASH_CAP-0x100000)
+#define TLK_CFG_FLASH_BT_ADDR_ADDR            (0xFF100+TLK_CFG_FLASH_CAP-0x100000) //ADDR  -- Bind to the tool and do not change
 
 #define TLK_CFG_FLASH_EQ_TEST_ADDR            (0xEF000+TLK_CFG_FLASH_CAP-0x100000) //music EQ and speech EQ para
 

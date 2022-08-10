@@ -58,8 +58,7 @@ static void tlkmmi_phone_recvHungUpCmdDeal(uint08 *pData, uint08 dataLen);
 int tlkmmi_phone_commInit(void)
 {
 	tlkmdi_comm_regCallCB(tlkmmi_phone_cmdHandler);
-	
-	
+		
 	
 	return TLK_ENONE;
 }
@@ -102,8 +101,10 @@ static void tlkmmi_phone_recvDialCmdDeal(uint08 *pData, uint08 dataLen)
 	}
 	
 	if(role == TLKPRT_COMM_CALL_ROLE_CLIENT){
-		if(btp_hfphf_dial(btp_hfphf_getCurHandle(), (char*)(pData+2), numbLen) == TLK_ENONE){
+		uint16 aclHandle = btp_hfphf_getCurHandle();
+		if(btp_hfphf_dial(aclHandle, (char*)(pData+2), numbLen) == TLK_ENONE){
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_DIAL, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+			tlkmmi_phone_setHfManualCode(aclHandle, TLKMMI_PHONE_MANUAL_CODE_DIAL);
 		}else{
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_DIAL, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 		}
@@ -127,9 +128,11 @@ static void tlkmmi_phone_recvRedialCmdDeal(uint08 *pData, uint08 dataLen)
 	
 	role = pData[0];
 	if(role == TLKPRT_COMM_CALL_ROLE_CLIENT){
-		if(btp_hfphf_redial(btp_hfphf_getCurHandle()) == TLK_ENONE){
+		uint16 aclHandle = btp_hfphf_getCurHandle();
+		if(btp_hfphf_redial(aclHandle) == TLK_ENONE){
 			tlkapi_trace(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_recvRedialCmdDeal: success");
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_REDIAL, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+			tlkmmi_phone_setHfManualCode(aclHandle, TLKMMI_PHONE_MANUAL_CODE_DIAL);
 		}else{
 			tlkapi_error(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_recvRedialCmdDeal: failure - reject");
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_REDIAL, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
@@ -150,8 +153,10 @@ static void tlkmmi_phone_recvActiveCmdDeal(uint08 *pData, uint08 dataLen)
 	
 	role = pData[0];
 	if(role == TLKPRT_COMM_CALL_ROLE_CLIENT){
-		if(btp_hfphf_answer(btp_hfphf_getCurHandle()) == TLK_ENONE){
+		uint16 aclHandle = btp_hfphf_getCurHandle();
+		if(btp_hfphf_answer(aclHandle) == TLK_ENONE){
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_ACCEPT, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+			tlkmmi_phone_setHfManualCode(aclHandle, TLKMMI_PHONE_MANUAL_CODE_ANSWER);
 		}else{
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_ACCEPT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 		}
@@ -170,8 +175,10 @@ static void tlkmmi_phone_recvRejectCmdDeal(uint08 *pData, uint08 dataLen)
 	
 	role = pData[0];
 	if(role == TLKPRT_COMM_CALL_ROLE_CLIENT){
-		if(btp_hfphf_hungUp(btp_hfphf_getCurHandle()) == TLK_ENONE){
+		uint16 aclHandle = btp_hfphf_getCurHandle();
+		if(btp_hfphf_hungUp(aclHandle) == TLK_ENONE){
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_REJECT, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+			tlkmmi_phone_setHfManualCode(aclHandle, TLKMMI_PHONE_MANUAL_CODE_HUNGUP);
 		}else{
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_REJECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 		}
@@ -190,8 +197,10 @@ static void tlkmmi_phone_recvHungUpCmdDeal(uint08 *pData, uint08 dataLen)
 	
 	role = pData[0];
 	if(role == TLKPRT_COMM_CALL_ROLE_CLIENT){
-		if(btp_hfphf_hungUp(btp_hfphf_getCurHandle()) == TLK_ENONE){
+		uint16 aclHandle = btp_hfphf_getCurHandle();
+		if(btp_hfphf_hungUp(aclHandle) == TLK_ENONE){
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HUNGUP, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+			tlkmmi_phone_setHfManualCode(aclHandle, TLKMMI_PHONE_MANUAL_CODE_HUNGUP);
 		}else{
 			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HUNGUP, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 		}

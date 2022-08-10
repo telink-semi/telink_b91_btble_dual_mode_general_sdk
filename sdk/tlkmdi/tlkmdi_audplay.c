@@ -26,7 +26,7 @@
 #if (TLKMDI_CFG_AUDPLAY_ENABLE)
 #include "tlkmdi/tlkmdi_audio.h"
 #include "tlkprt/tlkprt_stdio.h"
-#include "tlklib/fs/tlklib_fs.h"
+#include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_audmp3.h"
 #include "tlkmdi/tlkmdi_audplay.h"

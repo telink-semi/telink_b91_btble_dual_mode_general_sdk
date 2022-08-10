@@ -26,7 +26,7 @@
 #if (TLKMMI_FILE_DFU_ENABLE)
 #include "tlkprt/tlkprt_stdio.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
-#include "tlklib/fs/tlklib_fs.h"
+#include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"
@@ -38,7 +38,7 @@
 
 
 #define TLKMMI_FILE_DFU_SAVE_SIGN        0x3A
-#define TLKMMI_FILE_DFU_SAVE_VERS        0x02
+#define TLKMMI_FILE_DFU_SAVE_VERS        0x03
 #define TLKMMI_FILE_DFU_SAVE_ADDR        TLK_CFG_FLASH_OTA_PARAM_ADDR
 #define TLKMMI_FILE_DFU_SAVE_SIZE        sizeof(tlkmdi_file_saveParam_t)
 
@@ -168,7 +168,13 @@ static int tlkmmi_file_dfuStart(tlkmdi_file_unit_t *pUnit, bool isFast)
 		tlkmdi_file_setRecvFastParam(pUnit, &sTlkMmiFileDfuCtrl.saveParam);
 		#endif
 	}
-		
+
+	#if (TLKMMI_FILE_DFU_VERSION_CHECK_ENABLE)
+	if(pUnit->fileVers <= TLK_APP_VERSION){
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_dfuStart: reject - version is overdue");
+		return -TLK_EFAIL;
+	}
+	#endif
 	#if (TLKMMI_FILE_DFU_FORCE_AUTH_ENABLE)
 	if(pUnit->authSch == 0){
 		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_dfuStart: reject - not authentication");
@@ -227,6 +233,8 @@ static int tlkmmi_file_dfuClose(tlkmdi_file_unit_t *pUnit, uint08 status)
 {
 	sTlkMmiFileDfuCtrl.isStart = false;
 	if(status == TLKMDI_FILE_TRAN_STATUS_SUCCESS){
+		uint08 flag = TLKMMI_FILE_DFU_START_FLAG;
+		tlkapi_flash_write(TLKMMI_FILE_DFU_SAVE_OFFSET+TLKMMI_FILE_DFU_START_OFFSET, &flag, 1);
 		#if (TLKMMI_FILE_DFU_BK_RESUME_ENABLE)
 		tlkmdi_file_getRecvSaveParam(pUnit, &sTlkMmiFileDfuCtrl.saveParam);
 		#else
@@ -316,7 +324,9 @@ static int tlkmmi_file_dfuParam(tlkmdi_file_unit_t *pUnit, uint08 paramType, uin
 			tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_dfuParam[GET_START]: error optChn[%d]", optChn);
 			return -TLK_ENOSUPPORT;
 		}
-		if(param.unitLens > pUnit->unitLens) param.unitLens = pUnit->unitLens & 0x0F;
+		if(param.unitLens > pUnit->unitLens){
+			param.unitLens = pUnit->unitLens & 0xFFF0;
+		}
 		return tlkmdi_file_setRecvStartParam(pUnit, &param);
 	}	
 	
@@ -325,6 +335,14 @@ static int tlkmmi_file_dfuParam(tlkmdi_file_unit_t *pUnit, uint08 paramType, uin
 
 static int tlkmmi_file_dfuSave(tlkmdi_file_unit_t *pUnit, uint32 offset, uint08 *pData, uint16 dataLen)
 {
+	if(offset <= TLKMMI_FILE_DFU_START_OFFSET && offset+dataLen >= TLKMMI_FILE_DFU_START_OFFSET){
+		if(pData[TLKMMI_FILE_DFU_START_OFFSET-offset] != TLKMMI_FILE_DFU_START_FLAG){
+			tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_dfuSave: rejected -- not telink DFU");
+			tlkmdi_file_closeTrans(pUnit);
+			return TLK_ENONE;
+		}
+	}
+
 	#if (TLKMMI_FILE_DFU_BK_RESUME_ENABLE)
 	if(sTlkMmiFileDfuCtrl.updateCnt != 0){
 		sTlkMmiFileDfuCtrl.updateNum ++;
@@ -338,7 +356,7 @@ static int tlkmmi_file_dfuSave(tlkmdi_file_unit_t *pUnit, uint32 offset, uint08 
 		}
 	}
 	#endif
-		
+	
 	#if (TLKMMI_FILE_DFU_SAVE_METHOD == TLKMMI_FILE_DFU_SAVE_INNER)
 		#if (TLKMMI_FILE_DFU_BK_RESUME_ENABLE)
 		if((offset & 0xFFF) == 0){
@@ -373,6 +391,8 @@ static void tlkmmi_file_dfuOverHandler(bool isSucc)
 	#endif
 	#if (TLK_CFG_DBG_ENABLE)
 	tlkapi_debug_delayForPrint(100000);
+	#else
+	delay_ms(100);
 	#endif
 	
 	start_reboot();

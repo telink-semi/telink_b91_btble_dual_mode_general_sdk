@@ -44,7 +44,7 @@
 #define TLKMDI_MP3_DEC_PCM_SIZE          (1152*8+4)
 
 
-#define TLKMDI_MP3_PERFORMER_SIZE        24
+#define TLKMDI_MP3_PERFORMER_SIZE        64
 
 
 #define TLKMDI_MP3_SAVE_INTERVAL         5000000  //100ms
@@ -120,7 +120,7 @@ typedef struct{
 	uint32 headLens;
 	uint32 duration;
 	uint08 channels;
-	uint08 reserve0;
+	uint08 nameFlag;
 	uint16 sampleRate;
 	uint08 performer[TLKMDI_MP3_PERFORMER_SIZE];
 }tlkmdi_mp3_finfo_t;
@@ -226,6 +226,8 @@ uint32 tlkmdi_mp3_getFileSize(void);
 uint32 tlkmdi_mp3_getPlayLens(void);
 uint32 tlkmdi_mp3_getDuration(void);
 uint16 tlkmdi_mp3_getProgress(void);
+uint08 tlkmdi_mp3_getFNameCode(void);
+uint08 tlkmdi_mp3_getSingerCode(void);
 uint08 *tlkmdi_mp3_getFileName(uint08 *pLength);
 uint08 *tlkmdi_mp3_getSinger(uint08 *pLength);
 uint08 tlkmdi_mp3_getPlayMode(void);

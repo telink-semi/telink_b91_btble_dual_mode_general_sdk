@@ -224,6 +224,10 @@ void tlkdev_serial_wakeup(void)
 {
 	uart_clr_tx_index(TLKDEV_SERIAL_PORT);
 	uart_clr_rx_index(TLKDEV_SERIAL_PORT);
+	#if (TLKDEV_SERIAL_DMA_ENABLE)
+	uint08 *pBuffer = tlkapi_qfifo_getBuff(&sTlkApiRecvFifo);
+	uart_receive_dma(TLKDEV_SERIAL_PORT, pBuffer+4, TLKDEV_SERIAL_RECV_BUFF_SIZE);
+	#endif
 }
 
 

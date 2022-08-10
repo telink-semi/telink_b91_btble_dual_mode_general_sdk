@@ -21,6 +21,7 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
+#include "tlkapi/tlkapi_timer.h"
 #include "tlkapi/tlkapi.h"
 #include "drivers.h"
 
@@ -36,6 +37,9 @@ int  tlkapi_init(void)
 	#endif
 	#if (TLKAPI_CHIP_STACK_CHECK_ENABLE)
 	tlkapi_chip_stackInit();
+	#endif
+	#if (TLKAPI_TIMER_ENABLE)
+	tlkapi_timer_init();
 	#endif
 	
 	return TLK_ENONE;

@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file     tlkdev_file.h
+ * @file     tlkfs.c
  *
- * @brief    This is the header file for BTBLE SDK
+ * @brief    This is the source file for BTBLE SDK
  *
  * @author	 BTBLE GROUP
  * @date         2,2022
@@ -20,17 +20,22 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#ifndef TLKDEV_FILE_H
-#define TLKDEV_FILE_H
-
-
-
-
-int tlkdev_file_init(void);
+#include "tlkapi/tlkapi_stdio.h"
+#if (TLK_FS_FAT_ENABLE)
+#include "tlkfs.h"
 
 
 
 
-#endif //TLKDEV_FILE_H
+
+
+
+
+
+
+
+
+
+
+#endif //#if (TLK_FS_FAT_ENABLE)
 

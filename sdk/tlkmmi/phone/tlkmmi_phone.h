@@ -30,6 +30,8 @@
 #define TLKMMI_PHONE_DBG_FLAG         (TLKMMI_PHONE_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
 #define TLKMMI_PHONE_DBG_SIGN         "[MMI]"
 
+#define TLKMMI_PHONE_SCO_MANAGE       (0 && TLKMDI_CFG_AUDSCO_ENABLE)
+
 
 /******************************************************************************
  * Function: tlkmmi_phone_init

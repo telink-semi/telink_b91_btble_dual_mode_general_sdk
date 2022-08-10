@@ -24,16 +24,11 @@
 #include "tlklib/usb/tlkusb_stdio.h"
 #if (TLK_USB_MSC_ENABLE)
 #include "drivers.h"
-#include "tlkdev/ext/xtx/tlkdev_xt2602e.h"
 #include "tlklib/usb/msc/tlkusb_mscDefine.h"
 #include "tlklib/usb/msc/tlkusb_msc.h"
 #include "tlklib/usb/msc/tlkusb_mscDesc.h"
 #include "tlklib/usb/msc/tlkusb_mscCtrl.h"
 #include "tlklib/usb/msc/tlkusb_mscScsi.h"
-
-
-extern void nand_flash_fat_init(int reset);
-extern void tlkusb_core_handler(void);
 
 
 static int  tlkusb_mscctrl_init(void);
@@ -65,6 +60,9 @@ const tlkusb_modCtrl_t sTlkUsbMscModCtrl = {
 
 static int tlkusb_mscctrl_init(void)
 {
+	int index;
+	tlkusb_msc_disk_t *pDisk;
+	
 	tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
 
 	core_disable_interrupt();
@@ -74,11 +72,13 @@ static int tlkusb_mscctrl_init(void)
 	reg_usb_ep_buf_addr(TLKUSB_MSC_EDP_IN) = 0x80;
 	reg_usb_ep_buf_addr(TLKUSB_MSC_EDP_OUT) = 0xC0;
 	
-	#if (TLK_DEV_XT2602E_ENABLE)
-	nand_flash_fat_init(0);
-	tlkdev_xt2602e_init();
-	#endif
-
+	for(index=0; index<TLKUSB_MSC_UNIT_COUNT; index++){
+		pDisk = tlkusb_msc_getDisk(index);
+		if(pDisk != nullptr && pDisk->Init != nullptr){
+			pDisk->Init();
+		}
+	}
+	
 	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC | FLD_CTRL_EP_AUTO_INTF);
 	reg_usb_ep_max_size = 64;
 	

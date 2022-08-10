@@ -40,7 +40,7 @@ int  btp_adapt_appendProcs(tlkapi_procs_t *pProcs);
 int  btp_adapt_removeProcs(tlkapi_procs_t *pProcs);
 
 
-int  btp_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout);
+int  btp_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
 int  btp_adapt_insertTimer(tlkapi_timer_t *pTimer);
 int  btp_adapt_removeTimer(tlkapi_timer_t *pTimer);
 

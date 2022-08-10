@@ -79,6 +79,8 @@ typedef unsigned long long	 uint64;
 
 
 
+#define SPLIT_WORD(word)     (word)&0xFF, ((word)&0xFF00)>>8
+
 
 #define ARRAY_TO_UINT16L(array, offset, value)         \
 	    (value)  = (array)[(offset)+1]; (value) <<= 8; \

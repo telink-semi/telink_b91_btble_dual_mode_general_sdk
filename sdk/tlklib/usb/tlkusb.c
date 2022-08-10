@@ -100,17 +100,7 @@ bool tlkusb_setModule(uint08 modtype) //TLKUSB_MODTYPE_ENUM
 	return true;
 }
 
-#if (TLK_USB_MSC_ENABLE)
-_attribute_retention_code_
-void tlkusb_irq_handler(void)
-{
-//	#if (TLK_DEV_XT2602E_ENABLE)
-//	mass_storage_irq_handler();
-//	#else (TLK_DEV_XTSD04G_ENABLE)
-//	dcd_int_handler(0);
-//	#endif
-}
-#endif
+
 
 
 

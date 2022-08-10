@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file     tlkdev_nand.h
+ * @file     app.c
  *
- * @brief    This is the header file for BTBLE SDK
+ * @brief    This is the source file for BTBLE SDK
  *
  * @author	 BTBLE GROUP
  * @date         2,2022
@@ -21,23 +21,43 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef TLKDEV_NAND_H
-#define TLKDEV_NAND_H
+#include "tlkapi/tlkapi_stdio.h"
+#include "tlkapp_config.h"
+#include "tlkapp_irq.h"
+#include "tlkapp.h"
+#include "tlkapp_dfu.h"
+#include "drivers.h"
 
 
 
 
-int tlkdev_nand_init(void);
-
-void tlkdev_nand_powerOn(void);
-void tlkdev_nand_powerOff(void);
-
-void tlkdev_nand_shutdown(void);
-
-bool tlkdev_nand_isReady(void);
-bool tlkdev_nand_isPowerOn(void);
 
 
+/******************************************************************************
+ * Function: tlkapp_init
+ * Descript: user initialization when MCU power on or wake_up from deepSleep mode.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/  
+int tlkapp_init(void)
+{
+	
+	return TLK_ENONE;
+}
 
-#endif //TLKDEV_NAND_H
+
+/******************************************************************************
+ * Function: tlkapp_process
+ * Descript: BTBLE SDK main loop.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+void tlkapp_process(void)
+{
+	
+
+}
+
 

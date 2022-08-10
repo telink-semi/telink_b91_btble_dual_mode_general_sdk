@@ -29,7 +29,9 @@
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkmdi/tlkmdi_comm.h"
 #include "tlkmdi/tlkmdi_btacl.h"
-
+#if (TLK_MDI_KEY_ENABLE)
+#include "tlkmdi/tlkmdi_key.h"
+#endif
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_handle.h"
@@ -59,6 +61,25 @@ uint32 gTlkAppSystemBusyTimer = 0;
 static tlkapp_system_ctrl_t sTlkAppSystemCtrl;
 
 
+#if (TLK_MDI_KEY_ENABLE)
+static void tlkapp_system_keyInit(void)
+{
+	gpio_function_en(GPIO_PA2);
+	gpio_function_en(GPIO_PA3);
+	gpio_output_dis(GPIO_PA2);
+	gpio_output_dis(GPIO_PA3);
+	gpio_input_en(GPIO_PA2);
+	gpio_input_en(GPIO_PA3);
+	gpio_set_up_down_res(GPIO_PA2, GPIO_PIN_PULLUP_1M);
+	gpio_set_up_down_res(GPIO_PA3, GPIO_PIN_PULLUP_1M);
+}
+static void tlkapp_system_keyEventCB(uint08 keyID, uint08 evtID, uint08 isPress)
+{
+	tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkapp_system_keyEventCB: keyID-%d, evtID-%d, isPress-%d",
+		keyID, evtID, isPress);	
+}
+#endif
+
 /******************************************************************************
  * Function: tlkapp_system_init
  * Descript: This function is used to initialize system parameters and configuration.
@@ -69,12 +90,21 @@ static tlkapp_system_ctrl_t sTlkAppSystemCtrl;
 int  tlkapp_system_init(void)
 {
 	tmemset(&sTlkAppSystemCtrl, 0, sizeof(tlkapp_system_ctrl_t));
+	#if (TLK_MDI_KEY_ENABLE)
+	tlkapp_system_keyInit();
+//	tlkmdi_key_insert(0x04, TLKMDI_KEY_EVTMSK_DEFAULT, GPIO_PA2, 0, tlkapp_system_keyEventCB);
+//	tlkmdi_key_insert(0x05, TLKMDI_KEY_EVTMSK_DEFAULT, GPIO_PA3, 0, tlkapp_system_keyEventCB);
+	tlkmdi_key_insert(0x04, TLKMDI_KEY_EVTMSK_ALL, GPIO_PA2, 0, tlkapp_system_keyEventCB);
+	tlkmdi_key_insert(0x05, TLKMDI_KEY_EVTMSK_ALL, GPIO_PA3, 0, tlkapp_system_keyEventCB);
+	#endif
+	
 	tlkmdi_comm_regSysCB(tlkapp_system_cmdHandler);
 	
 	tlkmdi_btmgr_regAclConnectCB(tlkapp_system_connectCompleteEvt);
 	tlkmdi_btmgr_regAclDisconnCB(tlkapp_system_disconnCompleteEvt);
 	tlkmdi_btmgr_regProfileConnectCB(tlkapp_system_profileConnectEvt);
 	tlkmdi_btmgr_regProfileDisconnCB(tlkapp_system_profileDisconnEvt);
+	
 	return TLK_ENONE;
 }
 
@@ -196,6 +226,9 @@ static void tlkapp_system_profileConnectEvt(uint16 handle, uint08 status, uint08
 		#if (TLKMMI_PHONE_BOOK_ENABLE)
 		tlkmmi_phone_startSyncBook(handle, bth_handle_getBtAddr(handle), false);
 		#endif
+	}
+	if(ptype == BTP_PTYPE_HID){
+        
 	}
 	#if (TLKMMI_AUDIO_ENABLE)
 	tlkmmi_audio_connect(handle, ptype, usrID);

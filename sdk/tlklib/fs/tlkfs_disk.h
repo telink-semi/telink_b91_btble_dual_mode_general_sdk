@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     filesystem.h
+ * @file     tlkfs_disk.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -20,13 +20,36 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#ifndef TLKLIB_FS_H
-#define TLKLIB_FS_H
+#ifndef TLKFS_DISK_H
+#define TLKFS_DISK_H
+
+#if (TLK_CFG_FS_ENABLE)
 
 
-#if (TLK_FS_FAT_ENABLE)
-#include "tlklib/fs/fatfs/ff.h"
-#endif
+
+#define TLKFS_DISK_MAX_NUMB        4
 
 
-#endif //TLKLIB_FS_H
+typedef struct{
+	uint08 isReady;
+	uint08 reserve;
+	uint16 blkSize;
+	uint32 blkCount;
+	int(*Init)(void);
+	int(*Read)(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb);
+	int(*Write)(uint08 *pData, uint32 blkOffs, uint16 blkNumb);
+}tlkfs_disk_t;
+
+
+tlkfs_disk_t *tlkfs_getDisk(uint08 volNum);
+
+int  tlkfs_addDisk(tlkfs_disk_t *pDisk, uint08 volNumb);
+void tlkfs_delDisk(tlkfs_disk_t *pDisk);
+void tlkfs_clrDisk(void);
+
+
+
+#endif //#if (TLK_CFG_FS_ENABLE)
+
+#endif //TLKFS_DISK_H
+

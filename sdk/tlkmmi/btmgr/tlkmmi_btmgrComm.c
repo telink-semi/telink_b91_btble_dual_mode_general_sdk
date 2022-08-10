@@ -40,16 +40,22 @@
 
 
 static void tlkmmi_btmgr_cmdHandler(uint08 msgID, uint08 *pData, uint08 dataLen);
-static void tlkmmi_btmgr_getNameCmdDeal(void);
-static void tlkmmi_btmgr_getAddrCmdDeal(void);
-static void tlkmmi_btmgr_getPDLCmdDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_btmgr_delPDLCmdDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_btmgr_clsPDLCmdDeal(void);
-static void tlkmmi_btmgr_getCDLCmdDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_btmgr_btInquiryCmdDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_btmgr_btInqCancelCmdDeal(void);
-static void tlkmmi_btmgr_btConnectCmdDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_btmgr_btDisconnCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvGetNameCmdDeal(void);
+static void tlkmmi_btmgr_recvGetAddrCmdDeal(void);
+static void tlkmmi_btmgr_recvSetNameCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvSetAddrCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvVolIncCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvVolDecCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvGetPDLCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvDelPDLCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvClsPDLCmdDeal(void);
+static void tlkmmi_btmgr_recvGetCDLCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvInquiryCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvInqCancelCmdDeal(void);
+static void tlkmmi_btmgr_recvConnectCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvDisconnCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvConnProfCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvDiscProfCmdDeal(uint08 *pData, uint08 dataLen);
 
 
 
@@ -141,7 +147,7 @@ void tlkmmi_btmgr_sendProfConnectEvt(uint16 handle, uint08 status, uint08 ptype,
 	buffer[buffLen++] = (handle & 0xFF00) >> 8;
 	tmemcpy(buffer+buffLen, pBtAddr, 6); //MAC
 	buffLen += 6;
-	tlkmdi_comm_sendBtEvt(TLKPRT_COMM_EVTID_BT_CONNECT, buffer, buffLen);
+	tlkmdi_comm_sendBtEvt(TLKPRT_COMM_EVTID_BT_PROF_CONN, buffer, buffLen);
 }
 
 /******************************************************************************
@@ -168,7 +174,7 @@ void tlkmmi_btmgr_sendProfDisconnEvt(uint16 handle, uint08 reason, uint08 ptype,
 	buffer[buffLen++] = (handle & 0xFF00) >> 8;
 	tmemcpy(buffer+buffLen, pBtAddr, 6);  //MAC
 	buffLen += 6;
-	tlkmdi_comm_sendBtEvt(TLKPRT_COMM_EVTID_BT_DISCONN, buffer, buffLen);
+	tlkmdi_comm_sendBtEvt(TLKPRT_COMM_EVTID_BT_PROF_DISC, buffer, buffLen);
 }
 
 /******************************************************************************
@@ -194,8 +200,10 @@ uint08 tlkmmi_btmgr_ptypeToCtype(uint08 ptype, uint08 usrID)
 			ctype = TLKPRT_COMM_BT_CHN_SPP;
 			break;
 		case BTP_PTYPE_HID:
+			ctype = TLKPRT_COMM_BT_CHN_HID;
 			break;
 		case BTP_PTYPE_ATT:
+			ctype = TLKPRT_COMM_BT_CHN_ATT;
 			break;
 		case BTP_PTYPE_A2DP:
 			if(usrID == BTP_USRID_CLIENT) ctype = TLKPRT_COMM_BT_CHN_A2DP_SNK;
@@ -216,37 +224,49 @@ static void tlkmmi_btmgr_cmdHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_cmdHandler: %d", msgID);
 	
 	if(msgID == TLKPRT_COMM_CMDID_BT_CONNECT){
-		tlkmmi_btmgr_btConnectCmdDeal(pData, dataLen);
+		tlkmmi_btmgr_recvConnectCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_DISCONN){
-		tlkmmi_btmgr_btDisconnCmdDeal(pData, dataLen);
+		tlkmmi_btmgr_recvDisconnCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_CONN_PROF){
+		tlkmmi_btmgr_recvConnProfCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_DISC_PROF){
+		tlkmmi_btmgr_recvDiscProfCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_INQUIRY){
-		tlkmmi_btmgr_btInquiryCmdDeal(pData, dataLen);
+		tlkmmi_btmgr_recvInquiryCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_INQ_CANCEL){
-		tlkmmi_btmgr_btInqCancelCmdDeal();
+		tlkmmi_btmgr_recvInqCancelCmdDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_GET_NAME){
-		tlkmmi_btmgr_getNameCmdDeal();
+		tlkmmi_btmgr_recvGetNameCmdDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_GET_ADDR){
-		tlkmmi_btmgr_getAddrCmdDeal();
+		tlkmmi_btmgr_recvGetAddrCmdDeal();
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_SET_NAME){
+		tlkmmi_btmgr_recvSetNameCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_SET_ADDR){
+		tlkmmi_btmgr_recvSetAddrCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_VOL_INC){
+		tlkmmi_btmgr_recvVolIncCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_VOL_DEC){
+		tlkmmi_btmgr_recvVolDecCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_GET_PDL){
-		tlkmmi_btmgr_getPDLCmdDeal(pData, dataLen);
+		tlkmmi_btmgr_recvGetPDLCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_DEL_PDL){
-		tlkmmi_btmgr_delPDLCmdDeal(pData, dataLen);
+		tlkmmi_btmgr_recvDelPDLCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_CLS_PDL){
-		tlkmmi_btmgr_clsPDLCmdDeal();
+		tlkmmi_btmgr_recvClsPDLCmdDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_GET_CDL){
-		tlkmmi_btmgr_getCDLCmdDeal(pData, dataLen);
+		tlkmmi_btmgr_recvGetCDLCmdDeal(pData, dataLen);
 	}else{
 		tlkmdi_comm_sendBtRsp(msgID, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
 	}
 }
-static void tlkmmi_btmgr_getNameCmdDeal(void)
+static void tlkmmi_btmgr_recvGetNameCmdDeal(void)
 {
 	uint08 buffLen;
 	uint08 nameLen;
 	uint08 *pBtName;
 	uint08 buffer[64+4];
 
-	pBtName = tlkmmi_btmgr_getBtName();
+	pBtName = tlkmmi_btmgr_getName();
 	if(pBtName == nullptr) nameLen = 0;
 	else nameLen = strlen((char*)pBtName);
 	if(nameLen == 0 || nameLen > 60){
@@ -260,13 +280,13 @@ static void tlkmmi_btmgr_getNameCmdDeal(void)
 	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_GET_NAME, TLKPRT_COMM_RSP_STATUE_SUCCESS, 
 		TLK_ENONE, buffer, buffLen);
 }
-static void tlkmmi_btmgr_getAddrCmdDeal(void)
+static void tlkmmi_btmgr_recvGetAddrCmdDeal(void)
 {
 	uint08 buffLen;
 	uint08 buffer[6];
 	uint08 *pBtAddr;
 	
-	pBtAddr = tlkmmi_btmgr_getBtAddr();
+	pBtAddr = tlkmmi_btmgr_getAddr();
 	
 	buffLen = 0;
 	tmemcpy(buffer+buffLen, pBtAddr, 6);
@@ -274,7 +294,49 @@ static void tlkmmi_btmgr_getAddrCmdDeal(void)
 	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_GET_ADDR, TLKPRT_COMM_RSP_STATUE_SUCCESS, 
 		TLK_ENONE, buffer, buffLen);
 }
-static void tlkmmi_btmgr_getPDLCmdDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_btmgr_recvSetNameCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	if(dataLen < 2 || 1+pData[0] > dataLen){
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_SET_NAME, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EFORMAT, nullptr, 0);
+		return;
+	}
+	tlkmmi_btmgr_setName(pData+1, pData[0]);
+	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_SET_NAME, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+}
+static void tlkmmi_btmgr_recvSetAddrCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	if(dataLen < 6){
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_SET_ADDR, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EFORMAT, nullptr, 0);
+		return;
+	}
+	tlkmmi_btmgr_setAddr(pData);
+	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_SET_ADDR, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+}
+
+static void tlkmmi_btmgr_recvVolIncCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	int ret = tlkmmi_btmgr_ctrlVolInc();
+	if(ret == TLK_ENONE){
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_VOL_INC, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+	}else{
+		if(ret < 0) ret = -ret;
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_VOL_INC, TLKPRT_COMM_RSP_STATUE_FAILURE, (uint08)ret, nullptr, 0);
+	}
+}
+static void tlkmmi_btmgr_recvVolDecCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	int ret = tlkmmi_btmgr_ctrlVolDec();
+	if(ret == TLK_ENONE){
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_VOL_INC, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+	}else{
+		if(ret < 0) ret = -ret;
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_VOL_INC, TLKPRT_COMM_RSP_STATUE_FAILURE, (uint08)ret, nullptr, 0);
+	}
+}
+
+static void tlkmmi_btmgr_recvGetPDLCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	uint08 index;
 	uint08 start;
@@ -313,7 +375,7 @@ static void tlkmmi_btmgr_getPDLCmdDeal(uint08 *pData, uint08 dataLen)
 	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_GET_PDL, TLKPRT_COMM_RSP_STATUE_SUCCESS, 
 		TLK_ENONE, buffer, buffLen);
 }
-static void tlkmmi_btmgr_delPDLCmdDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_btmgr_recvDelPDLCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	uint08 index;
 	uint08 count;
@@ -366,7 +428,7 @@ static void tlkmmi_btmgr_delPDLCmdDeal(uint08 *pData, uint08 dataLen)
 	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_DEL_PDL, TLKPRT_COMM_RSP_STATUE_SUCCESS,
 			TLK_ENONE, buffer, buffLen);
 }
-static void tlkmmi_btmgr_clsPDLCmdDeal(void)
+static void tlkmmi_btmgr_recvClsPDLCmdDeal(void)
 {
 	#if (TLK_MDI_BTACL_ENABLE)
 	if(tlkmdi_btacl_getUsedCount() != 0){
@@ -383,7 +445,7 @@ static void tlkmmi_btmgr_clsPDLCmdDeal(void)
 			TLK_ENONE, nullptr, 0);
 	}
 }
-static void tlkmmi_btmgr_getCDLCmdDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_btmgr_recvGetCDLCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	#if !(TLK_MDI_BTACL_ENABLE)
 	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_GET_CDL, TLKPRT_COMM_RSP_STATUE_FAILURE,
@@ -427,7 +489,7 @@ static void tlkmmi_btmgr_getCDLCmdDeal(uint08 *pData, uint08 dataLen)
 		TLK_ENONE, buffer, buffLen);
 	#endif
 }
-static void tlkmmi_btmgr_btInquiryCmdDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_btmgr_recvInquiryCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	int ret;
 	uint08 type;
@@ -458,7 +520,7 @@ static void tlkmmi_btmgr_btInquiryCmdDeal(uint08 *pData, uint08 dataLen)
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_INQUIRY, TLKPRT_COMM_RSP_STATUE_FAILURE, reason, nullptr, 0);
 	}
 }
-static void tlkmmi_btmgr_btInqCancelCmdDeal(void)
+static void tlkmmi_btmgr_recvInqCancelCmdDeal(void)
 {
 	int ret;
 	uint08 reason;
@@ -473,54 +535,54 @@ static void tlkmmi_btmgr_btInqCancelCmdDeal(void)
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_INQ_CANCEL, TLKPRT_COMM_RSP_STATUE_FAILURE, reason, nullptr, 0);
 	}
 }
-static void tlkmmi_btmgr_btConnectCmdDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_btmgr_recvConnectCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	int ret;
 	uint08 object;
 	uint16 handle;
 	uint08 btAddr[6];
-	uint16 timeout;
+	uint32 timeout;
 	
 	if(dataLen < 6 || (pData[0] != 0 && pData[0] != 1)){
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Error Param");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Error Param");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
 		return;
 	}
 	if(pData[0] == 0 && dataLen < 10){
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Error Length");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Error Length");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
 		return;
 	}
 
 	object = pData[1];
-	timeout = ((uint16)pData[3] << 8) | pData[2];
+	timeout = (((uint16)pData[3] << 8) | pData[2])*100;
 	if(pData[0] == 0) tmemcpy(btAddr, pData+4, 6);
 	else handle = ((uint16)pData[5] << 8) | pData[4];
 	
 	(void)handle;
 	if(object == TLKPRT_COMM_BT_CHN_ACL){
 		if(pData[0] != 0){
-			tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Only Support Method - MAC");
+			tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Only Support Method - MAC");
 			tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
 			return;
 		}
 		ret = tlkmmi_btmgr_connect(btAddr, timeout);
 		if(ret == TLK_ENONE){
-			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Start Connect - none");
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Start Connect - none");
 			tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 		}else if(ret == -TLK_EBUSY){
-			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Start Connect - busy");
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Start Connect - busy");
 			tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_COMPLETE, TLK_ENONE, nullptr, 0);
 		}else{
-			tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Start Connect - fail");
+			tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Start Connect - fail");
 			tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 		}
 	}else{
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btConnectCmdDeal: Only Support Object-ACL");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnectCmdDeal: Only Support Object-ACL");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONNECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
 	}
 }
-static void tlkmmi_btmgr_btDisconnCmdDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_btmgr_recvDisconnCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	int ret;
 	uint08 object;
@@ -540,7 +602,7 @@ static void tlkmmi_btmgr_btDisconnCmdDeal(uint08 *pData, uint08 dataLen)
 	if(pData[0] == 0) tmemcpy(btAddr, pData+2, 6);
 	else handle = ((uint16)pData[3] << 8) | pData[2];
 	if(object == TLKPRT_COMM_BT_CHN_ACL){
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btDisconnCmdDeal:object-%d,handle-0x%x", object, handle);
+		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal:object-%d,handle-0x%x", object, handle);
 		if(pData[0] == 0) ret = tlkmmi_btmgr_disconnByAddr(btAddr);
 		else ret = tlkmmi_btmgr_disconn(handle);
 		if(ret == TLK_ENONE){
@@ -551,11 +613,20 @@ static void tlkmmi_btmgr_btDisconnCmdDeal(uint08 *pData, uint08 dataLen)
 			tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_DISCONN, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 		}
 	}else{
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_btDisconnCmdDeal: Only Support Object-ACL");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: Only Support Object-ACL");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_DISCONN, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
 	}
 }
-
+static void tlkmmi_btmgr_recvConnProfCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvConnProfCmdDeal: Not Support");
+	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CONN_PROF, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
+}
+static void tlkmmi_btmgr_recvDiscProfCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: Not Support");
+	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_DISC_PROF, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
+}
 
 
 

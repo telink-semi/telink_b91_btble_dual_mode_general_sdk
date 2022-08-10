@@ -28,7 +28,6 @@
 
 
 
-
 /******************************************************************************
  * Function: tlkmmi_phone_statusInit
  * Descript: Register the phone call event callback.

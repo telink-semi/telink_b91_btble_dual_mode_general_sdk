@@ -169,11 +169,11 @@ void tlkmdi_btmgr_regProfileDisconnCB(TlkMmiBtMgrProfileDisconnCallback discCB)
  * Descript: Connect the acl link and set a timeout to handle acl connect timeout. 
  * Params:
  *         @btaddr[IN]--The BT address.
- *         @timeout[IN]--The timeout value.
+ *         @timeout[IN]--The timeout value. Unit:ms.
  * Return: TLK_ENONE is success, others value is failure.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_btmgr_connect(uint08 btaddr[6], uint16 timeout)
+int tlkmmi_btmgr_connect(uint08 btaddr[6], uint32 timeout)
 {
 	tlkmdi_btacl_item_t *pBtAcl;
 	tlkmdi_btinq_item_t *pBtInq;
@@ -467,6 +467,7 @@ static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl)
 
 static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 {
+	int ret;
 	uint08 dtype;
 	uint16 delayMs;
 	tlkmdi_btacl_item_t *pItem;
@@ -480,33 +481,65 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 	delayMs = pItem->active ? 0 : 2000;
 	dtype = bth_devClassToDevType(pItem->devClass);
 	if(tlkmdi_btacl_isHaveRfc(aclHandle)){
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append rfc");
-		tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_RFC, 0, delayMs);
+		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_RFC, 0, delayMs);
+		if(ret == TLK_ENONE){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append rfc success");
+		}else{
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append rfc failure");
+		}
 		if(tlkmdi_btacl_isFindHfp(aclHandle)){
-			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp");
-			tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_HFP, BTP_USRID_NONE, delayMs+200);
+			ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_HFP, BTP_USRID_NONE, delayMs+200);
+			if(ret == TLK_ENONE){
+				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp success");
+			}else{
+				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp failure");
+			}
 		}
 		#if (TLKMMI_PHONE_BOOK_ENABLE)
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: pbap - %d %d %d %d", 
 			aclHandle, dtype, tlkmdi_btacl_isFindPbap(aclHandle), pItem->devClass);
 		if(dtype != BTH_REMOTE_DTYPE_HEADSET && tlkmdi_btacl_isFindPbap(aclHandle)){
-			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append pbap");
-			tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_PBAP, BTP_USRID_CLIENT, delayMs+500);
+			ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_PBAP, BTP_USRID_CLIENT, delayMs+500);
+			if(ret == TLK_ENONE){
+				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append pbap success");
+			}else{
+				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append pbap failure");
+			}
 		}
 		#endif
 		delayMs += 800;
 	}
 	
 	if(dtype == BTH_REMOTE_DTYPE_HEADSET){
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-src");
-		tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_SERVER, delayMs);
+		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_SERVER, delayMs);
+		if(ret == TLK_ENONE){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-src success");
+		}else{
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-src failure");
+		}
 	}else{
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk");
-		tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_CLIENT, delayMs);
+		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_CLIENT, delayMs);
+		if(ret == TLK_ENONE){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk success");
+		}else{
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk failure");
+		}
 	}
 	
-	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append avrcp");
-	tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_AVRCP, BTP_USRID_NONE, delayMs+500);
+	ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_AVRCP, BTP_USRID_NONE, delayMs+500);
+	if(ret == TLK_ENONE){
+		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append avrcp success");
+	}else{
+		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append avrcp failure");
+	}
+    if (dtype != BTH_REMOTE_DTYPE_HEADSET) {
+	    ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_HID, BTP_USRID_SERVER, delayMs);
+	    if(ret == TLK_ENONE){
+		    tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hid success");
+	    }else{
+		    tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hid failure");
+	    }
+	}
 }
 
 

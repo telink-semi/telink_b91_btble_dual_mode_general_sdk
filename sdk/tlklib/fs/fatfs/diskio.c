@@ -31,26 +31,11 @@
 /*-----------------------------------------------------------------------*/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 #if (TLK_FS_FAT_ENABLE)
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
 #include "drivers.h"
-
-
-extern int tlkdev_xtsd04g_read(uint08 *pBuff, uint32 sector, uint08 sectCnt);
-extern int tlkdev_xtsd04g_write(uint08 *pData, uint32 sector, uint08 sectCnt);
-extern void tlkdev_xtsd04g_spiCsLow(void);
-extern uint08 tlkdev_xtsd04g_waitReady(void);
-extern uint32 tlkdev_xtsd04g_getSectorCount(void);
-extern void tlkdev_xtsd04g_spiCsHigh(void);
-
-
-
-/* Definitions of physical drive number for each drive */
-#define DEV_NOR_FLASH	0	/* Example: Map Ramdisk to physical drive 0 */
-#define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
-#define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
+#include "tlklib/fs/tlkfs_disk.h"
 
 
 
@@ -64,8 +49,10 @@ extern void tlkdev_xtsd04g_spiCsHigh(void);
 *******************************************************************************/
 DSTATUS disk_status(BYTE pdrv)
 {
-	pdrv++;
-	return 0;
+	tlkfs_disk_t *pDisk;
+	pDisk = tlkfs_getDisk(pdrv);
+	if(pDisk == nullptr) return RES_NOTRDY;
+	return RES_OK;
 }
 
 /******************************************************************************
@@ -78,19 +65,12 @@ DSTATUS disk_status(BYTE pdrv)
 *******************************************************************************/
 DSTATUS disk_initialize(BYTE pdrv)
 {
-	u8 res=0;
-	switch(pdrv)
-	{
-		#if (TLK_DEV_XTSD04G_ENABLE)
-		case DEV_MMC://
-			res = 0;//sd_nand_flash_init();//sd_nand_flash_init in app_nand_flash.c, No need to repeat at here
-			break;
-		#endif
-		default:
-			res=1;
-	}
-	if(res) return STA_NOINIT;
-	else return 0;
+	tlkfs_disk_t *pDisk;
+	pDisk = tlkfs_getDisk(pdrv);
+	if(pDisk == nullptr) return RES_NOTRDY;
+	if(pDisk->Init == nullptr) return RES_OK;
+	if(pDisk->Init() != TLK_ENONE) return RES_ERROR;
+	return RES_OK;
 }
 
 /******************************************************************************
@@ -106,23 +86,12 @@ DSTATUS disk_initialize(BYTE pdrv)
 *******************************************************************************/
 DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 {
-	u8 res=0;
-
-	if (!count)return RES_PARERR;
-	switch(pdrv)
-	{
-		#if (TLK_DEV_XTSD04G_ENABLE)
-		case DEV_MMC :
-			if(tlkdev_xtsd04g_read(buff, sector, count)) res=RES_ERROR;
-			break;
-		#endif
-		default:
-			res=1;
-	}
-	if(res == 0x00)return RES_OK;
-	else return RES_ERROR;
+	tlkfs_disk_t *pDisk;
+	pDisk = tlkfs_getDisk(pdrv);
+	if(pDisk == nullptr || pDisk->Read == nullptr) return RES_NOTRDY;
+	if(pDisk->Read(buff, sector, count) != TLK_ENONE) return RES_ERROR;
+	return RES_OK;
 }
-
 
 /******************************************************************************
  * Function: disk_write
@@ -137,23 +106,12 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, LBA_t sector, UINT count)
 *******************************************************************************/
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 {
-	u8 res=0;
-	if(!count) return RES_PARERR;
-	switch (pdrv) {
-		#if (TLK_DEV_XTSD04G_ENABLE)
-		case DEV_MMC :
-			if(tlkdev_xtsd04g_write((u8*)buff,sector,count)) res=RES_ERROR;
-			break;
-		#endif
-		default:
-			res=1;
-	}
-
-	if(res == 0x00)return RES_OK;
-	else return RES_ERROR;
+	tlkfs_disk_t *pDisk;
+	pDisk = tlkfs_getDisk(pdrv);
+	if(pDisk == nullptr || pDisk->Write == nullptr) return RES_NOTRDY;
+	if(pDisk->Write((uint08*)buff, sector, count) != TLK_ENONE) return RES_ERROR;
+	return RES_OK;
 }
-
-
 
 /******************************************************************************
  * Function: disk_ioctl
@@ -167,39 +125,38 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, LBA_t sector, UINT count)
 *******************************************************************************/
 DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 {
-	u8 res = 0;
-	#if (TLK_DEV_XTSD04G_ENABLE)
-	if(pdrv==DEV_MMC)
-	{
-		switch(cmd)
-		{
-			case CTRL_SYNC:
-				tlkdev_xtsd04g_spiCsLow();
-				if(tlkdev_xtsd04g_waitReady() == 0)res = RES_OK;
-				else res = RES_ERROR;
-				tlkdev_xtsd04g_spiCsHigh();
-				break;
-			case GET_SECTOR_SIZE:
-				*(WORD*)buff = 512;
-				res = RES_OK;
-				break;
-			case GET_BLOCK_SIZE:
-				*(WORD*)buff = 8;
-				res = RES_OK;
-				break;
-			case GET_SECTOR_COUNT:
-				*(DWORD*)buff = tlkdev_xtsd04g_getSectorCount();
-				res = RES_OK;
-				break;
-			default:
-				res = RES_PARERR;
-				break;
-		}
+	DRESULT res;
+	tlkfs_disk_t *pDisk;
+	pDisk = tlkfs_getDisk(pdrv);
+	if(pDisk == nullptr) return RES_NOTRDY; 
+		
+	switch(cmd){
+		case CTRL_SYNC:
+//			tlkdev_xtsd01g_spiCsLow();
+//			if(tlkdev_xtsd01g_waitReady() == 0) res = RES_OK;
+//			else res = RES_ERROR;
+//			tlkdev_xtsd01g_spiCsHigh();
+			if(pDisk->isReady) res = RES_OK;
+			else res = RES_ERROR;
+			break;
+		case GET_SECTOR_SIZE:
+			*(WORD*)buff = pDisk->blkSize;
+			res = RES_OK;
+			break;
+		case GET_BLOCK_SIZE:
+			*(WORD*)buff = 8;
+			res = RES_OK;
+			break;
+		case GET_SECTOR_COUNT:
+			*(DWORD*)buff = pDisk->blkCount;
+			res = RES_OK;
+			break;
+		default:
+			res = RES_PARERR;
+			break;
 	}
-	#endif
-
+	
 	return res;
-
 }
 
 /******************************************************************************

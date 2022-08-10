@@ -26,8 +26,73 @@
 #if (TLKBTP_CFG_ATT_ENABLE)
 
 
+#define BTP_ATT_DBG_FLAG        (TLKBTP_CFG_ATT_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
+#define BTP_ATT_DBG_SIGN        "[ATT]"
+
+#define BTP_ATT_TIMEOUT              200000 //100ms
+#define BTP_ATT_CONN_TIMEOUT         (7000000/BTP_A2DP_TIMEOUT)
+#define BTP_ATT_DISC_TIMEOUT         (5000000/BTP_A2DP_TIMEOUT)
+#define BTP_ATT_CONN_TIMEOUT2        (5000000/BTP_A2DP_TIMEOUT)
 
 
+
+
+
+typedef struct{
+	uint08 state;
+	uint08 usrID;
+	uint16 chnID;
+	uint16 busys;
+	uint16 flags;
+	uint16 handle;
+	uint16 mtuSize;
+	union{
+		struct{
+			uint08 opcode;
+			uint08 reason;
+			uint08 resv000;
+			uint08 uuidLen;
+			uint16 roffset;
+			uint16 resv001;
+			uint16 mtuSize;
+			uint16 ahandle;
+			uint16 shandle; //Att Handle
+			uint16 ehandle;
+			uint08 attUUID[16];
+		}server;
+		struct{
+			uint32 resever;
+		}client;
+	}param;	
+	tlkapi_timer_t timer;
+}btp_att_node_t;
+
+
+typedef struct{
+	btp_att_node_t item[TLK_BT_ATT_MAX_NUMB];
+}btp_att_ctrl_t;
+
+
+
+
+int btp_att_innerInit(void);
+
+void btp_att_destroy(uint16 aclHandle);
+
+
+void btp_att_resetNode(btp_att_node_t *pItem);
+
+uint08 btp_att_getIdleCount(void);
+uint08 btp_att_getUsedCount(void);
+uint08 btp_att_getConnCount(void);
+
+btp_att_node_t *btp_att_getIdleNode(void);
+btp_att_node_t *btp_att_getBusyNode(uint16 aclHandle);
+btp_att_node_t *btp_att_getUsedNode(uint16 aclHandle, uint08 usrID);
+btp_att_node_t *btp_att_getConnNode(uint16 aclHandle, uint08 usrID);
+btp_att_node_t *btp_att_getUsedNodeByChnID(uint16 aclHandle, uint16 chnID);
+btp_att_node_t *btp_att_getAnyUsedNode(uint16 aclHandle);
+btp_att_node_t *btp_att_getAnyConnNode(uint16 aclHandle);
 
 
 

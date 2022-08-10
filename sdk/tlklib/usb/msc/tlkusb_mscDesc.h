@@ -26,8 +26,8 @@
 #if (TLK_USB_MSC_ENABLE)
 
 
-//#define TLK_DEV_XTSD04G_ENABLE             (0 && TLK_CFG_FS_ENABLE)
-//#define TLK_DEV_XT2602E_ENABLE             (1 && TLK_CFG_FS_ENABLE)
+//#define TLK_DEV_XTSD01G_ENABLE             (0 && TLK_CFG_FS_ENABLE)
+//#define TLK_DEV_XT26G0X_ENABLE             (1 && TLK_CFG_FS_ENABLE)
 
 
 #define TLKUSB_MSC_STRING_PRODUCT       L"Telink B91 BTBLE Storage"

@@ -41,7 +41,8 @@ static tlkusb_audmic_ctrl_t sTlkUsbAudMicCtrl;
 int tlkusb_audmic_init(void)
 {
 	tmemset(&sTlkUsbAudMicCtrl, 0, sizeof(tlkusb_audmic_ctrl_t));
-	
+
+	sTlkUsbAudMicCtrl.sampleRate = TLKUSB_AUD_MIC_SAMPLE_RATE;
 	if(TLKUSB_AUD_MIC_CHANNEL_COUNT == 1) {
 		//SET_FLD(reg_usb_ep_ctrl(USB_EDP_MIC), FLD_USB_EP_EOF_ISO | FLD_USB_EP_MONO);
 	}
@@ -106,7 +107,7 @@ void tlkusb_audmic_enterMute(bool enable)
 }
 		
 
-int tlkusb_audmic_setCmdDeal(int type)
+int tlkusb_audmic_setInfCmdDeal(int type)
 {
 	if(type == AUDIO_FEATURE_MUTE){
 		sTlkUsbAudMicCtrl.mute = usbhw_read_ctrl_ep_data();
@@ -119,7 +120,7 @@ int tlkusb_audmic_setCmdDeal(int type)
 	return TLK_ENONE;
 }
 
-int tlkusb_audmic_getCmdDeal(int req, int type)
+int tlkusb_audmic_getInfCmdDeal(int req, int type)
 {
 	if(type == AUDIO_FEATURE_MUTE){
 		usbhw_write_ctrl_ep_data(sTlkUsbAudMicCtrl.mute);
@@ -145,6 +146,22 @@ int tlkusb_audmic_getCmdDeal(int req, int type)
 	}
 	return TLK_ENONE;
 }
+
+int tlkusb_audmic_setEdpCmdDeal(int type)
+{
+	if(type == AUDIO_EPCONTROL_SamplingFreq){
+		uint32 value = usbhw_read_ctrl_ep_data();
+		sTlkUsbAudMicCtrl.sampleRate = value;
+		value = usbhw_read_ctrl_ep_data();
+		sTlkUsbAudMicCtrl.sampleRate |= value << 8;
+		value = usbhw_read_ctrl_ep_data();
+		sTlkUsbAudMicCtrl.sampleRate |= value << 16;
+		// TODO: Sample Rate Changed
+	}
+	return TLK_ENONE;
+}
+
+
 
 
 

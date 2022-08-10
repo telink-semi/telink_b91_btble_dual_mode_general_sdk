@@ -35,6 +35,7 @@ extern "C" {
 #if (TLK_FS_FAT_ENABLE)
 
 
+
 /* Status of Disk Functions */
 typedef BYTE	DSTATUS;
 

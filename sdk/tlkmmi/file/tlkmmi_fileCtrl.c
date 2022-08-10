@@ -26,7 +26,7 @@
 #if (TLKMMI_FILE_ENABLE)
 #include "tlkprt/tlkprt_stdio.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
-#include "tlklib/fs/tlklib_fs.h"
+#include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/tlkmmi_adapt.h"
@@ -38,7 +38,9 @@
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/spp/btp_spp.h"
 //#endif
-
+#if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))
+#include "tlkmdi/tlkmdi_btatt.h"
+#endif
 
 
 #if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
@@ -49,6 +51,11 @@ static int  tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pD
 static void tlkmmi_file_btSppRecvProc(uint16 aclHandle, uint08 rfcHandle, uint08 *pData, uint16 dataLen);
 static int  tlkmmi_file_btSppSendProc(uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
 #endif
+#if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))
+static void tlkmmi_file_btAttRecvProc(uint16 handle, uint16 chnID, uint08 *pData, uint16 dataLen);
+static int  tlkmmi_file_btAttSendProc(uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
+#endif
+
 
 static tlkmmi_file_recvIntf_t *tlkmmi_file_getRecvIntf(uint16 fileType);
 
@@ -85,6 +92,9 @@ int tlkmmi_file_ctrlInit(void)
 	#endif
 	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
 	btp_spp_regDataCB(tlkmmi_file_btSppRecvProc);
+	#endif
+	#if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))
+	tlkmdi_btatt_regOtaWriteCB(tlkmmi_file_btAttRecvProc);
 	#endif
 
 	tmemcpy(usrAuthCode, "Telink File Tran", strlen("Telink File Tran"));
@@ -170,6 +180,32 @@ static int tlkmmi_file_btSppSendProc(uint16 handle, uint08 *pHead, uint08 headLe
 	return ret;
 }
 #endif //#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
+#if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))
+static void tlkmmi_file_btAttRecvProc(uint16 handle, uint16 chnID, uint08 *pData, uint16 dataLen)
+{
+	if(dataLen < 7){
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_btAttRecvProc: error dataLen[%d]", dataLen);
+		return;
+	}
+	if(pData[0] == TLKPRT_COMM_PTYPE_DAT){
+		tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_BT_ATT, handle, pData, 6, pData+6, dataLen-6);
+	}else{
+		tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_BT_ATT, handle, pData, 7, pData+7, dataLen-7);
+	}
+}
+static int tlkmmi_file_btAttSendProc(uint16 handle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen)
+{
+	int ret;
+	ret = tlkmdi_btatt_otaSendData(handle, pHead, headLen, pData, dataLen);
+	if(ret == TLK_ENONE){
+		//tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btAttSend[Head]:", pHead, headLen);
+		//tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btAttSend[Data]:", pData, dataLen > 16 ? 16 : dataLen);
+	}else{
+		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "btAttSend: failure");
+	}
+	return ret;
+}
+#endif
 
 
 static int tlkmmi_file_recvStart(tlkmdi_file_unit_t *pUnit, bool isFast)
@@ -215,7 +251,9 @@ static int tlkmmi_file_recvSend(uint08 optChn, uint16 handle, uint08 *pHead, uin
 		return tlkmmi_file_btSppSendProc(handle, pHead, headLen, pData, dataLen);
 		#endif
 	}else if(optChn == TLKMDI_FILE_OPTCHN_BT_ATT){
-		return -TLK_ENOSUPPORT;
+		#if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))
+		return tlkmmi_file_btAttSendProc(handle, pHead, headLen, pData, dataLen);
+		#endif
 	}else if(optChn == TLKMDI_FILE_OPTCHN_LE_ATT){
 		return -TLK_ENOSUPPORT;
 	}

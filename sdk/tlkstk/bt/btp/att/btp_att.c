@@ -20,7 +20,6 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_l2cap.h"
@@ -34,6 +33,16 @@
 #include "tlkstk/bt/btp/att/btp_attClt.h"
 
 
+
+int btp_att_init(void)
+{
+	btp_att_innerInit();
+	#if (TLKBTP_CFG_ATTSRV_ENABLE)
+	btp_attsrv_init();
+	#endif
+	
+	return TLK_ENONE;
+}
 
 
 

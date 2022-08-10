@@ -120,7 +120,6 @@ _attribute_retention_code_ void zb_bt_irq_handler(void)
 
 
 extern void tlkusb_audirq_handler(void);
-extern void tlkusb_mscirq_handler(void);
 /******************************************************************************
  * Function: usb_endpoint_irq_handler
  * Descript: This function for audio interrupt handler 
@@ -137,25 +136,11 @@ void usb_endpoint_irq_handler(void)
 	#endif
 }
 
-
-#if (TLK_DEV_XT2602E_ENABLE)
-volatile unsigned int nnn=0;
-extern volatile uint08 gTlkDevPspiEndIrqFlag;
-/******************************************************************************
- * Function: pspi_irq_handler
- * Descript: This function for spi interrupt handler.
- * Params: None.
- * Return: None.
- * Others: None.
-*******************************************************************************/ 
-_attribute_retention_code_ void pspi_irq_handler(void)
+void timer0_irq_handler(void)
 {
-	if(spi_get_irq_status(PSPI_MODULE,SPI_END_INT))
-	{
-		spi_clr_irq_status(PSPI_MODULE, FLD_SPI_END_INT);//clr
-		if(gTlkDevPspiEndIrqFlag == 0) gTlkDevPspiEndIrqFlag = 1;
-	}
+	#if (TLKAPI_TIMER_ENABLE)
+	tlkapi_timer_handler();
+	#endif
 }
-#endif
 
 

@@ -714,6 +714,7 @@ static int tlkmmi_audio_sendProgressEvt(uint08 optype, uint16 progress)
 static void tlkmmi_audio_sendSongChangeEvt(void)
 {
 	uint08 length = 0;
+	uint08 codec = 0;
 	uint08 *pName = nullptr;
 	uint08 buffLen;
 	uint08 buffer[86];
@@ -736,12 +737,14 @@ static void tlkmmi_audio_sendSongChangeEvt(void)
 		length = 0;
 	}else{
 		pName = tlkmdi_mp3_getFileName(&length);
+		codec = tlkmdi_mp3_getFNameCode();
 	}
 	#else
 	length = 0;
 	#endif
 	if(length > 80) length = 80;
 	buffer[buffLen++] = length;
+	buffer[buffLen++] = codec;
 	if(length != 0){
 		tmemcpy(buffer+buffLen, pName, length);
 		buffLen += length;

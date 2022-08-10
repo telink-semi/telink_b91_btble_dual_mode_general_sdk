@@ -50,16 +50,16 @@ extern unsigned long  DEBUG_TL_MODEMREG_INIT[];
 extern unsigned long  DEBUG_TL_RADIOREG_INIT[];
 extern unsigned long  DEBUG_TL_PDZB_INIT[];
 extern void btc_context_restore(unsigned long * bt_reg, unsigned long * ip_reg, unsigned long * modem_reg, unsigned long * radio_reg, unsigned long * pdzb_reg);
+extern void btc_set_sniff_req_enable(uint8_t enable);// 1 : enable, 0 :disable
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
 extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
-
+extern void tlkdev_xtsd01g_shutDown(void);
 
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 
 static uint08 sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
-
 
 /******************************************************************************
  * Function: tlkapp_pm_init
@@ -74,16 +74,16 @@ int tlkapp_pm_init(void)
 	btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SLEEP_ENTER,  tlkapp_pm_enterSleepHandler);
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SUSPEND_EXIT, tlkapp_pm_leaveSleepHandler);
-	
-	gpio_function_en(TLKAPP_WAKEUP_PIN);
-	gpio_output_dis(TLKAPP_WAKEUP_PIN); 		
-	gpio_input_en(TLKAPP_WAKEUP_PIN);		
-	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLDOWN_100K);
-	
-	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_HIGH, 1); 
 
+//	gpio_function_en(TLKAPP_WAKEUP_PIN);
+//	gpio_output_dis(TLKAPP_WAKEUP_PIN);
+//	gpio_input_en(TLKAPP_WAKEUP_PIN);
+	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_LOW, 1);
+	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLUP_1M);
+	
+
+	btc_set_sniff_req_enable(1);//enable
 	btc_ll_set_sniff_lp_mode(BT_SNIFF_LP_MODE_SUSPEND);
-		
 	return TLK_ENONE;
 }
 
@@ -97,16 +97,7 @@ int tlkapp_pm_init(void)
 _attribute_bt_retention_code_
 void tlkapp_pm_init_deepRetn(void)
 {
-//	plic_interrupt_enable(IRQ1_SYSTIMER);
-//	plic_interrupt_enable(IRQ14_ZB_BT);
-//
-//	btc_ll_sniff_ret_clkrestore();
-//	btc_context_restore(DEBUG_BTREG_INIT, DEBUG_IPREG_INIT, DEBUG_TL_MODEMREG_INIT, DEBUG_TL_RADIOREG_INIT, DEBUG_TL_PDZB_INIT);
-//
-//	btc_intack_clear(0xFFFFFFFF);
-//	plic_interrupt_claim(IRQ14_ZB_BT);//claim,clear eip
-//	plic_interrupt_complete(IRQ14_ZB_BT);//complete
-//    btc_ll_set_sniff_lp_mode(BT_SNIFF_LP_MODE_SUSPEND);
+	
 }
 
 
@@ -129,7 +120,7 @@ void tlkapp_pm_handler(void)
 	uint08 mmiIsBusy = tlkmmi_pmIsbusy();
 	uint08 stkIsBusy = tlkstk_pmIsBusy();
 	uint08 appIsBusy = tlkapp_pmIsBusy();
-	uint08 padIsBusy = gpio_read(TLKAPP_WAKEUP_PIN);
+	uint08 padIsBusy = !gpio_read(TLKAPP_WAKEUP_PIN);
 	
 	if(gTlkAppSystemBusyTimer != 0 && clock_time_exceed(gTlkAppSystemBusyTimer, 1000000)){
 		//Solve the problem that Android phones are difficult to connect
@@ -150,14 +141,17 @@ void tlkapp_pm_handler(void)
 			|| devIsBusy || mdiIsBusy || mmiIsBusy || padIsBusy)
 	{
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
+		btc_set_sniff_req_enable(0);//disable
 		bth_sendLeaveSleepCmd();
 	}
-	else
-	{
-		btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);	
-		btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
-		btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
-		bth_sendEnterSleepCmd();
+	else{
+			btc_set_sniff_req_enable(1);//enable
+			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);
+			btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
+			btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
+			btble_pm_setWakeupSource(PM_WAKEUP_PAD);
+			bth_sendEnterSleepCmd();
+
 	}
 }
 
@@ -179,14 +173,11 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 		usb_set_pin_dis();
 	#endif
 	
-	#if (TLK_DEV_XTSD04G_ENABLE)
-	if(tlkdev_nand_isPowerOn()){
-		#if (TLK_MDI_USB_ENABLE)
-		tlkmdi_usb_shutdown();
-		#endif
-		tlkdev_nand_shutdown();
-		tlkdev_nand_powerOff();
-	}
+	#if (TLK_DEV_XTSD01G_ENABLE)
+	tlkdev_xtsd01g_shutDown();
+	#endif
+	#if (TLK_DEV_XT26G0X_ENABLE)
+	tlkdev_xt26g0x_shutDown();
 	#endif
 	
 	tlkdev_codec_reset();
@@ -206,8 +197,6 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen)
 {
 	tlkdev_serial_wakeup();
-
-//	sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
 }
 
 

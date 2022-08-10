@@ -30,6 +30,9 @@
 #if (TLK_USB_MSC_ENABLE)
 #include "tlklib/usb/msc/tlkusb_msc.h"
 #endif
+#if (TLK_DEV_XTSD01G_ENABLE)
+#include "tlkdev/ext/xtx/tlkdev_xtsd01g.h"
+#endif
 
 
 #include "drivers.h"
@@ -40,32 +43,20 @@ extern int tlkusb_init(uint16 usbID);
 extern void tlkusb_process(void);
 
 #if (TLK_USB_MSC_ENABLE)
-extern int tlkdev_xtsd04g_read(uint08 *pBuff, uint32 sector, uint08 sectCnt);
-extern int tlkdev_xtsd04g_write(uint08 *pData, uint32 sector, uint08 sectCnt);
-static int tlkmdi_usbMscInit(void)
-{
-	return TLK_ENONE;
-}
-static int tlkmdi_usbMscRead(uint32 blkOffs, uint16 blkNumb, uint08 *pBuff)
-{
-	return tlkdev_xtsd04g_read(pBuff, blkOffs, 1);
-}
-static int tlkmdi_usbMscWrite(uint32 blkOffs, uint16 blkNumb, uint08 *pData)
-{
-	return tlkdev_xtsd04g_write(pData, blkOffs, 1);
-}
-static tlkusb_msc_unit_t sTlkUsbMscDisk0 = {
+#if (TLK_DEV_XTSD01G_ENABLE)
+static tlkusb_msc_disk_t sTlkUsbMscDisk0 = {
 	true, //isReady;
 	false, //hotPlug; //1-Enable, 0-Disable
-	512, //blkSize;
-	0x0003D000, //blkCount;
+	TLKDEV_XTSD01G_DISK_BLOCK_SIZE, //blkSize;
+	TLKDEV_XTSD01G_DISK_BLOCK_NUMB, //blkCount;
 	"TLK-DISK", //pVendorStr; //<=8
 	"Telink Disk Demo", //pProductStr; //<=16
 	"1.01", //pVersionStr; //<=4
-	tlkmdi_usbMscInit, //int(*Init)(void);
-	tlkmdi_usbMscRead, //int(*Read)(uint32 blkOffs, uint16 blkNumb, uint08 *pBuff);
-	tlkmdi_usbMscWrite, //int(*Write)(uint32 blkOffs, uint16 blkNumb, uint08 *pData);
+	tlkdev_xtsd01g_diskInit,
+	tlkdev_xtsd01g_diskRead,
+	tlkdev_xtsd01g_diskWrite, 
 };
+#endif //#if (TLK_DEV_XTSD01G_ENABLE)
 #endif
 
 
@@ -75,7 +66,9 @@ int tlkmdi_usb_init(void)
 	tlkusb_init(0x120);
 	/* increase 1mA when test low power, so disable USB when PM used */
 	#if (TLK_USB_MSC_ENABLE)
+	#if (TLK_DEV_XTSD01G_ENABLE)
 	tlkusb_msc_appendDisk(&sTlkUsbMscDisk0);
+	#endif
 	#endif
 	
 	return TLK_ENONE;

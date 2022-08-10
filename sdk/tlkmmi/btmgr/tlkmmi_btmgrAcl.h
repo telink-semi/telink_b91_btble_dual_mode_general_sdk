@@ -80,11 +80,11 @@ bool tlkmmi_btmgr_aclIsBusy(void);
  * Descript: Connect the acl link and set a timeout to handle acl connect timeout. 
  * Params:
  *         @btaddr[IN]--The BT address.
- *         @timeout[IN]--The timeout value.
+ *         @timeout[IN]--The timeout value. Unit:ms.
  * Return: TLK_ENONE is success, others value is failure.
  * Others: None.
 *******************************************************************************/
-int  tlkmmi_btmgr_connect(uint08 btaddr[6], uint16 timeout);
+int  tlkmmi_btmgr_connect(uint08 btaddr[6], uint32 timeout);
 
 /******************************************************************************
  * Function: tlkmmi_btmgr_disconn

@@ -36,9 +36,9 @@ typedef struct{
 	char *pProductStr; //<=16
 	char *pVersionStr; //<=4
 	int(*Init)(void);
-	int(*Read)(uint32 blkOffs, uint16 blkNumb, uint08 *pBuff);
-	int(*Write)(uint32 blkOffs, uint16 blkNumb, uint08 *pData);
-}tlkusb_msc_unit_t;
+	int(*Read)(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb);
+	int(*Write)(uint08 *pData, uint32 blkOffs, uint16 blkNumb);
+}tlkusb_msc_disk_t;
 
 
 
@@ -46,11 +46,11 @@ typedef struct{
 
 int tlkusb_msc_init(void);
 
-int tlkusb_msc_appendDisk(tlkusb_msc_unit_t *pUnit);
+int tlkusb_msc_appendDisk(tlkusb_msc_disk_t *pUnit);
 
 
 uint08 tlkusb_msc_getDiskCount(void);
-tlkusb_msc_unit_t *tlkusb_msc_getDisk(uint08 lun);
+tlkusb_msc_disk_t *tlkusb_msc_getDisk(uint08 volNum);
 
 
 

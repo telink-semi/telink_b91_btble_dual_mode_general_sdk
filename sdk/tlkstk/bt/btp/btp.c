@@ -25,6 +25,9 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/btp_adapt.h"
+#include "tlkstk/bt/bth/bth.h"
+#include "tlkstk/bt/bth/bth_device.h"
+#include "tlkstk/bt/bth/bth_handle.h"
 #include "tlkstk/bt/btp/btp.h"
 #include "tlkstk/bt/btp/sdp/btp_sdp.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
@@ -33,6 +36,8 @@
 #include "tlkstk/bt/btp/hfp/btp_hfp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
 #include "tlkstk/bt/btp/spp/btp_spp.h"
+#include "tlkstk/bt/btp/att/btp_att.h"
+#include "tlkstk/bt/btp/hid/btp_hid.h"
 
 
 int btp_init(void)
@@ -60,6 +65,12 @@ int btp_init(void)
 	#if (TLKBTP_CFG_SPP_ENABLE)
 	btp_spp_init();
 	#endif
+	#if (TLKBTP_CFG_ATT_ENABLE)
+	btp_att_init();
+	#endif
+	#if (TLKBTP_CFG_HID_ENABLE)
+	btp_hid_init();
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -72,6 +83,9 @@ void btp_process(void)
 
 void btp_destroy(uint16 aclHandle)
 {
+    uint08 *bt_addr;
+    bth_device_item_t *pItem = NULL;
+	
 	#if (TLKBTP_CFG_SDP_ENABLE)
 	btp_sdp_destroy(aclHandle);
 	#endif
@@ -93,6 +107,18 @@ void btp_destroy(uint16 aclHandle)
 	#endif
 	#if (TLKBTP_CFG_RFC_ENABLE)
 	btp_rfcomm_destroy(aclHandle);
+	#endif
+
+	#if (TLKBTP_CFG_ATT_ENABLE)
+	btp_att_destroy(aclHandle);
+	#endif
+	#if (TLKBTP_CFG_HID_ENABLE)
+	bt_addr = bth_handle_getBtAddr(aclHandle);
+	pItem = bth_device_getItem(bt_addr, NULL);
+	if (pItem == NULL) return;
+	if (bth_devClassToDevType(pItem->devClass) != BTH_REMOTE_DTYPE_HEADSET){
+	    btp_hid_destroy(aclHandle);
+	}
 	#endif
 }
 

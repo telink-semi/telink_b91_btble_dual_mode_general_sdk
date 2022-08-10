@@ -32,8 +32,36 @@
 int tlkmmi_lemgr_commInit(void);
 
 
+/******************************************************************************
+ * Function: tlkmmi_lemgr_sendAclConnectEvt
+ * Descript: Send ACL connect Evt to app. 
+ * Params:
+ *        @handle[IN]--The acl handle.
+ *        @status[IN]--The current status.
+ *        @pBtAddr[IN]--The BT Address.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+void tlkmmi_lemgr_sendAclConnectEvt(uint16 handle, uint08 status,
+	uint08 peerRole, uint08 peerType, uint08 *pBtAddr);
 
+/******************************************************************************
+ * Function: tlkmmi_lemgr_sendAclDisconnEvt
+ * Descript: Send ACL connect Evt to app. 
+ * Params:
+ *        @handle[IN]--The acl handle.
+ *        @reason[IN]--The disconnect reason.
+ *        @pBtAddr[IN]--The BT Address.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+void tlkmmi_lemgr_sendAclDisconnEvt(uint16 handle, uint08 reason, uint08 *pBtAddr);
 
+void tlkmmi_lemgr_sendAdvStartEvt(void);
+void tlkmmi_lemgr_sendAdvCompleteEvt(void);
+
+void tlkmmi_lemgr_sendScanStartEvt(void);
+void tlkmmi_lemgr_sendScanCompleteEvt(void);
 
 
 #endif //TLKMMI_LEMGR_ENABLE

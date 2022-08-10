@@ -65,26 +65,26 @@ static const tlkusb_stdStringDesc_t sMmiUsbAudProductDesc = {
 /** Serial number string. This is a Unicode string containing the device's unique serial number, expressed as a
  *  series of uppercase hexadecimal digits.
  */
-static const tlkusb_stdStringDesc_t sMmiUsbAud16000SerialDesc = {
-	2+sizeof(TLKUSB_AUD_STRING_SERIAL0)-2,
-	TLKUSB_TYPE_STRING,
-	TLKUSB_AUD_STRING_SERIAL0
-};
-static const tlkusb_stdStringDesc_t sMmiUsbAud32000SerialDesc = {
-	2+sizeof(TLKUSB_AUD_STRING_SERIAL1)-2,
-	TLKUSB_TYPE_STRING,
-	TLKUSB_AUD_STRING_SERIAL1
-};
-static const tlkusb_stdStringDesc_t sMmiUsbAud44100SerialDesc = {
+#if (TLKUSB_AUD_MIC_ENABLE && TLKUSB_AUD_SPK_ENABLE)
+static const tlkusb_stdStringDesc_t sMmiUsbAudMicSpkSerialDesc = {
 	2+sizeof(TLKUSB_AUD_STRING_SERIAL2)-2,
 	TLKUSB_TYPE_STRING,
 	TLKUSB_AUD_STRING_SERIAL2
 };
-static const tlkusb_stdStringDesc_t sMmiUsbAud48000SerialDesc = {
-	2+sizeof(TLKUSB_AUD_STRING_SERIAL3)-2,
+#elif (TLKUSB_AUD_MIC_ENABLE)
+static const tlkusb_stdStringDesc_t sMmiUsbAudMicSerialDesc = {
+	2+sizeof(TLKUSB_AUD_STRING_SERIAL0)-2,
 	TLKUSB_TYPE_STRING,
-	TLKUSB_AUD_STRING_SERIAL3
+	TLKUSB_AUD_STRING_SERIAL0
 };
+#elif (TLKUSB_AUD_SPK_ENABLE)
+static const tlkusb_stdStringDesc_t sMmiUsbAudSpkSerialDesc = {
+	2+sizeof(TLKUSB_AUD_STRING_SERIAL1)-2,
+	TLKUSB_TYPE_STRING,
+	TLKUSB_AUD_STRING_SERIAL1
+};
+#endif
+
 
 
 static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
@@ -111,6 +111,57 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		TLKUSB_NO_DESCRIPTOR // iInterface
 	},
 	// audio_control_interface_ac;
+	#if (TLKUSB_AUD_MIC_ENABLE && TLKUSB_AUD_SPK_ENABLE)
+	{
+		sizeof(tlkusb_audInterfaceAcTLDesc_t),
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_Header, // Subtype
+		{0x00, 0x01}, // ACSpecification, version == 1.0
+		{
+			(sizeof(tlkusb_audInterfaceAcTLDesc_t) + /*9*/
+			sizeof(tlkusb_audInputDesc_t) + /*12*/
+			sizeof(tlkusb_audOutputDesc_t) + /*9*/
+			#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
+			sizeof(tlkusb_audDoubleFeatureDesc_t) + /*10*/
+			#else
+			sizeof(tlkusb_audSingleFeatureDesc_t) + /*9*/
+			#endif
+			sizeof(tlkusb_audInputDesc_t) + /*12*/
+			sizeof(tlkusb_audOutputDesc_t) + /*9*/
+			#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
+			sizeof(tlkusb_audDoubleFeatureDesc_t) /*10*/
+			#else
+			sizeof(tlkusb_audSingleFeatureDesc_t) /*9*/
+			#endif
+			),
+			0
+		},
+		2,
+		TLKUSB_AUD_INF_SPK,
+		TLKUSB_AUD_INF_MIC
+	},
+	#elif (TLKUSB_AUD_MIC_ENABLE)
+	{
+		sizeof(tlkusb_audInterfaceAcDesc_t),
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_Header, // Subtype
+		{0x00, 0x01}, // ACSpecification, version == 1.0
+		{
+			(sizeof(tlkusb_audInterfaceAcDesc_t) + /*9*/
+			sizeof(tlkusb_audInputDesc_t) + /*12*/
+			sizeof(tlkusb_audOutputDesc_t) + /*9*/
+			#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
+			sizeof(tlkusb_audDoubleFeatureDesc_t) /*10*/
+			#else
+			sizeof(tlkusb_audSingleFeatureDesc_t) /*9*/
+			#endif
+			),
+			0
+		},
+		1,
+		TLKUSB_AUD_INF_MIC
+	},
+	#elif (TLKUSB_AUD_SPK_ENABLE)
 	{
 		sizeof(tlkusb_audInterfaceAcDesc_t),
 		TLKUSB_TYPE_CS_INTERFACE,
@@ -119,10 +170,68 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		{(sizeof(tlkusb_audInterfaceAcDesc_t) + /*9*/
 			sizeof(tlkusb_audInputDesc_t) + /*12*/
 			sizeof(tlkusb_audOutputDesc_t) + /*9*/
-			sizeof(tlkusb_audMicFeatureDesc_t) /*9*/),0},
+			#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
+			sizeof(tlkusb_audDoubleFeatureDesc_t) /*10*/
+			#else
+			sizeof(tlkusb_audSingleFeatureDesc_t) /*9*/
+			#endif
+			),
+			0
+		},
 		1,
-		TLKUSB_AUD_INF_MIC
+		TLKUSB_AUD_INF_SPK
 	},
+	#endif
+	#if (TLKUSB_AUD_SPK_ENABLE)
+	// spk_input_terminal
+	{
+		sizeof(tlkusb_audInputDesc_t),
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_InputTerminal,
+		TLKUSB_AUDID_SPK_INPUT_TERMINAL_ID,
+		AUDIO_TERMINAL_STREAMING,
+		0, // AssociatedOutputTerminal
+		TLKUSB_AUD_SPK_CHANNEL_COUNT, // TotalChannels
+		#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
+		0x0003, // ChannelConfig - stero
+		#else
+		0x0001, // ChannelConfig - mono
+		#endif
+		0, // ChannelStrIndex
+		TLKUSB_NO_DESCRIPTOR
+	},
+	// spk_feature_unit
+	{
+		#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
+		sizeof(tlkusb_audDoubleFeatureDesc_t),
+		#else
+		sizeof(tlkusb_audSingleFeatureDesc_t),
+		#endif
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_Feature,
+		TLKUSB_AUDID_SPK_FEATURE_UNIT_ID,
+		TLKUSB_AUD_SRCID_SPK_FEATURE_UNIT,
+		1, // bControlSize
+		#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
+		{0x03, 0x00, 0x00}, // bmaControls
+		#else
+		{0x03, 0x00}, // bmaControls
+		#endif
+		TLKUSB_NO_DESCRIPTOR
+	},
+	// spk_output_terminal
+	{	
+		sizeof(tlkusb_audOutputDesc_t),
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_OutputTerminal,
+		TLKUSB_AUDID_SPK_OUTPUT_TERMINAL_ID,
+		AUDIO_TERMINAL_OUT_SPEAKER,
+		0, // AssociatedOutputTerminal
+		TLKUSB_AUD_SRCID_SPK_OUTPUT_TERMINAL,
+		TLKUSB_NO_DESCRIPTOR
+	},
+	#endif //#if (TLKUSB_AUD_SPK_ENABLE)
+	#if (TLKUSB_AUD_MIC_ENABLE)
 	// mic_input_terminal
 	{	
 		sizeof(tlkusb_audInputDesc_t),
@@ -131,20 +240,32 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		TLKUSB_AUDID_MIC_INPUT_TERMINAL_ID,
 		AUDIO_TERMINAL_IN_MIC,
 		0, // AssociatedOutputTerminal
-		1, // TotalChannels
-		0x0001, // ChannelConfig
+		TLKUSB_AUD_MIC_CHANNEL_COUNT, // TotalChannels
+		#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
+		0x0003, // ChannelConfig - stero
+		#else
+		0x0001, // ChannelConfig - mono
+		#endif
 		0, // ChannelStrIndex
 		TLKUSB_NO_DESCRIPTOR
 	},
 	// mic_feature_unit
 	{
-		sizeof(tlkusb_audMicFeatureDesc_t),
+		#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
+		sizeof(tlkusb_audDoubleFeatureDesc_t),
+		#else
+		sizeof(tlkusb_audSingleFeatureDesc_t),
+		#endif
 		TLKUSB_TYPE_CS_INTERFACE,
 		AUDIO_DSUBTYPE_CSInterface_Feature,
 		TLKUSB_AUDID_MIC_FEATURE_UNIT_ID,
 		TLKUSB_AUD_SRCID_MIC_FEATURE_UNIT,
 		1, // bControlSize
+		#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
+		{0x03, 0x00, 0x00}, // bmaControls
+		#else
 		{0x03, 0x00}, // bmaControls
+		#endif
 		TLKUSB_NO_DESCRIPTOR
 	},
 	// mic_output_terminal
@@ -158,6 +279,80 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		TLKUSB_AUD_SRCID_MIC_OUTPUT_TERMINAL,
 		TLKUSB_NO_DESCRIPTOR
 	},
+	#endif //#if (TLKUSB_AUD_MIC_ENABLE)
+	#if (TLKUSB_AUD_SPK_ENABLE)
+	// spk_setting0
+	{	
+		sizeof(tlkusb_stdInterfaceDesc_t),
+		TLKUSB_TYPE_INTERFACE,
+		TLKUSB_AUD_INF_SPK,
+		0, // AlternateSetting
+		0, // bNumEndpoints
+		TLKUSB_AUD_CSCP_AudioClass,
+		TLKUSB_AUD_CSCP_AudioStreamingSubclass,
+		TLKUSB_AUD_CSCP_StreamingProtocol,
+		TLKUSB_NO_DESCRIPTOR
+	},
+	// spk_setting1
+	{
+		sizeof(tlkusb_stdInterfaceDesc_t),
+		TLKUSB_TYPE_INTERFACE,
+		TLKUSB_AUD_INF_SPK,
+		1, // AlternateSetting
+		1, // bNumEndpoints
+		TLKUSB_AUD_CSCP_AudioClass,
+		TLKUSB_AUD_CSCP_AudioStreamingSubclass,
+		TLKUSB_AUD_CSCP_StreamingProtocol,
+		TLKUSB_NO_DESCRIPTOR
+	},
+	// spk_audio_stream
+	{
+		sizeof(tlkusb_audInterfaceAsDesc_t),
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_General,
+		6, // TerminalLink #6USB USB Streaming OT
+		1, // FrameDelay
+		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}
+	},
+	// spk_audio_format
+	{
+		sizeof(tlkusb_audFormatDesc_t)+sizeof(tlkusb_audSampleDesc_t),
+		TLKUSB_TYPE_CS_INTERFACE,
+		AUDIO_DSUBTYPE_CSInterface_FormatType,
+		USB_AUDIO_FORMAT_PCM, // FormatType
+		TLKUSB_AUD_SPK_CHANNEL_COUNT, // Channels
+		2, // SubFrameSize
+		TLKUSB_AUD_SPK_RESOLUTION_BIT, // BitsResolution
+		1 // TotalDiscreteSampleRates
+	},
+	// spk_sample_rate
+	{
+		(TLKUSB_AUD_SPK_SAMPLE_RATE & 0xff),
+		((TLKUSB_AUD_SPK_SAMPLE_RATE & 0xFF00) >> 8),
+		((TLKUSB_AUD_SPK_SAMPLE_RATE & 0xFF0000) >> 16)
+	},
+	// spk_stream_endpoint
+	{	
+		sizeof(tlkusb_audStdEndpointDesc_t), 
+		TLKUSB_TYPE_ENDPOINT, 
+		TLKUSB_EDP_DIR_OUT | TLKUSB_AUD_EDP_SPK,
+		TLKUSB_EDP_TYPE_ISOCHRONOUS | (TLKUSB_EDP_SYNC_TYPE_SYNC << 2) | (TLKUSB_EDP_USAGE_TYPE_DATA << 4), // Attributes
+		TLKUSB_AUD_SPK_CHANNEL_LENGTH,
+		1, // PollingIntervalMS
+		0, // Refresh
+		0 // SyncEndpointNumber
+	},
+	// spk_stream_endpoint_spc
+	{
+		sizeof(tlkusb_audSpcEndpointDesc_t),
+		TLKUSB_TYPE_CS_ENDPOINT,
+		AUDIO_DSUBTYPE_CSInterface_General,
+		AUDIO_EP_SAMPLE_FREQ_CONTROL,
+		0, // LockDelayUnits
+		{0, 0} // LockDelay
+	},
+	#endif //#if (TLKUSB_AUD_SPK_ENABLE)
+	#if (TLKUSB_AUD_MIC_ENABLE)
 	// mic_setting0
 	{	
 		sizeof(tlkusb_stdInterfaceDesc_t),
@@ -228,6 +423,7 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		0, // LockDelayUnits
 		{0, 0} // LockDelay
 	},
+	#endif //#if (TLKUSB_AUD_MIC_ENABLE)
 };
 
 
@@ -241,7 +437,15 @@ static uint16 tlkusb_auddesc_getStringLens(uint08 index)
 	if(index == TLKUSB_STRING_INDEX_PRODUCT){
 		return sizeof(TLKUSB_AUD_STRING_PRODUCT);
 	}else if(index == TLKUSB_STRING_INDEX_SERIAL){
-		return sizeof(TLKUSB_AUD_STRING_SERIAL0);
+		#if (TLKUSB_AUD_MIC_ENABLE && TLKUSB_AUD_SPK_ENABLE)
+			return sizeof(TLKUSB_AUD_STRING_SERIAL2);
+		#elif (TLKUSB_AUD_MIC_ENABLE)
+			return sizeof(TLKUSB_AUD_STRING_SERIAL0);
+		#elif (TLKUSB_AUD_SPK_ENABLE) 
+			return sizeof(TLKUSB_AUD_STRING_SERIAL1);
+		#else
+			return 0;
+		#endif
 	}else{
 		return 0;
 	}
@@ -256,15 +460,15 @@ static uint08 *tlkusb_auddesc_getStringDesc(uint08 index)
 	if(index == TLKUSB_STRING_INDEX_PRODUCT){
 		return (uint08*)(&sMmiUsbAudProductDesc);
 	}else if(index == TLKUSB_STRING_INDEX_SERIAL){
-		if(sTlkUsbAudSamplRate == 48000){
-			return (uint08*)(&sMmiUsbAud48000SerialDesc);
-		}else if(sTlkUsbAudSamplRate == 44100){
-			return (uint08*)(&sMmiUsbAud44100SerialDesc);
-		}else if(sTlkUsbAudSamplRate == 32000){
-			return (uint08*)(&sMmiUsbAud32000SerialDesc);
-		}else{
-			return (uint08*)(&sMmiUsbAud16000SerialDesc);
-		}
+		#if (TLKUSB_AUD_MIC_ENABLE && TLKUSB_AUD_SPK_ENABLE)
+			return (uint08*)(&sMmiUsbAudMicSpkSerialDesc);
+		#elif (TLKUSB_AUD_MIC_ENABLE)
+			return (uint08*)(&sMmiUsbAudMicSerialDesc);
+		#elif (TLKUSB_AUD_SPK_ENABLE) 
+			return (uint08*)(&sMmiUsbAudSpkSerialDesc);
+		#else
+			return nullptr;
+		#endif
 	}else{
 		return 0;
 	}

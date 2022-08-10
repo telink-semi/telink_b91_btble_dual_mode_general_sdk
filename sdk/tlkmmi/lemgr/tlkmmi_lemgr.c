@@ -34,9 +34,10 @@
 
 int tlkmmi_lemgr_init(void)
 {
+	tlkmmi_lemgr_ctrlInit();
 	tlkmmi_lemgr_aclInit();
 	tlkmmi_lemgr_commInit();
-	tlkmmi_lemgr_ctrlInit();
+	
 	
 	return TLK_ENONE;
 }

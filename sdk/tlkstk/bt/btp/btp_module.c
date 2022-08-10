@@ -34,6 +34,7 @@
 #include "tlkstk/bt/btp/spp/btp_spp.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
+#include "tlkstk/bt/btp/hid/btp_hid.h"
 
 
 int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 channel)
@@ -63,6 +64,9 @@ int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 chan
 		case BTP_PTYPE_PBAP:
 			ret = btp_pbap_connect(aclHandle, usrID, channel, false);
 			break;
+		case BTP_PTYPE_HID:
+            ret = btp_hid_connect(aclHandle, usrID);
+		    break;
 	}
 	return ret;
 }
@@ -92,6 +96,9 @@ int btp_module_disconn(uint16 aclHandle, uint08 ptype, uint08 usrID)
 			break;
 		case BTP_PTYPE_PBAP:
 			ret = btp_pbap_disconn(aclHandle, usrID);
+			break;
+		case BTP_PTYPE_HID:
+			ret = btp_hid_disconn(aclHandle, usrID);
 			break;
 	}
 	return ret;

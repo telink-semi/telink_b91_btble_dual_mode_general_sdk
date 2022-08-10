@@ -34,11 +34,13 @@
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
+#include "tlkstk/bt/btp/hid/btp_hid.h"
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkmdi/tlkmdi_comm.h"
 #include "tlkmdi/tlkmdi_adapt.h"
 #include "tlkmdi/tlkmdi_btacl.h"
 
+extern bool btp_hfphf_isIosDev(uint16 aclHandle);
 
 
 int tlkmdi_btacl_deleteProf(tlkmdi_btacl_item_t *pItem, uint08 ptype, uint08 usrID);
@@ -60,10 +62,17 @@ static int tlkmdi_btacl_profileRequestEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_btacl_profileConnectEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_btacl_profileDisconnEvt(uint08 *pData, uint16 dataLen);
 
+static void tlkmdi_btacl_set_peer_devType(uint16 aclHandle, uint16 devtype);
+
 
 #define TLKMDI_BTACL_DBG_FLAG         (TLKMDI_BTACL_DBG_ENABLE | TLKMDI_DBG_FLAG) 
 #define TLKMDI_BTACL_DBG_SIGN         TLKMDI_DBG_SIGN
 
+typedef struct
+{
+    uint16 devType;
+    uint16 aclHandle;
+} tlkmdi_btacl_vendor_type_t;
 
 static tlkmdi_btacl_ctrl_t sTlkMdiBtAclCtrl;
 static TlkMdiBtAclConnCallback sTlkMdiBtAclConnCB;
@@ -71,6 +80,8 @@ static TlkMdiBtAclDiscCallback sTlkMdiBtAclDiscCB;
 static TlkMdiBtAclCrypCallback sTlkMdiBtAclCrypCB;
 static TlkMdiBtAclProfConnCallback sTlkMdiBtAclProfConnCB;
 static TlkMdiBtAclProfDiscCallback sTlkMdiBtAclProfDiscCB;
+
+static tlkmdi_btacl_vendor_type_t sTlkmdi_btacl_vendor_type[TLKMDI_BTACL_ITEM_NUMB];
 
 
 /******************************************************************************
@@ -572,11 +583,15 @@ static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 	}else{
 		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "sTlkMdiBtAclConnCB: null - %d", pEvt->status);
 	}
-	
+	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "sTlkMdiBtAclConnCB: active %d", pItem->active);
 	pEvt->isEncrypt = true; // TODO: There's a problem here in next.
+	#if TLK_MDI_PTS_ENABLE 
+	if(!pEvt->isEncrypt && pItem->active){
+	#else
 	if(!pEvt->isEncrypt){
 		btp_sdpclt_connect(pItem->handle);
 	}
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -613,9 +628,16 @@ static int tlkmdi_btacl_encryptEvt(uint08 *pData, uint16 dataLen)
 	}
 	
 	tlkapi_array(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt", pData, dataLen);
-		
-	btp_sdpclt_connect(pItem->handle);
+	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: active %d", pItem->active);
+	#if TLK_MDI_PTS_ENABLE
+	if (pItem->active){
+	    btp_sdpclt_connect(pItem->handle);
+	    tlkmdi_adapt_insertTimer(&pItem->timer);
+	}
+	#else
+    btp_sdpclt_connect(pItem->handle);
 	tlkmdi_adapt_insertTimer(&pItem->timer);
+	#endif
 	
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: %d", pEvt->status);
 	if(sTlkMdiBtAclCrypCB){
@@ -726,6 +748,11 @@ static int tlkmdi_btacl_profileConnectEvt(uint08 *pData, uint16 dataLen)
 			pEvt->ptype, pEvt->usrID, pEvt->handle, pEvt->status);
 		if(pEvt->ptype == BTP_PTYPE_SDP || pEvt->ptype == BTP_PTYPE_RFC){
 			//
+			if(btp_hfphf_isIosDev(pEvt->handle)){
+				tlkmdi_btacl_set_peer_devType(pEvt->handle, TLKMDI_BTACL_PEER_IOS_DEV);
+			} else {
+				tlkmdi_btacl_set_peer_devType(pEvt->handle, TLKMDI_BTACL_PEER_ANDROID_DEV);
+			}
 		}
 	}else{
 		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnectEvt: {ptype-%d,usrID-%d,handle-0x%x,status-%d} - ", 
@@ -894,12 +921,11 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 		return false;
 	}
 	if(pProf->state == TLK_STATE_CONNING) return true;
-	
+
 	ret = -TLK_EFAIL;
 	if(pProf->ptype == BTP_PTYPE_RFC){
 		ret = btp_rfcomm_connect(pItem->handle);
 	}else if(pProf->ptype == BTP_PTYPE_A2DP){
-//		ret = btp_a2dp_connect(pItem->handle, pProf->usrID);
 		ret = btp_a2dp_connect(pItem->handle);
 	}else if(pProf->ptype == BTP_PTYPE_HFP){
 //		my_dump_str_u32s(TLKMDI_BTACL_DBG_ENABLE, "tlkmdi_btacl_profileConnDeal: hfp - ",
@@ -912,8 +938,8 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 	}else if(pProf->ptype == BTP_PTYPE_SPP){
 		if(pItem->sppChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		ret = btp_spp_connect(pItem->handle, pItem->sppChannel);
-	}else if(pProf->ptype == BTP_PTYPE_HID){
-		
+	}else if(pProf->ptype == BTP_PTYPE_HID && (pItem->devClass != BTH_REMOTE_DTYPE_HEADSET)){
+		ret = btp_hid_connect(pItem->handle, pProf->usrID);
 	}else if(pProf->ptype == BTP_PTYPE_ATT){
 		
 	}else if(pProf->ptype == BTP_PTYPE_PBAP){
@@ -932,7 +958,34 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 	return true;
 }
 
+static void tlkmdi_btacl_set_peer_devType(uint16 aclHandle, uint16 devtype)
+{
+    int i;
+	for (i = 0; i < TLKMDI_BTACL_ITEM_NUMB; i++) {
+		if (sTlkmdi_btacl_vendor_type[i].aclHandle == 0 && sTlkmdi_btacl_vendor_type[i].devType == 0){
+	        sTlkmdi_btacl_vendor_type[i].aclHandle = aclHandle;
+	        sTlkmdi_btacl_vendor_type[i].devType = devtype;
+		}
+	}
+}
 
+/******************************************************************************
+ * Function: tlkmdi_btacl_get_peer_devType
+ * Descript: Get the peer dev type.
+ * Params: [IN]aclHandle -- The acl link handle
+ * Return: The type of device
+ * Others: None.
+*******************************************************************************/
+uint16 tlkmdi_btacl_get_peer_devType(uint16 aclHandle)
+{
+    int i;
+
+	for (i = 0; i < TLKMDI_BTACL_ITEM_NUMB; i++){
+        if (sTlkmdi_btacl_vendor_type[i].aclHandle == aclHandle)
+			return sTlkmdi_btacl_vendor_type[i].devType;
+	}
+    return 0;
+}
 
 /******************************************************************************
  * Function: tlkmdi_btacl_getIdleCount

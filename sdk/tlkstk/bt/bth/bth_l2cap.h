@@ -248,9 +248,8 @@ typedef void (*bth_l2cap_rdataCallback_t)(uint16 psmID, uint16 chnID, uint16 han
 
 
 typedef struct{
-	uint08 resv0;
-	uint08 usrID;
     uint16 psmID;
+	uint16 resv0;
     bth_l2cap_eventCallback_t eventCB;
     bth_l2cap_rdataCallback_t rdataCB;
 }bth_l2cap_service_t;
@@ -338,7 +337,7 @@ void bth_l2cap_setMtuSize(uint16 size);
  *        @rdataCB[IN]--The read data callback.
  * Reutrn: TLK_ENONE is success, other' value is failure.
 *******************************************************************************/
-int bth_l2cap_regServiceCB(uint16 psmID, uint08 usrID, bth_l2cap_eventCallback_t eventCB, bth_l2cap_rdataCallback_t rdataCB);
+int bth_l2cap_regServiceCB(uint16 psmID, bth_l2cap_eventCallback_t eventCB, bth_l2cap_rdataCallback_t rdataCB);
 
 /******************************************************************************
  * Function: bth_l2cap_sendEvent

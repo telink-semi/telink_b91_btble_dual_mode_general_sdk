@@ -36,23 +36,6 @@
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
 
-/******************************************************************************
- * Function: bt_ll_set_bd_addr
- * Descript: Set Bt address.
- * Params:
- * Return: TLK_ENONE is success, others value is failure.
- * Others: None.
-*******************************************************************************/
-extern int bt_ll_set_bd_addr(uint8_t *bdAddr);
-
-/******************************************************************************
- * Function: bt_ll_set_local_name
- * Descript: Set Bt local name.
- * Params:
- * Return: None.
- * Others: None.
-*******************************************************************************/
-extern void bt_ll_set_local_name(char *name);
 
 /******************************************************************************
  * Function: tlkmmi_btmgr_init
@@ -78,25 +61,25 @@ int tlkmmi_btmgr_init(void)
 	#if (TLK_MDI_BTREC_ENABLE)
 	tlkmmi_btmgr_recInit();
 	#endif
-
-	bt_ll_set_bd_addr(tlkmmi_btmgr_getBtAddr());
-
-
-    bth_hci_sendWriteLocalNameCmd((uint08 *)tlkmmi_btmgr_getBtName());
+	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTMGR_DEVICE_CLASS);
-//	bth_hci_sendWriteScanEnableCmd(0);//(INQUIRY_SCAN_ENABLE | PAGE_SCAN_ENABLE);
+	#if TLK_MDI_PTS_ENABLE
+	bth_hci_sendWriteScanEnableCmd(0x03);//(INQUIRY_SCAN_ENABLE | PAGE_SCAN_ENABLE);
+	#endif
     bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
 	
 	pDevice = bth_device_getLast();
 	if(pDevice != nullptr){
+		#if TLK_MDI_PTS_ENABLE
+		#else
 		tlkmmi_btmgr_recStart(pDevice->devAddr, pDevice->devClass, true, true);
+		#endif
 	}else{
 		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 	}
 	
 	return TLK_ENONE;
 }
-
 
 
 

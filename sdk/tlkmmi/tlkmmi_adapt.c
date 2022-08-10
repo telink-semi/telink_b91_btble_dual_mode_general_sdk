@@ -145,9 +145,9 @@ int tlkmmi_adapt_removeProcs(tlkapi_procs_t *pProcs)
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout)
+int tlkmmi_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)
 {
-	return tlkapi_adapt_updateTimer(&sTlkMmiAdapt, pTimer, timeout);
+	return tlkapi_adapt_updateTimer(&sTlkMmiAdapt, pTimer, timeout, isInsert);
 }
 /******************************************************************************
  * Function: tlkmmi_adapt_insertTimer

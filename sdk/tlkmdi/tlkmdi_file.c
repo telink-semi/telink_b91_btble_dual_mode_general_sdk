@@ -65,6 +65,7 @@ static void tlkmdi_file_recvCmdDeal(uint08 optChn, uint16 handle, uint08 *pHead,
 static void tlkmdi_file_recvRspDeal(uint08 optChn, uint16 handle, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
 static void tlkmdi_file_recvEvtDeal(uint08 optChn, uint16 handle, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
 static void tlkmdi_file_recvDatDeal(uint08 optChn, uint16 handle, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
+static void tlkmdi_file_recvGetVersionCmdDeal(uint08 optChn, uint16 handle, uint08 csign, uint08 *pData, uint16 dataLen);
 static void tlkmdi_file_recvStartTranCmdDeal(uint08 optChn, uint16 handle, uint08 csign, uint08 *pData, uint16 dataLen);
 static void tlkmdi_file_recvStartAuthCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 csign, uint08 *pData, uint16 dataLen);
 static void tlkmdi_file_recvCryptShakeCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 csign, uint08 *pData, uint16 dataLen);
@@ -239,7 +240,7 @@ int tlkmdi_file_getRecvSaveParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_fastPara
 		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_getRecvSaveParam: failure - param error");
 		return -TLK_EPARAM;
 	}
-	tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_getRecvSaveParam: dealSize[%x]", pUnit->dealSize);
+	tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_getRecvSaveParam: dealSize[%x]", pUnit->dealSize);
 
 	UINT32H_TO_ARRAY(pUnit->digest.crc32, pUnit->param.code.realSign, 0);
 	
@@ -257,6 +258,7 @@ int tlkmdi_file_getRecvSaveParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_fastPara
 	pParam->cryptSch = pUnit->cryptSch;
 	pParam->dealSize = pUnit->dealSize; //RecvSize or SendSize
 	pParam->fileSize = pUnit->fileSize;
+	pParam->fileVers = pUnit->fileVers;
 	tmemcpy(pParam->authCode, pUnit->authCode, 16);
 	tmemcpy(pParam->fileSign, pUnit->param.code.fileSign, 16);
 	tmemcpy(pParam->realSign, pUnit->param.code.realSign, 16);
@@ -303,6 +305,7 @@ int tlkmdi_file_setRecvFastParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_fastPara
 	pUnit->packNumb = pParam->dealSize/pParam->unitLens;
 	pUnit->dealSize = pParam->dealSize;
 	pUnit->fileSize = pParam->fileSize;
+	pUnit->fileVers = pParam->fileVers;
 	tmemcpy(pUnit->authCode, pParam->authCode, 16);
 	tmemcpy(pUnit->param.code.fileSign, pParam->fileSign, 16);
 	tmemcpy(pUnit->param.code.realSign, pParam->realSign, 16);
@@ -342,18 +345,18 @@ int tlkmdi_file_setRecvStartParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_startPa
 	return TLK_ENONE;
 }
 
-int tlkmmi_file_enableDataDecode(tlkmdi_file_unit_t *pUnit, bool isDecrypt, bool isUncompress)
+int tlkmdi_file_enableDataDecode(tlkmdi_file_unit_t *pUnit, bool isDecrypt, bool isUncompress)
 {
 	if(pUnit == nullptr){
-		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmmi_file_enableDataDecode: error param");
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_enableDataDecode: error param");
 		return -TLK_EPARAM;
 	}
 	if(pUnit->state == TLKMDI_FILE_STATE_IDLE){
-		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmmi_file_enableDataDecode: error status");
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_enableDataDecode: error status");
 		return -TLK_ESTATUS;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_DATA) != 0){
-		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmmi_file_enableDataDecode: error busy");
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_enableDataDecode: error busy");
 		return -TLK_EBUSY;
 	}
 
@@ -363,7 +366,17 @@ int tlkmmi_file_enableDataDecode(tlkmdi_file_unit_t *pUnit, bool isDecrypt, bool
 	return TLK_ENONE;
 }
 
-
+int tlkmdi_file_closeTrans(tlkmdi_file_unit_t *pUnit)
+{
+	if(pUnit == nullptr) return -TLK_EPARAM;
+	if(pUnit->state == TLKMDI_FILE_STATE_IDLE) return -TLK_ESTATUS;
+	pUnit->state = TLKMDI_FILE_STATE_CLOSE;
+	pUnit->flags = TLKMDI_FILE_FLAG_NONE;
+	pUnit->csign = TLKPRT_FILE_CSIGN_NONE;
+	pUnit->status = TLKPRT_FILE_STATUS_TRAN_STOP;
+	tlkmdi_file_sendCloseTranEvtProc(pUnit);
+	return TLK_ENONE;
+}
 
 
 void tlkmdi_file_recvHandler(uint08 optChn, uint16 handle, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen)
@@ -418,6 +431,9 @@ static void tlkmdi_file_recvCmdDeal(uint08 optChn, uint16 handle, uint08 *pHead,
 		}
 		tlkmdi_file_recvStartTranCmdDeal(optChn, handle, csign, pData, dataLen);
 		return;
+	}else if(cmdID == TLKPRT_COMM_CMDID_FILE_GET_VERSION){
+		tlkmdi_file_recvGetVersionCmdDeal(optChn, handle, csign, pData, dataLen);
+		return;
 	}
 
 	if(dataPort == 0){
@@ -457,7 +473,7 @@ static void tlkmdi_file_recvCmdDeal(uint08 optChn, uint16 handle, uint08 *pHead,
 	}else{
 		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvCmdDeal: error sign[%d]", csign);
 	}
-		
+
 	if(cmdID == TLKPRT_COMM_CMDID_FILE_START_AUTH){
 		tlkmdi_file_recvStartAuthCmdDeal(pUnit, csign, pData, dataLen);
 	}else if(cmdID == TLKPRT_COMM_CMDID_FILE_CRYPT_SHAKE){
@@ -593,6 +609,23 @@ static void tlkmdi_file_recvDatDeal(uint08 optChn, uint16 handle, uint08 *pHead,
 }
 
 
+static void tlkmdi_file_recvGetVersionCmdDeal(uint08 optChn, uint16 handle, uint08 csign, uint08 *pData, uint16 dataLen)
+{
+	uint08 buffLen;
+	uint08 buffer[32];
+
+	tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvGetVersionCmdDeal");
+
+	buffLen = 0;
+	buffer[buffLen++] = (TLK_APP_VERSION & 0xFF000000) >> 24;
+	buffer[buffLen++] = (TLK_APP_VERSION & 0xFF0000) >> 16;
+	buffer[buffLen++] = (TLK_APP_VERSION & 0xFF00) >> 8;
+	buffer[buffLen++] = (TLK_APP_VERSION & 0xFF);
+	if(tlkmdi_file_sendRspPkt(optChn, handle, 0x00, 0x00, TLKPRT_COMM_CMDID_FILE_GET_VERSION, 0x00, 0x00, 
+		buffer, buffLen, nullptr) != TLK_ENONE){
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvGetVersionCmdDeal: Send Failure");
+	}
+}
 static void tlkmdi_file_recvStartTranCmdDeal(uint08 optChn, uint16 handle, uint08 csign, uint08 *pData, uint16 dataLen)
 {
 	int ret;
@@ -602,9 +635,10 @@ static void tlkmdi_file_recvStartTranCmdDeal(uint08 optChn, uint16 handle, uint0
 	uint08 filePort;
 	uint16 protVers;
 	uint16 fileType;
+	uint32 fileVers;
 	tlkmdi_file_unit_t *pUnit;
 	
-	if(dataLen < 8){
+	if(dataLen < 12){
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvStartTranCmdDeal: error format dataLen[%d]", dataLen);
 		return;
 	}
@@ -617,6 +651,7 @@ static void tlkmdi_file_recvStartTranCmdDeal(uint08 optChn, uint16 handle, uint0
 	ARRAY_TO_UINT16L(pData, 2, protVers);
 	ARRAY_TO_UINT16L(pData, 4, fileType);
 	ARRAY_TO_UINT16L(pData, 6, authSch);
+	ARRAY_TO_UINT32H(pData, 8, fileVers);
 	if(reason == 0 && csign != 0) reason = TLKPRT_FILE_STATUS_AUTH_FAILURE;
 	if(reason == 0 && filePort == 0) reason = TLKPRT_FILE_STATUS_ERR_PORT;
 	if(reason == 0){
@@ -676,6 +711,7 @@ static void tlkmdi_file_recvStartTranCmdDeal(uint08 optChn, uint16 handle, uint0
 	pUnit->authSch = authSch;
 	pUnit->fileType = fileType;
 	pUnit->filePort = filePort;
+	pUnit->fileVers = fileVers;
 	tlkapi_random(pUnit->param.rand.acpRand0, 16);
 
 //	tlkapi_array(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, ": rand", pUnit->param.rand.acpRand0, 16);

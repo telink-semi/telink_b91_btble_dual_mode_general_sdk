@@ -34,10 +34,6 @@
 #define TLK_MDI_FILE_ENABLE              1
 
 
-#define	MAX_BT_ACL_LINK							2				//BT LINK:  acl
-#define	MAX_BLE_LINK							2				//BLE LINK: adv & acl
-#define	EM_BT_AUDIOBUF_SIZE						256
-#define ACL_DATA_BUF_SIZE            			800
 
 #endif //TLKAPP_CONFIG_H
 

@@ -52,6 +52,9 @@
 #define TLKMDI_BTACL_ITEM_NUMB           TLK_STK_BTACl_NUMB
 #define TLKMDI_BTACL_PROF_NUMB           8
 
+#define TLKMDI_BTACL_PEER_ANDROID_DEV        0
+#define TLKMDI_BTACL_PEER_IOS_DEV            1
+
 
 typedef enum{
 	TLKMDI_BTACL_STAGE_NONE = 0,
@@ -94,7 +97,6 @@ typedef void(*TlkMdiBtAclDiscCallback)(uint16 handle, uint08 reason, uint08 *pBt
 typedef void(*TlkMdiBtAclCrypCallback)(uint16 handle, uint08 status, uint08 *pBtAddr);
 typedef void(*TlkMdiBtAclProfConnCallback)(uint16 handle, uint08 status, uint08 ptype, uint08 usrID, uint08 *pBtAddr);
 typedef void(*TlkMdiBtAclProfDiscCallback)(uint16 handle, uint08 reason, uint08 ptype, uint08 usrID, uint08 *pBtAddr);
-
 
 typedef struct{
 	uint08 state;
@@ -379,7 +381,14 @@ tlkmdi_btacl_item_t *tlkmdi_btacl_searchUsedItem(uint08 *pBtAddr);
 *******************************************************************************/
 tlkmdi_btacl_item_t *tlkmdi_btacl_searchConnItem(uint08 *pBtAddr);
 
-
+/******************************************************************************
+ * Function: tlkmdi_btacl_get_peer_devType
+ * Descript: Get the peer dev type.
+ * Params: [IN]aclHandle -- The acl link handle
+ * Return: The type of device
+ * Others: None.
+*******************************************************************************/
+uint16 tlkmdi_btacl_get_peer_devType(uint16 aclHandle);
 
 
 #endif //#if (TLK_MDI_BTACL_ENABLE)

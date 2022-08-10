@@ -23,6 +23,18 @@
 #ifndef TLKSTK_CONFIG_H
 #define TLKSTK_CONFIG_H
 
+/********************************************************************
+ * BTBLE configuration
+ *******************************************************************/
+#define	MAX_BT_ACL_LINK							2				//BT LINK:  acl
+#define	MAX_BLE_LINK							2				//BLE LINK: adv & acl
+#define	EM_BT_AUDIOBUF_SIZE						256
+#define ACL_DATA_BUF_SIZE            			800
+
+
+#define BLMS_MAX_CONN_MASTER_NUM				0
+#define	BLMS_MAX_CONN_SLAVE_NUM					1
+
 
 
 

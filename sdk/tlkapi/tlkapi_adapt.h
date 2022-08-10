@@ -27,7 +27,7 @@
 
 
 #define TLKAPI_TIMEOUT_MAX      (0x07FFFFFF)// BIT(31) >> 4
-#define TLKAPI_TIMEOUT_MIN      100  //unit: us
+#define TLKAPI_TIMEOUT_MIN      50  //unit: us
 
 
 
@@ -87,7 +87,7 @@ bool tlkapi_adapt_isHaveProcs(tlkapi_adapt_t *pAdapt, tlkapi_procs_t *pProcs);
 int  tlkapi_adapt_appendProcs(tlkapi_adapt_t *pAdapt, tlkapi_procs_t *pProcs);
 int  tlkapi_adapt_removeProcs(tlkapi_adapt_t *pAdapt, tlkapi_procs_t *pProcs);
 
-int  tlkapi_adapt_updateTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer, uint32 timeout);
+int  tlkapi_adapt_updateTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
 /******************************************************************************
  * Function: tlkapi_adapt_insertTimer
  * Descript: Insert a timer timer into the Adapter.
@@ -102,8 +102,19 @@ int  tlkapi_adapt_updateTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer, ui
 int  tlkapi_adapt_insertTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer, bool isUpdate);
 int  tlkapi_adapt_removeTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer);
 
-uint32 tlkapi_adapt_timerInterval(tlkapi_adapt_t *pAdapt);
+uint tlkapi_adapt_timerInterval(tlkapi_adapt_t *pAdapt);
 tlkapi_timer_t *tlkapi_adapt_takeFirstTimer(tlkapi_adapt_t *pAdapt);
+
+/******************************************************************************
+ * Function: tlkapi_timer_compare
+ * Descript: 
+ * Params:
+ *     @curTicks[IN]--
+ *     @refTicks[IN]--
+ * Return: 1:refTicks First to arrive; -1-curTicks First to arrive.
+ * Others: None.
+*******************************************************************************/
+int tlkapi_adapt_timerCompare(uint32 curTicks, uint32 refTicks);
 
 
 void tlkapi_adapt_printTimer(tlkapi_adapt_t *pAdapt);

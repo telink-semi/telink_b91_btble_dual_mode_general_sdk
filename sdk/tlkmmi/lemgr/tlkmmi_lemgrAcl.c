@@ -29,6 +29,7 @@
 #include "ble_device_manage.h"
 #include "ble_simple_sdp.h"
 #include "ble_custom_pair.h"
+#include "tlkmmi/tlkmmi_adapt.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgr.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrComm.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrCtrl.h"
@@ -91,14 +92,15 @@ _attribute_ble_data_retention_
 static uint08 sTlkmmiLemgrMtuSlvTxFifo[TLKMMI_LEMGR_SLAVE_MAX_NUM * TLKMMI_LEMGR_MTU_S_BUFF_SIZE_MAX];
 /***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, End **********************************/
 
-
-static const uint08 sTlkMmiLemgrAdvData[] = {
+static uint08 sTlkMmiLemgrAdvDataLen = 24;
+static uint08 sTlkMmiLemgrAdvData[31] = {
 	 10, DT_COMPLETE_LOCAL_NAME,   'T','L','K','W','A','T','C','H','0',
 	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
 	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
 	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
-static const uint08 sTlkMmiLemgrScanRsp[] = {
+static uint08 sTlkMmiLemgrScanRspLen = 11;
+static uint08 sTlkMmiLemgrScanRsp[] = {
 	 10, DT_COMPLETE_LOCAL_NAME,   'T','L','K','W','A','T','C','H','0',
 };
 #if (TLKMMI_LEMGR_OTA_SERVER_ENABLE)
@@ -106,6 +108,10 @@ _attribute_ble_data_retention_	int sTlkMmiLemgrOtaIsWorking = 0;
 #endif
 
 
+static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+
+
+static tlkmmi_lemgr_acl_t sTlkMmiLemgrAcl;
 
 
 int tlkmmi_lemgr_aclInit(void)
@@ -114,7 +120,12 @@ int tlkmmi_lemgr_aclInit(void)
 	 * for 2M Flash, flash_sector_mac_address equals to 0x1FF000 */
 	uint08 mac_public[6];
 	uint08 mac_random_static[6];
+
+	tmemset(&sTlkMmiLemgrAcl, 0, sizeof(tlkmmi_lemgr_acl_t));
+	
+	
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
+	tlkmmi_lemgr_setAddr1(mac_public, mac_random_static);
 
 	//////////// LinkLayer Initialization  Begin /////////////////////////
 	blc_ll_initBasicMCU();
@@ -222,13 +233,19 @@ int tlkmmi_lemgr_aclInit(void)
 	}
 	#endif
 	
-	blc_ll_setAdvData((uint08 *)sTlkMmiLemgrAdvData, sizeof(sTlkMmiLemgrAdvData));
-	blc_ll_setScanRspData((uint08 *)sTlkMmiLemgrScanRsp, sizeof(sTlkMmiLemgrScanRsp));
+	blc_ll_setAdvData((uint08 *)sTlkMmiLemgrAdvData, sTlkMmiLemgrAdvDataLen);
+	blc_ll_setScanRspData((uint08 *)sTlkMmiLemgrScanRsp, sTlkMmiLemgrScanRspLen);
 	blc_ll_setAdvParam(ADV_INTERVAL_50MS, ADV_INTERVAL_50MS, ADV_TYPE_CONNECTABLE_UNDIRECTED, OWN_ADDRESS_PUBLIC, 0, NULL, BLT_ENABLE_ADV_ALL, ADV_FP_NONE);
-	blc_ll_setAdvEnable(BLC_ADV_ENABLE);
+	blc_ll_setAdvEnable(BLC_ADV_DISABLE);
 	//	blc_ll_setAdvCustomedChannel(37, 37, 37); //debug
 
+	tlkmmi_adapt_initTimer(&sTlkMmiLemgrAcl.timer, tlkmmi_lemgr_timer, &sTlkMmiLemgrAcl, TLKMMI_LEMGR_TIMEOUT);
+
 	////////////////////////////////////////////////////////////////////////////////////////////////
+	tlkmmi_lemgr_setAclName(tlkmmi_lemgr_getName(), tlkmmi_lemgr_getNameLen());
+	tlkmmi_lemgr_setAclAddr(tlkmmi_lemgr_getAddr(), 6);
+	//tlkmmi_lemgr_startAdv(0, 0);
+	
 	return TLK_ENONE;
 }
 _attribute_ble_retention_code_
@@ -245,8 +262,123 @@ void tlkmmi_lemgr_aclDeepInit(void)
 }
 
 
+int tlkmmi_lemgr_startAdv(uint32 timeout, uint08 advType)
+{
+	if(sTlkMmiLemgrAcl.connHandle != 0){
+		return -TLK_ESTATUS;
+	}
+	if(timeout == 0) timeout = TLKMMI_LEMGR_ADV_TIMEOUT_DEF;
+	else if(timeout < TLKMMI_LEMGR_ADV_TIMEOUT_MIN) timeout = TLKMMI_LEMGR_ADV_TIMEOUT_MIN;
+	else if(timeout > TLKMMI_LEMGR_ADV_TIMEOUT_MAX) timeout = TLKMMI_LEMGR_ADV_TIMEOUT_MAX;
+	sTlkMmiLemgrAcl.isStart = true;
+	sTlkMmiLemgrAcl.advTime = timeout;
+	sTlkMmiLemgrAcl.timeout = timeout/TLKMMI_LEMGR_TIMEOUT_MS;
+	blc_ll_setAdvEnable(BLC_ADV_ENABLE);
+	tlkmmi_lemgr_sendAdvStartEvt();
+	tlkmmi_adapt_insertTimer(&sTlkMmiLemgrAcl.timer);
+	return TLK_ENONE;
+}
+int tlkmmi_lemgr_closeAdv(void)
+{
+	sTlkMmiLemgrAcl.isStart = false;
+	blc_ll_setAdvEnable(BLC_ADV_DISABLE);
+	tlkmmi_lemgr_sendAdvCompleteEvt();
+	return TLK_ENONE;
+}
+
+int tlkmmi_lemgr_disconn(uint16 handle, uint08 *pPeerAddr)
+{
+	if(sTlkMmiLemgrAcl.connHandle == 0) return -TLK_ESTATUS;
+	if(blc_ll_disconnect(sTlkMmiLemgrAcl.connHandle, 0x13) == BLE_SUCCESS){
+		return TLK_ENONE;
+	}
+	return -TLK_EFAIL;
+}
+
+bool tlkmmi_lemgr_aclVolumeInc(void)
+{
+	uint16 consumer_key;
+
+	if(sTlkMmiLemgrAcl.connHandle == 0) return false;
+		
+	consumer_key = 0x00e9; //MKEY_VOL_UP;
+	blc_gatt_pushHandleValueNotify(sTlkMmiLemgrAcl.connHandle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
+	consumer_key = 0;
+	blc_gatt_pushHandleValueNotify(sTlkMmiLemgrAcl.connHandle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
+	
+	return true;
+}
+bool tlkmmi_lemgr_aclVolumeDec(void)
+{
+	uint16 consumer_key;
+
+	if(sTlkMmiLemgrAcl.connHandle == 0) return false;
+		
+	consumer_key = 0x00ea; //MKEY_VOL_UP;
+	blc_gatt_pushHandleValueNotify(sTlkMmiLemgrAcl.connHandle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
+	consumer_key = 0;
+	blc_gatt_pushHandleValueNotify(sTlkMmiLemgrAcl.connHandle, HID_CONSUME_REPORT_INPUT_DP_H, (uint08*)&consumer_key, 2);
+	
+	return true;
+}
 
 
+int tlkmmi_lemgr_setAclName(uint08 *pName, uint08 nameLen)
+{
+	uint08 offset;
+	
+	if(pName == nullptr || nameLen == 0) return TLK_ENONE;
+	if(nameLen > 16) nameLen = 16;
+
+	tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "tlkmmi_lemgr_setAclName: nameLen-%d", nameLen);
+
+	offset = 0;
+	sTlkMmiLemgrAdvData[offset++] = nameLen+1;
+	sTlkMmiLemgrAdvData[offset++] = DT_COMPLETE_LOCAL_NAME;
+	tmemcpy(sTlkMmiLemgrAdvData+offset, pName, nameLen);
+	offset += nameLen;
+	sTlkMmiLemgrAdvData[offset++] = 0x02; //BLE limited discoverable mode and BR/EDR not supported
+	sTlkMmiLemgrAdvData[offset++] = DT_FLAGS;
+	sTlkMmiLemgrAdvData[offset++] = 0x05;
+	sTlkMmiLemgrAdvData[offset++] = 0x03; // 384, Generic Remote Control, Generic category
+	sTlkMmiLemgrAdvData[offset++] = DT_APPEARANCE;
+	sTlkMmiLemgrAdvData[offset++] = 0x80;
+	sTlkMmiLemgrAdvData[offset++] = 0x01;
+	sTlkMmiLemgrAdvData[offset++] = 0x05; // incomplete list of service class UUIDs (0x1812, 0x180F)
+	sTlkMmiLemgrAdvData[offset++] = DT_INCOMPLT_LIST_16BIT_SERVICE_UUID;
+	sTlkMmiLemgrAdvData[offset++] = 0x12;
+	sTlkMmiLemgrAdvData[offset++] = 0x18;
+	sTlkMmiLemgrAdvData[offset++] = 0x0F;
+	sTlkMmiLemgrAdvData[offset++] = 0x18;
+	sTlkMmiLemgrAdvDataLen = offset;
+	blc_ll_setAdvData((uint08 *)sTlkMmiLemgrAdvData, sTlkMmiLemgrAdvDataLen);
+
+	offset = 0;
+	sTlkMmiLemgrScanRsp[offset++] = nameLen+1;
+	sTlkMmiLemgrScanRsp[offset++] = DT_COMPLETE_LOCAL_NAME;
+	tmemcpy(sTlkMmiLemgrScanRsp+offset, pName, nameLen);
+	offset += nameLen;
+	sTlkMmiLemgrScanRspLen = offset;
+	blc_ll_setScanRspData((uint08 *)sTlkMmiLemgrScanRsp, sTlkMmiLemgrScanRspLen);
+	return TLK_ENONE;
+}
+
+int tlkmmi_lemgr_setAclAddr(uint08 *pAddr, uint08 addrLen)
+{
+	return TLK_ENONE;
+}
+
+
+static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+{
+	if(!sTlkMmiLemgrAcl.isStart) return false;
+	if(sTlkMmiLemgrAcl.timeout != 0) sTlkMmiLemgrAcl.timeout --;
+	if(sTlkMmiLemgrAcl.timeout == 0){
+		tlkmmi_lemgr_closeAdv();
+		return false;
+	}
+	return true;
+}
 
 static int tlkmmi_lemgr_coreEventCB(uint32 evtID, uint08 *pData, int dataLen)
 {
@@ -331,6 +463,7 @@ static int tlkmmi_lemgr_hostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 		case GAP_EVT_SMP_TK_DISPALY:
 		{
 
+
 		}
 		break;
 
@@ -380,7 +513,9 @@ static int tlkmmi_lemgr_connectCompleteEvt(uint08 *pData, uint16 dataLen)
 
 	hci_le_connectionCompleteEvt_t *pConnEvt = (hci_le_connectionCompleteEvt_t *)pData;
 
+	sTlkMmiLemgrAcl.connHandle = 0;
 	if(pConnEvt->status == BLE_SUCCESS){
+		bls_l2cap_requestConnParamUpdate(pConnEvt->connHandle, CONN_INTERVAL_20MS, CONN_INTERVAL_20MS, 49, CONN_TIMEOUT_4S);
 
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
@@ -395,26 +530,32 @@ static int tlkmmi_lemgr_connectCompleteEvt(uint08 *pData, uint16 dataLen)
              */
 //			bls_l2cap_requestConnParamUpdate (pConnEvt->connHandle, CONN_INTERVAL_20MS, CONN_INTERVAL_20MS, 49, CONN_TIMEOUT_4S);
 		}
+		sTlkMmiLemgrAcl.connHandle = pConnEvt->connHandle;
+		tmemcpy(sTlkMmiLemgrAcl.connAddr, pConnEvt->peerAddr, 6);
 	}
+	
+	tlkmmi_lemgr_sendAclConnectEvt(pConnEvt->connHandle, pConnEvt->status, 0x02, pConnEvt->peerAddrType, pConnEvt->peerAddr);
+	tlkmmi_lemgr_closeAdv();
 	
 	return 0;
 }
 
 static int tlkmmi_lemgr_disconnCompleteEvt(uint08 *pData, uint16 dataLen)
 {
-	event_disconnection_t	*pCon = (event_disconnection_t *)pData;
+	event_disconnection_t *pDiscEvt = (event_disconnection_t *)pData;
 
-	tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "BLE: conn disconnect handle-0x%x, reason-%d", pCon->connHandle, pCon->reason);
+	tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "BLE: conn disconnect handle-0x%x, reason-%d", 
+		pDiscEvt->connHandle, pDiscEvt->reason);
 
 	//terminate reason
-	if(pCon->reason == HCI_ERR_CONN_TIMEOUT){  	//connection timeout
+	if(pDiscEvt->reason == HCI_ERR_CONN_TIMEOUT){  	//connection timeout
 
 	}
-	else if(pCon->reason == HCI_ERR_REMOTE_USER_TERM_CONN){  	//peer device send terminate command on link layer
+	else if(pDiscEvt->reason == HCI_ERR_REMOTE_USER_TERM_CONN){  	//peer device send terminate command on link layer
 
 	}
 	//master host disconnect( blm_ll_disconnect(current_connHandle, HCI_ERR_REMOTE_USER_TERM_CONN) )
-	else if(pCon->reason == HCI_ERR_CONN_TERM_BY_LOCAL_HOST){
+	else if(pDiscEvt->reason == HCI_ERR_CONN_TERM_BY_LOCAL_HOST){
 
 	}
 	else{
@@ -422,9 +563,12 @@ static int tlkmmi_lemgr_disconnCompleteEvt(uint08 *pData, uint16 dataLen)
 	}
 
 
-	dev_char_info_delete_by_connhandle(pCon->connHandle);
+	dev_char_info_delete_by_connhandle(pDiscEvt->connHandle);
 
-
+	sTlkMmiLemgrAcl.connHandle = 0;
+	tlkmmi_lemgr_sendAclDisconnEvt(pDiscEvt->connHandle, pDiscEvt->reason, sTlkMmiLemgrAcl.connAddr);
+	tlkmmi_lemgr_startAdv(sTlkMmiLemgrAcl.advTime, 0x00);
+	
 	return 0;
 }
 

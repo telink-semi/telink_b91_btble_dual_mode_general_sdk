@@ -201,9 +201,9 @@ void tlkdev_p25q32h_setPowerState(bool isRelease)
 
 
 
-static void p25q32s_Interface_Init(SPI_GPIO_GroupTypeDef pin)
+static void p25q32s_Interface_Init(gpio_pin_e pin)
 {
-	spi_master_init(0x00,SPI_MODE0);
+	spi_master_init(0x00, SPI_MODE0);
 	spi_master_gpio_set(pin);
 	spi_masterCSpin_select(TLKDEV_P25Q32H_SPI_CS_GPIO);
 	gpio_setup_up_down_resistor(TLKDEV_P25Q32H_SPI_CS_GPIO,PM_PIN_PULLUP_1M);
@@ -218,122 +218,212 @@ static void p25q32s_Interface_Read(uint08 *cmd_data, uint32 cmd_length, uint08 *
 }
 
 
-
-
-void sys_norflash_write_lba(uint08 * buffer, uint32 lba, uint32 count)
-{
-//	tlkdev_p25q32h_write(lba * FATFS_FLASH_SECTOR_SIZE, buffer, FATFS_FLASH_SECTOR_SIZE*count);
-	tlkdev_p25q32h_writePage(lba * FATFS_FLASH_SECTOR_SIZE, buffer, 256);
-	tlkdev_p25q32h_writePage(lba * FATFS_FLASH_SECTOR_SIZE+256, buffer+256, 256);
-}
-
-void sys_norflash_erase_lba(uint32 lba, uint32 total_bytes)
-{
-	uint32 erase_current = (lba* FATFS_FLASH_SECTOR_SIZE);
-	uint32 erase_end = erase_current + total_bytes;
-//	printf("erase_current,0x%lx,erase_end,0x%lx\n\r",erase_current,erase_end);
-	while(erase_current < erase_end)
-	{
-		if((!(erase_current & 0xffff)) && ((erase_current + 0x10000) <= erase_end))//64k align
-		{
-			tlkdev_p25q32h_eraseBlock64K(erase_current);
-//			printf("flash_erase_64kblock,0x%lx\n\r",erase_current);
-			erase_current += 0x10000;
-		}
-		else if((!(erase_current & 0x7fff))&& ((erase_current + 0x8000) <= erase_end))//32k align
-		{
-			tlkdev_p25q32h_eraseBlock32K(erase_current);
-//			printf("flash_erase_32kblock,0x%lx\n\r",erase_current);
-			erase_current += 0x8000;
-		}
-		else if((!(erase_current & 0xfff))&& ((erase_current + 0x1000) <= erase_end))//4k align
-		{
-			tlkdev_p25q32h_eraseSector(erase_current);
-//			printf("tlkdev_p25q32h_eraseSector,0x%lx\n\r",erase_current);
-			erase_current += 0x1000;
-		}
-		else if((!(erase_current & 0xfff)) && ((erase_current + 0x1000) > erase_end))
-		{
-			uint08 temp[4096];
-			tlkdev_p25q32h_read(erase_end, &(temp[erase_end & 0xfff]), (0x1000 - (erase_end & 0xfff)));
-			tlkdev_p25q32h_eraseSector(erase_current & 0xfffff000);
-//			printf("tlkdev_p25q32h_eraseSector,0x%lx,erase_current,0x%lx,erase_end,0x%lx\n\r",erase_current & 0xfffff000,erase_current,erase_end);
-			tlkdev_p25q32h_writePage(erase_end, &(temp[erase_end & 0xfff]), (0x1000 - (erase_end & 0xfff)));
-//			printf("flash_write_page,addr:0x%lx,len:0x%lx\n\r",erase_end,(0x1000 - (erase_end & 0xfff)));
-			erase_current += 0x1000;
-		}
-		else if((erase_current & 0xfff)&&(((erase_current + 0x1000)&0xfffff000) <= erase_end))
-		{
-			uint08 temp[4096];
-			tlkdev_p25q32h_read((erase_current & 0xfffff000), temp, erase_current & 0xfff);
-			tlkdev_p25q32h_eraseSector(erase_current & 0xfffff000);
-//			printf("tlkdev_p25q32h_eraseSector,0x%lx,erase_current,0x%lx,erase_end,0x%lx\n\r",erase_current & 0xfffff000,erase_current,erase_end);
-			tlkdev_p25q32h_writePage(erase_current & 0xfffff000, temp, erase_current & 0xfff);
-//			printf("flash_write_page,addr:0x%lx,len:0x%lx\n\r",erase_current & 0xfffff000,erase_current & 0xfff);
-			erase_current = ((erase_current + 0x1000)&0xfffff000);
-		}
-		else if((erase_current < erase_end) && ((erase_current + 0x1000) > erase_end))
-		{
-			uint08 temp[4096];
-			tlkdev_p25q32h_read((erase_current & 0xfffff000), temp, erase_current & 0xfff);
-			tlkdev_p25q32h_read(erase_end, &(temp[erase_end & 0xfff]), (0x1000 - (erase_end & 0xfff)));
-			tlkdev_p25q32h_eraseSector(erase_current);
-//			printf("tlkdev_p25q32h_eraseSector,0x%lx,erase_current,0x%lx,erase_end,0x%lx\n\r",erase_current & 0xfffff000,erase_current,erase_end);
-			tlkdev_p25q32h_writePage(erase_current & 0xfffff000, temp, erase_current & 0xfff);
-//			printf("flash_write_page,addr:0x%lx,len:0x%lx\n\r",erase_current & 0xfffff000,erase_current & 0xfff);
-			tlkdev_p25q32h_writePage(erase_end, &(temp[erase_end & 0xfff]), (0x1000 - (erase_end & 0xfff)));
-			erase_current += 0x1000;
-		}
-	}
-}
-void sys_norflash_read_lba(uint08 * buffer, uint32 lba, uint32 count)
-{
-	tlkdev_p25q32h_read(lba * FATFS_FLASH_SECTOR_SIZE, buffer, FATFS_FLASH_SECTOR_SIZE*count);
-}
-
-
-void tlkdev_p25q32h_msc_write(uint08 *pBuffer, uint32 address, uint32 writeBytes)
-{
-	
-}
-
  
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void tlkdev_p25q32h_fatfs_read(uint08 *pBuffer, uint32 sector, uint08 count)
+/********** The time format (16bits) is:**************
+Bits15 ~ 11 represents hours, which can be 0 ~ 23; 
+bits10 ~ 5 represents minutes, which can be 0 ~ 59; 
+bits4 ~ 0 represents seconds, which can be 0 ~ 29, and each unit is 2 seconds, which means that the actual second value is 2 times of the value.
+*/
+
+/********* The date format (16bits) is:*************
+ Bits15 ~ 9 represents the year, which can be 0 ~ 127. It represents the difference from 1980,
+ That is to say, the actual year is this value plus 1980, which can be expressed up to 2107;
+
+ Bits8 ~ 5 represents the month, which can be 1 ~ 12;
+ Bits4 ~ 0 represents the number and can be 1 ~ 31.
+*/
+
+//Find the high byte of 16 bit time format
+#define TLKDEV_P25Q32H_DISK_TIME_HB(H,M,S)    (unsigned char)(((((H)<<11))|((M)<<5)|(S))>>8)
+//Find the low byte of 16 bit time format
+#define TLKDEV_P25Q32H_DISK_TIME_LB(H,M,S)    (unsigned char)((((H)<<11))|((M)<<5)|(S))
+//Find the high byte of 16 bit date format
+#define TLKDEV_P25Q32H_DISK_DATE_HB(Y,M,D)    (unsigned char)(((((Y)-1980)<<9)|((M)<<5)|(D))>>8)
+//Find the low byte of 16 bit date format
+#define TLKDEV_P25Q32H_DISK_DATE_LB(Y,M,D)    (unsigned char)((((Y)-1980)<<9)|((M)<<5)|(D))
+
+static const char scTlkDevP25q32hDiskReadMe[] = "This is DualMode SDK Fat16 demo\r\n";
+
+static const uint08 scTlkDevP25q32hDiskMBR[16] =
 {
-	uint08 indexI, indexJ;
-	uint32 baseAddr = sector*4096;
-	uint08 *pData = pBuffer;
-	for(indexI=0; indexI<count; indexI++){
-		tlkdev_p25q32h_read(baseAddr, pData, 4096);
-		baseAddr += 4096;
-		pData += 4096;
-	}
-}
+	0x00, 0x00, 0x00, 0x00, 0x0E, 0x00, 0x00, 0x00, TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff, (TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff00)>>8, (TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff0000)>>16, (TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff000000)>>24, 0x00, 0x00, 0x00, 0x00,
+};
+static const uint08 scTlkDevP25q32hDiskDBR[64] =
+{
+	0xEB, 0x3C, 0x90, //Jump instruction, cannot be changed to 0, otherwise it prompts that it is not formatted (0~2)
+	'M','S','D','O','S','5','.','0', //File system and version information "MSDOS5.0" (3~10)
+	TLKDEV_P25Q32H_DISK_BLOCK_SIZE & 0xFF, (TLKDEV_P25Q32H_DISK_BLOCK_SIZE & 0xFF00) >> 8, //Number of bytes per sector, 512 bytes (11~12)
+	TLKDEV_P25Q32H_DISK_CLUSTER_NUMB, //Number of sectors per cluster, 64 sectors (13)
+	TLKDEV_P25Q32H_DISK_RSV_NUMB & 0xFF, (TLKDEV_P25Q32H_DISK_RSV_NUMB & 0xFF00) >> 8, //Number of reserved sectors, 8 (14~15)
+	TLKDEV_P25Q32H_DISK_FAT_COPIES, //The number of FAT copies of this partition, which is 2 (16)
+	(TLKDEV_P25Q32H_DISK_CLUSTER_SIZE >> 5) & 0xFF, (TLKDEV_P25Q32H_DISK_CLUSTER_SIZE >> 13) & 0xFF, //Number of root directory entries, 1024(00 04) entries (17~18). Unit:32Bytes
+	(TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xFF00)>>8, //The number of small sectors (<=32M), here is 0, which means to read the value from the large sector field (19~20)
+	0xF8, //Media descriptor, 0xF8 means hard disk (21)
+	(TLKDEV_P25Q32H_DISK_FAT_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_FAT_NUMB & 0xFF00)>>8, //Number of sectors per FAT, 64 (22~23)
+	(TLKDEV_P25Q32H_DISK_CLUSTER_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_CLUSTER_NUMB & 0xFF00)>>8, //Number of sectors per track, 64 (24~25)
+	(TLKDEV_P25Q32H_DISK_CLUSTER_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_CLUSTER_NUMB & 0xFF00)>>8, //The number of heads is 256M/32K-0x200 (16M) (reserve 512 32k sectors for program writing) (26~27)
+	(TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff), (TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff00)>>8, (TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff0000)>>16, (TLKDEV_P25Q32H_DISK_DBR_OFFSET & 0xff000000)>>24, //Number of hidden sectors There is no hidden sector here, it is 0 (28~31)
+	0x00, 0x00, 0x00, 0x00,  //Number of large sectors, the total number of sectors, 256k is 0x200 (32~35)
+	0x80, //Disk drive parameters, 80 means hard disk (36)
+	0x00, //Reserved (37)
+	0x29, //Extended boot tag, 0x29 means the next three fields are available (38)
+	0x34, 0x12, 0x00, 0x00, //Label serial number (39~42)
+	'T', 'L', 'K', '-', 'F', 'S', '-', 'D', 'E', 'M', 'O', //Disk label volume (43~53)
+	'F', 'A', 'T', '1', '6', 0x20, 0x20, 0x20, 0x00, 0x00, //File system type information, the string "FAT16" (54~63)
+};
+static const uint08 scTlkDevP25q32hDiskFat[6] =
+{
+	//------------- Block1: FAT16 Table -------------//
+	0xF8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF// // first 2 entries must be F8FF, third entry is cluster end of readme file };
+};
+static const uint08 scTlkDevP25q32hDiskRoot[64] = //------------- Block2: Root Directory -------------//
+{
+	// first entry is volume label
+	'T' , 'L' , 'K' , '-' , 'F' , 'S' , '-' , 'D' , 'E' , 'M' , 'O',
+	0x08, //File property, indicating the label volume of the disk
+	0x00, //Reserved
+	0x00, //Create time millisecond timestamp
 
-void tlkdev_p25q32h_fatfs_write(uint08 *pBuffer, uint32 sector, uint08 count)
+	//File creation time, 15:27:35
+	TLKDEV_P25Q32H_DISK_TIME_LB(15,27,35), TLKDEV_P25Q32H_DISK_TIME_HB(15,27,35), //0x00, 0x00,
+	//File creation date, August 19, 2008
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,19), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,19), //0x00, 0x00,
+	//Last visit date, August 20, 2008
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,20), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,20), //0x00, 0x00,
+	0x00, 0x00, //High byte of starting cluster number, FAT12 / 16 must be 0
+
+	//Last modified time, 15:36:47
+	TLKDEV_P25Q32H_DISK_TIME_LB(15,36,47), TLKDEV_P25Q32H_DISK_TIME_HB(15,36,47), //0x4F, 0x6D,
+	//Last revision date, August 19, 2008
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,19), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,19), //0x65, 0x43,
+
+	0x00, 0x00,  //Start cluster low word
+	0x00, 0x00, 0x00, 0x00, //file length
+	
+	// second entry is readme file
+	'R' , 'E' , 'A' , 'D' , 'M' , 'E' , ' ' , ' ' , 'T' , 'X' , 'T' , 
+	0x00, //File properties, representing read-write files
+	0x00, //Reserved
+	0x00, //0xC6, //0x00-Create time millisecond timestamp
+	
+	//File creation time, 15:48:26
+	TLKDEV_P25Q32H_DISK_TIME_LB(15,48,26), TLKDEV_P25Q32H_DISK_TIME_HB(15,48,26),
+	//File creation date, August 19, 2008
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,19), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,19),
+	//Last visit date
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,20), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,20),
+
+	0x00, 0x00, //High byte of starting cluster number, FAT12 / 16 must be 0
+
+	//Last modified time, 15:50:33
+	TLKDEV_P25Q32H_DISK_TIME_LB(15,50,33), TLKDEV_P25Q32H_DISK_TIME_HB(15,50,33), //0x88, 0x6D,
+	//Last revision date, August 19, 2008
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,19), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,19), //0x65, 0x43, 
+	
+	0x02, 0x00, //Start cluster low word, cluster 2.
+	sizeof(scTlkDevP25q32hDiskReadMe)-1, 0x00, 0x00, 0x00 // readme's files size (4 Bytes)
+};
+
+
+
+
+int tlkdev_p25q32h_diskInit(void)
+{
+	int ret;
+	uint32 blkCount;
+	uint08 temp[512];
+
+//	if(!sTlkDevP25q32hIsReady) return -TLK_ENOREADY;
+	
+	ret = tlkdev_p25q32h_diskRead(temp, 0, 1);
+	if(ret != TLK_ENONE) return TLK_ENONE;
+	if((temp[510] != 0x55) || (temp[511] != 0xaa)) return -TLK_EFAIL;
+	
+	blkCount = (temp[461]<<24) + (temp[460]<<16) + (temp[459]<<8) + temp[458];
+	if(blkCount != TLKDEV_P25Q32H_DISK_BLOCK_NUMB){
+		ret = tlkdev_p25q32h_diskFormat();
+	}
+	return ret;
+}
+int tlkdev_p25q32h_diskRead(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb)
+{
+	tlkdev_p25q32h_read(blkOffs * TLKDEV_P25Q32H_DISK_BLOCK_SIZE, pBuff, TLKDEV_P25Q32H_DISK_BLOCK_SIZE*blkNumb);
+	return TLK_ENONE;
+}
+int tlkdev_p25q32h_diskWrite(uint08 *pData, uint32 blkOffs, uint16 blkNumb)
 { 
-	uint08 indexI, indexJ;
-	uint32 baseAddr = sector*4096;
-	uint08 *pData = pBuffer;
-	for(indexI=0; indexI<count; indexI++){
-		tlkdev_p25q32h_eraseSector(baseAddr);
-		for(indexJ=0; indexJ<16; indexJ++){
-			tlkdev_p25q32h_writePage(baseAddr, pData, 256);
-			baseAddr += 256;
-			pData += 256;
-		}
-	}
+	uint08 temp[4096];
+	uint32 address = blkOffs*TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+	tlkdev_p25q32h_read((TLKDEV_P25Q32H_DISK_BLOCK_SIZE & 0xfffff000), temp, TLKDEV_P25Q32H_DISK_BLOCK_SIZE & 0xfff);
+	tlkdev_p25q32h_eraseSector(address);
+	tmemcpy(temp, address & 0xFFF, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	tlkdev_p25q32h_writePage(address & 0xfffff000, temp, 4096);
+	return TLK_ENONE;
 }
-void tlkdev_p25q32h_fatfs_earse(uint32 sector, uint08 count)
+int tlkdev_p25q32h_diskFormat(void)
 {
-	uint08 indexI;
-	uint32 baseAddr = sector*4096;
-	for(indexI=0; indexI<count; indexI++){
-		tlkdev_p25q32h_eraseSector(baseAddr);
-		baseAddr += 4096;
+	uint08 index;
+	uint08 fatNum;
+	uint32 offset;
+	uint08 block[TLKDEV_P25Q32H_DISK_BLOCK_SIZE];
+	
+//	if(!sTlkDevXtsd01gIsReady) return -TLK_ENOREADY;
+	
+	offset = TLKDEV_P25Q32H_DISK_DBR_OFFSET;
+	
+	//write DBR
+	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	tmemcpy(block, scTlkDevP25q32hDiskDBR, sizeof(scTlkDevP25q32hDiskDBR));
+	block[510] = 0x55;
+	block[511] = 0xaa;
+	tlkdev_xtsd01g_diskWrite(block, offset, 1);
+	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	for(index = 1; index < TLKDEV_P25Q32H_DISK_RSV_NUMB; index ++){
+		tlkdev_xtsd01g_diskWrite(block, offset+index, 1);
 	}
+	offset += index;
+	
+	//write FAT
+	for(fatNum = 0; fatNum < TLKDEV_P25Q32H_DISK_FAT_COPIES; fatNum++){
+		tmemcpy(block, scTlkDevP25q32hDiskFat, sizeof(scTlkDevP25q32hDiskFat));
+		tlkdev_xtsd01g_diskWrite(block, offset, 1);
+		tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+		for(index = 1; index < TLKDEV_P25Q32H_DISK_FAT_NUMB; index ++){
+			tlkdev_xtsd01g_diskWrite(block, offset+index, 1);
+		}
+		offset += index;
+	}
+	
+	//write root dir
+	tmemcpy(block, scTlkDevP25q32hDiskRoot, sizeof(scTlkDevP25q32hDiskRoot));
+	tlkdev_xtsd01g_diskWrite(block, offset, 1);
+	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	for(index = 1; index < TLKDEV_P25Q32H_DISK_CLUSTER_NUMB; index ++){
+		tlkdev_xtsd01g_diskWrite(block, offset+index, 1);
+	}
+	offset += index;
+	
+	//write file
+	tmemcpy(block, scTlkDevP25q32hDiskReadMe, sizeof(scTlkDevP25q32hDiskReadMe));
+	tlkdev_xtsd01g_diskWrite(block, offset, 1);
+	offset ++;
+
+	//write MBR
+	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	tmemcpy(&block[446], scTlkDevP25q32hDiskMBR, sizeof(scTlkDevP25q32hDiskMBR));
+	block[461] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff000000)>>24;
+	block[460] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff0000)>>16;
+	block[459] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff00)>>8;
+	block[458] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff);
+	block[510] = 0x55;
+	block[511] = 0xaa;
+	tlkdev_xtsd01g_diskWrite(block, 0, 1);
+	
+	return TLK_ENONE;
 }
+
 
 
 #endif //#if (TLKDEV_EXT_PUYA_TLKDEV_P25Q32H_ENABLE)

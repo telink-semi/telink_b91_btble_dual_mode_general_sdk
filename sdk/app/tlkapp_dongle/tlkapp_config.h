@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     tlkmmi_hid.h
+ * @file     tlkapp_config.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -20,31 +20,14 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#ifndef TLKMMI_HID_H
-#define TLKMMI_HID_H
-
-typedef enum{
-    TLKMMI_HID_GETREPORT_ID = 0,
-	TLKMMI_HID_SETREPORT_ID,
-	TLKMMI_HID_CONTROL_ID,
-	TLKMMI_HID_OUTPUT_ID,
-}tlkmmi_hid_evt_id_t;
+#ifndef TLKAPP_CONFIG_H
+#define TLKAPP_CONFIG_H
 
 
-typedef void(*tlkmmi_hid_callback_t)(uint16 aclHandle, uint16 report_type, uint16 report_id, uint16* datalen, uint08* pData, tlkmmi_hid_evt_id_t evtID);
-
-int tlkmmi_hid_init();
-uint16 tlkmmi_hid_deinit(uint16 aclHandle);
-
-uint08 tlkmmi_hid_connect(uint16 aclHandle);
-uint08 tlkmmi_hid_disconnect(uint16 aclHandle);
-
-uint08 tlkmmi_hid_sendData(uint16 aclHandle, uint08* pData, uint16 datalen);
-
-void tlkmmi_hid_register_callback(tlkmmi_hid_callback_t callback);
-void tlkmmi_hid_unregister_callback();
 
 
-#endif
+#define TLKAPP_CFG_BAT_CHECK_ENABLE      0
+
+
+#endif //TLKAPP_CONFIG_H
 

@@ -188,6 +188,7 @@ typedef struct{ //32+80=112
 	uint32 dataAddr;
 	uint32 dealSize; //RecvSize or SendSize
 	uint32 fileSize;
+	uint32 fileVers;
 	uint08 authCode[16];
 	uint08 fileSign[16];
 	uint08 realSign[16];
@@ -223,6 +224,7 @@ struct tlkmdi_file_unit_s{
 	uint32 packNumb;
 	uint32 dealSize; //RecvSize or SendSize
 	uint32 fileSize;
+	uint32 fileVers;
 	uint08 authCode[16];
 	uint08 fileName[TLKMDI_FILE_NAME_SIZE];
 	union{
@@ -280,12 +282,14 @@ void tlkmdi_file_setFastSch(uint16 schCode, TlkmdiFileFastSignFunc sign);
 
 void tlkmdi_file_setRecvPort(tlkmdi_file_unit_t *pUnit, uint08 dataPort);
 
+int tlkmdi_file_closeTrans(tlkmdi_file_unit_t *pUnit);
+
 int tlkmdi_file_getRecvSaveParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_fastParam_t *pParam);
 int tlkmdi_file_setRecvPortParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_portParam_t *pParam);
 int tlkmdi_file_setRecvFastParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_fastParam_t *pParam);
 int tlkmdi_file_setRecvStartParam(tlkmdi_file_unit_t *pUnit, tlkmdi_file_startParam_t *pParam);
 
-int tlkmmi_file_enableDataDecode(tlkmdi_file_unit_t *pUnit, bool isDecrypt, bool isUncompress);
+int tlkmdi_file_enableDataDecode(tlkmdi_file_unit_t *pUnit, bool isDecrypt, bool isUncompress);
 
 void tlkmdi_file_setRecvInfs(TlkmdiFileStartFunc start, TlkmdiFileCloseFunc close,
 	 TlkmdiFileParamFunc param, TlkmdiFileSaveFunc save, TlkmdiFileSendFunc send);

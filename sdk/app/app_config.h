@@ -26,7 +26,9 @@
 
 
 
-
+#ifdef TLKAPP_DONGLE_ENABLE
+	#include "app/tlkapp_dongle/tlkapp_config.h"
+#endif
 #ifdef TLKAPP_GENERAL_ENABLE
 	#include "app/tlkapp_general/tlkapp_config.h"
 #endif

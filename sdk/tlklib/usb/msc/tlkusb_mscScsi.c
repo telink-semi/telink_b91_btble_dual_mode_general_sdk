@@ -45,18 +45,18 @@ static void tlkusb_msc_scsiStageDataReadDeal(void);
 static void tlkusb_msc_scsiStageDataRecvDeal(void);
 
 
-static void tlkusb_msc_scsiRecvTestUnitDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvRequestSenseDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvInquiryDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvModeSense6Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvModeSense10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvStartStopUnitDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvAllowMediumRemoveDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvReadFormatCapacityDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvReadCapacity10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvRead10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvWrite10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
-static void tlkusb_msc_scsiRecvVerify10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvTestUnitDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvRequestSenseDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvInquiryDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvModeSense6Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvModeSense10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvStartStopUnitDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvAllowMediumRemoveDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvReadFormatCapacityDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvReadCapacity10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvRead10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvWrite10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
+static void tlkusb_msc_scsiRecvVerify10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen);
 
 
 
@@ -138,14 +138,7 @@ static void tlkusb_msc_scsiRecvData(void)
 	usbhw_data_ep_ack(TLKUSB_MSC_EDP_OUT); // set the ack
 }
 
-volatile uint32 AAAA_usb_test001 = 0;
-volatile uint32 AAAA_usb_test002 = 0;
-volatile uint32 AAAA_usb_test003 = 0;
-volatile uint32 AAAA_usb_test004 = 0;
-volatile uint32 AAAA_usb_test005 = 0;
-volatile uint32 AAAA_usb_test006 = 0;
-volatile uint32 AAAA_usb_test007 = 0;
-volatile uint32 AAAA_usb_test008 = 0;
+
 
 static void tlkusb_msc_scsiStageIdleDeal(void)
 {
@@ -153,14 +146,11 @@ static void tlkusb_msc_scsiStageIdleDeal(void)
 	uint08 opcode;
 	uint08 cmdLen;
 	uint08 *pCmd;
-	tlkusb_msc_unit_t *pUnit;
-
-	AAAA_usb_test001 ++;
+	tlkusb_msc_disk_t *pUnit;
 	
 	tlkusb_msc_scsiRecvData();
 	if(sTlkUsbMscScsi.rcvLen == 0) return;
 	
-	AAAA_usb_test002 ++;
 	if(sTlkUsbMscScsi.rcvLen < TLKUSB_MSC_CBW_LENGTH || sTlkUsbMscScsi.rcvBuff[0] != 'U' || sTlkUsbMscScsi.rcvBuff[1] != 'S' 
 		|| sTlkUsbMscScsi.rcvBuff[2] != 'B' || sTlkUsbMscScsi.rcvBuff[3] != 'C'){
 		return; //Error Length
@@ -172,8 +162,6 @@ static void tlkusb_msc_scsiStageIdleDeal(void)
 	logNum = pCmd[1] >> 5;
 	cmdLen = pCmd[TLKUSB_MSC_CBW_BLEN_OFFSET] & 0x1F;
 	pUnit = tlkusb_msc_getDisk(logNum);
-	AAAA_usb_test003 ++;
-	AAAA_usb_test004 = opcode;
 	if(pUnit == nullptr){
 		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
@@ -183,7 +171,6 @@ static void tlkusb_msc_scsiStageIdleDeal(void)
 	sTlkUsbMscScsi.curLun = logNum;
 	tlkusb_msc_scsiSetStatus(0, 0);
 
-	AAAA_usb_test005 ++;
 	switch(opcode){
 		case TLKUSB_MSC_SCSI_TEST_UNIT_READY:
 			tlkusb_msc_scsiRecvTestUnitDeal(pUnit, pCmd, cmdLen);
@@ -192,7 +179,6 @@ static void tlkusb_msc_scsiStageIdleDeal(void)
 			tlkusb_msc_scsiRecvRequestSenseDeal(pUnit, pCmd, cmdLen);
 			break;
 		case TLKUSB_MSC_SCSI_INQUIRY:
-			AAAA_usb_test006 ++;
 			tlkusb_msc_scsiRecvInquiryDeal(pUnit, pCmd, cmdLen);
 			break;
 		case TLKUSB_MSC_SCSI_MODE_SENSE6:
@@ -293,7 +279,7 @@ static void tlkusb_msc_scsiStageDataSendDeal(void)
 static void tlkusb_msc_scsiStageDataReadDeal(void)
 {
 	int ret;
-	tlkusb_msc_unit_t *pUnit;
+	tlkusb_msc_disk_t *pUnit;
 	
 	if(sTlkUsbMscScsi.datLen != 0){
 		tlkusb_msc_scsiStageDataSendDeal();
@@ -312,7 +298,7 @@ static void tlkusb_msc_scsiStageDataReadDeal(void)
 		return;
 	}
 	
-	ret = pUnit->Read(sTlkUsbMscScsi.blkOff+sTlkUsbMscScsi.blkNum, 1, sTlkUsbMscScsi.buffer);
+	ret = pUnit->Read(sTlkUsbMscScsi.buffer, sTlkUsbMscScsi.blkOff+sTlkUsbMscScsi.blkNum, 1);
 	if(ret < 0){
 		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
@@ -325,7 +311,7 @@ static void tlkusb_msc_scsiStageDataReadDeal(void)
 }
 static void tlkusb_msc_scsiStageDataRecvDeal(void)
 {
-	tlkusb_msc_unit_t *pUnit;
+	tlkusb_msc_disk_t *pUnit;
 	
 	if(sTlkUsbMscScsi.blkNum >= sTlkUsbMscScsi.blkCnt){
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
@@ -348,7 +334,7 @@ static void tlkusb_msc_scsiStageDataRecvDeal(void)
 	
 	if(sTlkUsbMscScsi.optLen == pUnit->blkSize){
 		int ret;
-		ret = pUnit->Write(sTlkUsbMscScsi.blkOff+sTlkUsbMscScsi.blkNum, 1, sTlkUsbMscScsi.buffer);
+		ret = pUnit->Write(sTlkUsbMscScsi.buffer, sTlkUsbMscScsi.blkOff+sTlkUsbMscScsi.blkNum, 1);
 		if(ret < 0){
 			tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 			sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
@@ -361,14 +347,14 @@ static void tlkusb_msc_scsiStageDataRecvDeal(void)
 
 
 
-static void tlkusb_msc_scsiRecvTestUnitDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvTestUnitDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	if(!sTlkUsbMscScsi.enable){
 		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 	}
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 }
-static void tlkusb_msc_scsiRecvRequestSenseDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvRequestSenseDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	uint08 datLen = 0;
 	sTlkUsbMscScsi.buffer[datLen++] = 0x70; //Error code, fixed as 0x70
@@ -393,7 +379,7 @@ static void tlkusb_msc_scsiRecvRequestSenseDeal(tlkusb_msc_unit_t *pUnit, uint08
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
 }
-static void tlkusb_msc_scsiRecvInquiryDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvInquiryDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	uint08 datLen = 0;
 	if((pCmd[1] & 0x01) != 0){ //Evpd is set
@@ -448,7 +434,7 @@ static void tlkusb_msc_scsiRecvInquiryDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCm
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
 }
-static void tlkusb_msc_scsiRecvModeSense6Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvModeSense6Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	uint08 datLen = 0;
 	sTlkUsbMscScsi.buffer[datLen++] = 0x03;
@@ -463,7 +449,7 @@ static void tlkusb_msc_scsiRecvModeSense6Deal(tlkusb_msc_unit_t *pUnit, uint08 *
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
 }
-static void tlkusb_msc_scsiRecvModeSense10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvModeSense10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	uint08 datLen = 0;
 	sTlkUsbMscScsi.buffer[datLen++] = 0x00;
@@ -478,15 +464,15 @@ static void tlkusb_msc_scsiRecvModeSense10Deal(tlkusb_msc_unit_t *pUnit, uint08 
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
 }
-static void tlkusb_msc_scsiRecvStartStopUnitDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvStartStopUnitDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 }
-static void tlkusb_msc_scsiRecvAllowMediumRemoveDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvAllowMediumRemoveDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 }
-static void tlkusb_msc_scsiRecvReadFormatCapacityDeal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvReadFormatCapacityDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	uint08 datLen = 0;
 	sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
@@ -505,7 +491,7 @@ static void tlkusb_msc_scsiRecvReadFormatCapacityDeal(tlkusb_msc_unit_t *pUnit, 
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
 }
-static void tlkusb_msc_scsiRecvReadCapacity10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvReadCapacity10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	uint08 datLen = 0;
 	sTlkUsbMscScsi.buffer[datLen++] = ((pUnit->blkCount-1) >> 24) & 0xFF; //Number of blocks (maximum support 8GB)
@@ -520,7 +506,7 @@ static void tlkusb_msc_scsiRecvReadCapacity10Deal(tlkusb_msc_unit_t *pUnit, uint
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
 }
-static void tlkusb_msc_scsiRecvRead10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvRead10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	ARRAY_TO_UINT32H(pCmd, 2, sTlkUsbMscScsi.blkOff);
 	ARRAY_TO_UINT16H(pCmd, 7, sTlkUsbMscScsi.blkCnt);
@@ -528,7 +514,7 @@ static void tlkusb_msc_scsiRecvRead10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_READ_DATA;
 }
-static void tlkusb_msc_scsiRecvWrite10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvWrite10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	ARRAY_TO_UINT32H(pCmd, 2, sTlkUsbMscScsi.blkOff);
 	ARRAY_TO_UINT16H(pCmd, 7, sTlkUsbMscScsi.blkCnt);
@@ -536,7 +522,7 @@ static void tlkusb_msc_scsiRecvWrite10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCm
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_RECV_DATA;
 }
-static void tlkusb_msc_scsiRecvVerify10Deal(tlkusb_msc_unit_t *pUnit, uint08 *pCmd, uint08 cmdLen)
+static void tlkusb_msc_scsiRecvVerify10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	if((pCmd[1] & 0x01) != 0){ //Evpd is set
 		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);

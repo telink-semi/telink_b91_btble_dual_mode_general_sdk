@@ -26,7 +26,7 @@
 #include "tlkmdi/tlkmdi_stdio.h"
 #if TLK_MDI_MP3_ENABLE
 #include "drivers.h"
-#include "tlklib/fs/tlklib_fs.h"
+#include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_audmp3.h"
 #include "tlkalg/audio/mp3/tlkalg_mp3.h"
@@ -55,7 +55,8 @@ extern int rand(void);
 static uint32 tlkmdi_mp3_getPlayDuration(uint08 *pData, uint16 dataLen);
 //static uint32  tlkmdi_mp3_getPrivateFramePlayDuration(uint32 PrivateFrameOffset, uint32 PrivateFrameSize);
 static bool tlkmdi_mp3_getPlayInfo(void);
-static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *pNameBuff, uint08 buffLens, uint16 *pNameSize);
+static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *pNameBuff, 
+	uint08 buffLens, uint16 *pNameSize, uint08 *pNameFlag);
 
 
 
@@ -151,13 +152,6 @@ bool tlkmdi_mp3_enable(bool enable)
 	
 	if(sTlkMdiMp3IsEnable){
 		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_enable: true");
-		#if (TLK_DEV_XTSD04G_ENABLE)
-		if(!tlkdev_nand_isPowerOn())
-		{
-			tlkdev_nand_powerOn();
-			tlkdev_nand_init();
-		}
-		#endif
 	}else{
 		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_enable: false");
 		if(spTlkMdiMp3ParamBuff != NULL){
@@ -268,7 +262,7 @@ uint tlkmdi_mp3_getRandIndex(void)
 }
 uint tlkmdi_mp3_getNextIndex(void)
 {
-#if 0
+#if 1
 	uint08 mode;
 	uint16 index;
 	if(sTlkMdiMp3Ctrl.fileCount == 0) return 0;
@@ -292,7 +286,7 @@ uint tlkmdi_mp3_getNextIndex(void)
 }
 uint tlkmdi_mp3_getPrevIndex(void)
 {
-#if 0
+#if 1
 	uint08 mode;
 	uint16 index;
 	if(sTlkMdiMp3Ctrl.fileCount == 0) return 0;
@@ -349,6 +343,15 @@ uint16 tlkmdi_mp3_getProgress(void)
 	}
 	return progress;
 }
+uint08 tlkmdi_mp3_getFNameCode(void)
+{
+	return 0x01;
+}
+uint08 tlkmdi_mp3_getSingerCode(void)
+{
+	return ((sTlkMdiMp3Ctrl.finfo.nameFlag & 0xC0) >> 6);
+}
+
 uint08 *tlkmdi_mp3_getFileName(uint08 *pLength)
 {
 	if(pLength != nullptr) *pLength = 0;
@@ -373,7 +376,7 @@ uint08 *tlkmdi_mp3_getSinger(uint08 *pLength)
 		if(sTlkMdiMp3Ctrl.finfo.performer[TLKMDI_MP3_PERFORMER_SIZE-1] != 0){
 			*pLength = TLKMDI_MP3_PERFORMER_SIZE;
 		}else{
-			*pLength = strlen((const char*)sTlkMdiMp3Ctrl.finfo.performer);
+			*pLength = (sTlkMdiMp3Ctrl.finfo.nameFlag & 0x3F);
 		}
 	}
 	return sTlkMdiMp3Ctrl.finfo.performer;
@@ -898,8 +901,9 @@ static bool tlkmdi_mp3_getPlayInfo(void)
 	uint32 privateSize;
 	bool privateType;
 	#endif
+	uint08 nameCode;
 	uint16 performerSize;
-	uint08  performerName[TLKMDI_MP3_PERFORMER_SIZE] = {0};
+	uint08 performerName[TLKMDI_MP3_PERFORMER_SIZE] = {0};
 	int freeLens;
 	int fOffset = 0;
 	int fLength = 0; //Frame Length
@@ -932,10 +936,13 @@ static bool tlkmdi_mp3_getPlayInfo(void)
 	privateSize = 0;
 	privateType = tlkmdi_mp3_isPrivateFrame(spTlkMdiMp3FileInfoTempBuff, readLen, &privateOffs, &privateSize);
 	#endif
-	
+
+	sTlkMdiMp3Ctrl.finfo.nameFlag = 0;
 	memset(sTlkMdiMp3Ctrl.finfo.performer, 0, TLKMDI_MP3_PERFORMER_SIZE);
-	if(tlkmdi_mp3_getPerformerInfo(spTlkMdiMp3FileInfoTempBuff, readLen, performerName, TLKMDI_MP3_PERFORMER_SIZE, &performerSize)){
+	if(tlkmdi_mp3_getPerformerInfo(spTlkMdiMp3FileInfoTempBuff, readLen, performerName, TLKMDI_MP3_PERFORMER_SIZE-2,
+		&performerSize, &nameCode)){
 		tmemcpy(sTlkMdiMp3Ctrl.finfo.performer, performerName, performerSize);
+		sTlkMdiMp3Ctrl.finfo.nameFlag = ((nameCode & 0x03) << 6) | (performerSize & 0x3F);
 	}
 	
 	//Skip the file header and read the file information
@@ -984,7 +991,7 @@ static bool tlkmdi_mp3_getPlayInfo(void)
 	
 	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo[sampleRate-%d,channels-%d,duration-%d,fLength-%d]",
 		sTlkMdiMp3Ctrl.finfo.sampleRate, sTlkMdiMp3Ctrl.finfo.channels, sTlkMdiMp3Ctrl.finfo.duration, fLength);
-		
+	
 	return true;
 }
 
@@ -1022,14 +1029,15 @@ static bool tlkmdi_mp3_isPrivateFrame(uint08 *pData, uint16 dataLen, uint32 *pOf
 	return false;
 }
 #endif
-static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *pNameBuff, uint08 buffLens, uint16 *pNameSize)
+static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *pNameBuff, 
+	uint08 buffLens, uint16 *pNameSize, uint08 *pNameCode)
 {
 	FRESULT ret;
 
 	if(pNameBuff == nullptr || buffLens == 0) return false;
 
 	/*1: check artist in ID3v1 buffer first.*/
-	if(sTlkMdiMp3Ctrl.finfo.fileSize >= 128){
+	if(sTlkMdiMp3Ctrl.finfo.fileSize >= 128 && pData[3] != 0x03 && pData[3] != 0x02){
 		uint32 readlen = 0;
 		uint08 id3v1Buff[63] = {0}; //63=3+30+30
 		//ID3v1 buffer start from the offset(128) to the end of mp3 file.
@@ -1039,6 +1047,7 @@ static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *p
 			uint08 *p = id3v1Buff + (3 + 30 + 30 - 1);
 			uint08 *q = id3v1Buff + (3 + 30);
 			uint08 len = 0;
+			*pNameCode = 1;
 			while((!(*p)) && (len < 30)){
 				p--;
 				len++;
@@ -1056,7 +1065,7 @@ static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *p
 		uint32 frameLen;
 		uint32 headLens;
 		uint32 headSize;
-		uint08  mp3Label[TLKMDI_MP3_LABEL_HLEN] = {0};
+		uint08 mp3Label[TLKMDI_MP3_LABEL_HLEN] = {0};
 		
 		pData += 6;
 		headLens = ((pData[0] & 0x7F) << 21) | ((pData[1] & 0x7F) << 14) | ((pData[2] & 0x7F) << 7) | (pData[3] & 0x7F);
@@ -1072,13 +1081,14 @@ static bool tlkmdi_mp3_getPerformerInfo(uint08 *pData, uint16 dataLen, uint08 *p
 			if(tmemcmp(mp3Label, "TPE1", 4) != 0){
 				index += TLKMDI_MP3_LABEL_HLEN + frameLen;
 			}else{
-				if(frameLen > buffLens) frameLen = buffLens;
+				if(frameLen > buffLens+3) frameLen = buffLens+3;
 				if(index+TLKMDI_MP3_LABEL_HLEN >= dataLen) tempLen = 0;
-				else tempLen = dataLen-(10+index+TLKMDI_MP3_LABEL_HLEN);
+				else tempLen = dataLen-(index+TLKMDI_MP3_LABEL_HLEN);
 				if(frameLen > tempLen) frameLen = tempLen;
-				if(frameLen == 0) return false; // TODO: Here you can get the full artist name by reading the file.
-				tmemcpy(pNameBuff, pData+index+TLKMDI_MP3_LABEL_HLEN, frameLen);
-				*pNameSize = frameLen;
+				if(frameLen <= 1) return false;
+				*pNameCode = pData[index+TLKMDI_MP3_LABEL_HLEN]; //0x01-Unicode, 0x00-Ascii
+				tmemcpy(pNameBuff, pData+index+TLKMDI_MP3_LABEL_HLEN+1, frameLen-1);
+				*pNameSize = frameLen-1;
 				return true;
 			}
 		}

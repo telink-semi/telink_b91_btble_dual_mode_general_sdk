@@ -25,13 +25,11 @@
 #define TLKMMI_BTMGR_CTRL_H
 
 
-#define TLKMMI_BTMGR_BTNAME_LENS        32
-
 
 
 typedef struct{
 	uint08 btaddr[6];
-	uint08 btname[TLKMMI_BTMGR_BTNAME_LENS];
+	uint08 btname[TLK_CFG_FLASH_BT_NAME_LENS];
 }tlkmmi_btmgr_ctrl_t;
 
 
@@ -49,22 +47,29 @@ extern tlkmmi_btmgr_ctrl_t gTlkMmiBtmgrCtrl;
 int tlkmmi_btmgr_ctrlInit(void);
 
 /******************************************************************************
- * Function: tlkmmi_btmgr_getBtName
+ * Function: tlkmmi_btmgr_getName
  * Descript: Get BT Name.
  * Params:
  * Return: Return Bt name is success.
  * Others: None.
 *******************************************************************************/
-uint08 *tlkmmi_btmgr_getBtName(void);
+uint08 *tlkmmi_btmgr_getName(void);
 
 /******************************************************************************
- * Function: tlkmmi_btmgr_getBtAddr
+ * Function: tlkmmi_btmgr_getAddr
  * Descript: Get the Bt address. 
  * Params:
  * Return: Return Bt Address.
  * Others: None.
 *******************************************************************************/
-uint08 *tlkmmi_btmgr_getBtAddr(void);
+uint08 *tlkmmi_btmgr_getAddr(void);
+
+int tlkmmi_btmgr_setName(uint08 *pName, uint08 nameLen);
+int tlkmmi_btmgr_setAddr(uint08 *pAddr);
+
+
+int tlkmmi_btmgr_ctrlVolInc(void);
+int tlkmmi_btmgr_ctrlVolDec(void);
 
 
 

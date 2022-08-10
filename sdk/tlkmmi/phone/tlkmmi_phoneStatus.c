@@ -27,6 +27,7 @@
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkmdi/tlkmdi_hfp.h"
+#include "tlkmdi/tlkmdi_audsco.h"
 #include "tlkmmi/phone/tlkmmi_phone.h"
 #include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
 #include "tlkmmi/phone/tlkmmi_phoneComm.h"
@@ -44,7 +45,6 @@ static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen);
 
 
-
 /******************************************************************************
  * Function: tlkmmi_phone_statusInit
  * Descript: Register the phone call event callback.
@@ -55,7 +55,6 @@ static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen);
 int tlkmmi_phone_statusInit(void)
 {
 	tlkmdi_event_regCB(TLKMDI_EVENT_MAJOR_PHONE, tlkmmi_phone_hfCallEvt);
-	
 	
 	return TLK_ENONE;
 }
@@ -93,6 +92,8 @@ static void tlkmmi_phone_hfCallCloseEvt(uint08 *pData, uint08 dataLen)
 	}
 	buffer[buffLen++] = 0; //NameLen
 	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_CLOSE, buffer, buffLen);
+	
+	tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_IDLE);
 }
 static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen)
 {
@@ -136,6 +137,12 @@ static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen)
 	}
 	
 	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_START, buffer, buffLen);
+
+	if(pEvt->callDir == 1){
+		tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_INCOMING);
+	}else if(pEvt->callDir == 2){
+		tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_OUTGOING);
+	}
 }
 static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen)
 {
@@ -159,6 +166,8 @@ static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen)
 	}
 	buffer[buffLen++] = 0; //NameLen
 	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_ACTIVE, buffer, buffLen);
+	
+	tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_ACTIVE);
 }
 
 

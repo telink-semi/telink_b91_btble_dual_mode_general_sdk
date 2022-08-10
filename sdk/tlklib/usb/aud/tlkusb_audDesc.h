@@ -29,26 +29,55 @@
 
 #define TLKUSB_AUD_STRING_PRODUCT       L"Telink B91 BTBLE Audio"
 
-#define TLKUSB_AUD_STRING_SERIAL0       L"TLSR9218-16000"
-#define TLKUSB_AUD_STRING_SERIAL1       L"TLSR9218-32000"
-#define TLKUSB_AUD_STRING_SERIAL2       L"TLSR9218-44100"
-#define TLKUSB_AUD_STRING_SERIAL3       L"TLSR9218-48000"
+#define TLKUSB_AUD_STRING_SERIAL0       L"TLSR-BTBLE-MIC"
+#define TLKUSB_AUD_STRING_SERIAL1       L"TLSR-BTBLE-SPK"
+#define TLKUSB_AUD_STRING_SERIAL2       L"TLSR-BTBLE-MIC-SPK"
 
 
 typedef struct {
 	tlkusb_stdConfigureDesc_t config;
 	tlkusb_stdInterfaceDesc_t audCtrInf;
+	#if (TLKUSB_AUD_MIC_ENABLE && TLKUSB_AUD_SPK_ENABLE)
+	tlkusb_audInterfaceAcTLDesc_t audCtrAcInf;
+	#else
 	tlkusb_audInterfaceAcDesc_t audCtrAcInf;
-	tlkusb_audInputDesc_t   micInputDesc;
-	tlkusb_audMicFeatureDesc_t micFeatureDesc;
-	tlkusb_audOutputDesc_t  micOutputDesc;
-	tlkusb_stdInterfaceDesc_t micSetting0Inf;
-	tlkusb_stdInterfaceDesc_t micSetting1Inf;
+	#endif
+	#if (TLKUSB_AUD_SPK_ENABLE)
+	tlkusb_audInputDesc_t      spkInputDesc;
+	#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
+	tlkusb_audDoubleFeatureDesc_t spkFeatureDesc;
+	#else
+	tlkusb_audSingleFeatureDesc_t spkFeatureDesc;
+	#endif
+	tlkusb_audOutputDesc_t     spkOutputDesc;
+	#endif
+	#if (TLKUSB_AUD_MIC_ENABLE)
+	tlkusb_audInputDesc_t      micInputDesc;
+	#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
+	tlkusb_audDoubleFeatureDesc_t micFeatureDesc;
+	#else
+	tlkusb_audSingleFeatureDesc_t micFeatureDesc;
+	#endif
+	tlkusb_audOutputDesc_t     micOutputDesc;
+	#endif
+	#if (TLKUSB_AUD_SPK_ENABLE)
+	tlkusb_stdInterfaceDesc_t   spkSetting0Inf;
+	tlkusb_stdInterfaceDesc_t   spkSetting1Inf;
+	tlkusb_audInterfaceAsDesc_t spkDatAsInf;
+	tlkusb_audFormatDesc_t      spkFormatDesc;
+	tlkusb_audSampleDesc_t      spkSampleDesc;
+	tlkusb_audStdEndpointDesc_t spkStdEdpDesc;
+	tlkusb_audSpcEndpointDesc_t spkSpcEdpDesc;
+	#endif
+	#if (TLKUSB_AUD_MIC_ENABLE)
+	tlkusb_stdInterfaceDesc_t   micSetting0Inf;
+	tlkusb_stdInterfaceDesc_t   micSetting1Inf;
 	tlkusb_audInterfaceAsDesc_t micDatAsInf;
-	tlkusb_audFormatDesc_t micFormatDesc;
-	tlkusb_audSampleDesc_t micSampleDesc;
+	tlkusb_audFormatDesc_t      micFormatDesc;
+	tlkusb_audSampleDesc_t      micSampleDesc;
 	tlkusb_audStdEndpointDesc_t micStdEdpDesc;
 	tlkusb_audSpcEndpointDesc_t micSpcEdpDesc;
+	#endif
 }tlkusb_audAudConfigDesc_t;
 
 

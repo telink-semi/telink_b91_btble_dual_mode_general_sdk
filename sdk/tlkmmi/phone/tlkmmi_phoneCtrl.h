@@ -27,6 +27,35 @@
 #if (TLKMMI_PHONE_ENABLE)
 
 
+#define TLKMMI_PHONE_TIMEOUT          50000 //100ms
+#define TLKMMI_PHONE_TIMEOUT_MS       50
+#define TLKMMI_PHONE_WAIT_TIMEOUT     (200000/TLKMMI_BTMGR_TIMEOUT)
+
+
+
+typedef enum{
+	TLKMMI_PHONE_CALL_STATUS_IDLE = 0,
+	TLKMMI_PHONE_CALL_STATUS_INCOMING, //incoming
+	TLKMMI_PHONE_CALL_STATUS_OUTGOING, //outgoing
+	TLKMMI_PHONE_CALL_STATUS_ACTIVE,
+}TLKMMI_PHONE_CALL_STATUS_ENUM;
+typedef enum{
+	TLKMMI_PHONE_MANUAL_CODE_NONE = 0,
+	TLKMMI_PHONE_MANUAL_CODE_DIAL,
+	TLKMMI_PHONE_MANUAL_CODE_ANSWER,
+	TLKMMI_PHONE_MANUAL_CODE_HUNGUP,
+}TLKMMI_PHONE_MANUAL_CODE_ENUM;
+
+
+typedef struct{
+	uint08 hfStatus;
+	uint08 hfOpcode;
+	uint16 aclHandle;
+	uint16 scoHandle;
+	uint32 optTimer;
+	tlkapi_timer_t timer;
+}tlkmmi_phone_ctrl_t;
+
 
 /******************************************************************************
  * Function: tlkmmi_phone_ctrlInit
@@ -36,6 +65,9 @@
  * Others: None.
 *******************************************************************************/
 int tlkmmi_phone_ctrlInit(void);
+
+void tlkmmi_phone_setHfCallStatus(uint16 aclHandle, uint08 hfStatus);
+void tlkmmi_phone_setHfManualCode(uint16 aclHandle, uint08 hfOpcode);
 
 
 

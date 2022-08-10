@@ -26,10 +26,35 @@
 #if (TLKBTP_CFG_ATTSRV_ENABLE)
 
 
+#define BTP_ATTSRV_SERVICE_NUMB       8
+
+#define BTP_ATTSRV_BUFFER_SIZE        256
 
 
 
+typedef enum{
+	BTP_ATTSRV_BUSY_NONE            = 0x00,
+	BTP_ATTSRV_BUSY_SEND_ERROR_RSP  = 0x01,
+	BTP_ATTSRV_BUSY_SEND_FIND_INFO  = 0x02,
+	BTP_ATTSRV_BUSY_SEND_FIND_TYPE  = 0x04,
+	BTP_ATTSRV_BUSY_SEND_READ_TYPE  = 0x08,
+	BTP_ATTSRV_BUSY_SEND_READ_GROUP = 0x10,
+	BTP_ATTSRV_BUSY_SEND_WRITE_RSP  = 0x20,
+	BTP_ATTSRV_BUSY_SEND_READ_RSP   = 0x40,
+	BTP_ATTSRV_BUSY_SEND_READ_BLOB_RSP = 0x80,
+}BTP_ATTSRV_BUSY_ENUM;
 
+
+
+int btp_attsrv_init(void);
+
+void btp_attsrv_connectEvt(btp_att_node_t *pAtt);
+void btp_attsrv_disconnEvt(btp_att_node_t *pAtt);
+
+void btp_attsrv_recvHandler(btp_att_node_t *pAtt, uint08 *pData, uint16 dataLen);
+
+int btp_attsrv_setTable(const btp_attItem_t *pTable, uint16 count);
+uint btp_attsrv_getChnID(uint16 aclHandle);
 
 
 

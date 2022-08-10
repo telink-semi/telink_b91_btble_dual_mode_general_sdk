@@ -204,6 +204,7 @@ static void tlkmmi_audio_getDurationDeal(void)
 static void tlkmmi_audio_getFileNameDeal(void)
 {
 	uint08 length = 0;
+	uint08 codec = 0;
 	uint08 *pName = nullptr;
 	uint08 buffLen;
 	uint08 buffer[86];
@@ -215,6 +216,7 @@ static void tlkmmi_audio_getFileNameDeal(void)
 		length = 0;
 	}else{
 		pName = tlkmdi_mp3_getFileName(&length);
+		codec = tlkmdi_mp3_getFNameCode();
 	}
 	#else
 	length = 0;
@@ -223,6 +225,7 @@ static void tlkmmi_audio_getFileNameDeal(void)
 
 	buffLen = 0;
 	buffer[buffLen++] = length;
+	buffer[buffLen++] = codec;
 	if(length != 0){
 		tmemcpy(buffer+buffLen, pName, length);
 		buffLen += length;
@@ -233,6 +236,7 @@ static void tlkmmi_audio_getFileNameDeal(void)
 static void tlkmmi_audio_getSingerDeal(void)
 {
 	uint08 length = 0;
+	uint08 codec = 0;
 	uint08 *pName = nullptr;
 	uint08 buffLen;
 	uint08 buffer[86];
@@ -244,6 +248,7 @@ static void tlkmmi_audio_getSingerDeal(void)
 		length = 0;
 	}else{
 		pName = tlkmdi_mp3_getSinger(&length);
+		codec = tlkmdi_mp3_getSingerCode();
 	}
 	#else
 	length = 0;
@@ -252,6 +257,7 @@ static void tlkmmi_audio_getSingerDeal(void)
 
 	buffLen = 0;
 	buffer[buffLen++] = length;
+	buffer[buffLen++] = codec;
 	if(length != 0){
 		tmemcpy(buffer+buffLen, pName, length);
 		buffLen += length;

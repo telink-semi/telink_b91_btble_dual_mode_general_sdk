@@ -89,7 +89,8 @@
 #define BTP_SDP_SRVCLASS_ID_VIDEO_SOURCE			0x1303
 #define BTP_SDP_SRVCLASS_ID_VIDEO_SINK				0x1304
 #define BTP_SDP_SRVCLASS_ID_VIDEO_DISTRIBUTION		0x1305
-#define BTP_SDP_SRVCLASS_ID_GAP                     0x1801
+//#define BTP_SDP_SRVCLASS_ID_GAP                     0x1801
+#define BTP_SDP_SRVCLASS_ID_GATT_SERVICE            0x1801
 
 #define BTP_SVC_USER_ID0						0xff00
 #define BTP_SVC_USER_ID1						0xff01
@@ -226,7 +227,7 @@ extern int  btp_sdpclt_disconn(uint16 aclHandle);
  *         @aclHandle[IN]--The acl link handle.
  * Return:
 *******************************************************************************/
-void btp_sdpclt_destroy(uint16 aclHandle);
+extern void btp_sdpclt_destroy(uint16 aclHandle);
 #endif 
 
 

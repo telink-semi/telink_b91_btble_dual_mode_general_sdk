@@ -39,7 +39,7 @@ const tlkusb_module_t gTlkUsbMscModule = {
 	&sTlkUsbMscModCtrl,
 };
 static uint08 sTlkUsbMscUnitCount = 0;
-static tlkusb_msc_unit_t *spTlkUsbMscUnit[TLKUSB_MSC_UNIT_COUNT];
+static tlkusb_msc_disk_t *spTlkUsbMscUnit[TLKUSB_MSC_UNIT_COUNT];
 
 
 
@@ -51,7 +51,7 @@ int tlkusb_msc_init(void)
 }
 
 
-int tlkusb_msc_appendDisk(tlkusb_msc_unit_t *pUnit)
+int tlkusb_msc_appendDisk(tlkusb_msc_disk_t *pUnit)
 {
 	if(pUnit == nullptr || pUnit->blkSize == 0 || (pUnit->blkSize & 0x3F) != 0
 		|| pUnit->blkCount < 100 || pUnit->Read == nullptr || pUnit->Write == nullptr){
@@ -66,10 +66,10 @@ uint08 tlkusb_msc_getDiskCount(void)
 {
 	return sTlkUsbMscUnitCount;
 }
-tlkusb_msc_unit_t *tlkusb_msc_getDisk(uint08 lun)
+tlkusb_msc_disk_t *tlkusb_msc_getDisk(uint08 volNum)
 {
-	if(lun >= sTlkUsbMscUnitCount) return nullptr;
-	return spTlkUsbMscUnit[lun];
+	if(volNum >= sTlkUsbMscUnitCount) return nullptr;
+	return spTlkUsbMscUnit[volNum];
 }
 
 

@@ -78,7 +78,7 @@
 
 
 
-typedef void(*TlkMdiScoStatusFunc)(uint16 handle, uint08 status);
+typedef void(*TlkMdiScoConnCB)(uint16 aclHandle, uint16 scoHandle, bool isConn);
 
 
 typedef int(*TlkMdiScoDecFunc)(uint08 *pSrc, uint16 srcLen, uint08 *pOut);
@@ -116,6 +116,13 @@ typedef struct{
 *******************************************************************************/
 int tlkmdi_audsco_init(void);
 
+/******************************************************************************
+ * Function: tlkmdi_audsco_regCB
+ * Descript: Register SCO connection status switch callback. 
+ * Params: None.
+ * Return: None.
+*******************************************************************************/
+void tlkmdi_audsco_regCB(TlkMdiScoConnCB connCB);
 
 /******************************************************************************
  * Function: tlkmdi_audsco_init

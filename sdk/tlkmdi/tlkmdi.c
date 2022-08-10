@@ -35,6 +35,18 @@
 #if (TLK_MDI_FILE_ENABLE)
 #include "tlkmdi/tlkmdi_file.h"
 #endif
+#if (TLK_MDI_BTATT_ENABLE)
+#include "tlkmdi/tlkmdi_btatt.h"
+#endif
+#if (TLK_MDI_BTHID_ENABLE)
+#include "tlkmdi/tlkmdi_bthid.h"
+#endif
+#if (TLK_MDI_FS_ENABLE)
+#include "tlkmdi/tlkmdi_fs.h"
+#endif
+#if (TLK_MDI_KEY_ENABLE)
+#include "tlkmdi/tlkmdi_key.h"
+#endif
 #include "tlkmdi/tlkmdi.h"
 
 
@@ -47,12 +59,17 @@
  * Return: Return TLK_ENONE is success, other value is failure.
  * Others: None.
 *******************************************************************************/
+uint32 gTlkMdiBusyTimer = 0;
 int tlkmdi_init(void)
 {
 	tlkmdi_comm_init();
 	tlkmdi_adapt_init();
 	tlkmdi_event_init();
-
+	
+	#if (TLK_MDI_FS_ENABLE)
+	tlkmdi_fs_init();
+	#endif
+	
 	#if (TLK_MDI_BTACL_ENABLE)
 	tlkmdi_btacl_init();
 	#endif
@@ -62,9 +79,19 @@ int tlkmdi_init(void)
 	#if (TLK_MDI_BTREC_ENABLE)
 	tlkmdi_btrec_init();
 	#endif
-
+	#if (TLK_MDI_BTATT_ENABLE)
+	tlkmdi_btatt_init();
+	#endif
+	#if (TLK_MDI_BTHID_ENABLE)
+	tlkmdi_bthid_init();
+	#endif
+	#if (TLK_MDI_AUDIO_ENABLE)
 	tlkmdi_audio_init();
-
+	#endif
+	
+	#if (TLK_MDI_KEY_ENABLE)
+	tlkmdi_key_init();
+	#endif
 	#if (TLK_MDI_HFP_ENABLE)
 	tlkmdi_hfp_init();
 	#endif
@@ -124,8 +151,11 @@ void tlkmdi_process(void)
 *******************************************************************************/
 bool tlkmdi_pmIsbusy(void)
 {
-//	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isbusy()) return true;
-	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()) return true;
+	if(gTlkMdiBusyTimer!=0&&clock_time_exceed(gTlkMdiBusyTimer, 5000000)){
+		gTlkMdiBusyTimer = 0;
+	}
+	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()||(gTlkMdiBusyTimer!=0)) return true;
+
 	return false;
 }
 

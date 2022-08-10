@@ -95,7 +95,7 @@ int  bth_adapt_removeProcs(tlkapi_procs_t *pProcs);
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int  bth_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout);
+int  bth_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
 
 /******************************************************************************
  * Function: bth_adapt_insertTimer

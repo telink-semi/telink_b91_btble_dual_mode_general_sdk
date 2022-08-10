@@ -44,21 +44,18 @@ int main(void)
     sys_init(DCDC_1P4_LDO_1P8,VBAT_MAX_VALUE_GREATER_THAN_3V6);
 	
     CCLK_48M_HCLK_48M_PCLK_24M;
-		
-//    tlkapp_init();
 
+	#if 1
 	tlkapp_dfu_load();
 	TLKAPP_JUMP_TO_APP();
-
-	while(1){}
-
-//	cpu_sleep_wakeup_32k_rc(DEEPSLEEP_MODE, PM_WAKEUP_TIMER, stimer_get_tick() + 10*(16*1000));
-	//core_disable_interrupt();
-
+	while(1){ start_reboot(); }
+	#else
+    tlkapp_init();
 	while(1)
 	{
 		tlkapp_process();
 	}
+	#endif
     return 0;
 } 
 

@@ -51,6 +51,7 @@
 #define BTP_SDP_AVRCP_TG_HANDLE           0x00100016
 #define BTP_SDP_A2DP_SRC_HANDLE           0x00100017
 #define BTP_SDP_A2DP_SNK_HANDLE           0x00100018
+#define BTP_SDP_ATT_HANDLE                0x00100019
 
 /*
   * macro used in sdp database

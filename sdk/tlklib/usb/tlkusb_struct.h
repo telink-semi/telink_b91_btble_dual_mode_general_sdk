@@ -221,14 +221,25 @@ typedef struct
 
 typedef struct
 {
-	uint08 bLength; /**< Size of the descriptor, in bytes. */
-	uint08 bDescriptorType; /**< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class.*/
+	uint08 bLength; 
+	uint08 bDescriptorType;
 	uint08 Subtype;
 	uint08 ACSpecification[2];
 	uint08 TotalLength[2];
 	uint08 InCollection;
 	uint08 InterfaceNumber;
 }__attribute__((packed)) tlkusb_audInterfaceAcDesc_t;
+typedef struct
+{
+	uint08 bLength; 
+	uint08 bDescriptorType;
+	uint08 Subtype;
+	uint08 ACSpecification[2];
+	uint08 TotalLength[2];
+	uint08 InCollection;
+	uint08 InterfaceNumber_spk;
+	uint08 InterfaceNumber_mic;
+}__attribute__((packed)) tlkusb_audInterfaceAcTLDesc_t;
 typedef struct
 {
 	uint08 Length;
@@ -272,7 +283,7 @@ typedef struct
 	uint08 ControlSize;
 	uint08 MAControls[2];
 	uint08 FeatureUnitStrIndex;
-}__attribute__((packed)) tlkusb_audMicFeatureDesc_t;
+}__attribute__((packed)) tlkusb_audSingleFeatureDesc_t;
 typedef struct
 {
 	uint08 Length;
@@ -283,7 +294,7 @@ typedef struct
 	uint08 ControlSize;
 	uint08 MAControls[3];
 	uint08 FeatureUnitStrIndex;
-}__attribute__((packed)) tlkusb_audSpkFeatureDesc_t;
+}__attribute__((packed)) tlkusb_audDoubleFeatureDesc_t;
 
 typedef struct
 {

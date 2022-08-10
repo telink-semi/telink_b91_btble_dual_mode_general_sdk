@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     tlkmdi_hid.h
+ * @file     btp_hidh.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -20,32 +20,22 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
+#ifndef BTP_HIDH_H
+#define BTP_HIDH_H
 
-#ifndef TLKMDI_HID_H
-#define TLKMDI_HID_H
-
-#if (TLK_MDI_HID_ENABLE)
-
-typedef enum{
-    TLKMDI_HID_GETREPORT_ID = 0,
-	TLKMDI_HID_SETREPORT_ID,
-	TLKMDI_HID_CONTROL_ID,
-	TLKMDI_HID_OUTPUT_ID,
-}tlkmdi_hid_evt_id_t;
-
-typedef void (*tlkmdi_hid_callback_t)(uint16 aclHandle, uint16 report_type, uint16 report_id, uint16* datalen, uint08* pData, tlkmdi_hid_evt_id_t evtID);
+#if (TLKBTP_CFG_HIDH_ENABLE)
 
 
-void tlkmdi_hid_init();
-void tlkmdi_hid_connect(uint16 aclHandle);
-void tlkmid_hid_disconnect(uint16 aclHandle);
-void tlkmdi_hid_deinit(uint16 aclHandle);
-void tlkmdi_hid_send_data(uint08 *pData, uint16 dataLen, uint16 aclHandle);
 
-void tlkmdi_hid_register_callback(tlkmdi_hid_callback_t callback);
-void tlkmdi_hid_unregister_callback();
 
-#endif //#if (TLK_MDI_HID_ENABLE)
 
-#endif //TLKMDI_HID_H
+
+int btp_hidh_init(void);
+
+
+
+
+#endif //#if (TLKBTP_CFG_HIDH_ENABLE)
+
+#endif //BTP_HIDH_H
 

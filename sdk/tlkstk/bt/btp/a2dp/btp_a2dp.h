@@ -194,6 +194,7 @@ extern int btp_a2dpsrc_reconfig(uint16 aclHandle, uint32 sampleRate);
  * 		If others value is returned means the get process fail.
  *******************************************************************************/
 extern int btp_a2dpsrc_getStatus(uint16 aclHandle);
+extern uint btp_a2dpsnk_getStatus(uint16 aclHandle);
 
 /******************************************************************************
  * Function: A2DP source verify a2dp stream status

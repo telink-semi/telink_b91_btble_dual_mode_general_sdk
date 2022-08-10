@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * @file     tlkalg_sha.c
+ * @file     tlkapp.h
  *
- * @brief    This is the source file for BTBLE SDK
+ * @brief    This is the header file for BTBLE SDK
  *
  * @author	 BTBLE GROUP
  * @date         2,2022
@@ -21,12 +21,28 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#include "tlkapi/tlkapi_stdio.h"
-#include "tlkalg/digest/sha/tlkalg_sha.h"
+#ifndef TLKAPP_H
+#define TLKAPP_H
 
 
 
+/******************************************************************************
+ * Function: tlkapp_init
+ * Descript: user initialization when MCU power on or wake_up from deepSleep mode.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
+int tlkapp_init(void);
+
+/******************************************************************************
+ * Function: tlkapp_process
+ * Descript: BTBLE SDK main loop.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/ 
+void tlkapp_process(void);
 
 
-
-
+#endif /* TLKAPP_H */

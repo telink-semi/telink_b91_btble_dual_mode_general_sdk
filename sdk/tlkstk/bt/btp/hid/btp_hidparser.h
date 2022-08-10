@@ -24,13 +24,8 @@
 #ifndef BTP_HID_PARSER_H
 #define BTP_HID_PARSER_H
 
+#if 0//(TLKBTP_CFG_HIDH_ENABLE)
 
-
-#include "tlkapi/tlkapi_stdio.h"
-#include "tlkstk/bt/btp/btp_config.h"
-#include "tlkstk/bt/bth/bth_stdio.h"
-#include "btp_hiddevice.h"
-#include "btp_hid.h"
 
 
 typedef enum {
@@ -149,5 +144,9 @@ uint16 btp_hid_id_valid(int report_id, uint16 hid_descriptor_len, uint08 * hid_d
 
 int btp_hid_report_id_declared(uint16 hid_descriptor_len, uint08 * hid_descriptor);
 
+
+
+
+#endif //#if (TLKBTP_CFG_HIDH_ENABLE)
 
 #endif //BTP_HID_PARSER_H

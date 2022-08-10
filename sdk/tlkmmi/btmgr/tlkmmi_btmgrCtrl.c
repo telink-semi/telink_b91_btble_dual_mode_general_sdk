@@ -28,21 +28,43 @@
 #if (TLKMMI_BTMGR_ENABLE)
 #include "tlkmdi/tlkmdi_btacl.h"
 #include "tlkmdi/tlkmdi_btinq.h"
+#include "tlkmdi/tlkmdi_bthid.h"
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
+#include "tlkstk/bt/btp/hid/btp_hid.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgr.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrCtrl.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrAcl.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
 
+
 #define TLKMMI_BTMGR_NAME_DEF     "TLK DualMode 2.0"
 
 extern void generateRandomNum(int len, unsigned char *data);
 
+/******************************************************************************
+ * Function: bt_ll_set_bd_addr
+ * Descript: Set Bt address.
+ * Params:
+ * Return: TLK_ENONE is success, others value is failure.
+ * Others: None.
+*******************************************************************************/
+extern int bt_ll_set_bd_addr(uint08 *bdAddr);
+/******************************************************************************
+ * Function: bt_ll_set_local_name
+ * Descript: Set Bt local name.
+ * Params:
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+extern void bt_ll_set_local_name(char *name);
+
+
 tlkmmi_btmgr_ctrl_t gTlkMmiBtmgrCtrl;
+
 
 
 /******************************************************************************
@@ -59,12 +81,11 @@ int tlkmmi_btmgr_ctrlInit(void)
 	uint08 bttemp[16];
 
 	tmemset(&gTlkMmiBtmgrCtrl, 0, sizeof(tlkmmi_btmgr_ctrl_t));
-
+	
 	// Read Local Name
-	tlkapi_flash_read(TLK_CFG_FLASH_BT_NAME_ADDR, gTlkMmiBtmgrCtrl.btname, TLKMMI_BTMGR_BTNAME_LENS-1);
-	gTlkMmiBtmgrCtrl.btname[TLKMMI_BTMGR_BTNAME_LENS-1] = 0;
-	for(index=0; index<31; index++){
-		if(gTlkMmiBtmgrCtrl.btname[index] == 0xFF) break;
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_NAME_ADDR, gTlkMmiBtmgrCtrl.btname, TLK_CFG_FLASH_BT_NAME_LENS-1);
+	for(index=0; index<TLK_CFG_FLASH_BT_NAME_LENS-1; index++){
+		if(gTlkMmiBtmgrCtrl.btname[index] == 0xFF || gTlkMmiBtmgrCtrl.btname[index] == 0x00) break;
 	}
 	if(index == 0){
 		index = strlen(TLKMMI_BTMGR_NAME_DEF);
@@ -87,33 +108,118 @@ int tlkmmi_btmgr_ctrlInit(void)
 	for(index=0; index<6; index++){
 		gTlkMmiBtmgrCtrl.btaddr[index] = bttemp[5-index];
 	}
-		
+
+	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
+	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);
+	
+	
 	return TLK_ENONE;
 }
 
 /******************************************************************************
- * Function: tlkmmi_btmgr_getBtName
+ * Function: tlkmmi_btmgr_getName
  * Descript: Get BT Name.
  * Params:
  * Return: Return Bt name is success.
  * Others: None.
 *******************************************************************************/
-uint08 *tlkmmi_btmgr_getBtName(void)
+uint08 *tlkmmi_btmgr_getName(void)
 {
 	return gTlkMmiBtmgrCtrl.btname;
 }
 
 /******************************************************************************
- * Function: tlkmmi_btmgr_getBtAddr
+ * Function: tlkmmi_btmgr_getAddr
  * Descript: Get the Bt address. 
  * Params:
  * Return: Return Bt Address.
  * Others: None.
 *******************************************************************************/
-uint08 *tlkmmi_btmgr_getBtAddr(void)
+uint08 *tlkmmi_btmgr_getAddr(void)
 {
 	return gTlkMmiBtmgrCtrl.btaddr;
 }
+
+int tlkmmi_btmgr_setName(uint08 *pName, uint08 nameLen)
+{
+	uint08 btBuffer[TLK_CFG_FLASH_BT_NAME_LENS];
+	uint08 leBuffer[TLK_CFG_FLASH_LE_NAME_LENS];
+	
+	if(pName == nullptr || nameLen == 0) return -TLK_EPARAM;
+	if(nameLen > TLK_CFG_FLASH_BT_NAME_LENS-1) nameLen = TLK_CFG_FLASH_BT_NAME_LENS-1;
+	
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_NAME_ADDR, btBuffer, TLK_CFG_FLASH_BT_NAME_LENS);
+	tlkapi_flash_read(TLK_CFG_FLASH_LE_NAME_ADDR, leBuffer, TLK_CFG_FLASH_LE_NAME_LENS);
+	
+	tmemset(btBuffer, 0xFF, TLK_CFG_FLASH_BT_NAME_LENS);
+	tmemcpy(btBuffer, pName, nameLen);
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_BT_NAME_ADDR & 0xFFFFF000);
+	tlkapi_flash_write(TLK_CFG_FLASH_BT_NAME_ADDR, btBuffer, TLK_CFG_FLASH_BT_NAME_LENS);
+	tlkapi_flash_write(TLK_CFG_FLASH_LE_NAME_ADDR, leBuffer, TLK_CFG_FLASH_LE_NAME_LENS);
+	
+	tmemcpy(gTlkMmiBtmgrCtrl.btname, pName, nameLen);
+	gTlkMmiBtmgrCtrl.btname[nameLen] = 0x00;
+	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);
+	
+	return TLK_ENONE;
+}
+int tlkmmi_btmgr_setAddr(uint08 *pAddr)
+{
+	uint08 btBuffer[6];
+	uint08 leBuffer[12];
+	
+	if(pAddr == nullptr) return -TLK_EPARAM;
+
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, btBuffer, 6);
+	tlkapi_flash_read(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
+
+	tmemcpy(btBuffer, pAddr, 6);
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_BT_ADDR_ADDR & 0xFFFFF000);
+	tlkapi_flash_write(TLK_CFG_FLASH_BT_ADDR_ADDR, btBuffer, 6);
+	tlkapi_flash_write(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
+	
+	tmemcpy(gTlkMmiBtmgrCtrl.btaddr, pAddr, 6);
+	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
+	
+	return TLK_ENONE;
+}
+
+
+int tlkmmi_btmgr_ctrlVolInc(void)
+{
+	#if (TLK_MDI_BTHID_ENABLE)
+	int ret;
+	uint16 aclHandle;
+	uint16 consumeKey;
+	aclHandle = btp_hidd_getAnyConnHandle();
+	if(aclHandle == 0) return -TLK_ENOREADY;
+	consumeKey = 0x00e9;
+	ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	consumeKey = 0x0000;
+	if(ret == TLK_ENONE) ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	return ret;
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
+}
+int tlkmmi_btmgr_ctrlVolDec(void)
+{
+	#if (TLK_MDI_BTHID_ENABLE)
+	int ret;
+	uint16 aclHandle;
+	uint16 consumeKey;
+	aclHandle = btp_hidd_getAnyConnHandle();
+	if(aclHandle == 0) return -TLK_ENOREADY;
+	consumeKey = 0x00ea;
+	ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	consumeKey = 0x0000;
+	if(ret == TLK_ENONE) ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	return ret;
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
+}
+
 
 
 #endif //#if (TLKMMI_BTMGR_ENABLE)

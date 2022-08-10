@@ -29,19 +29,13 @@
 
 #define TLKDEV_P25Q32H_SPI_CS_GPIO            GPIO_PD6
 
-#define TLKDEV_P25Q32H_PAGE_SIZE              256
-#define TLKDEV_P25Q32H_SECTOR_SIZE            4096
-#define TLKDEV_P25Q32H_SECTOR_COUNT           (TLKDEV_P25Q32H_TOTAL_SIZE / TLKDEV_P25Q32H_SECTOR_SIZE)
-#define TLKDEV_P25Q32H_TOTAL_SIZE             (16 * 1024 * 1024)
+
 #define TLKDEV_P25Q32H_BUSY_TIMEOUT_VALUE     (0x50000)
 
-
-#define FATFS_FLASH_SECTOR_SIZE       512
-#define FATFS_FLASH_SECTOR_COUNT      ((4*1024*1024)/FATFS_FLASH_SECTOR_SIZE)
-#define FATFS_FLASH_BLOCK_SIZE        4096
-#define FATFS_FLASH_BLOCK_COUNT       ((4*1024*1024)/FATFS_FLASH_BLOCK_SIZE)
-#define FATFS_FLASH_SECTOR_IN_BLOCK   (FATFS_FLASH_BLOCK_SIZE/FATFS_FLASH_SECTOR_SIZE)
-
+#define TLKDEV_P25Q32H_PAGE_SIZE              256
+//#define P25Q32H_SECTOR_SIZE            4096
+//#define P25Q32H_SECTOR_COUNT           (P25Q32H_TOTAL_SIZE / P25Q32H_SECTOR_SIZE)
+#define TLKDEV_P25Q32H_TOTAL_SIZE             (16 * 1024 * 1024)
 
 
 typedef enum{
@@ -79,16 +73,17 @@ void tlkdev_p25q32h_eraseBlock64K(uint32 addr);
 void tlkdev_p25q32h_eraseChip(void);
 
 
-void sys_norflash_write_lba(uint08 * buffer, uint32 lba, uint32 count);
-void sys_norflash_erase_lba(uint32 lba, uint32 total_bytes);
-void sys_norflash_read_lba(uint08 * buffer, uint32 lba, uint32 count);
 
+#define TLKDEV_P25Q32H_DISK_BLOCK_SIZE       512
+#define TLKDEV_P25Q32H_DISK_BLOCK_NUMB       0x00002000 //128M-2M=126M
+#define TLKDEV_P25Q32H_DISK_CLUSTER_SIZE     (32*1024)
+#define TLKDEV_P25Q32H_DISK_CLUSTER_NUMB     (TLKDEV_P25Q32H_DISK_CLUSTER_SIZE/TLKDEV_P25Q32H_DISK_BLOCK_SIZE)
 
-void tlkdev_p25q32h_fatfs_read(uint08 *pBuffer, uint32 sector, uint08 count);
-void tlkdev_p25q32h_fatfs_write(uint08 *pBuffer, uint32 sector, uint08 count);
-void tlkdev_p25q32h_fatfs_earse(uint32 sector, uint08 count);
+#define TLKDEV_P25Q32H_DISK_DBR_OFFSET       (4096) //(2*1024*1024)/512
+#define TLKDEV_P25Q32H_DISK_FAT_COPIES       2
 
-
+#define TLKDEV_P25Q32H_DISK_RSV_NUMB         8
+#define TLKDEV_P25Q32H_DISK_FAT_NUMB         TLKDEV_P25Q32H_DISK_CLUSTER_NUMB
 
 
 

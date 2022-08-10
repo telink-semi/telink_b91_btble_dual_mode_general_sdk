@@ -20,19 +20,88 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#ifdef  BTP_HID_H
+#ifndef BTP_HID_H
 #define BTP_HID_H
 
 
-#include "tlkapi/tlkapi_stdio.h"
-#include "tlkstk/bt/btp/btp_config.h"
-#include "tlkstk/bt/bth/bth_stdio.h"
+/* HIDP handshake results */
+#define BTP_HID_HSHK_SUCCESS                    0x00
+#define BTP_HID_HSHK_NOT_READY                  0x01
+#define BTP_HID_HSHK_ERR_INVALID_REPORT_ID      0x02
+#define BTP_HID_HSHK_ERR_UNSUPPORTED_REQUEST    0x03
+#define BTP_HID_HSHK_ERR_INVALID_PARAMETER      0x04
+#define BTP_HID_HSHK_ERR_UNKNOWN                0x0e
+#define BTP_HID_HSHK_ERR_FATAL                  0x0f
+
+/* HIDP data transaction headers */
+#define BTP_HID_DATA_RSRVD_MASK             0x0c
+#define BTP_HID_DATA_RTYPE_OTHER            0x00
+#define BTP_HID_DATA_RTYPE_INPUT            0x01
+#define BTP_HID_DATA_RTYPE_OUPUT            0x02
+#define BTP_HID_DATA_RTYPE_FEATURE          0x03
+
+/* HIDP protocol header parameters */
+#define BTP_HID_PROTO_BOOT                  0x00
+#define BTP_HID_PROTO_REPORT                0x01
+#define BTP_HID_PROTO_MODE_REPORT_WITH_FALLBACK_TO_BOOT   0x02
 
 
-/* API_START */
 
-uint08 * btp_hid_get_boot_descriptor_data(void);
+typedef uint (*BtpHidSetProtocolCallback)(uint16 aclHandle, uint08 protoMode);
+typedef uint (*BtpHidGetProtocolCallback)(uint16 aclHandle, uint08 *pProtoMode);
+
+typedef uint (*BtpHidSetReportCallback)(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pData, uint16 datalen);
+typedef uint (*BtpHidGetReportCallback)(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pBuff, uint16 *pBuffLen);
 
 
-uint16 btp_hid_get_boot_descriptor_len(void);
-#endif
+
+int btp_hid_init(void);
+
+int btp_hid_connect(uint16 handle, uint08 usrID);
+int btp_hid_disconn(uint16 handle, uint08 usrID);
+
+
+
+
+/******************************************************************************
+ * Function: HID destroy interface.
+ * Descript: Defines destory the hid control block.
+ * Params: [IN]handle--ACL handle
+ * Return: Returning TLK_ENONE is success.
+ *******************************************************************************/
+void btp_hid_destroy(uint16 handle);
+
+/******************************************************************************
+ * Function: HID device initial interface.
+ * Descript: Defines the interface for initial hid connected control block exist.
+ * Params: [IN]callback--callback function
+ * Return: Returning TLK_ENONE is success.
+ *******************************************************************************/
+extern void btp_hidd_regCB(BtpHidSetReportCallback setReport, BtpHidGetReportCallback getReport,
+	BtpHidSetProtocolCallback setProtocol, BtpHidGetProtocolCallback getProtocol);
+
+/******************************************************************************
+ * Function: HID connect interface.
+ * Descript: Defines hid connect interface.
+ * Params: [IN]handle--ACL handle
+ * Return: Returning TLK_ENONE is success.
+ *******************************************************************************/
+extern int btp_hidd_connect(uint16 handle);
+
+/******************************************************************************
+ * Function: HID disconnect interface.
+ * Descript: Defines hid disconnect interface.
+ * Params: [IN]handle--ACL handle
+ * Return: Returning TLK_ENONE is success.
+ *******************************************************************************/
+extern int btp_hidd_disconn(uint16 handle);
+
+extern uint16 btp_hidd_getAnyConnHandle(void);
+
+extern int btp_hidd_sendData(uint16 aclHandle, uint08 reportID, uint08 reportType, uint08 *pData, uint16 dataLen);
+extern int btp_hidd_sendDataWithoutReportID(uint16 aclHandle, uint08 reportType, uint08 *pData, uint16 dataLen);
+
+
+
+#endif //#ifndef BTP_HID_H
+

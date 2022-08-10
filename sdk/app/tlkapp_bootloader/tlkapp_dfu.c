@@ -29,10 +29,11 @@
 #include "tlkapp_dfu.h"
 #include "tlkmdi/tlkmdi_file.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
+#include "tlkalg/digest/sha/tlkalg_sha.h"
 
 
 #define TLKAPP_DFU_SAVE_SIGN        0x3A
-#define TLKAPP_DFU_SAVE_VERS        0x02
+#define TLKAPP_DFU_SAVE_VERS        0x03
 #define TLKAPP_DFU_SAVE_ADDR        TLK_CFG_FLASH_OTA_PARAM_ADDR
 #define TLKAPP_DFU_SAVE_SIZE        sizeof(tlkmdi_file_saveParam_t)
 
@@ -74,8 +75,9 @@ void tlkapp_dfu_load(void)
 	}
 	if(pCtrl->saveParam.status != 0x00) return; //Continue in APP
 	
-	if(pCtrl->saveParam.fileSize > TLKAPP_DFU_MAX_SIZE || pCtrl->saveParam.dealSize > TLKAPP_DFU_MAX_SIZE
-		|| pCtrl->saveParam.fileSize == 0 || pCtrl->saveParam.fileSize != pCtrl->saveParam.dealSize){
+	if(pCtrl->saveParam.fileSize > TLKAPP_DFU_MAX_SIZE 
+		|| pCtrl->saveParam.fileSize < TLKAPP_DFU_MIN_SIZE
+		|| pCtrl->saveParam.fileSize != pCtrl->saveParam.dealSize){
 		tlkapp_dfu_earseData(pCtrl);
 		return;
 	}
@@ -93,7 +95,35 @@ void tlkapp_dfu_load(void)
 }
 
 
-
+static bool tlkapp_dfu_dataCheck(tlkapp_dfu_ctrl_t *pCtrl)
+{
+	uint32 offset;
+	uint32 chkLens;
+	uint32 dataAddr;
+	uint32 dealSize;
+	uint08 buffer[256];
+	uint08 value[TLKALG_SHA1_HASH_SIZE] = {0};
+	tlkalg_sha1_contex_t contex;
+	tlkalg_sha1_digest_t digest;
+	
+	dataAddr = pCtrl->saveParam.dataAddr;
+	
+	dealSize = pCtrl->saveParam.dealSize-TLKALG_SHA1_HASH_SIZE;
+	flash_read_page(dataAddr+dealSize, TLKALG_SHA1_HASH_SIZE, value);
+	
+	tlkalg_sha1_init(&contex);
+	for(offset=0; offset<dealSize; offset += 256){
+		flash_read_page(dataAddr+offset, 256, buffer);
+		if(offset+256 <= dealSize) chkLens = 256;
+		else chkLens = dealSize-offset;
+		tlkalg_sha1_update(&contex, buffer, chkLens);
+	}
+	tlkalg_sha1_finish(&contex, &digest);
+	if(tmemcmp(digest.value, value, TLKALG_SHA1_HASH_SIZE) != TLK_ENONE){
+		return false;
+	}
+	return true;
+}
 static bool tlkapp_dfu_loadData(tlkapp_dfu_ctrl_t *pCtrl)
 {
 	uint08 flag;
@@ -101,7 +131,7 @@ static bool tlkapp_dfu_loadData(tlkapp_dfu_ctrl_t *pCtrl)
 	uint32 dataAddr;
 	uint32 loadAddr;
 	uint08 buffer[256];
-		
+	
 	tlkalg_crc32_init(&pCtrl->checkDig);
 	loadAddr = TLKAPP_BOOT_START_ADDRESS;
 	dataAddr = pCtrl->saveParam.dataAddr;
@@ -148,15 +178,12 @@ static bool tlkapp_dfu_loadCheck(tlkapp_dfu_ctrl_t *pCtrl)
 	if(checkDig == pCtrl->checkDig) return true;
 	else return false;
 }
-static bool tlkapp_dfu_dataCheck(tlkapp_dfu_ctrl_t *pCtrl)
-{
-	return true;
-}
+
 static void tlkapp_dfu_earseData(tlkapp_dfu_ctrl_t *pCtrl)
 {
 	uint32 offset;
 	uint32 dataAddr;
-	
+
 	dataAddr = pCtrl->saveParam.dataAddr;
 	if(pCtrl->saveParam.datPos == TLKAPP_DFU_LOAD_INNER){
 		for(offset=0; offset<pCtrl->saveParam.dealSize; offset += 4096){
@@ -165,7 +192,7 @@ static void tlkapp_dfu_earseData(tlkapp_dfu_ctrl_t *pCtrl)
 	}
 	else if(pCtrl->saveParam.datPos == TLKAPP_DFU_LOAD_OUTER)
 	{
-		
+
 	}
 	tlkapi_save2_clean(&pCtrl->saveCtrl);
 	tmemset(&pCtrl->saveParam, 0, sizeof(tlkmdi_file_saveParam_t));

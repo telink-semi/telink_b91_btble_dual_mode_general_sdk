@@ -32,6 +32,7 @@
 
 
 extern uint08 sTlkUsbAudMicEnable;
+extern uint08 sTlkUsbAudSpkEnable;
 extern const tlkusb_modCtrl_t sTlkUsbAudModCtrl;
 extern const tlkusb_modDesc_t sTlkUsbAudModDesc;
 
@@ -63,9 +64,10 @@ int tlkusb_aud_init(void)
 _attribute_retention_code_
 void tlkusb_audirq_handler(void)
 {
+	uint08 irq = reg_usb_ep_irq_status;
+	#if (TLKUSB_AUD_MIC_ENABLE)
 	if(sTlkUsbAudMicEnable)
 	{
-		uint08 irq = reg_usb_ep_irq_status;
 		if(irq & FLD_USB_EDP7_IRQ){
 			uint08 index;
 			usbhw_clr_eps_irq(FLD_USB_EDP7_IRQ);
@@ -75,6 +77,15 @@ void tlkusb_audirq_handler(void)
 			reg_usb_ep7_ctrl = BIT(0);
 		}
 	}
+	#endif
+	#if (TLKUSB_AUD_SPK_ENABLE)
+	if(sTlkUsbAudSpkEnable)
+	{
+		if(irq & FLD_USB_EDP6_IRQ){
+			reg_usb_ep6_ctrl = BIT(0);
+		}
+	}
+	#endif
 }
 
 

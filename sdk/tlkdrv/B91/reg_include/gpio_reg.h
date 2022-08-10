@@ -159,6 +159,20 @@ enum{
     FLD_GPIO_CORE_WAKEUP_EN  	= BIT(2),
     FLD_GPIO_CORE_INTERRUPT_EN 	= BIT(3),
 };
+
+#define reg_gpio_bb_mux_dbug0		REG_ADDR8(0x140354)
+enum
+{
+	FLD_GPIO_DBG_IN				=			BIT(0),
+	FLD_GPIO_SEL_BB_L			=			BIT(1),
+	FLD_GPIO_SEL_BB_H			=			BIT(2),
+	FLD_GPIO_DBG_SEL_BT			=			BIT(3),
+	FLD_GPIO_WIFI_SEL2W			=			BIT(4),
+	FLD_GPIO_DBG_AXON_BB_SEL	=			BIT(5),
+	FLD_GPIO_WIFI_CO_SEL		=			BIT(6),
+	FLD_GPIO_WIFI_CO_ACT_INV	=			BIT(7),
+};
+
 #define reg_gpio_pad_mul_sel		REG_ADDR8(0x140355)
 
 #define reg_gpio_irq_clr  	       REG_ADDR8(0x140358)

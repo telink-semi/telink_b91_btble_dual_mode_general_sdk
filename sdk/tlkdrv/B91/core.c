@@ -59,7 +59,7 @@ _attribute_retention_code_ unsigned int core_disable_interrupt(void)
    return r;
 }
 
-_attribute_retention_code_ void core_restore_interrupt(u32 en)
+_attribute_retention_code_ void core_restore_interrupt(unsigned int en)
 {
    if (en) {
 	   set_csr(NDS_MSTATUS, en); //global interrupts enable

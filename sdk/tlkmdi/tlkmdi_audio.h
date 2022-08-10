@@ -23,7 +23,7 @@
 #ifndef TLKMDI_AUDIO_H
 #define TLKMDI_AUDIO_H
 
-#if (TLK_MDI_AUD_ENABLE)
+#if (TLK_MDI_AUDIO_ENABLE)
 
 
 typedef enum{
@@ -69,7 +69,7 @@ void tlkmdi_audio_headsetVolumeDec(uint08 step);
 void tlkmdi_audio_setHeadsetVolume(uint08 volume);
 
 
-#endif //#if (TLK_MDI_AUD_ENABLE)
+#endif //#if (TLK_MDI_AUDIO_ENABLE)
 
 #endif //TLKMDI_AUD_HF_H
 

@@ -24,8 +24,13 @@
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkdev/tlkdev.h"
-
-#include "drivers.h"
+#if (TLK_DEV_XTSD01G_ENABLE)
+#include "tlkdev/ext/xtx/tlkdev_xtsd01g.h"
+#endif
+#if (TLK_DEV_XT26G0X_ENABLE)
+#include "tlkdev/ext/xtx/tlkdev_xt26g0x.h"
+#endif
+//#include "drivers.h"
 
 
 extern void tlkusb_process(void);
@@ -34,8 +39,12 @@ extern void tlkusb_process(void);
 int tlkdev_init(void)
 {
 #if TLKAPP_GENERAL_ENABLE
-	tlkdev_nand_init();
-	tlkdev_file_init();
+	#if (TLK_DEV_XTSD01G_ENABLE)
+		tlkdev_xtsd01g_init();
+	#endif
+	#if (TLK_DEV_XT26G0X_ENABLE)
+		tlkdev_xt26g0x_init();
+	#endif
 	#if (TLK_CFG_WDG_ENABLE)
 	wd_set_interval_ms(3000);
 	wd_start();

@@ -26,10 +26,30 @@
 #if (TLKBTP_CFG_ATT_ENABLE)
 
 
+#include "tlkstk/bt/btp/att/btp_attStdio.h"
+
+
+typedef struct{
+	uint08 attNum;
+	uint08 permit;
+	uint08 uuidLen;
+	uint16 attrLen;
+	uint08 *pUUID;
+	uint08 *pAttr;
+	uint08(*Read)(uint16 handle, uint16 chnID, uint08 *pData, uint16 dataLen);
+	uint08(*Write)(uint16 handle, uint16 chnID, uint08 *pData, uint16 dataLen);
+}btp_attItem_t, btp_gattItem_t;
 
 
 
+extern int btp_att_init(void);
 
+
+void btp_att_destroy(uint16 handle);
+
+
+extern int  btp_attsrv_setTable(const btp_attItem_t *pTable, uint16 count);
+extern uint btp_attsrv_getChnID(uint16 aclHandle);
 
 
 

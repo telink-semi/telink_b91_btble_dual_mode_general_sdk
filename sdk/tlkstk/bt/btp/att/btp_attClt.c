@@ -39,6 +39,8 @@
 
 
 
-#endif //#if (TLKBTP_CFG_ATTCLT_ENABLE)
 
+
+
+#endif //#if (TLKBTP_CFG_ATTCLT_ENABLE)
 

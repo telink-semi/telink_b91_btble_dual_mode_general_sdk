@@ -114,6 +114,7 @@ uint08 sTlkMdiScoCodec = TLKMDI_SCO_CODEC_ID_CVSD;
 uint16 sTlkMdiScoErrIndex = 0;
 uint16 sTlkMdiScoErrCount = 0;
 #endif
+static TlkMdiScoConnCB sTlkMdiScoConnCB = nullptr;
 
 
 /******************************************************************************
@@ -134,6 +135,16 @@ int tlkmdi_audsco_init(void)
 	return TLK_ENONE;
 }
 
+/******************************************************************************
+ * Function: tlkmdi_audsco_regCB
+ * Descript: Register SCO connection status switch callback. 
+ * Params: None.
+ * Return: None.
+*******************************************************************************/
+void tlkmdi_audsco_regCB(TlkMdiScoConnCB connCB)
+{
+	sTlkMdiScoConnCB = connCB;
+}
 
 /******************************************************************************
  * Function: tlkmdi_audsco_switch
@@ -247,11 +258,19 @@ static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 	pEvt = (bth_scoConnComplateEvt_t*)pData;
 	if(pEvt->status != 0){
 		tlkapi_error(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_connectEvt: failure - %d", pEvt->status);
+		if(sTlkMdiScoConnCB != nullptr){
+			sTlkMdiScoConnCB(pEvt->aclHandle, pEvt->scoHandle, false);
+		}
 		return TLK_ENONE;
 	}
 	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_connectEvt: {status-%d,handle-%d,scoHandle-%d,linkType-%d}", 
 		pEvt->status, pEvt->aclHandle, pEvt->scoHandle, pEvt->linkType);
 	tlkmdi_audio_sendStartEvt(TLKPRT_COMM_AUDIO_CHN_SCO, pEvt->aclHandle);
+
+	if(sTlkMdiScoConnCB != nullptr){
+		sTlkMdiScoConnCB(pEvt->aclHandle, pEvt->scoHandle, true);
+	}
+	
 	return TLK_ENONE;
 }
 static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
@@ -263,6 +282,9 @@ static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
 		pEvt->reason, pEvt->aclHandle, pEvt->scoHandle, pEvt->linkType);
 	tlkmdi_audsco_switch(pEvt->aclHandle, TLK_STATE_CLOSED);
 	tlkmdi_audio_sendCloseEvt(TLKPRT_COMM_AUDIO_CHN_SCO, pEvt->aclHandle);
+	if(sTlkMdiScoConnCB != nullptr){
+		sTlkMdiScoConnCB(pEvt->aclHandle, pEvt->scoHandle, false);
+	}
 	return TLK_ENONE;
 }
 static int tlkmdi_sco_codecChgEvt(uint08 *pData, uint16 dataLen)
@@ -337,8 +359,8 @@ static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *pData, int dataLen) // 
 }
 
 uint08 sTlkMdiMicMuteIndex = 0;
-_attribute_bt_data_retention_ unsigned char byte1[4] = {0x08, 0x38, 0xc8, 0xf8};
-_attribute_bt_data_retention_ unsigned char silencePkt[64] = {0x00,0x00,
+_attribute_bt_data_retention_ unsigned char sTlkMdiAudScoByte1[4] = {0x08, 0x38, 0xc8, 0xf8};
+_attribute_bt_data_retention_ unsigned char sTlkMdiAudScoSilencePkt[64] = {0x00,0x00,
 	0xad,0x00,0x00,0xc5,0x00,0x00,0x00,0x00, 0x77,0x6d,0xb6,0xdd,0xdb,0x6d,0xb7,0x76,
 	0xdb,0x6d,0xdd,0xb6,0xdb,0x77,0x6d,0xb6, 0xdd,0xdb,0x6d,0xb7,0x76,0xdb,0x6d,0xdd,
 	0xb6,0xdb,0x77,0x6d,0xb6,0xdd,0xdb,0x6d, 0xb7,0x76,0xdb,0x6d,0xdd,0xb6,0xdb,0x77,
@@ -366,18 +388,18 @@ static void tlkmdi_sco_getMicEncFrame(uint08 id, uint08 *pBuff, int buffLen) // 
 			tmemset(pBuff, 0x00, buffLen);
 		}else{
 			u8 copyLen = 0;
-//			unsigned char byte1[4] = {0x08, 0x38, 0xc8, 0xf8};
-//			unsigned char silencePkt[64] = {0x00,0x00,
+//			unsigned char sTlkMdiAudScoByte1[4] = {0x08, 0x38, 0xc8, 0xf8};
+//			unsigned char sTlkMdiAudScoSilencePkt[64] = {0x00,0x00,
 //				0xad,0x00,0x00,0xc5,0x00,0x00,0x00,0x00, 0x77,0x6d,0xb6,0xdd,0xdb,0x6d,0xb7,0x76,
 //				0xdb,0x6d,0xdd,0xb6,0xdb,0x77,0x6d,0xb6, 0xdd,0xdb,0x6d,0xb7,0x76,0xdb,0x6d,0xdd,
 //				0xb6,0xdb,0x77,0x6d,0xb6,0xdd,0xdb,0x6d, 0xb7,0x76,0xdb,0x6d,0xdd,0xb6,0xdb,0x77,
 //				0x6d,0xb6,0xdd,0xdb,0x6d,0xb7,0x76,0xdb, 0x6c,0x00,0x00,0x00,0x00,0x00};
 			if(buffLen > 64) copyLen = 64;
 			else copyLen = buffLen;
-			silencePkt[0] = 0x01;
-			silencePkt[1] = byte1[sTlkMdiMicMuteIndex & 0x03];
+			sTlkMdiAudScoSilencePkt[0] = 0x01;
+			sTlkMdiAudScoSilencePkt[1] = sTlkMdiAudScoByte1[sTlkMdiMicMuteIndex & 0x03];
 			sTlkMdiMicMuteIndex ++;
-			tmemcpy(pBuff, silencePkt, copyLen);
+			tmemcpy(pBuff, sTlkMdiAudScoSilencePkt, copyLen);
 		}
 	}
 	AAAA_irq_test217 ++;
@@ -580,9 +602,9 @@ static int tlkmdi_sco_msbcEncode(uint08 *pSrc, uint16 srcLen, uint08 *pOut)
 	//msbc, 57, 240, ad_0_0
 	//msbc, 57, 240, ad_75_54,_a4
 	uint32 dlen;
-	unsigned char byte1[4] = {0x08, 0x38, 0xc8, 0xf8};
+	unsigned char sTlkMdiAudScoByte1[4] = {0x08, 0x38, 0xc8, 0xf8};
 	pOut[0] = 0x01;
-	pOut[1] = byte1[sTlkMdiScoCtrl.numb & 3];
+	pOut[1] = sTlkMdiAudScoByte1[sTlkMdiScoCtrl.numb & 3];
 	
 	tlkalg_sbc_encData((const uint08*)pSrc, srcLen, pOut + 2, 64, &dlen);
 	sTlkMdiScoCtrl.numb ++;
@@ -686,11 +708,11 @@ static bool tlkmdi_sco_initBuffer(bool enable)
 		uint08 *pDecBuffer = sTlkMdiScoBuff.pCacheBuffer+encBuffLen;
 		tlkapi_qfifo_init(&sTlkMdiScoSpkFifo, TLKMDI_SCO_SPK_ENC_BUFF_NUMB, TLKMDI_SCO_SPK_ENC_BUFF_SIZE, pEncBuffer, encBuffLen);
 		tlkapi_qfifo_init(&sTlkMdiScoMicFifo, TLKMDI_SCO_MIC_ENC_BUFF_NUMB, TLKMDI_SCO_MIC_ENC_BUFF_SIZE, pDecBuffer, decBuffLen);
-		unsigned char byte1[4] = {0x08, 0x38, 0xc8, 0xf8};
+		unsigned char sTlkMdiAudScoByte1[4] = {0x08, 0x38, 0xc8, 0xf8};
 		for(index=0; index<TLKMDI_SCO_MIC_ENC_BUFF_NUMB; index++){
 			tmemcpy(pDecBuffer, sTlkMdiScoMSBCSilencePkt, 60);
 			pDecBuffer[0] = 0x01;
-			pDecBuffer[1] = byte1[index & 3];
+			pDecBuffer[1] = sTlkMdiAudScoByte1[index & 3];
 			pDecBuffer += TLKMDI_SCO_MIC_ENC_BUFF_SIZE;
 		}
 	}
