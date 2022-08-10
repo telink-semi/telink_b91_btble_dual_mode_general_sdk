@@ -59,7 +59,6 @@
  * Return: Return TLK_ENONE is success, other value is failure.
  * Others: None.
 *******************************************************************************/
-uint32 gTlkMdiBusyTimer = 0;
 int tlkmdi_init(void)
 {
 	tlkmdi_comm_init();
@@ -151,10 +150,7 @@ void tlkmdi_process(void)
 *******************************************************************************/
 bool tlkmdi_pmIsbusy(void)
 {
-	if(gTlkMdiBusyTimer!=0&&clock_time_exceed(gTlkMdiBusyTimer, 5000000)){
-		gTlkMdiBusyTimer = 0;
-	}
-	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()||(gTlkMdiBusyTimer!=0)) return true;
+	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()) return true;
 
 	return false;
 }

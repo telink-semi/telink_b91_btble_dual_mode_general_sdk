@@ -56,6 +56,7 @@ extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
 extern void tlkdev_xtsd01g_shutDown(void);
 
+
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 

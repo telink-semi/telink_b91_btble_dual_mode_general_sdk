@@ -227,9 +227,6 @@ static void tlkapp_system_profileConnectEvt(uint16 handle, uint08 status, uint08
 		tlkmmi_phone_startSyncBook(handle, bth_handle_getBtAddr(handle), false);
 		#endif
 	}
-	if(ptype == BTP_PTYPE_HID){
-        
-	}
 	#if (TLKMMI_AUDIO_ENABLE)
 	tlkmmi_audio_connect(handle, ptype, usrID);
 	#endif

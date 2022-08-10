@@ -83,9 +83,6 @@ void btp_process(void)
 
 void btp_destroy(uint16 aclHandle)
 {
-    uint08 *bt_addr;
-    bth_device_item_t *pItem = NULL;
-	
 	#if (TLKBTP_CFG_SDP_ENABLE)
 	btp_sdp_destroy(aclHandle);
 	#endif
@@ -113,12 +110,7 @@ void btp_destroy(uint16 aclHandle)
 	btp_att_destroy(aclHandle);
 	#endif
 	#if (TLKBTP_CFG_HID_ENABLE)
-	bt_addr = bth_handle_getBtAddr(aclHandle);
-	pItem = bth_device_getItem(bt_addr, NULL);
-	if (pItem == NULL) return;
-	if (bth_devClassToDevType(pItem->devClass) != BTH_REMOTE_DTYPE_HEADSET){
-	    btp_hid_destroy(aclHandle);
-	}
+	btp_hid_destroy(aclHandle);
 	#endif
 }
 

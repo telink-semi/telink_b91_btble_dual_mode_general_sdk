@@ -40,9 +40,11 @@
 #include "tlkapp.h"
 
 
+
 extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 extern void trng_init(void);
 extern int tlkmmi_lemgr_startAdv(uint32 timeout, uint08 advType);
+
 
 
 static uint32 sTlkAppTimer; 

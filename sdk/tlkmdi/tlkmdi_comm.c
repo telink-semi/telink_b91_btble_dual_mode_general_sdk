@@ -30,7 +30,6 @@
 
 #define TLKMDI_BTREC_DBG_FLAG         (TLKMDI_BTREC_DBG_ENABLE | TLKMDI_DBG_FLAG) 
 #define TLKMDI_BTREC_DBG_SIGN         TLKMDI_DBG_SIGN
-extern uint32 gTlkMdiBusyTimer;
 
 static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen);
 
@@ -445,7 +444,6 @@ static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen)
 		}
 		sTlkMdiCommRecvNumb = numb;
 		if(sTlkMdiCommCmdCB[mtype] != nullptr){
-			gTlkMdiBusyTimer = clock_time();
 			sTlkMdiCommCmdCB[mtype](msgID, pFrame+8, lens);
 		}
 	}
