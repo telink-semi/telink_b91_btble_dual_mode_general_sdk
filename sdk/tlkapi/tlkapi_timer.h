@@ -57,7 +57,7 @@ void tlkapi_timer_handler(void);
  * Return: None.
  * Others: None.
 *******************************************************************************/
-int  tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout);
+int  tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
 
 /******************************************************************************
  * Function: tlkmdi_timer_isHave

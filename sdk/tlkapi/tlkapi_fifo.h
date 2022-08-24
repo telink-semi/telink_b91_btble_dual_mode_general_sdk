@@ -48,7 +48,8 @@ typedef struct{
  *                   overwritten when the FIFO is full.
  *     @buffLen[IN]--The size of fifo to be managed.
  *     @pBuffer[IN]--Fifo to be managed.
- * Return: Fifo management handle, and zero means failture.
+ * Return: Returns the result of the initialization. A negative value means 
+ *         that the operation failed.
  * Others: None.
 *******************************************************************************/
 int  tlkapi_fifo_init(tlkapi_fifo_t *pFifo, uint08 isCover, uint08 isPartly, uint08 *pBuffer, uint16 buffLen);

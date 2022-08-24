@@ -151,7 +151,6 @@ void tlkmdi_process(void)
 bool tlkmdi_pmIsbusy(void)
 {
 	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()) return true;
-
 	return false;
 }
 

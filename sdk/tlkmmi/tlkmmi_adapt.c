@@ -73,21 +73,21 @@ void tlkmmi_adapt_handler(void)
  * Descript: 
  * Params:
  *     @pTimer[IN]--
- *     @pUsrArg[IN]--
+ *     @userArg[IN]--
  *     @timeout[IN]--Unit: us.
  *     @timerCB[IN]--
  * Return: None.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout)
+int tlkmmi_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
 	if(tlkmmi_adapt_isHaveTimer(pTimer)) return -TLK_EEXIST;
-	return tlkapi_adapt_initTimer(pTimer, timerCB, pUsrArg, timeout);
+	return tlkapi_adapt_initTimer(pTimer, timerCB, userArg, timeout);
 }
-int tlkmmi_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, void *pUsrArg)
+int tlkmmi_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg)
 {
 	if(tlkmmi_adapt_isHaveProcs(pProcs)) return -TLK_EEXIST;
-	return tlkapi_adapt_initProcs(pProcs, procsCB, pUsrArg);
+	return tlkapi_adapt_initProcs(pProcs, procsCB, userArg);
 }
 void tlkmmi_adapt_deinitTimer(tlkapi_timer_t *pTimer)
 {

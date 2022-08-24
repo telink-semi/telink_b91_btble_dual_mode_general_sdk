@@ -28,8 +28,8 @@
 int  btp_adapt_init(void);
 void btp_adapt_handler(void);
 
-int  btp_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout);
-int  btp_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, void *pUsrArg);
+int  btp_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
+int  btp_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg);
 void btp_adapt_deinitTimer(tlkapi_timer_t *pTimer);
 void btp_adapt_deinitProcs(tlkapi_procs_t *pProcs);
 

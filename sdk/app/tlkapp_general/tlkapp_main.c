@@ -36,14 +36,6 @@
 extern void btc_ll_system_tick_isr(void);
 extern void btc_core_isr(void);
 
-volatile uint32 AAAA_irq_test001 = 0;
-volatile uint32 AAAA_irq_test002 = 0;
-volatile uint32 AAAA_irq_test003 = 0;
-volatile uint32 AAAA_irq_test004 = 0;
-volatile uint32 AAAA_irq_test005 = 0;
-volatile uint32 AAAA_irq_test006 = 0;
-volatile uint32 AAAA_irq_test007 = 0;
-volatile uint32 AAAA_irq_test008 = 0;
 
 
 /******************************************************************************
@@ -83,11 +75,8 @@ int main(void)
 *******************************************************************************/
 _attribute_retention_code_ void stimer_irq_handler(void)
 {
-	AAAA_irq_test001 ++;
     btc_ll_system_tick_isr();
-	AAAA_irq_test002 ++;
     ble_ll_system_tick_isr();
-	AAAA_irq_test003 ++;
 }
 
 /******************************************************************************
@@ -99,9 +88,7 @@ _attribute_retention_code_ void stimer_irq_handler(void)
 *******************************************************************************/ 
 _attribute_retention_code_ void rf_irq_handler(void)
 {
-	AAAA_irq_test003 ++;
 	ble_sdk_rf_irq_handler();
-	AAAA_irq_test004 ++;
 }
 
 /******************************************************************************
@@ -113,9 +100,7 @@ _attribute_retention_code_ void rf_irq_handler(void)
 *******************************************************************************/ 
 _attribute_retention_code_ void zb_bt_irq_handler(void)
 {
-	AAAA_irq_test005 ++;
     btc_core_isr();
-	AAAA_irq_test006 ++;
 }
 
 

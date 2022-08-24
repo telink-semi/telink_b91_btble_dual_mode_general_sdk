@@ -45,6 +45,7 @@ _attribute_retention_code_ void delay_us(u32 microsec)
 {
 	unsigned long t = stimer_get_tick();
 	while(!clock_time_exceed(t, microsec)){
+		asm("nop");
 	}
 }
 
@@ -58,5 +59,6 @@ _attribute_retention_code_ void delay_ms(u32 millisec)
 
 	unsigned long t = stimer_get_tick();
 	while(!clock_time_exceed(t, millisec*1000)){
+		asm("nop");
 	}
 }

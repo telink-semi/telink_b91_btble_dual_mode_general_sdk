@@ -115,6 +115,15 @@ ble_sts_t   blc_gatt_pushReadByTypeRequest(u16 connHandle, u16 start_attHandle, 
 ble_sts_t   blc_gatt_pushReadRequest(u16 connHandle, u16 attHandle);
 
 /**
+ * @brief       Send ATT Read Response.
+ * @param[in]   connHandle         - connection handle.
+ * @param[in]   attHandle          - ATT handle.
+ * @return      none.
+ */
+ble_sts_t   blc_gatt_pushReadResponse(u16 connHandle, u8 *pData, u8 dataLen);
+
+
+/**
  * @brief       Send ATT Read Blob Request.
  * @param[in]   connHandle         - connection handle.
  * @param[in]   attHandle          - ATT handle.

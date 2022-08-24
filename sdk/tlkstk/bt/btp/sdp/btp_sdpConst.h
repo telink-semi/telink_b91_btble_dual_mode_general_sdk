@@ -74,15 +74,15 @@
   **************************************************************
   */
 
-#define SDP_RSP_ARR_LEN	750
+#define SDP_RSP_ARR_LEN            1150
 #define PTS_TEST_FOR_CONTINUE      0
 
 #if PTS_TEST_FOR_CONTINUE
-#define SDP_MAX_ATTR_BYTES_CNT  100
+#define SDP_MAX_ATTR_BYTES_CNT          100
 #define SDP_MAX_RES_SERVICE_RECODS_NUM  2
 #define SDP_CLIENT_MAX_ATT_DATA_RETURN  100
 #else
-#define SDP_MAX_ATTR_BYTES_CNT  650
+#define SDP_MAX_ATTR_BYTES_CNT          650
 #define SDP_MAX_RES_SERVICE_RECODS_NUM  48
 #define SDP_CLIENT_MAX_ATT_DATA_RETURN  256
 #endif

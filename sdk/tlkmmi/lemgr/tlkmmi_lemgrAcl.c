@@ -108,7 +108,7 @@ _attribute_ble_data_retention_	int sTlkMmiLemgrOtaIsWorking = 0;
 #endif
 
 
-static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
 static tlkmmi_lemgr_acl_t sTlkMmiLemgrAcl;
@@ -239,7 +239,7 @@ int tlkmmi_lemgr_aclInit(void)
 	blc_ll_setAdvEnable(BLC_ADV_DISABLE);
 	//	blc_ll_setAdvCustomedChannel(37, 37, 37); //debug
 
-	tlkmmi_adapt_initTimer(&sTlkMmiLemgrAcl.timer, tlkmmi_lemgr_timer, &sTlkMmiLemgrAcl, TLKMMI_LEMGR_TIMEOUT);
+	tlkmmi_adapt_initTimer(&sTlkMmiLemgrAcl.timer, tlkmmi_lemgr_timer, (uint32)&sTlkMmiLemgrAcl, TLKMMI_LEMGR_TIMEOUT);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	tlkmmi_lemgr_setAclName(tlkmmi_lemgr_getName(), tlkmmi_lemgr_getNameLen());
@@ -369,7 +369,7 @@ int tlkmmi_lemgr_setAclAddr(uint08 *pAddr, uint08 addrLen)
 }
 
 
-static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	if(!sTlkMmiLemgrAcl.isStart) return false;
 	if(sTlkMmiLemgrAcl.timeout != 0) sTlkMmiLemgrAcl.timeout --;

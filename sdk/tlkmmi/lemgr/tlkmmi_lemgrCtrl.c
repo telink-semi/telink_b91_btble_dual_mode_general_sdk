@@ -56,6 +56,8 @@ int tlkmmi_lemgr_ctrlInit(void)
 	}
 	gTlkMmiLemgrCtrl.nameLen = index;
 	gTlkMmiLemgrCtrl.lename[index] = 0x00;
+
+	tlkmmi_lemgr_attSetDevName(gTlkMmiLemgrCtrl.lename, index);
 	
 	return TLK_ENONE;
 }
@@ -121,6 +123,9 @@ int tlkmmi_lemgr_setName(uint08 *pName, uint08 nameLen)
 	tmemcpy(gTlkMmiLemgrCtrl.lename, pName, nameLen);
 	gTlkMmiLemgrCtrl.nameLen = nameLen;
 	gTlkMmiLemgrCtrl.lename[nameLen] = 0x00;
+	
+	tlkmmi_lemgr_attSetDevName(gTlkMmiLemgrCtrl.lename, nameLen);
+	
 	return tlkmmi_lemgr_setAclName(pName, nameLen);
 }
 int tlkmmi_lemgr_setAddr(uint08 *pAddr)

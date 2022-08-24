@@ -75,7 +75,7 @@ static void tlkmdi_file_recvFastStartCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 c
 static void tlkmdi_file_recvStartDataCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 csign, uint08 *pData, uint16 dataLen);
 static void tlkmdi_file_recvCloseTranCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 csign, uint08 *pData, uint16 dataLen);
 
-static bool tlkmdi_file_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_file_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkmdi_file_clientSendProc(tlkmdi_file_unit_t *pUnit);
 static void tlkmdi_file_serverSendProc(tlkmdi_file_unit_t *pUnit);
 
@@ -718,7 +718,7 @@ static void tlkmdi_file_recvStartTranCmdDeal(uint08 optChn, uint16 handle, uint0
 
 	pUnit->state = TLKMDI_FILE_STATE_START;
 	pUnit->idleTime = TLKMDI_FILE_IDLE_TIMEOUT;
-	tlkmdi_adapt_initTimer(&pUnit->timer, tlkmdi_file_timer, pUnit, TLKMDI_FILE_TIMEOUT);
+	tlkmdi_adapt_initTimer(&pUnit->timer, tlkmdi_file_timer, (uint32)pUnit, TLKMDI_FILE_TIMEOUT);
 	tlkmdi_adapt_insertTimer(&pUnit->timer);
 
 	tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvStartTranCmdDeal");
@@ -1061,11 +1061,11 @@ static void tlkmdi_file_recvCloseTranCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 c
 }
 
 
-static bool tlkmdi_file_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_file_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	tlkmdi_file_unit_t *pUnit;
 
-	pUnit = (tlkmdi_file_unit_t*)pUsrArg;
+	pUnit = (tlkmdi_file_unit_t*)userArg;
 	if(pUnit == nullptr || pUnit->state == TLKMDI_FILE_STATE_IDLE){
 		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_timer: error UsrArg or State");
 		return false;

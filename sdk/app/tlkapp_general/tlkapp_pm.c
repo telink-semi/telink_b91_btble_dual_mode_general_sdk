@@ -43,24 +43,33 @@ extern bool tlkstk_pmIsBusy(void);
 extern bool tlkmdi_pmIsbusy(void);
 extern bool tlkapp_pmIsBusy(void);
 
-
-extern unsigned long  DEBUG_BTREG_INIT[];
-extern unsigned long  DEBUG_IPREG_INIT[];
-extern unsigned long  DEBUG_TL_MODEMREG_INIT[];
-extern unsigned long  DEBUG_TL_RADIOREG_INIT[];
-extern unsigned long  DEBUG_TL_PDZB_INIT[];
 extern void btc_context_restore(unsigned long * bt_reg, unsigned long * ip_reg, unsigned long * modem_reg, unsigned long * radio_reg, unsigned long * pdzb_reg);
 extern void btc_set_sniff_req_enable(uint8_t enable);// 1 : enable, 0 :disable
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
 extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
 extern void tlkdev_xtsd01g_shutDown(void);
+extern uint bth_getAclCount(void);
 
 
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
+static bool tlkapp_pm_enterDeepSleepEnable(void);
+
+
+extern unsigned long  DEBUG_BTREG_INIT[];
+extern unsigned long  DEBUG_IPREG_INIT[];
+extern unsigned long  DEBUG_TL_MODEMREG_INIT[];
+extern unsigned long  DEBUG_TL_RADIOREG_INIT[];
+extern unsigned long  DEBUG_TL_PDZB_INIT[];
+extern uint32 gTlkAppSystemBusyTimer;
+
 
 static uint08 sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
+static uint08 gTlkAppPmSchIdleCount = 0;
+static uint32 gTlkAppPmSysIdleTimer = 0;
+static uint32 sTlkAppPmTraceTimer = 0;
+
 
 /******************************************************************************
  * Function: tlkapp_pm_init
@@ -72,39 +81,19 @@ static uint08 sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
 int tlkapp_pm_init(void)
 {
 	btble_pm_initPowerManagement_module();
-	btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SLEEP_ENTER,  tlkapp_pm_enterSleepHandler);
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SUSPEND_EXIT, tlkapp_pm_leaveSleepHandler);
 
-//	gpio_function_en(TLKAPP_WAKEUP_PIN);
-//	gpio_output_dis(TLKAPP_WAKEUP_PIN);
-//	gpio_input_en(TLKAPP_WAKEUP_PIN);
 	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_LOW, 1);
 	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLUP_1M);
 	
-
 	btc_set_sniff_req_enable(1);//enable
 	btc_ll_set_sniff_lp_mode(BT_SNIFF_LP_MODE_SUSPEND);
+	gTlkAppPmSysIdleTimer = clock_time();
+	
 	return TLK_ENONE;
 }
 
-/******************************************************************************
- * Function: tlkapp_pm_init_deepRetn
- * Descript:
- * Params: None.
- * Return: TLK_NONE is success.
- * Others: None.
-*******************************************************************************/
-_attribute_bt_retention_code_
-void tlkapp_pm_init_deepRetn(void)
-{
-	
-}
-
-
-extern uint32 gTlkAppSystemBusyTimer;
-
-static uint32 sTlkAppPmTraceTimer = 0;
 
 /******************************************************************************
  * Function: tlkapp_pm_handler
@@ -134,9 +123,6 @@ void tlkapp_pm_handler(void)
 			stkIsBusy, apiIsBusy, devIsBusy, mdiIsBusy, mmiIsBusy, padIsBusy);
 	}
 	
-	if(sTlkAppPmState == TLKAPP_PM_STATE_IDLE){
-		
-	}
 	if(//1 ||
 			gTlkAppSystemBusyTimer != 0 || appIsBusy || stkIsBusy || apiIsBusy
 			|| devIsBusy || mdiIsBusy || mmiIsBusy || padIsBusy)
@@ -144,15 +130,25 @@ void tlkapp_pm_handler(void)
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
 		btc_set_sniff_req_enable(0);//disable
 		bth_sendLeaveSleepCmd();
+		gTlkAppPmSysIdleTimer =  clock_time()|1;
 	}
 	else{
+		if(sTlkAppPmState == TLKAPP_PM_STATE_SLEEP) return;
+		
+		//enter deepsleep when system is idle
+		if(gTlkAppPmSysIdleTimer != 0 && clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000)){
+			if(tlkapp_pm_enterDeepSleepEnable()){
+				cpu_sleep_wakeup_32k_rc(DEEPSLEEP_MODE, PM_WAKEUP_PAD, 0);
+			}
+		}
+		else{
 			btc_set_sniff_req_enable(1);//enable
 			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);
 			btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
 			btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
 			btble_pm_setWakeupSource(PM_WAKEUP_PAD);
 			bth_sendEnterSleepCmd();
-
+		}
 	}
 }
 
@@ -182,6 +178,8 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 	#endif
 	
 	tlkdev_codec_reset();
+	sTlkAppPmState = TLKAPP_PM_STATE_SLEEP;
+
 }
 
 
@@ -198,8 +196,35 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen)
 {
 	tlkdev_serial_wakeup();
+	sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
+	gTlkAppPmSysIdleTimer = clock_time();
+	gTlkAppPmSchIdleCount = 0;
 }
+static bool tlkapp_pm_enterDeepSleepEnable(void)
+{
+	uint16 curNextId = bt_ll_shedule_cur_next_id_get();
 
+	if(curNextId != 0x8080){
+		gTlkAppPmSysIdleTimer = clock_time();
+		gTlkAppPmSchIdleCount = 0;
+		return false;
+	}
+	
+	if(bth_getAclCount() != 0){
+		gTlkAppPmSchIdleCount = 0;
+		return false;
+	}
+	if(curNextId == 0x8080){
+		gTlkAppPmSchIdleCount++;
+		if(gTlkAppPmSchIdleCount == 20){
+			return true;//enter deepsleep
+		}else{
+			gTlkAppPmSysIdleTimer = clock_time();
+			return false;
+		}
+	}
+	return false;
+}
 
 #endif
 

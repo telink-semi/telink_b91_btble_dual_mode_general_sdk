@@ -33,7 +33,7 @@
 #define TLKMDI_KEY_DBG_SIGN         TLKMDI_DBG_SIGN
 
 
-static bool tlkmdi_key_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_key_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static bool tlkmdi_key_check(tlkmdi_key_unit_t *pUnit);
 static tlkmdi_key_unit_t *tlkmdi_key_getIdleUnit(void);
 static tlkmdi_key_unit_t *tlkmdi_key_getUsedUnit(uint08 keyID);
@@ -46,7 +46,7 @@ static tlkmdi_key_ctrl_t sTlkMdiKeyCtrl;
 int tlkmdi_key_init(void)
 {
 	tmemset(&sTlkMdiKeyCtrl, 0, sizeof(tlkmdi_key_ctrl_t));
-	tlkmdi_adapt_initTimer(&sTlkMdiKeyCtrl.timer, tlkmdi_key_timer, &sTlkMdiKeyCtrl.timer, TLKMDI_KEY_TIMEOUT0);
+	tlkmdi_adapt_initTimer(&sTlkMdiKeyCtrl.timer, tlkmdi_key_timer, (uint32)&sTlkMdiKeyCtrl.timer, TLKMDI_KEY_TIMEOUT0);
 	
 	return TLK_ENONE;
 }
@@ -92,7 +92,7 @@ int tlkmdi_key_remove(uint08 keyID)
 	return TLK_ENONE;
 }
 
-static bool tlkmdi_key_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_key_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	uint08 index;
 	uint08 isBusy0 = false;

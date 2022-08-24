@@ -195,7 +195,7 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 		tlkapi_error(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_switch: failure - buffer");
 		return false;
 	}
-    if (!enable && (btp_a2dpsnk_getStatus(handle) == BTP_A2DP_STATUS_STREAM)){
+    if(status == TLK_STATE_CLOSED && (btp_a2dpsnk_getStatus(handle) == BTP_A2DP_STATUS_STREAM)){
         tlkmdi_audsnk_close(handle);
 	}
 	tlkdev_spk_mute();

@@ -39,7 +39,7 @@
 
 #if (TLKMMI_PHONE_SCO_MANAGE)
 static void tlkmmi_phone_scoConnCB(uint16 aclHandle, uint16 scoHandle, bool isConn);
-static bool tlkmmi_phone_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmmi_phone_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 #endif
 
 
@@ -59,7 +59,7 @@ int tlkmmi_phone_ctrlInit(void)
 {
 	#if (TLKMMI_PHONE_SCO_MANAGE)
 	tmemset(&sTlkMmiPhoneCtrl, 0, sizeof(tlkmmi_phone_ctrl_t));
-	tlkmmi_adapt_initTimer(&sTlkMmiPhoneCtrl.timer, tlkmmi_phone_timer, &sTlkMmiPhoneCtrl, TLKMMI_PHONE_TIMEOUT);
+	tlkmmi_adapt_initTimer(&sTlkMmiPhoneCtrl.timer, tlkmmi_phone_timer, (uint32)&sTlkMmiPhoneCtrl, TLKMMI_PHONE_TIMEOUT);
 	tlkmdi_audsco_regCB(tlkmmi_phone_scoConnCB);
 	#endif
 		
@@ -223,7 +223,7 @@ static void tlkmmi_phone_scoConnCB(uint16 aclHandle, uint16 scoHandle, bool isCo
 #endif
 
 #if (TLKMMI_PHONE_SCO_MANAGE)
-static bool tlkmmi_phone_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmmi_phone_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	
 	return false;

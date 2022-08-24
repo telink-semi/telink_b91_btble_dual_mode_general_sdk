@@ -194,7 +194,7 @@ extern int btp_a2dpsrc_reconfig(uint16 aclHandle, uint32 sampleRate);
  * 		If others value is returned means the get process fail.
  *******************************************************************************/
 extern int btp_a2dpsrc_getStatus(uint16 aclHandle);
-extern uint btp_a2dpsnk_getStatus(uint16 aclHandle);
+extern int btp_a2dpsnk_getStatus(uint16 aclHandle);
 
 /******************************************************************************
  * Function: A2DP source verify a2dp stream status
@@ -217,6 +217,26 @@ extern bool btp_a2dpsrc_isInStream(uint16 aclHandle);
  * 		If other's value is returned means set fail.
  *******************************************************************************/
 extern int btp_a2dpsrc_setSampleRate(uint16 aclHandle, uint32 sampleRate);
+
+/******************************************************************************
+ * Function: A2DP sink suspend interface
+ * Descript: Defines the format of the A2dp sink trigger suspend the connection.
+ * Params:
+ * 	    @aclHandle[IN]--The ACL link's handle.
+ * Return: Returning TLK_ENONE(0x00) or -TLK_EBUSY means the suspend process success.
+ * 		If others value is returned means the abort process fail.
+ *******************************************************************************/
+extern int btp_a2dpsnk_suspend(uint16 aclHandle);
+
+/******************************************************************************
+ * Function: A2DP sink start interface
+ * Descript: Defines the format of the A2dp source trigger start stream.
+ * Params:
+ * 	    @aclHandle[IN]--The ACL link's handle.
+ * Return: Returning TLK_ENONE(0x00) means the start process success.
+ * 		If others value is returned means the start process fail.
+ *******************************************************************************/
+extern int btp_a2dpsnk_start(uint16 aclHandle);
 
 /******************************************************************************
  * Function: btp_a2dpsnk_getSampleRate
@@ -264,6 +284,17 @@ extern int btp_a2dpsnk_reconfigCodec(uint16 aclHandle, uint08 type);
  *******************************************************************************/
 extern void btp_a2dpsnk_regRecvDataCB(BtpA2dpRecvDataCallback datCallback);
 
+/******************************************************************************
+ * Function: A2DP sink send delay report
+ * Descript: Defines the delay report function for audio control 
+ *           the A2DP stream delay to peer device, becasue there exists 
+ *           some time delay including decoding, buffer or else some other reason
+ * Params:
+ * 	    @aclHandle[IN]--The a2dp sink handle.
+ *      @delay[IN]--The delay time.
+ * Return:null.
+ *******************************************************************************/
+extern int btp_a2dpsnk_delayreport(uint16 aclHandle, uint16 delay);
 
 
 #endif /* BTP_A2DP_H */

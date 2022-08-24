@@ -126,7 +126,7 @@ void tlkapi_random(uint08 *pBuff, uint16 buffLen)
 	int i;
 	unsigned int randNums = 0;
     /* if len is odd */
-	for(i=0; i<buffLen; i++ ){
+	for(i=0; i<buffLen; i++){
 		if((i & 3) == 0) randNums = trng_rand();
 		pBuff[i] = randNums & 0xff;
 		randNums >>=8;

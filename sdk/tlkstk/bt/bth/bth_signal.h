@@ -213,10 +213,10 @@ void bth_signal_chnReset(bth_l2cap_channel_t *pChannel);
  * Descript: signal channel timer.
  * Params: 
  *        @pTimer[IN]--The l2cap channel timer.
- *        @pUsrArg[IN]--The data need to handle.
+ *        @userArg[IN]--The data need to handle.
  * Reutrn: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
-bool bth_signal_chnTimer(tlkapi_timer_t *pTimer, void *pUsrArg);
+bool bth_signal_chnTimer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 /******************************************************************************
  * Function: bth_signal_recvData

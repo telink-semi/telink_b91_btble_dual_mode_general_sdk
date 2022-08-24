@@ -53,10 +53,10 @@ void tlkstk_process(void)
 	btble_sdk_main_loop();
 	
 #if TLK_STK_BTH_ENABLE
-	bth_process();
+	bth_handler();
 #endif
 #if TLK_STK_BTP_ENABLE
-	btp_process();
+	btp_handler();
 #endif
 }
 

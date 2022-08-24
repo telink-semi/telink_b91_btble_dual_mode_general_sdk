@@ -144,6 +144,7 @@ typedef enum
 
 int tlkmmi_lemgr_attInit(void);
 
+int tlkmmi_lemgr_attSetDevName(uint08 *pName, uint08 nameLen);
 
 
 

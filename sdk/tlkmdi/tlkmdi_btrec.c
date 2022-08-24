@@ -43,7 +43,7 @@ extern uint8_t bt_ll_access_write_inquiry_scan_activity(inqscan_inr_t interval, 
 #define TLKMDI_BTREC_DBG_SIGN         TLKMDI_DBG_SIGN
 
 
-static bool tlkmdi_btrec_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_btrec_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
 static tlkmdi_btrec_t sTlkMdiBtRecCtrl;
@@ -61,7 +61,7 @@ int tlkmdi_btrec_init(void)
 	sTlkMdiBtRecOverCB = nullptr;
 	tmemset(&sTlkMdiBtRecCtrl, 0, sizeof(tlkmdi_btrec_t));
 	tlkmdi_btrec_reset();
-	tlkmdi_adapt_initTimer(&sTlkMdiBtRecCtrl.timer, tlkmdi_btrec_timer, &sTlkMdiBtRecCtrl, TLKMDI_BTREC_TIMEOUT);
+	tlkmdi_adapt_initTimer(&sTlkMdiBtRecCtrl.timer, tlkmdi_btrec_timer, (uint32)&sTlkMdiBtRecCtrl, TLKMDI_BTREC_TIMEOUT);
 	return TLK_ENONE;
 }
 
@@ -364,9 +364,9 @@ static void tlkmdi_btrec_pageProc(tlkmdi_btrec_t *pCtrl);
 static void tlkmdi_btrec_scanProc(tlkmdi_btrec_t *pCtrl);
 static void tlkmdi_btrec_keepProc(tlkmdi_btrec_t *pCtrl);
 static void tlkmdi_btrec_stopProc(tlkmdi_btrec_t *pCtrl);
-static bool tlkmdi_btrec_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_btrec_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
-	tlkmdi_btrec_t *pCtrl = (tlkmdi_btrec_t*)pUsrArg;
+	tlkmdi_btrec_t *pCtrl = (tlkmdi_btrec_t*)userArg;
 	
 	if(pCtrl->state == TLKMDI_BTREC_STATE_INIT){
 		tlkmdi_btrec_initProc(pCtrl);

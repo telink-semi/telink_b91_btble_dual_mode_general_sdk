@@ -83,7 +83,7 @@ uint bth_getAclCount(void)
  * Params: None.
  * Return: None.
 *******************************************************************************/
-void bth_process(void)
+void bth_handler(void)
 {
 	bth_adapt_handler();
 }

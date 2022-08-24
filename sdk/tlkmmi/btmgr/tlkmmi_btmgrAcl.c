@@ -52,7 +52,7 @@ static void tlkmmi_btmgr_aclEncryptCB(uint16 handle, uint08 status, uint08 *pBtA
 static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtAddr);
 static void tlkmmi_btmgr_aclProfConnCB(uint16 handle, uint08 status, uint08 ptype, uint08 usrID, uint08 *pBtAddr);
 static void tlkmmi_btmgr_aclProfDiscCB(uint16 handle, uint08 reason, uint08 ptype, uint08 usrID, uint08 *pBtAddr);
-static bool tlkmmi_btmgr_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmmi_btmgr_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl);
 
 static void tlkmmi_btmgr_appendProfile(uint16 aclHandle);
@@ -76,7 +76,7 @@ static TlkMmiBtMgrProfileDisconnCallback sTlkMmiBtMgrProfileDiscCB = nullptr;
 int tlkmmi_btmgr_aclInit(void)
 {
 	tmemset(&sTlkMmiBtMgrAcl, 0, sizeof(tlkmmi_btmgr_acl_t));
-	tlkmmi_adapt_initTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, &sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
+	tlkmmi_adapt_initTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, (uint32)&sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
 	
 	tlkmdi_btacl_regConnectCB(tlkmmi_btmgr_aclConnectCB);
 	tlkmdi_btacl_regEncryptCB(tlkmmi_btmgr_aclEncryptCB);
@@ -97,7 +97,7 @@ static void tlkmmi_btmgr_aclReset(void)
 {
 	tlkmmi_adapt_removeTimer(&sTlkMmiBtMgrAcl.timer);
 	tmemset(&sTlkMmiBtMgrAcl, 0, sizeof(tlkmmi_btmgr_acl_t));
-	tlkmmi_adapt_initTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, &sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
+	tlkmmi_adapt_initTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, (uint32)&sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
 }
 /******************************************************************************
  * Function: tlkmmi_btmgr_aclIsBusy
@@ -400,11 +400,11 @@ static void tlkmmi_btmgr_aclProfDiscCB(uint16 handle, uint08 reason, uint08 ptyp
 }
 
 
-static bool tlkmmi_btmgr_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmmi_btmgr_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	tlkmmi_btmgr_acl_t *pCtrl;
 	
-	pCtrl = (tlkmmi_btmgr_acl_t*)pUsrArg;
+	pCtrl = (tlkmmi_btmgr_acl_t*)userArg;
 //	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_timer: 0x%x %d 0x%x", pCtrl, pCtrl->timeout, pCtrl->busys);
 	
 	if(pCtrl->timeout != 0) pCtrl->timeout --;

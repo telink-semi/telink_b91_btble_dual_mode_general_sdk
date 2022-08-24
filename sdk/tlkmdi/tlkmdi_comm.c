@@ -26,10 +26,11 @@
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkmdi/tlkmdi_comm.h"
-#include "drivers.h"
+
 
 #define TLKMDI_BTREC_DBG_FLAG         (TLKMDI_BTREC_DBG_ENABLE | TLKMDI_DBG_FLAG) 
 #define TLKMDI_BTREC_DBG_SIGN         TLKMDI_DBG_SIGN
+
 
 static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen);
 

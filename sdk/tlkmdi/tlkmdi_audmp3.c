@@ -267,7 +267,7 @@ uint tlkmdi_mp3_getNextIndex(void)
 	uint16 index;
 	if(sTlkMdiMp3Ctrl.fileCount == 0) return 0;
 	mode = sTlkMdiMp3Ctrl.fplay.playMode;
-	if(mode == TLKMDI_MP3_PALY_MODE_ORDER){
+	if(mode == TLKMDI_MP3_PALY_MODE_ORDER || mode == TLKMDI_MP3_PALY_MODE_LOOP){
 		index = sTlkMdiMp3Ctrl.playIndex+1;
 		if(index >= sTlkMdiMp3Ctrl.fileCount) index = 0;
 	}else if(mode == TLKMDI_MP3_PALY_MODE_RANDOM){
@@ -291,7 +291,7 @@ uint tlkmdi_mp3_getPrevIndex(void)
 	uint16 index;
 	if(sTlkMdiMp3Ctrl.fileCount == 0) return 0;
 	mode = sTlkMdiMp3Ctrl.fplay.playMode;
-	if(mode == TLKMDI_MP3_PALY_MODE_ORDER){
+	if(mode == TLKMDI_MP3_PALY_MODE_ORDER || mode == TLKMDI_MP3_PALY_MODE_LOOP){
 		if(sTlkMdiMp3Ctrl.playIndex != 0) index = sTlkMdiMp3Ctrl.playIndex-1;
 		else index = sTlkMdiMp3Ctrl.fileCount-1;
 	}else if(mode == TLKMDI_MP3_PALY_MODE_RANDOM){

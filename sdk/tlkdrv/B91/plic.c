@@ -38,11 +38,6 @@ _attribute_data_retention_sec_ unsigned char      g_plic_preempt_en = 1;
 volatile uint32 sCoreCriticalCount0 = 0;
 volatile uint32 sCoreCriticalCount1 = 0;
 
-volatile uint32 AAAA_plic_test001 = 0;
-volatile uint32 AAAA_plic_test002 = 0;
-volatile uint32 AAAA_plic_test003 = 0;
-volatile uint32 AAAA_plic_test004 = 0;
-volatile uint32 AAAA_plic_test005 = 0;
 
 _attribute_ram_code_sec_noinline_ 
 unsigned int core_enter_critical(unsigned char preempt_en, unsigned char threshold)
@@ -56,8 +51,7 @@ unsigned int core_enter_critical(unsigned char preempt_en, unsigned char thresho
 		if(thrd < threshold){
 			plic_set_threshold(threshold);
 		}else{
-			AAAA_plic_test001 ++;
-			AAAA_plic_test003 ++;
+			
 		}
 		core_restore_interrupt(r_inq);
 	}
@@ -76,9 +70,7 @@ void core_leave_critical(unsigned char preempt_en, unsigned int r)
 		if(sCoreCriticalCount0 == 1){
 			plic_set_threshold(0);
 		}
-		if(sCoreCriticalCount0 == 0) AAAA_plic_test002 ++;
 		if(sCoreCriticalCount0 != 0) sCoreCriticalCount0--;
-		if(sCoreCriticalCount0 == 0) AAAA_plic_test003 = 0;
 		core_restore_interrupt(r_inq);
 	}
 	else

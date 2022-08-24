@@ -48,8 +48,8 @@ extern int btp_avrcp_notyVolume(uint08 volume);
 
 
 static void tlkmdi_audio_eventCB(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen);
-static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, void *pUsrArg);
-static bool tlkmmi_audio_ctrlProcs(tlkapi_procs_t *pProcs, void *pUsrArg);
+static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, uint32 userArg);
+static bool tlkmmi_audio_ctrlProcs(tlkapi_procs_t *pProcs, uint32 userArg);
 static int  tlkmmi_audio_sendProgressEvt(uint08 optype, uint16 progress);
 static void tlkmmi_audio_sendSongChangeEvt(void);
 static void tlkmmi_audio_sendStatusChangeEvt(void);
@@ -86,8 +86,8 @@ int tlkmmi_audio_ctrlInit(void)
 	tmemset(&gTlkMmiAudioCtrl, 0, sizeof(tlkmmi_audio_ctrl_t));
 
 	tlkmdi_event_regCB(TLKMDI_EVENT_MAJOR_AUDIO, tlkmdi_audio_eventCB);
-	tlkmmi_adapt_initTimer(&gTlkMmiAudioCtrl.timer, tlkmmi_audio_ctrlTimer, nullptr, TLKMMI_AUDIO_TIMEOUT);
-	tlkmmi_adapt_initProcs(&gTlkMmiAudioCtrl.procs, tlkmmi_audio_ctrlProcs, nullptr);
+	tlkmmi_adapt_initTimer(&gTlkMmiAudioCtrl.timer, tlkmmi_audio_ctrlTimer, NULL, TLKMMI_AUDIO_TIMEOUT);
+	tlkmmi_adapt_initProcs(&gTlkMmiAudioCtrl.procs, tlkmmi_audio_ctrlProcs, NULL);
 	
 	volume = 0;
 	tlkmdi_audio_infoGetVolume(TLKPRT_COMM_VOLUME_TYPE_TONE, &volume);
@@ -544,10 +544,9 @@ void tlkmmi_audio_optypeChanged(uint08 newOptype, uint16 newHandle, uint08 oldOp
 	gTlkMmiAudioCurOptype = newOptype;
 	tlkmmi_adapt_insertTimer(&gTlkMmiAudioCurTimer);
 	tlkmmi_adapt_insertTimer(&gTlkMmiAudioCtrl.timer);
+	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_optypeChanged: gTlkMmiAudioCurOptype -%d", gTlkMmiAudioCurOptype);
 
 	tlkmmi_audio_infoSave();
-//	my_dump_str_u32s(TLKMMI_AUDIO_DBG_ENABLE, "tlkmmi_audio_optypeChanged: {newOptype-newHandle-oldOptype-oldHandle}", 
-//			newOptype, newHandle, oldOptype, oldHandle);
 }
 
 
@@ -640,7 +639,7 @@ static void tlkmmi_audio_statusChangeEvtDeal(uint08 *pData, uint08 dataLen)
 	}
 	tlkmmi_audio_sendStatusChangeEvt();
 }
-static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	bool isBusy = false;
 	if(gTlkMmiAudioCtrl.report.enable && (gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_PLAY 
@@ -662,7 +661,7 @@ static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, void *pUsrArg)
 	}
 	return isBusy;
 }
-static bool tlkmmi_audio_ctrlProcs(tlkapi_procs_t *pProcs, void *pUsrArg)
+static bool tlkmmi_audio_ctrlProcs(tlkapi_procs_t *pProcs, uint32 userArg)
 {
 	if((gTlkMmiAudioCtrl.report.busys & TLKMMI_AUDIO_REPORT_BUSY_STATUS_CHANGE) != 0){
 		tlkmmi_audio_sendStatusChangeEvt();

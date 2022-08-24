@@ -208,7 +208,11 @@ static inline u8 bt_ll_shedule_slot12_pre_end (int id, u32 slot, int sco)
 	u8 ref = env_sch.link_scheduler[id].slot12_end + (sco ? 2 : 0);
 	return slot > ref && slot < 10 ? slot : 0;
 }
+static inline u16 bt_ll_shedule_cur_next_id_get (void)
+{
 
+	return env_sch.cur_id | (env_sch.next_id << 8);
+}
 static inline int bt_ll_schedule_get_ble_acl (uint8_t sch_link) {return sch_link >= ID_LINK_BLE && sch_link < MAX_SCHEDULE_LINK ? sch_link - ID_LINK_BLE : FLAG_SCHEDULE_LINK_ID_NULL;}
 
 static inline int bt_ll_schedule_get_bt_acl (uint8_t sch_link) {return sch_link < ID_LINK_ACCESS ? sch_link : FLAG_SCHEDULE_LINK_ID_NULL;}

@@ -34,7 +34,7 @@
 #include "drivers.h"
 
 
-static bool tlkapp_battery_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkapp_battery_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkapp_battery_enterDeep(uint08 setFlag);
 static void tlkapp_battery_leaveDeep(uint08 clrFlag);
 
@@ -57,7 +57,7 @@ int tlkapp_battery_init(void)
 {
 #if (TLKDEV_SYS_BAT_ENABLE)
 	tlkdev_bat_init(TLKAPP_BAT_GPIO_PIN, TLKAPP_BAT_ADC_PIN);
-	tlkapp_adapt_initTimer(&sTlkAppBatTimer, tlkapp_battery_timer, nullptr, TLKAPP_BAT_CHECK_INTERVAL);
+	tlkapp_adapt_initTimer(&sTlkAppBatTimer, tlkapp_battery_timer, NULL, TLKAPP_BAT_CHECK_INTERVAL);
 	tlkapp_adapt_insertTimer(&sTlkAppBatTimer);
 #endif
 
@@ -161,7 +161,7 @@ int tlkapp_battery_check(void)
 }
 
 
-static bool tlkapp_battery_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkapp_battery_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	tlkapp_battery_check();
 	return true;

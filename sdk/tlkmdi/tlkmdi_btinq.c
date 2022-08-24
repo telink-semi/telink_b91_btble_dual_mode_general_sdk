@@ -49,7 +49,7 @@ static void tlkmdi_btinq_getNameProcs(void);
 static void tlkmdi_btinq_closingProcs(void);
 
 
-static bool tlkmdi_btinq_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_btinq_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
 static TlkMmiBtInqReportCallBack sTlkMmiBtInqReportCB;
@@ -66,7 +66,7 @@ int tlkmdi_btinq_init(void)
 	sTlkMmiBtInqReportCB = nullptr;
 	sTlkMmiBtInqCompleteCB = nullptr;
 
-	tlkmdi_adapt_initTimer(&sTlkMdiBtInqCtrl.timer, tlkmdi_btinq_timer, nullptr, TLKMDI_BTINQ_TIMEOUT);
+	tlkmdi_adapt_initTimer(&sTlkMdiBtInqCtrl.timer, tlkmdi_btinq_timer, NULL, TLKMDI_BTINQ_TIMEOUT);
 
 	bth_event_regCB(BTH_EVTID_INQUIRY_RESULT,   tlkmdi_btinq_resultEvt);
 	bth_event_regCB(BTH_EVTID_INQUIRY_COMPLETE, tlkmdi_btinq_completeEvt);
@@ -402,7 +402,7 @@ void tlkmdi_btinq_printList(void)
 }
 
 
-static bool tlkmdi_btinq_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_btinq_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	tlkmdi_btinq_item_t *pItem = nullptr;
 	if(sTlkMdiBtInqCtrl.state == TLKMDI_BTINQ_STATE_IDLE) return false;

@@ -134,27 +134,13 @@ bool tlkapp_pmIsBusy(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-
-volatile uint32 AAAA_trace01 = 0;
-volatile uint32 AAAA_trace02 = 0;
-volatile uint32 AAAA_trace03 = 0;
-volatile uint32 AAAA_trace04 = 0;
-volatile uint32 AAAA_trace05 = 0;
-volatile uint32 AAAA_trace06 = 0;
-volatile uint32 AAAA_trace07 = 0;
 void tlkapp_process(void)
 {
-	AAAA_trace01 ++;
 	tlkapi_process();
-	AAAA_trace02 ++;
 	tlkdev_process();
-	AAAA_trace03 ++;
 	tlkstk_process();
-	AAAA_trace04 ++;
 	tlkmdi_process();
-	AAAA_trace05 ++;
 	tlkmmi_process();
-	AAAA_trace06 ++;
 	tlkapp_adapt_handler();
 	tlkapp_system_handler();
 	
@@ -162,7 +148,6 @@ void tlkapp_process(void)
 	#if(TLK_CFG_PM_ENABLE)
 	tlkapp_pm_handler();
 	#endif
-	AAAA_trace07 ++;
 }
 
 

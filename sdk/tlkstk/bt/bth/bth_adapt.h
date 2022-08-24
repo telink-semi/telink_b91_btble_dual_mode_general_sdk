@@ -49,14 +49,14 @@ void bth_adapt_handler(void);
  * Descript: 
  * Params:
  *     @pTimer[IN]--
- *     @pUsrArg[IN]--
+ *     @userArg[IN]--
  *     @timeout[IN]--Unit: us.
  *     @timerCB[IN]--
  * Return: None.
  * Others: None.
 *******************************************************************************/
-int  bth_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout);
-int  bth_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, void *pUsrArg);
+int  bth_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
+int  bth_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg);
 void bth_adapt_deinitTimer(tlkapi_timer_t *pTimer);
 void bth_adapt_deinitProcs(tlkapi_procs_t *pProcs);
 

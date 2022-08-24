@@ -53,7 +53,7 @@ int bth_sendLeaveSleepCmd(void);
  * Params: None.
  * Reutrn: None.
 *******************************************************************************/
-void bth_process(void);
+void bth_handler(void);
 
 /******************************************************************************
  * Function: BTH Destroy interface

@@ -75,7 +75,7 @@ int btp_init(void)
 	return TLK_ENONE;
 }
 
-void btp_process(void)
+void btp_handler(void)
 {
 	btp_adapt_handler();
 }

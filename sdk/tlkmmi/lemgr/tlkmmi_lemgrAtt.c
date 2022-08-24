@@ -81,7 +81,7 @@ _attribute_ble_data_retention_	static uint16 serviceChangeVal[2] = {0};
 
 _attribute_ble_data_retention_	static uint08 serviceChangeCCC[2] = {0,0};
 
-static const uint08 my_devName[] = { 'T','L','K','W','A','T','C','H'};
+
 
 static const uint08 my_PnPtrs [] = {0x02, 0x8a, 0x24, 0x66, 0x82, 0x01, 0x00};
 
@@ -374,6 +374,23 @@ int spp_onReceiveData(uint16 connHandle, rf_packet_att_write_t *p)
 	return 0;
 }
 
+static uint08 my_devNameLen = 8;
+static uint08 my_devName[20] = { 'T','L','K','W','A','T','C','H'};
+int tlkmmi_lemgr_attSetDevName(uint08 *pName, uint08 nameLen)
+{
+	if(pName == nullptr || nameLen == 0) return -TLK_EPARAM;
+	if(nameLen > 20) nameLen = 20;
+	my_devNameLen = nameLen;
+	tmemcpy(my_devName, pName, nameLen);
+	return TLK_ENONE;
+}
+static int tlkmmi_lemgr_attReadDevNameDeal(u16 connHandle, void* p)
+{
+	blc_gatt_pushReadResponse(connHandle, my_devName, my_devNameLen);
+	return 0;
+}
+
+
 // TM : to modify
 static const attribute_t my_Attributes[] = {
 
@@ -383,7 +400,7 @@ static const attribute_t my_Attributes[] = {
 	// 0001 - 0007  gap
 	{7,ATT_PERMISSIONS_READ,2,2,(uint08*)(&my_primaryServiceUUID), 	(uint08*)(&my_gapServiceUUID), 0},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(my_devNameCharVal),(uint08*)(&my_characterUUID), (uint08*)(my_devNameCharVal), 0},
-	{0,ATT_PERMISSIONS_READ,2,sizeof(my_devName), (uint08*)(&my_devNameUUID), (uint08*)(my_devName), 0},
+	{0,ATT_PERMISSIONS_READ,2,sizeof(my_devName), (uint08*)(&my_devNameUUID), (uint08*)(my_devName), 0, tlkmmi_lemgr_attReadDevNameDeal},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(my_appearanceCharVal),(uint08*)(&my_characterUUID), (uint08*)(my_appearanceCharVal), 0},
 	{0,ATT_PERMISSIONS_READ,2,sizeof (my_appearance), (uint08*)(&my_appearanceUIID), 	(uint08*)(&my_appearance), 0},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(my_periConnParamCharVal),(uint08*)(&my_characterUUID), (uint08*)(my_periConnParamCharVal), 0},

@@ -94,15 +94,15 @@ bool tlkmdi_adapt_isPmBusy(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout)
+int tlkmdi_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
 	if(tlkmdi_adapt_isHaveTimer(pTimer)) return -TLK_EEXIST;
-	return tlkapi_adapt_initTimer(pTimer, timerCB, pUsrArg, timeout);
+	return tlkapi_adapt_initTimer(pTimer, timerCB, userArg, timeout);
 }
-int tlkmdi_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, void *pUsrArg)
+int tlkmdi_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg)
 {
 	if(tlkmdi_adapt_isHaveProcs(pProcs)) return -TLK_EEXIST;
-	return tlkapi_adapt_initProcs(pProcs, procsCB, pUsrArg);
+	return tlkapi_adapt_initProcs(pProcs, procsCB, userArg);
 }
 void tlkmdi_adapt_deinitTimer(tlkapi_timer_t *pTimer)
 {

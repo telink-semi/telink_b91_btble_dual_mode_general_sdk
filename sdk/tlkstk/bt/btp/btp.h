@@ -29,7 +29,7 @@
 
 int btp_init(void);
 
-void btp_process(void);
+void btp_handler(void);
 
 void btp_destroy(uint16 aclHandle);
 

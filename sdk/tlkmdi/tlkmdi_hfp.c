@@ -39,7 +39,7 @@
 
 
 static void tlkmdi_hfphf_reset(void);
-static bool tlkmdi_hfphf_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_hfphf_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static int tlkmdi_hfphf_codecChangedEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_hfphf_volumeChangedEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_hfphf_statusChangedEvt(uint08 *pData, uint16 dataLen);
@@ -59,7 +59,7 @@ static tlkmdi_hfphf_ctrl_t sTlkMdiHfpCtrl;
 *******************************************************************************/
 int tlkmdi_hfp_init(void)
 {
-	tlkmdi_adapt_initTimer(&sTlkMdiHfpCtrl.timer, tlkmdi_hfphf_timer, &sTlkMdiHfpCtrl, TLKMDI_HFPHF_TIMEOUT);
+	tlkmdi_adapt_initTimer(&sTlkMdiHfpCtrl.timer, tlkmdi_hfphf_timer, (uint32)&sTlkMdiHfpCtrl, TLKMDI_HFPHF_TIMEOUT);
 	
 	btp_event_regCB(BTP_EVTID_HFPHF_CODEC_CHANGED,  tlkmdi_hfphf_codecChangedEvt);
 	btp_event_regCB(BTP_EVTID_HFPHF_VOLUME_CHANGED, tlkmdi_hfphf_volumeChangedEvt);
@@ -95,7 +95,7 @@ uint08 *tlkmdi_hfphf_getCallNumber(void)
 	return sTlkMdiHfpCtrl.number;
 }
 
-static bool tlkmdi_hfphf_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_hfphf_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	if((sTlkMdiHfpCtrl.callBusy & TLKMDI_HFPHF_CALL_BUSY_WAIT_NUMBER) != 0){
 		if(sTlkMdiHfpCtrl.timeout != 0) sTlkMdiHfpCtrl.timeout--;

@@ -45,19 +45,19 @@ typedef struct tlkapi_procs_s  tlkapi_procs_t;
  * Return: Returning TRUE will automatically start the next round of detection.
  *     If FALSE is returned, the node is automatically removed.
 *******************************************************************************/
-typedef bool(*TlkApiProcsCB)(tlkapi_procs_t *pProcs, void *pUsrArg);
-typedef bool(*TlkApiTimerCB)(tlkapi_timer_t *pTimer, void *pUsrArg);
+typedef bool(*TlkApiProcsCB)(tlkapi_procs_t *pProcs, uint32 userArg);
+typedef bool(*TlkApiTimerCB)(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
 struct tlkapi_timer_s{
 	uint32 arrival;
 	uint32 timeout;
-	void  *pUsrArg;
+	uint32 userArg;
 	TlkApiTimerCB timerCB;
 	struct tlkapi_timer_s *pNext;
 };
 struct tlkapi_procs_s{
-	void *pUsrArg;
+	uint32 userArg;
 	TlkApiProcsCB procsCB;
 	struct tlkapi_procs_s *pNext;
 };
@@ -76,8 +76,8 @@ typedef struct{
 int  tlkapi_adapt_init(tlkapi_adapt_t *pAdapt);
 void tlkapi_adapt_handler(tlkapi_adapt_t *pAdapt);
 
-int  tlkapi_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout);
-int  tlkapi_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, void *pUsrArg);
+int  tlkapi_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
+int  tlkapi_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg);
 void tlkapi_adapt_deinitTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer);
 void tlkapi_adapt_deinitProcs(tlkapi_adapt_t *pAdapt, tlkapi_procs_t *pProcs);
 

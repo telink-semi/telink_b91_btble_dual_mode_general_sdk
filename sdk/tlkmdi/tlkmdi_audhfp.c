@@ -34,7 +34,7 @@
 #define TLKMDI_AUDHF_DBG_SIGN         TLKMDI_DBG_SIGN
 
 
-static bool tlkmdi_audhfp_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_audhfp_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
 static tlkmdi_audhfp_ctrl_t sTlkMdiAudHfpCtrl;
@@ -50,7 +50,7 @@ static tlkmdi_audhfp_ctrl_t sTlkMdiAudHfpCtrl;
 *******************************************************************************/
 int tlkmdi_audhfp_init(void)
 {
-	tlkmdi_adapt_initTimer(&sTlkMdiAudHfpCtrl.timer, tlkmdi_audhfp_timer, &sTlkMdiAudHfpCtrl, TLKMDI_AUDHF_TIMEOUT);
+	tlkmdi_adapt_initTimer(&sTlkMdiAudHfpCtrl.timer, tlkmdi_audhfp_timer, (uint32)&sTlkMdiAudHfpCtrl, TLKMDI_AUDHF_TIMEOUT);
 	
 	
 	return TLK_ENONE;
@@ -117,7 +117,7 @@ bool tlkmdi_audhfp_irqProc(void)
 }
 
 
-static bool tlkmdi_audhfp_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_audhfp_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	return false;
 }

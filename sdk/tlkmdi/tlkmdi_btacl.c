@@ -45,7 +45,7 @@ extern bool btp_hfphf_isIosDev(uint16 aclHandle);
 
 int tlkmdi_btacl_deleteProf(tlkmdi_btacl_item_t *pItem, uint08 ptype, uint08 usrID);
 
-static bool tlkmdi_btacl_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmdi_btacl_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkmdi_btacl_procs(tlkmdi_btacl_item_t *pItem);
 static void tlkmdi_btacl_connProfProcs(tlkmdi_btacl_item_t *pItem);
 static void tlkmdi_btacl_discProfProcs(tlkmdi_btacl_item_t *pItem);
@@ -301,7 +301,7 @@ int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout)
 	pItem->timeout = timeout;
 	pItem->devClass = devClass;
 	tmemcpy(pItem->btaddr, pBtAddr, 6);
-	tlkmdi_adapt_initTimer(&pItem->timer, tlkmdi_btacl_timer, pItem, TLKMDI_BTACL_TIMEOUT);
+	tlkmdi_adapt_initTimer(&pItem->timer, tlkmdi_btacl_timer, (uint32)pItem, TLKMDI_BTACL_TIMEOUT);
 	tlkmdi_adapt_insertTimer(&pItem->timer);
 
 	return TLK_ENONE;
@@ -528,7 +528,7 @@ static int tlkmdi_btacl_requestEvt(uint08 *pData, uint16 dataLen)
 	pItem->devClass = pEvt->devClass;
 	//
 	tmemcpy(pItem->btaddr, pEvt->peerMac, 6);
-	tlkmdi_adapt_initTimer(&pItem->timer, tlkmdi_btacl_timer, pItem, TLKMDI_BTACL_TIMEOUT);
+	tlkmdi_adapt_initTimer(&pItem->timer, tlkmdi_btacl_timer, (uint32)pItem, TLKMDI_BTACL_TIMEOUT);
 	tlkmdi_adapt_insertTimer(&pItem->timer);
 	return TLK_ENONE;
 }
@@ -585,8 +585,10 @@ static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 	}
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "sTlkMdiBtAclConnCB: active %d", pItem->active);
 	pEvt->isEncrypt = true; // TODO: There's a problem here in next.
-	#if TLK_MDI_PTS_ENABLE 
+	#if (TLK_MDI_PTS_ENABLE)
 	if(!pEvt->isEncrypt && pItem->active){
+		btp_sdpclt_connect(pItem->handle);
+	}
 	#else
 	if(!pEvt->isEncrypt){
 		btp_sdpclt_connect(pItem->handle);
@@ -629,7 +631,7 @@ static int tlkmdi_btacl_encryptEvt(uint08 *pData, uint16 dataLen)
 	
 	tlkapi_array(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt", pData, dataLen);
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: active %d", pItem->active);
-	#if TLK_MDI_PTS_ENABLE
+	#if (TLK_MDI_PTS_ENABLE)
 	if (pItem->active){
 	    btp_sdpclt_connect(pItem->handle);
 	    tlkmdi_adapt_insertTimer(&pItem->timer);
@@ -811,11 +813,11 @@ static int tlkmdi_btacl_profileDisconnEvt(uint08 *pData, uint16 dataLen)
 
 
 
-static bool tlkmdi_btacl_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmdi_btacl_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	tlkmdi_btacl_item_t *pItem;
 
-	pItem = (tlkmdi_btacl_item_t*)pUsrArg;
+	pItem = (tlkmdi_btacl_item_t*)userArg;
 		
 	
 	if(pItem->busys != 0) tlkmdi_btacl_procs(pItem);
@@ -928,7 +930,7 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 	}else if(pProf->ptype == BTP_PTYPE_A2DP){
 		ret = btp_a2dp_connect(pItem->handle);
 	}else if(pProf->ptype == BTP_PTYPE_HFP){
-//		my_dump_str_u32s(TLKMDI_BTACL_DBG_ENABLE, "tlkmdi_btacl_profileConnDeal: hfp - ",
+//		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnDeal: hfp Channel-%d connFlag-%d usrId-%d handle-%d",
 //				pItem->hfpChannel, pItem->connFlag, pProf->usrID, pItem->handle);
 		if((pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		if(pItem->agChannel != 0) ret = btp_hfp_connect(pItem->handle, BTP_USRID_CLIENT, pItem->agChannel);
@@ -949,7 +951,7 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 		ret = btp_avrcp_connect(pItem->handle, pProf->usrID);
 	}
 	
-	if(ret != TLK_ENONE && ret != -TLK_EBUSY){
+	if(ret != TLK_ENONE && ret != -TLK_EBUSY && ret != -TLK_EEXIST){
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnDeal: connect fail ptype-%d usrID-%d", pProf->ptype, pProf->usrID);
 		tmemset(pProf, 0, sizeof(tlkmdi_btacl_prof_t));
 		return false;

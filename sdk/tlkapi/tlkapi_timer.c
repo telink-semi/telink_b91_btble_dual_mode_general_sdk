@@ -54,19 +54,15 @@ static tlkapi_adapt_t sTlkMdiTimerAdapt = {
 };
 
 
-volatile uint32 AAAA_irq_test201 = 0;
-volatile uint32 AAAA_irq_test202 = 0;
-volatile uint32 AAAA_irq_test203 = 0;
-volatile uint32 AAAA_irq_test204 = 0;
-volatile uint32 AAAA_irq_test205 = 0;
-volatile uint32 AAAA_irq_test206 = 0;
-volatile uint32 AAAA_irq_test207 = 0;
-volatile uint32 AAAA_irq_test208 = 0;
 
 
 int tlkapi_timer_init(void)
 {
+	#if (TLKAPI_TIMER_ID == TIMER0)
 	plic_set_priority(IRQ4_TIMER0, 1);
+	#else
+	plic_set_priority(IRQ3_TIMER1, 1);
+	#endif
 	
 	reg_tmr_tick(TLKAPI_TIMER_ID) = 0;
 	reg_tmr_capt(TLKAPI_TIMER_ID) = 2*1000*sys_clk.pclk;
@@ -80,12 +76,13 @@ int tlkapi_timer_init(void)
 	reg_tmr_ctrl0 |= (TIMER_MODE_SYSCLK<<4);
 	#endif
 
-	AAAA_irq_test201 ++;
-	
+	#if (TLKAPI_TIMER_ID == TIMER0)
 	plic_interrupt_enable(IRQ4_TIMER0);
-
+	#else
+	plic_interrupt_enable(IRQ3_TIMER1);
+	#endif
 	hci_set_tx_critical_sec_en(1);
-	
+		
 	return TLK_ENONE;
 }
 
@@ -93,28 +90,23 @@ void tlkapi_timer_handler(void)
 {
 	uint32 timeIntval;
 
-	AAAA_irq_test202 ++;
 	tlkmdi_timer_close();
 	
 	uint32 irq = read_csr(NDS_MIE);
 	core_restore_interrupt(irq | BIT(11));
 
-	AAAA_irq_test203 ++;
 	sTlkMdiTimerIsBusy = true;
 	tlkapi_adapt_handler(&sTlkMdiTimerAdapt);
-	AAAA_irq_test204 ++;
+
 	timeIntval = tlkapi_adapt_timerInterval(&sTlkMdiTimerAdapt);
 	if(timeIntval < 50) timeIntval = 50;
 	sTlkMdiTimerIsBusy = false;
 	hci_host_to_controller();
-	AAAA_irq_test205 ++;
 	if(timeIntval != 0xFFFFFFFF){
-		AAAA_irq_test206 ++;
 		tlkmdi_timer_start(timeIntval);
 	}
 	
 	core_restore_interrupt(irq);
-	AAAA_irq_test207 ++;
 }
 
 /******************************************************************************
@@ -151,7 +143,7 @@ bool tlkapi_timer_isPmBusy(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-int tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *pUsrArg, uint32 timeout)
+int tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
 	int ret;
 	uint irq = core_enter_critical(1, 1);
@@ -159,7 +151,7 @@ int tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, void *p
 		core_leave_critical(1, irq);
 		return -TLK_EEXIST;
 	}
-	ret = tlkapi_adapt_initTimer(pTimer, timerCB, pUsrArg, timeout);
+	ret = tlkapi_adapt_initTimer(pTimer, timerCB, userArg, timeout);
 	core_leave_critical(1, irq);
 	return ret;
 }

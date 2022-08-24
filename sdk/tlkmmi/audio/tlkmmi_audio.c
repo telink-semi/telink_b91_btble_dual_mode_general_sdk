@@ -39,9 +39,9 @@
 
 
 
-static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 #if (TLKAPI_TIMER_ENABLE)
-static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, void *pUsrArg);
+static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg);
 #endif //#if (TLKAPI_TIMER_ENABLE)
 
 
@@ -74,9 +74,9 @@ int tlkmmi_audio_init(void)
 	tlkmmi_audio_commInit();
 	tlkmmi_audio_ctrlInit();
 	tlkmmi_audio_statusInit();
-	tlkmmi_adapt_initTimer(&gTlkMmiAudioCurTimer, tlkmmi_audio_timer, nullptr, TLKMMI_AUDIO_TIMEOUT);
+	tlkmmi_adapt_initTimer(&gTlkMmiAudioCurTimer, tlkmmi_audio_timer, NULL, TLKMMI_AUDIO_TIMEOUT);
 	#if (TLKAPI_TIMER_ENABLE)
-	tlkapi_timer_initNode(&gTlkMmiAudioIrqTimer, tlkmmi_audio_irqTimer, nullptr, TLKMMI_AUDIO_TIMEOUT);
+	tlkapi_timer_initNode(&gTlkMmiAudioIrqTimer, tlkmmi_audio_irqTimer, NULL, TLKMMI_AUDIO_TIMEOUT);
 	#endif
 	gTlkMmiAudioCurOptype = TLKMMI_AUDIO_OPTYPE_NONE;
 	
@@ -129,7 +129,7 @@ void tlkmmi_audio_disconn(uint16 handle)
 }
 
 
-static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 //	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_timer 01: {optype-%d,handle-%d,count-%d,state-%d}", 
 //		gTlkMmiAudioCurOptype, gTlkMmiAudioCurHandle, gTlkMmiAudioTmrCount, gTlkMmiAudioTmrState);
@@ -192,7 +192,7 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, void *pUsrArg)
 }
 
 #if (TLKAPI_TIMER_ENABLE)
-static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, void *pUsrArg)
+static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	uint32 timeIntval;
 	
