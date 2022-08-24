@@ -622,7 +622,6 @@ static void tlkmdi_audio_volumeChangeEvt(uint16 aclHandle, uint08 volume) {
     sTlkMdiAudioMusicVolume = volume;
 }
 
-
 #if TLKMDI_AUDIO_VOLUME_NEWCAL_ENABLE
 static uint08 sBtToneRealVolTable[TLKMDI_AUDIO_TONE_TOTAL_VOLUME_STEP] =
 {

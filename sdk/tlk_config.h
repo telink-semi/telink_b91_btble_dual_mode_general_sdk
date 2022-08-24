@@ -78,10 +78,10 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           0
+#define TLK_CFG_DBG_ENABLE           1
 #endif
 #ifndef TLK_CFG_USB_ENABLE
-#define TLK_CFG_USB_ENABLE           0
+#define TLK_CFG_USB_ENABLE           1
 #endif
 #ifndef TLK_CFG_PTS_ENABLE
 #define TLK_CFG_PTS_ENABLE           0
