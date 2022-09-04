@@ -127,7 +127,7 @@ void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...)
 }
 void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...)
 {
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_FATAL_FLAG) == 0) return;
+	if(/*(flags & 0x01) == 0 || */(flags & TLKAPI_DBG_FATAL_FLAG) == 0) return;
 	va_list args;
 	va_start(args, format);
 	tlkapi_debug_common(flags, pSign, TLKAPI_FATAL_HEAD, format, args);
@@ -148,6 +148,9 @@ void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uin
 	uint16 serial;
 	
 	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_ARRAY_FLAG) == 0) return;
+
+	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
+	if(pBuff == nullptr) return;
 	
 	serial = sTlkApiDebugSerial ++;
 	printf("[%04x]",serial);
@@ -158,8 +161,7 @@ void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uin
 	for(index=0; index<dataLen; index++){
 		printf("%02x ", pData[index]);
 	}
-	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
-	if(pBuff == nullptr) return;
+	
 	dataLen = ((uint16)pBuff[1] << 8) | pBuff[0];
 	if(dataLen != 0) tlkapi_qfifo_dropBuff(&sTlkApiDebugFifo);
 }
@@ -243,9 +245,12 @@ void tlkapi_debug_process(void)
 	if(pData == nullptr) return;
 	
 	dataLen = ((uint16)pData[1] << 8) | pData[0];
+	if(dataLen > TLKAPI_DEBUG_ITEM_SIZE) dataLen = TLKAPI_DEBUG_ITEM_SIZE;
 	for(index=0; index<dataLen; index++){
 		tlkapi_debug_putchar(pData[2+index]);
 	}
+	pData[0] = 0x00;
+	pData[1] = 0x00;
 	tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
 #endif
 }
@@ -260,7 +265,7 @@ void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen)
 	uint16 serial;
 
 	serial = sTlkApiDebugSerial ++;
-	
+
 	strLen = tstrlen(pStr);	
 	pBuff = tlkapi_qfifo_takeBuff(&sTlkApiDebugFifo);
 	if(pBuff == nullptr) return;
@@ -386,6 +391,9 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 	uint08 *pBuff;
 	uint16 serial;
 	uint16 dataLen;
+
+	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
+	if(pBuff == nullptr) return;
 	
 	serial = sTlkApiDebugSerial ++;
 	printf("[%04x]",serial);
@@ -395,8 +403,7 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
 	printf("\r\n");
 	#endif
-	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
-	if(pBuff == nullptr) return;
+	
 	dataLen = ((uint16)pBuff[1] << 8) | pBuff[0];
 	if(dataLen != 0) tlkapi_qfifo_dropBuff(&sTlkApiDebugFifo);
 }

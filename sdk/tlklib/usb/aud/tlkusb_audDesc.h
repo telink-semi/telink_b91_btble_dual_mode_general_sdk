@@ -65,7 +65,6 @@ typedef struct {
 	tlkusb_stdInterfaceDesc_t   spkSetting1Inf;
 	tlkusb_audInterfaceAsDesc_t spkDatAsInf;
 	tlkusb_audFormatDesc_t      spkFormatDesc;
-	tlkusb_audSampleDesc_t      spkSampleDesc;
 	tlkusb_audStdEndpointDesc_t spkStdEdpDesc;
 	tlkusb_audSpcEndpointDesc_t spkSpcEdpDesc;
 	#endif
@@ -74,7 +73,6 @@ typedef struct {
 	tlkusb_stdInterfaceDesc_t   micSetting1Inf;
 	tlkusb_audInterfaceAsDesc_t micDatAsInf;
 	tlkusb_audFormatDesc_t      micFormatDesc;
-	tlkusb_audSampleDesc_t      micSampleDesc;
 	tlkusb_audStdEndpointDesc_t micStdEdpDesc;
 	tlkusb_audSpcEndpointDesc_t micSpcEdpDesc;
 	#endif

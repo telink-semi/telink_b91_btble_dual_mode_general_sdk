@@ -89,7 +89,7 @@ void btp_iap_destroy(uint16 aclHandle);
  * Params:
  * Return:
 *******************************************************************************/
-int  btp_iap_sendData(uint16 aclHandle, uint08 *pData, uint16 dataLen);
+int  btp_iap_sendData(uint16 aclHandle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
 
 /******************************************************************************
  * Function: IAP get Idle count interface

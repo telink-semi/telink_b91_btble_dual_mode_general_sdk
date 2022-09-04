@@ -31,6 +31,7 @@
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
 #include "tlkmdi/tlkmdi_btacl.h"
+#include "tlkmdi/tlkmdi_btrec.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgr.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrCtrl.h"
@@ -56,6 +57,8 @@ static void tlkmmi_btmgr_recvConnectCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvDisconnCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvConnProfCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvDiscProfCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvStartPairCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvClosePairCmdDeal(uint08 *pData, uint08 dataLen);
 
 
 
@@ -255,6 +258,10 @@ static void tlkmmi_btmgr_cmdHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		tlkmmi_btmgr_recvClsPDLCmdDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_GET_CDL){
 		tlkmmi_btmgr_recvGetCDLCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_START_PAIR){
+		tlkmmi_btmgr_recvStartPairCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_CLOSE_PAIR){
+		tlkmmi_btmgr_recvClosePairCmdDeal(pData, dataLen);
 	}else{
 		tlkmdi_comm_sendBtRsp(msgID, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
 	}
@@ -627,7 +634,53 @@ static void tlkmmi_btmgr_recvDiscProfCmdDeal(uint08 *pData, uint08 dataLen)
 	tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: Not Support");
 	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_DISC_PROF, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
 }
+static void tlkmmi_btmgr_recvStartPairCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	uint08 mode;
+	uint08 isForce;
+	uint08 enInqScan;
+	uint08 enPageScan;
 
+	if(dataLen < 3){
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: error length");
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
+		return;
+	}
+
+	isForce = pData[0];
+	enInqScan = pData[1];
+	enPageScan = pData[2];
+	if(!enInqScan && !enPageScan){
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: error param");
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
+		return;
+	}
+	
+	if(!isForce && tlkmmi_btmgr_recIsBusy()){
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: busy");
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EBUSY, nullptr, 0);
+		return;
+	}
+	
+	if(tlkmdi_btacl_getIdleCount() == 0){
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: no quota");
+		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EQUOTA, nullptr, 0);
+		return;
+	}
+
+	if(enInqScan && !enPageScan) mode = TLKMDI_BTREC_KEEP_MODE_INQUIRY_SCAN;
+	else if(!enInqScan && enPageScan) mode = TLKMDI_BTREC_KEEP_MODE_PAGE_SCAN;
+	else mode = TLKMDI_BTREC_KEEP_MODE_BOTH_SCAN;
+	tlkmdi_btrec_setKeepMode(mode, 60);
+	
+	tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+}
+static void tlkmmi_btmgr_recvClosePairCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	tlkmmi_btmgr_recClose();
+	tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_CLOSE_PAIR, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+}
 
 
 

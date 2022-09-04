@@ -185,8 +185,8 @@
 #define TLK_MDI_BTHID_ENABLE         (1 && TLK_STK_BTP_ENABLE)
 #endif
 
-#ifndef TLK_MDI_HFP_ENABLE
-#define TLK_MDI_HFP_ENABLE           (1)
+#ifndef TLK_MDI_BTHFP_ENABLE
+#define TLK_MDI_BTHFP_ENABLE         (1)
 #endif
 #ifndef TLK_MDI_AUDIO_ENABLE
 #define TLK_MDI_AUDIO_ENABLE         (1)

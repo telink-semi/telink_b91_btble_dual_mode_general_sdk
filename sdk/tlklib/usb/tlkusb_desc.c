@@ -72,7 +72,7 @@ static const tlkusb_stdStringDesc_t sMmiUsbSerialDesc = {
 static const tlkusb_stdDeviceDesc_t sMmiUsbDeviceDesc = { 
 	sizeof(tlkusb_stdDeviceDesc_t), //
 	TLKUSB_TYPE_DEVICE , // Header
-	0x0200, // USBSpecification, USB 2.0
+	0x0110, // USBSpecification, USB 1.1
 	USB_CSCP_NoDeviceClass, // Class
 	USB_CSCP_NoDeviceSubclass, // SubClass
 	USB_CSCP_NoDeviceProtocol, // Protocol

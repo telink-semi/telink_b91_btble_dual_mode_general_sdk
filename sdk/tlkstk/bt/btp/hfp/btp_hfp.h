@@ -38,6 +38,7 @@ typedef enum{
 	BTP_HFP_CALL_STATUS_NORING,
 	BTP_HFP_CALL_STATUS_ACTIVE,
 	BTP_HFP_CALL_STATUS_PAUSED,
+	BTP_HFP_CALL_STATUS_WAITING,
 }BTP_HFP_CALL_STATUS_ENUM;
 
 typedef enum{
@@ -45,6 +46,13 @@ typedef enum{
 	BTP_HFP_VOLUME_TYPE_SPK,
 	BTP_HFP_VOLUME_TYPE_MIC,
 }BTP_HFP_VOLUME_TYPE_ENUM;
+
+
+typedef int(*BtpHfpAgRecvCmdCB)(uint16 aclHandle, uint08 *pCmd, uint08 cmdLen);
+typedef int(*BtpHfpAgUnknownCmdCB)(uint16 aclHandle, uint08 *pCmd, uint08 cmdLen);
+typedef int(*BtpHfpAgGetLastPhoneCB)(uint16 aclHandle, uint08 *pNumber, uint08 numbLen, uint08 *pGetLen);
+
+
 
 /******************************************************************************
  * Function: HFP init interface
@@ -83,6 +91,31 @@ int btp_hfp_disconn(uint16 aclHandle, uint08 usrID);
 
 void btp_hfp_destroy(uint16 aclHandle);
 
+/******************************************************************************
+ * Function: btp_hfphf_getFeature
+ * Descript: Get the feaure of suppoted by HF.
+ * Params: None.
+ * Return: None.
+*******************************************************************************/
+extern uint btp_hfphf_getFeature(void);
+
+/******************************************************************************
+ * Function: btp_hfphf_getFeature
+ * Descript: Set the feaure of suppoted by HF.
+ * Params: 
+ *     @feature[IN]--. Refer "HF supported features bitmap" in <HFP_v1.8.pdf>.
+ * Return: None.
+*******************************************************************************/
+extern void btp_hfphf_setFeature(uint feature);
+
+/******************************************************************************
+ * Function: btp_hfphf_enableThreeWayCall
+ * Descript: Enable or disable the function of three-party conversation.
+ * Params:
+ *     @enable[IN]--True,enable three-way call; false-disable three-way call.
+ * Return: None.
+*******************************************************************************/
+extern void btp_hfphf_enableThreeWayCall(bool enable);
 
 /******************************************************************************
  * Function: HFP Trigger Get Current Handle interface
@@ -129,6 +162,18 @@ extern int btp_hfphf_setSpkVolume(uint08 spkVolume);
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 extern int btp_hfphf_setMicVolume(uint08 micVolume);
+
+/******************************************************************************
+ * Function: btp_hfphf_send
+ * Descript: Define a passthrough data interface.
+ * Params:
+ *     @aclHandle[IN]--The acl handle.
+ *     @pData[IN]--Data to be sent.
+ *     @dataLen[IN]--Length of data to be sent.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+extern int btp_hfphf_send(uint16 aclHandle, uint08 *pData, uint16 dataLen);
 
 /******************************************************************************
  * Function: HFP Trigger Dial a Call interface
@@ -212,6 +257,8 @@ extern int btp_hfphf_acceptWaitAndHoldActive(uint16 aclHandle);
 *******************************************************************************/
 extern int btp_hfphf_hungUpActiveAndResumeHold(uint16 aclHandle);
 
+extern int btp_hfphf_queryCallList(uint16 aclHandle);
+
 /******************************************************************************
  * Function: HFP hf verfy IOS device interface
  * Descript: This interface be used by hf to verfy peer device is IOS OS.
@@ -220,6 +267,116 @@ extern int btp_hfphf_hungUpActiveAndResumeHold(uint16 aclHandle);
  * Return: true(Yes)/false(No).
 *******************************************************************************/
 extern bool btp_hfphf_isIosDev(uint16 aclHandle);
+
+
+
+
+
+/******************************************************************************
+ * Function: btp_hfphf_getFeature
+ * Descript: Get the feaure of suppoted by HF.
+ * Params: None.
+ * Return: None.
+*******************************************************************************/
+extern uint btp_hfphf_getFeature(void);
+
+/******************************************************************************
+ * Function: btp_hfpag_getFeature
+ * Descript: Set the feaure of suppoted by HF.
+ * Params: 
+ *     @feature[IN]--. Refer "HF supported features bitmap" in <HFP_v1.8.pdf>.
+ * Return: None.
+*******************************************************************************/
+extern void btp_hfpag_setFeature(uint feature);
+
+/******************************************************************************
+ * Function: btp_hfphf_enableThreeWayCall
+ * Descript: Enable or disable the function of three-party conversation.
+ * Params:
+ *     @enable[IN]--True,enable three-way call; false-disable three-way call.
+ * Return: None.
+*******************************************************************************/
+extern void btp_hfpag_enableThreeWayCall(bool enable);
+
+/******************************************************************************
+ * Function: btp_hfpag_send
+ * Descript: Define a passthrough data interface.
+ * Params:
+ *     @aclHandle[IN]--The acl handle.
+ *     @pData[IN]--Data to be sent.
+ *     @dataLen[IN]--Length of data to be sent.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+extern int  btp_hfpag_send(uint16 aclHandle, uint08 *pData, uint16 dataLen);
+
+/******************************************************************************
+ * Function: btp_hfpag_regRecvCmdCB
+ * Descript: Register the command processing interface.
+ * Params:
+ *     @cb[IN]--Callback interface.
+ * Return: None.
+ * Others: When the callback interface returns TLK_ENONE, this instruction is 
+ *     ignored by system.
+*******************************************************************************/
+extern void btp_hfpag_regRecvCmdCB(BtpHfpAgRecvCmdCB cb);
+
+/******************************************************************************
+ * Function: btp_hfpag_regUnknownCmdCB
+ * Descript: Register the unknown command processing interface.
+ * Params:
+ *     @cb[IN]--Callback interface.
+ * Return: None.
+ * Others: When the callback interface returns TLK_ENONE, this instruction is 
+ *     ignored by system.
+*******************************************************************************/
+extern void btp_hfpag_regUnknownCmdCB(BtpHfpAgUnknownCmdCB cb);
+
+/******************************************************************************
+ * Function: btp_hfpag_regGetLastPhoneCB
+ * Descript: Register the interface to get the last phone number.
+ * Params:
+ *     @cb[IN]--Callback interface.
+ * Return: None.
+*******************************************************************************/
+extern void btp_hfpag_regGetLastPhoneCB(BtpHfpAgGetLastPhoneCB cb);
+
+/******************************************************************************
+ * Function: btp_hfpag_insertCall
+ * Descript: This interface be used by ag to add a call after a connection setup
+ *           or add a new call.
+ * Params:
+ * Return: null.
+*******************************************************************************/
+extern int btp_hfpag_insertCall(uint08 *pNumber, uint08 numbLen, uint08 isIncoming);
+
+/******************************************************************************
+ * Function: btp_hfpag_removeCall
+ * Descript: This interface be used by ag to remove a call.
+ * Params:
+ * Return: null.
+*******************************************************************************/
+extern int btp_hfpag_removeCall(uint08 *pNumber, uint08 numbLen);
+
+/******************************************************************************
+ * Function: btp_hfpag_activeCall
+ * Descript: This interface be used by ag to active a call.
+ * Params:
+ * Return: null.
+*******************************************************************************/
+extern int btp_hfpag_activeCall(uint08 *pNumber, uint08 numbLen);
+
+/******************************************************************************
+ * Function: btp_hfpag_hungupCall
+ * Descript: This interface be used by ag to hungup a call.
+ * Params:
+ * Return: null.
+*******************************************************************************/
+extern int btp_hfpag_hungupCall(void);
+
+
+
+
 
 #endif /* BTP_HFP_H */
 

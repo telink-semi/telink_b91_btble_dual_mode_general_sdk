@@ -83,7 +83,7 @@ extern int btp_a2dp_init(void);
  * Return: Returning TLK_ENONE(0x00) means the connect process success.
  *         If others value is returned means the connect process fail.
 *******************************************************************************/
-extern int btp_a2dp_connect(uint16 aclHandle);
+extern int btp_a2dp_connect(uint16 aclHandle, uint08 usrID);
 
 /******************************************************************************
  * Function: A2DP disconnect interface
@@ -246,6 +246,11 @@ extern int btp_a2dpsnk_start(uint16 aclHandle);
  * Return: SampleRate.
  *******************************************************************************/
 extern uint btp_a2dpsrc_getSampleRate(uint16 aclHandle);
+#if TLK_CFG_PTS_ENABLE
+extern uint btp_a2dpsrc_getbitpool(uint16 aclHandle);
+extern uint btp_a2dpsrc_getblock(uint16 aclHandle);
+extern int  btp_a2dpsrc_sendDiscoveryCmd(uint16 aclHandle);
+#endif
 
 /********************************************************************************************
  * The a2dp Sink Interface 

@@ -56,7 +56,7 @@ int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 chan
 			ret = btp_spp_connect(aclHandle, channel);
 			break;
 		case BTP_PTYPE_A2DP:
-			ret = btp_a2dp_connect(aclHandle);
+			ret = btp_a2dp_connect(aclHandle, usrID);
 			break;
 		case BTP_PTYPE_AVRCP:
 			ret = btp_avrcp_connect(aclHandle, usrID);

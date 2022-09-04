@@ -38,17 +38,14 @@ const tlkusb_module_t gTlkUsbCdcModule = {
 };
 
 
-static TlkUsbCdcRecvCB sTlkUsbCdcRecvCB;
+
 
 int tlkusb_cdc_init(void)
 {
 	return TLK_ENONE;
 }
 
-void tlkusb_cdc_regRecvCB(TlkUsbCdcRecvCB cb)
-{
-	sTlkUsbCdcRecvCB = cb;
-}
+
 
 int tlkusb_cdc_sendData(uint08 intfNum, uint08 *pData, uint08 dataLen)
 {

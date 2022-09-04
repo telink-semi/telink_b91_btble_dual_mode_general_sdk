@@ -26,7 +26,7 @@
 #include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlkprt/tlkprt_comm.h"
-#include "tlkmdi/tlkmdi_hfp.h"
+#include "tlkmdi/tlkmdi_bthfp.h"
 #include "tlkmdi/tlkmdi_audsco.h"
 #include "tlkmmi/phone/tlkmmi_phone.h"
 #include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
@@ -43,6 +43,9 @@ static void tlkmmi_phone_hfCallEvt(uint08 majorID, uint08 minorID, uint08 *pData
 static void tlkmmi_phone_hfCallCloseEvt(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen);
+static void tlkmmi_phone_hfCallResumeEvt(uint08 *pData, uint08 dataLen);
+static void tlkmmi_phone_hfCallWaitEvt(uint08 *pData, uint08 dataLen);
+static void tlkmmi_phone_hfCallHoldEvt(uint08 *pData, uint08 dataLen);
 
 
 /******************************************************************************
@@ -62,12 +65,19 @@ int tlkmmi_phone_statusInit(void)
 
 static void tlkmmi_phone_hfCallEvt(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen)
 {
+	tlkapi_trace(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_hfCallEvt: %d", minorID);
 	if(minorID == TLKMDI_HFPHF_EVTID_CALL_CLOSE){
 		tlkmmi_phone_hfCallCloseEvt(pData, dataLen);
 	}else if(minorID == TLKMDI_HFPHF_EVTID_CALL_START){
 		tlkmmi_phone_hfCallStartEvt(pData, dataLen);
 	}else if(minorID == TLKMDI_HFPHF_EVTID_CALL_ACTIVE){
 		tlkmmi_phone_hfCallActiveEvt(pData, dataLen);
+	}else if(minorID == TLKMDI_HFPHF_EVTID_CALL_RESUME){
+		tlkmmi_phone_hfCallResumeEvt(pData, dataLen);
+	}else if(minorID == TLKMDI_HFPHF_EVTID_CALL_WAIT){
+		tlkmmi_phone_hfCallWaitEvt(pData, dataLen);
+	}else if(minorID == TLKMDI_HFPHF_EVTID_CALL_HOLD){
+		tlkmmi_phone_hfCallHoldEvt(pData, dataLen);
 	}
 }
 static void tlkmmi_phone_hfCallCloseEvt(uint08 *pData, uint08 dataLen)
@@ -79,7 +89,7 @@ static void tlkmmi_phone_hfCallCloseEvt(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_hfphf_getCallNumber();
+	pNumber = tlkmdi_hfphf_getCallNumber(pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -106,7 +116,7 @@ static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen)
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
 	nameLen = 0;
-	pNumber = tlkmdi_hfphf_getCallNumber();
+	pNumber = tlkmdi_hfphf_getCallNumber(pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -137,7 +147,7 @@ static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen)
 	}
 	
 	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_START, buffer, buffLen);
-
+	
 	if(pEvt->callDir == 1){
 		tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_INCOMING);
 	}else if(pEvt->callDir == 2){
@@ -146,6 +156,133 @@ static void tlkmmi_phone_hfCallStartEvt(uint08 *pData, uint08 dataLen)
 }
 static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen)
 {
+	uint08 nameLen;
+	uint08 buffLen;
+	uint08 *pNumber;
+	uint08 buffer[4+TLKMDI_HFPHF_NUMBER_MAX_LEN+TLKMMI_PHONE_NAME_MAX_LEN];
+	tlkmdi_hfphf_statusEvt_t *pEvt;
+	
+	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
+
+	pNumber = tlkmdi_hfphf_getCallNumber(pEvt->callNum);
+	if(pNumber == nullptr) pEvt->numbLen = 0;
+	
+	buffLen = 0;
+	buffer[buffLen++] = TLKPRT_COMM_CALL_ROLE_CLIENT;
+	buffer[buffLen++] = pEvt->callDir;
+	buffer[buffLen++] = pEvt->numbLen;
+	if(pEvt->numbLen == 0){
+		buffer[buffLen++] = 0; //NameLen
+	}else{
+		tmemcpy(buffer+buffLen, pNumber, pEvt->numbLen);
+		buffLen += pEvt->numbLen;
+		if(tlkmmi_phone_bookGetName(pNumber, pEvt->numbLen, buffer+buffLen+1, TLKMMI_PHONE_NAME_MAX_LEN, &nameLen) == TLK_ENONE){
+			buffer[buffLen++] = nameLen; //NameLen
+			buffLen += nameLen;
+		}else if((pEvt->numbLen >= 8 && tmemcmp(pNumber, "10000000", 8) == 0) || (pEvt->numbLen >= 11 && tmemcmp(pNumber, "00000000000", 11) == 0)){
+			buffer[buffLen++] = 0x08; //NameLen
+			buffer[buffLen++] = 0xAE;
+			buffer[buffLen++] = 0x5F;
+			buffer[buffLen++] = 0xE1;
+			buffer[buffLen++] = 0x4F;
+			buffer[buffLen++] = 0xED;
+			buffer[buffLen++] = 0x8B;
+			buffer[buffLen++] = 0xF3;
+			buffer[buffLen++] = 0x97;
+		}else{
+			buffer[buffLen++] = 0; //NameLen
+		}
+	}
+	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_ACTIVE, buffer, buffLen);
+	
+	tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_ACTIVE);
+}
+static void tlkmmi_phone_hfCallResumeEvt(uint08 *pData, uint08 dataLen)
+{
+	uint08 nameLen;
+	uint08 buffLen;
+	uint08 *pNumber;
+	uint08 buffer[4+TLKMDI_HFPHF_NUMBER_MAX_LEN+TLKMMI_PHONE_NAME_MAX_LEN];
+	tlkmdi_hfphf_statusEvt_t *pEvt;
+	
+	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
+
+	pNumber = tlkmdi_hfphf_getCallNumber(pEvt->callNum);
+	if(pNumber == nullptr) pEvt->numbLen = 0;
+	
+	buffLen = 0;
+	buffer[buffLen++] = TLKPRT_COMM_CALL_ROLE_CLIENT;
+	buffer[buffLen++] = pEvt->callDir;
+	buffer[buffLen++] = pEvt->numbLen;
+	if(pEvt->numbLen == 0){
+		buffer[buffLen++] = 0; //NameLen
+	}else{
+		tmemcpy(buffer+buffLen, pNumber, pEvt->numbLen);
+		buffLen += pEvt->numbLen;
+		if(tlkmmi_phone_bookGetName(pNumber, pEvt->numbLen, buffer+buffLen+1, TLKMMI_PHONE_NAME_MAX_LEN, &nameLen) == TLK_ENONE){
+			buffer[buffLen++] = nameLen; //NameLen
+			buffLen += nameLen;
+		}else if((pEvt->numbLen >= 8 && tmemcmp(pNumber, "10000000", 8) == 0) || (pEvt->numbLen >= 11 && tmemcmp(pNumber, "00000000000", 11) == 0)){
+			buffer[buffLen++] = 0x08; //NameLen
+			buffer[buffLen++] = 0xAE;
+			buffer[buffLen++] = 0x5F;
+			buffer[buffLen++] = 0xE1;
+			buffer[buffLen++] = 0x4F;
+			buffer[buffLen++] = 0xED;
+			buffer[buffLen++] = 0x8B;
+			buffer[buffLen++] = 0xF3;
+			buffer[buffLen++] = 0x97;
+		}else{
+			buffer[buffLen++] = 0; //NameLen
+		}
+	}
+	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_RESUME, buffer, buffLen);
+	
+	tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_ACTIVE);
+}
+static void tlkmmi_phone_hfCallWaitEvt(uint08 *pData, uint08 dataLen)
+{
+	uint08 nameLen;
+	uint08 buffLen;
+	uint08 *pNumber;
+	uint08 buffer[4+TLKMDI_HFPHF_NUMBER_MAX_LEN+TLKMMI_PHONE_NAME_MAX_LEN];
+	tlkmdi_hfphf_statusEvt_t *pEvt;
+	
+	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
+
+	pNumber = tlkmdi_hfphf_getCallNumber(pEvt->callNum);
+	if(pNumber == nullptr) pEvt->numbLen = 0;
+	
+	buffLen = 0;
+	buffer[buffLen++] = TLKPRT_COMM_CALL_ROLE_CLIENT;
+	buffer[buffLen++] = pEvt->callDir;
+	buffer[buffLen++] = pEvt->numbLen;
+	if(pEvt->numbLen == 0){
+		buffer[buffLen++] = 0; //NameLen
+	}else{
+		tmemcpy(buffer+buffLen, pNumber, pEvt->numbLen);
+		buffLen += pEvt->numbLen;
+		if(tlkmmi_phone_bookGetName(pNumber, pEvt->numbLen, buffer+buffLen+1, TLKMMI_PHONE_NAME_MAX_LEN, &nameLen) == TLK_ENONE){
+			buffer[buffLen++] = nameLen; //NameLen
+			buffLen += nameLen;
+		}else if((pEvt->numbLen >= 8 && tmemcmp(pNumber, "10000000", 8) == 0) || (pEvt->numbLen >= 11 && tmemcmp(pNumber, "00000000000", 11) == 0)){
+			buffer[buffLen++] = 0x08; //NameLen
+			buffer[buffLen++] = 0xAE;
+			buffer[buffLen++] = 0x5F;
+			buffer[buffLen++] = 0xE1;
+			buffer[buffLen++] = 0x4F;
+			buffer[buffLen++] = 0xED;
+			buffer[buffLen++] = 0x8B;
+			buffer[buffLen++] = 0xF3;
+			buffer[buffLen++] = 0x97;
+		}else{
+			buffer[buffLen++] = 0; //NameLen
+		}
+	}
+	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_WAIT, buffer, buffLen);
+}
+static void tlkmmi_phone_hfCallHoldEvt(uint08 *pData, uint08 dataLen)
+{
 	uint08 buffLen;
 	uint08 *pNumber;
 	uint08 buffer[4+TLKMDI_HFPHF_NUMBER_MAX_LEN];
@@ -153,7 +290,7 @@ static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_hfphf_getCallNumber();
+	pNumber = tlkmdi_hfphf_getCallNumber(pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -165,9 +302,7 @@ static void tlkmmi_phone_hfCallActiveEvt(uint08 *pData, uint08 dataLen)
 		buffLen += pEvt->numbLen;
 	}
 	buffer[buffLen++] = 0; //NameLen
-	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_ACTIVE, buffer, buffLen);
-	
-	tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_ACTIVE);
+	tlkmdi_comm_sendCallEvt(TLKPRT_COMM_EVTID_CALL_HELD, buffer, buffLen);
 }
 
 

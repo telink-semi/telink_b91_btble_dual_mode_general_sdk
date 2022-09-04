@@ -32,64 +32,41 @@
 #include "drivers.h"
 
 
-int tlkusb_audspk_setInfCmdDeal(int type);
-int tlkusb_audspk_getInfCmdDeal(int req, int type);		
+
+static void tlkusb_audspk_writeData(uint08 *pData, uint08 dataLen);
 
 
+static uint08 sTlkUsbAudSpkEnable = 0;
 static tlkusb_audspk_ctrl_t sTlkUsbAudSpkCtrl;
+static uint08 sTlkUsbAudSpkBuffer[TLKUSB_AUD_SPK_BUFFER_SIZE+4];
+
 
 int tlkusb_audspk_init(void)
 {
 	tmemset(&sTlkUsbAudSpkCtrl, 0, sizeof(tlkusb_audspk_ctrl_t));
 
+	sTlkUsbAudSpkEnable = false;
 	sTlkUsbAudSpkCtrl.sampleRate = TLKUSB_AUD_SPK_SAMPLE_RATE;
 	tlkusb_audspk_setVolume(TLKUSB_AUDSPK_VOL_MAX);
-
+	tlkapi_fifo_init(&sTlkUsbAudSpkCtrl.fifo, false, false, sTlkUsbAudSpkBuffer, TLKUSB_AUD_SPK_BUFFER_SIZE+4);
+	
 	return TLK_ENONE;
 }
 
-int tlkusb_audspk_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum)
+bool tlkusb_audspk_getEnable(void)
 {
-	int ret = -TLK_ENOSUPPORT;
-	uint08 Entity = (pSetup->wIndex >> 8);
-	uint08 value_h = (pSetup->wValue >> 8) & 0xff;
-	switch(Entity){
-		case USB_SPEAKER_FEATURE_UNIT_ID:
-			ret = tlkusb_audspk_getInfCmdDeal(pSetup->bRequest, value_h);
-			break;
-		default:
-			break;
+	return sTlkUsbAudSpkEnable;
+}
+void tlkusb_audspk_setEnable(bool enable)
+{
+	sTlkUsbAudSpkEnable = enable;
+	if(enable){
+		reg_usb_ep_ptr(TLKUSB_AUD_EDP_SPK) = 0;
+		reg_usb_ep_ctrl(TLKUSB_AUD_EDP_SPK) = 0x01; //ACK first packet
+	}else{
+		tlkapi_fifo_clear(&sTlkUsbAudSpkCtrl.fifo);
 	}
-	
-	return ret;
 }
-int tlkusb_audspk_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum)
-{
-	return -TLK_ENOSUPPORT;
-}
-
-int tlkusb_audspk_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum)
-{
-	int ret = -TLK_ENOSUPPORT;
-//	uint08 property = pSetup->bRequest;
-//	uint08 value_l = (pSetup->wValue) & 0xff;
-	uint08 value_h = (pSetup->wValue >> 8) & 0xff;
-	uint08 Entity = (pSetup->wIndex >> 8) & 0xff;
-	
-	switch(Entity){
-		case USB_SPEAKER_FEATURE_UNIT_ID:
-			ret = tlkusb_audspk_setInfCmdDeal(value_h);
-			break;
-		default:
-			break;
-	}
-	return ret;
-}
-int tlkusb_audspk_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum)
-{
-	return -TLK_ENOSUPPORT;
-}
-
 
 uint tlkusb_audspk_getVolume(void)
 {
@@ -109,6 +86,10 @@ void tlkusb_audspk_enterMute(bool enable)
 	sTlkUsbAudSpkCtrl.mute = enable;
 }
 
+void tlkusb_audspk_autoFlush(bool enable)
+{
+	TLKAPI_FIFO_SET_COVER(&sTlkUsbAudSpkCtrl.fifo, enable);
+}
 
 
 
@@ -163,6 +144,71 @@ int tlkusb_audspk_setEdpCmdDeal(int type)
 		// TODO: Sample Rate Changed
 	}
 	return TLK_ENONE;
+}
+
+uint tlkusb_audspk_readData(uint08 *pBuff, uint08 buffLen, bool isParty)
+{
+	uint16 dataLen = tlkapi_fifo_dataLen(&sTlkUsbAudSpkCtrl.fifo);
+	if(dataLen == 0 || (!isParty && dataLen < buffLen)) return 0;
+	if(buffLen > dataLen) buffLen = dataLen;
+	tlkapi_fifo_read(&sTlkUsbAudSpkCtrl.fifo, pBuff, buffLen);
+	return dataLen;
+}
+
+_attribute_ram_code_sec_noinline_
+void tlkusb_audspk_recvData(void)
+{
+	uint08 index;
+	uint08 length;
+	uint08 buffer[64];
+	usbhw_clr_eps_irq(BIT(TLKUSB_AUD_EDP_SPK));
+	length = reg_usb_ep_ptr(TLKUSB_AUD_EDP_SPK);
+	reg_usb_ep_ptr(TLKUSB_AUD_EDP_SPK) = 0;
+	if(length > 64) length = 64;
+	for(index=0; index<length; index++){
+		buffer[index] = reg_usb_ep_dat(TLKUSB_AUD_EDP_SPK);
+	}
+	tlkusb_audspk_writeData(buffer, length);
+	reg_usb_ep_ctrl(TLKUSB_AUD_EDP_SPK) = FLD_EP_DAT_ACK;
+}
+
+
+_attribute_ram_code_sec_noinline_
+static void tlkusb_audspk_writeData(uint08 *pData, uint08 dataLen)
+{
+	uint16 unUsed;
+	uint16 tempLen;
+	uint16 woffset;
+	uint16 roffset;
+	tlkapi_fifo_t *pFifo;
+
+	if(dataLen == 0) return;
+	pFifo = &sTlkUsbAudSpkCtrl.fifo;
+	if(pFifo->buffLen == 0) return; //Not Ready, skip
+	woffset = pFifo->woffset;
+	roffset = pFifo->roffset;
+	if(roffset > woffset) unUsed = roffset-woffset;
+	else unUsed = pFifo->buffLen+roffset-woffset;
+	if(unUsed <= dataLen){
+		if(pFifo->isCover){
+			roffset += dataLen-unUsed+1;
+			if(roffset >= pFifo->buffLen) roffset -= pFifo->buffLen;
+			unUsed = dataLen+1;
+		}else{
+			return;
+		}
+	}
+	
+	if(woffset+dataLen <= pFifo->buffLen) tempLen = dataLen;
+	else tempLen = pFifo->buffLen-woffset;
+	tmemcpy(pFifo->pBuffer+woffset, pData, tempLen);
+	if(tempLen < dataLen){
+		tmemcpy(pFifo->pBuffer, pData+tempLen, dataLen-tempLen);
+	}
+	
+	woffset += dataLen;
+	if(woffset >= pFifo->buffLen) woffset -= pFifo->buffLen;
+	pFifo->woffset = woffset;
 }
 
 

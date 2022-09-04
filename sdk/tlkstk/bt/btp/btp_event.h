@@ -46,6 +46,7 @@ typedef enum{
 	BTP_EVTID_HFPHF_CODEC_CHANGED,
 	BTP_EVTID_HFPAG_CODEC_CHANGED,
 	BTP_EVTID_HFPHF_STATUS_CHANGED,
+	BTP_EVTID_HFPHF_NUMBER_INQUIRY,
 	BTP_EVTID_HFPHF_VOLUME_CHANGED,
 	BTP_EVTID_HFPAG_STATUS_CHANGED,
 	BTP_EVTID_HFPAG_VOLUME_CHANGED,
@@ -106,6 +107,14 @@ typedef struct{
 	uint08 *pNumber;
 }btp_hfpStatusChangedEvt_t;
 typedef struct{
+	uint08 state; //Inquiry State: 0-Start, 1-continue, 2-Stop
+	uint16 handle;
+	uint08 status;
+	uint08 callDir;
+	uint08 numbLen;
+	uint08 *pNumber;
+}btp_hfpNumberInquiryEvt_t;
+typedef struct{
 	uint16 handle;
 	uint08 status; // 0-Closed, 1-Opened, 2-Paused, 3-Stream, Refer to BTP_A2DP_STATUS_ENUM.
 }btp_a2dpStatusChangeEvt_t;
@@ -142,6 +151,7 @@ int btp_send_hfphfVolumeChangedEvt(uint16 aclHandle, uint08 type, uint08 volume)
 int btp_send_hfpagVolumeChangedEvt(uint16 aclHandle, uint08 type, uint08 volume);
 int btp_send_hfphfStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 callDir, uint08 *pNumber, uint08 numbLen);
 int btp_send_hfpagStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 callDir, uint08 *pNumber, uint08 numbLen);
+int btp_send_hfphfNumberInquiryEvt(uint16 aclHandle, uint08 state, uint08 status, uint08 callDir, uint08 *pNumber, uint08 numbLen);
 
 
 int btp_send_a2dpSrcCodecChangedEvt(uint16 aclHandle, uint08 chnMode, uint08 codecType, uint32 frequence, uint32 bitRate, uint08 objType);

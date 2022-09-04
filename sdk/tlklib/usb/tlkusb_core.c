@@ -76,8 +76,7 @@ int tlkusb_core_init(uint16 usbID)
 		
 	reg_usb_mdev &= ~BIT(3); //vendor command: bRequest[7] = 0
 	
-	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC);
-
+	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC | FLD_CTRL_EP_AUTO_INTF);
 	
 	return TLK_ENONE;
 }
@@ -174,7 +173,7 @@ static void tlkusb_ctrlTranSetupReqProc(bool isSetupReq)
 			tlkusb_ctrlSendResponse();
 			break;
 		case (TLKUSB_REQTYPE_DIR_HOST2DEV | TLKUSB_REQTYPE_MAJ_STAND | TLKUSB_REQTYPE_REC_INTERFACE):
-			tlkusb_stdH2DInfReqDeal(&sMmiUsbCtrlReq);
+			if(isSetupReq) tlkusb_stdH2DInfReqDeal(&sMmiUsbCtrlReq);
 			break;
 		case (TLKUSB_REQTYPE_DIR_DEV2HOST | TLKUSB_REQTYPE_MAJ_CLASS | TLKUSB_REQTYPE_REC_INTERFACE):
 			if(isSetupReq) tlkusb_classD2HInfDeal(&sMmiUsbCtrlReq);

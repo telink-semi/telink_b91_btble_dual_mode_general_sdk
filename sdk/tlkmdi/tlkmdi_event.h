@@ -102,7 +102,7 @@ int tlkmdi_sendAudioEvent(uint08 minorID, void *pData, uint08 dataLen);
  * Return: Return TLK_ENONE is success, others failure.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_sendPhoneEvent(uint08 minorID, void *pData, uint08 dataLen);
+int tlkmdi_sendPhoneEvent(uint08 minorID, void *pData, uint08 dataLen, bool isRealDeal);
 
 
 

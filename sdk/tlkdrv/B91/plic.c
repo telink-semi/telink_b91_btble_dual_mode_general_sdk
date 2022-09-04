@@ -172,47 +172,35 @@ extern void tlkapi_debug_process(void);
  */
 _attribute_retention_code_ __attribute__((weak)) void except_handler(long cause, long epc,long* reg)
 {
+	core_disable_interrupt();
+
+	#if (TLK_CFG_DBG_ENABLE)
+	tlkapi_debug_delayForPrint(10000);
+	#endif
+	
 	except_handler_e.pc = epc;
 	except_handler_e.lr = reg[0];
 	except_handler_e.sp = reg[1];
 	except_handler_e.gp = reg[2];
 	except_handler_e.cause = cause;
-	
-#if IRQ_DEBUG_ENABLE
 
 	#if (TLK_CFG_DBG_ENABLE)
-	tlkapi_debug_sendU32s("cause",
-						except_handler_e.pc, 
-						except_handler_e.lr, 
-						except_handler_e.sp, 
-						except_handler_e.cause);
-	tlkapi_debug_sendU32s("PC,LR,SP,GP",
-						except_handler_e.pc, 
-						except_handler_e.lr, 
-						except_handler_e.sp, 
-						except_handler_e.gp);
-	#endif
-#endif
-	while(1){
-		
-		/* Unhandled Trap */
-		for(volatile unsigned int i = 0; i < 0xffffffff; i++)
-		{
-			#if (TLK_CFG_DBG_ENABLE)
-			tlkapi_debug_process();
-			#endif
-			asm("nop");
-
-			#if (TLK_CFG_DBG_ENABLE)
-			if (i < 20)
-				tlkapi_debug_sendU32s("PC,LR,SP,GP",
-								except_handler_e.pc, 
-								except_handler_e.lr, 
-								except_handler_e.sp, 
-								except_handler_e.gp);
-			#endif
-		}
+	for(volatile unsigned int i = 0; i < 20; i++)
+	{		
+		tlkapi_debug_sendU32s("cause",
+					except_handler_e.pc, 
+					except_handler_e.lr, 
+					except_handler_e.sp, 
+					except_handler_e.cause);
+		tlkapi_debug_sendU32s("PC,LR,SP,GP",
+					except_handler_e.pc, 
+					except_handler_e.lr, 
+					except_handler_e.sp, 
+					except_handler_e.gp);
+		tlkapi_debug_delayForPrint(10000);
 	}
+	#endif
+	while(1){ asm("nop"); }
 }
 
 _attribute_retention_code_  __attribute__((weak)) void trap_entry(void) __attribute__ ((interrupt ("machine") , aligned(4)));

@@ -306,13 +306,8 @@ typedef struct
 	uint08 SubFrameSize;
 	uint08 BitResolution;
 	uint08 SampleFrequencyType;
+	uint08 tSamFreq[3];
 }__attribute__((packed)) tlkusb_audFormatDesc_t;
-typedef struct
-{
-	uint08 Byte1;
-	uint08 Byte2;
-	uint08 Byte3;
-}__attribute__((packed)) tlkusb_audSampleDesc_t;
 typedef struct
 {
 	uint08 Length;

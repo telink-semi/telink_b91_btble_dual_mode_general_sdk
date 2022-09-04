@@ -112,8 +112,8 @@ void tlkmmi_audio_connect(uint16 handle, uint08 ptype, uint08 usrID)
 		if(usrID == BTP_USRID_SERVER) dstOptype = TLKMMI_AUDIO_OPTYPE_SRC;
 		else dstOptype = TLKMMI_AUDIO_OPTYPE_SNK;
 		if(playIndex >= 0 && srcIndex < 0 && snkIndex < 0){
-			tlkmmi_audio_modinfStart(handle, dstOptype, 0);
-		}		
+			tlkmmi_audio_modinfStart(dstOptype, handle, 0);
+		}
 	}
 }
 /******************************************************************************

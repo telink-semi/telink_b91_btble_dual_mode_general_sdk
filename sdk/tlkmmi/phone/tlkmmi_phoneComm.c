@@ -26,6 +26,7 @@
 #include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlkprt/tlkprt_comm.h"
+#include "tlkmdi/tlkmdi_bthfp.h"
 #include "tlkmmi/phone/tlkmmi_phone.h"
 #include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
 #include "tlkmmi/phone/tlkmmi_phoneComm.h"
@@ -58,8 +59,8 @@ static void tlkmmi_phone_recvHungUpCmdDeal(uint08 *pData, uint08 dataLen);
 int tlkmmi_phone_commInit(void)
 {
 	tlkmdi_comm_regCallCB(tlkmmi_phone_cmdHandler);
-		
 	
+
 	return TLK_ENONE;
 }
 
@@ -114,7 +115,38 @@ static void tlkmmi_phone_recvDialCmdDeal(uint08 *pData, uint08 dataLen)
 }
 static void tlkmmi_phone_recvHoldCmdDeal(uint08 *pData, uint08 dataLen)
 {
-	tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HOLD, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
+	int ret;
+	uint08 role;
+	
+	if(dataLen < 2){
+		tlkapi_error(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_recvHoldCmdDeal: failure - param");
+		tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HOLD, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFORMAT, nullptr, 0);
+		return;
+	}
+
+	role = pData[0];
+	if(role == TLKPRT_COMM_CALL_ROLE_CLIENT){
+		if(pData[1] == 0x00){
+			ret = tlkmdi_hfphf_rejectWaitAndKeepActive();
+		}else if(pData[1] == 0x01){
+			ret = tlkmdi_hfphf_acceptWaitAndHoldActive();
+		}else if(pData[1] == 0x02){
+			ret = tlkmdi_hfphf_hungUpActiveAndResumeHold();
+		}else{
+			ret = -TLK_EPARAM;
+		}
+		if(ret < 0) ret = -ret;
+		if(ret == TLK_ENONE){
+			tlkapi_trace(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_recvHoldCmdDeal: success");
+			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HOLD, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+		}else{
+			tlkapi_error(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_recvHoldCmdDeal: failure");
+			tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HOLD, TLKPRT_COMM_RSP_STATUE_FAILURE, ret, nullptr, 0);
+		}
+	}else{
+		tlkapi_trace(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_recvHoldCmdDeal: failure - role - %d", role);
+		tlkmdi_comm_sendCallRsp(TLKPRT_COMM_CMDID_CALL_HOLD, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
+	}
 }
 static void tlkmmi_phone_recvRedialCmdDeal(uint08 *pData, uint08 dataLen)
 {

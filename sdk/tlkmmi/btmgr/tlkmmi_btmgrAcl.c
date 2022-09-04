@@ -29,7 +29,7 @@
 #include "tlkmdi/tlkmdi_btacl.h"
 #include "tlkmdi/tlkmdi_btinq.h"
 #include "tlkmdi/tlkmdi_btrec.h"
-#include "tlkmdi/tlkmdi_hfp.h"
+#include "tlkmdi/tlkmdi_bthfp.h"
 #include "tlkmmi/tlkmmi_adapt.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
@@ -365,7 +365,7 @@ static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtA
 		}
 	}
 	tlkmmi_btmgr_sendAclDisconnEvt(handle, reason, pBtAddr);
-	#if (TLK_MDI_HFP_ENABLE)
+	#if (TLK_MDI_BTHFP_ENABLE)
 	tlkmdi_hfp_destroy(handle);
 	#endif
 	if(sTlkMmiBtMgrAclDiscCB != nullptr){
@@ -517,12 +517,19 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 		}else{
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-src failure");
 		}
-	}else{
+	}else if(dtype == BTH_REMOTE_DTYPE_COMPUTER || dtype == BTH_REMOTE_DTYPE_PHONE){
 		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_CLIENT, delayMs);
 		if(ret == TLK_ENONE){
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk success");
 		}else{
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk failure");
+		}
+	}else{
+		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_NONE, delayMs);
+		if(ret == TLK_ENONE){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-none success");
+		}else{
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-none failure");
 		}
 	}
 	
@@ -532,7 +539,7 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 	}else{
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append avrcp failure");
 	}
-    if (dtype != BTH_REMOTE_DTYPE_HEADSET) {
+    if(dtype != BTH_REMOTE_DTYPE_HEADSET){
 	    ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_HID, BTP_USRID_SERVER, delayMs);
 	    if(ret == TLK_ENONE){
 		    tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hid success");

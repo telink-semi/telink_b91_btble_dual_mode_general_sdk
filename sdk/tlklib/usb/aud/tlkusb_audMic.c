@@ -33,60 +33,43 @@
 #include "drivers.h"
 
 
+static uint08 tlkusb_audmic_readData(uint08 *pBuffer, uint08 readLen);
 
+
+static uint08 sTlkUsbAudMicEnable = false;
+static uint08 sTlkUsbAudMicAutoZero = false;
+static uint08 sTlkUsbAudMicUnitLens = (TLKUSB_AUD_MIC_SAMPLE_RATE / 1000) * 2;
+static uint08 sTlkUsbAudMicBuffer[TLKUSB_AUD_MIC_BUFFER_SIZE+4];
 static tlkusb_audmic_ctrl_t sTlkUsbAudMicCtrl;
-
 
 
 int tlkusb_audmic_init(void)
 {
 	tmemset(&sTlkUsbAudMicCtrl, 0, sizeof(tlkusb_audmic_ctrl_t));
-
+	
+	sTlkUsbAudMicEnable = false;
 	sTlkUsbAudMicCtrl.sampleRate = TLKUSB_AUD_MIC_SAMPLE_RATE;
-	if(TLKUSB_AUD_MIC_CHANNEL_COUNT == 1) {
-		//SET_FLD(reg_usb_ep_ctrl(USB_EDP_MIC), FLD_USB_EP_EOF_ISO | FLD_USB_EP_MONO);
-	}
-	
 	sTlkUsbAudMicCtrl.curVol = TLKUSB_AUDMIC_VOL_DEF;
-	
+	tlkapi_fifo_init(&sTlkUsbAudMicCtrl.fifo, false, false, sTlkUsbAudMicBuffer, TLKUSB_AUD_MIC_BUFFER_SIZE+4);
+		
 	return TLK_ENONE;
 }
 
 
-int tlkusb_audmic_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum)
+bool tlkusb_audmic_getEnable(void)
 {
-	return -TLK_ENOSUPPORT;
+	return sTlkUsbAudMicEnable;
 }
-int tlkusb_audmic_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum)
+void tlkusb_audmic_setEnable(bool enable)
 {
-	int ret;
-	uint08 property = pSetup->bRequest;
-	uint08 ep_ctrl = pSetup->wValue >> 8;
-
-	ret = -TLK_ENOSUPPORT;
-	if(ep_ctrl == AUDIO_EPCONTROL_SamplingFreq){
-		switch(property){
-			case AUDIO_REQ_GetCurrent:
-				ret = TLK_ENONE;
-				usbhw_write_ctrl_ep_data(TLKUSB_AUD_MIC_SAMPLE_RATE & 0xff);
-				usbhw_write_ctrl_ep_data(TLKUSB_AUD_MIC_SAMPLE_RATE >> 8);
-				usbhw_write_ctrl_ep_data(TLKUSB_AUD_MIC_SAMPLE_RATE >> 16);
-				break;
-		}
+	sTlkUsbAudMicEnable = enable;
+	if(enable){
+		reg_usb_ep_ptr(TLKUSB_AUD_EDP_MIC) = 0;
+		reg_usb_ep_ctrl(TLKUSB_AUD_EDP_MIC) = 0x01; //ACK first packet
+	}else{
+		tlkapi_fifo_clear(&sTlkUsbAudMicCtrl.fifo);
 	}
-	
-	return ret;
 }
-
-int tlkusb_audmic_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum)
-{
-	return -TLK_ENOSUPPORT;
-}
-int tlkusb_audmic_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum)
-{
-	return -TLK_ENOSUPPORT;
-}
-
 
 uint tlkusb_audmic_getVolume(void)
 {
@@ -161,8 +144,81 @@ int tlkusb_audmic_setEdpCmdDeal(int type)
 	return TLK_ENONE;
 }
 
+void tlkusb_audmic_autoZero(bool enable)
+{
+	sTlkUsbAudMicAutoZero = enable;
+}
+bool tlkusb_audmic_sendData(uint08 *pData, uint16 dataLen, bool isCover)
+{
+	int ret;
+	if(!sTlkUsbAudMicEnable) return false;
+	TLKAPI_FIFO_SET_COVER(&sTlkUsbAudMicCtrl.fifo, isCover);
+	ret = tlkapi_fifo_write(&sTlkUsbAudMicCtrl.fifo, pData, dataLen);
+	if(ret <= 0) return false;
+	return true;
+}
 
 
+_attribute_ram_code_sec_noinline_
+void tlkusb_audmic_fillData(void)
+{
+	uint08 buffLen;
+	uint08 buffer[64];
+
+	usbhw_clr_eps_irq(BIT(TLKUSB_AUD_EDP_MIC));
+	reg_usb_ep_ptr(TLKUSB_AUD_EDP_MIC) = 0;
+	
+	buffLen = 0;
+	if(sTlkUsbAudMicEnable){
+		uint08 readLen = 64;
+		if(readLen > sTlkUsbAudMicUnitLens) readLen = sTlkUsbAudMicUnitLens;
+		buffLen = tlkusb_audmic_readData(buffer, readLen);
+	}
+	if(buffLen != 0){
+		uint08 index;
+		for(index=0; index<buffLen; index++){
+			reg_usb_ep_dat(TLKUSB_AUD_EDP_MIC) = buffer[index];
+		}
+		reg_usb_ep_ctrl(TLKUSB_AUD_EDP_MIC) = BIT(0);
+	}else if(sTlkUsbAudMicAutoZero){
+		uint08 index;
+		for(index=0; index<sTlkUsbAudMicUnitLens; index++){
+			reg_usb_ep_dat(TLKUSB_AUD_EDP_MIC) = 0x00;
+		}
+		reg_usb_ep_ctrl(TLKUSB_AUD_EDP_MIC) = BIT(0);
+	}
+}
+
+_attribute_ram_code_sec_noinline_
+static uint08 tlkusb_audmic_readData(uint08 *pBuffer, uint08 readLen)
+{
+	uint16 used;
+	uint16 tempLen;
+	uint16 woffset;
+	uint16 roffset;
+	tlkapi_fifo_t *pFifo;
+
+	pFifo = &sTlkUsbAudMicCtrl.fifo;
+	
+	if(pFifo->buffLen == 0) return 0;
+	woffset = pFifo->woffset;
+	roffset = pFifo->roffset;
+	if(woffset >= roffset) used = woffset-roffset;
+	else used = pFifo->buffLen+woffset-roffset;
+	if(used == 0) return 0;
+	if(readLen > used) readLen = used;
+	
+	if(roffset+readLen <= pFifo->buffLen) tempLen = readLen;
+	else tempLen = pFifo->buffLen-roffset;
+	tmemcpy(pBuffer, pFifo->pBuffer+roffset, tempLen);
+	if(tempLen < readLen){
+		tmemcpy(pBuffer+tempLen, pFifo->pBuffer, readLen-tempLen);
+	}
+	roffset += readLen;
+	if(roffset >= pFifo->buffLen) roffset -= pFifo->buffLen;
+	pFifo->roffset = roffset;
+	return readLen;
+}
 
 
 #endif //#if (TLKUSB_AUD_MIC_ENABLE)

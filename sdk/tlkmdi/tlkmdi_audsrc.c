@@ -149,6 +149,7 @@ int tlkmdi_audsrc_close(uint16 handle)
 		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_close: enable handle");
 		return -TLK_EHANDLE;
 	}
+	tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_close start: enable handle");
 	sTlkMdiSrcCtrl.waitStart = 0;
 	tlkmdi_audsrc_switch(sTlkMdiSrcCtrl.handle, TLK_STATE_CLOSED);
 	return btp_a2dpsrc_suspend(sTlkMdiSrcCtrl.handle);
@@ -276,7 +277,17 @@ bool tlkmdi_audsrc_switch(uint16 handle, uint08 status)
 	tlkmdi_mp3_startUpdate();
 	
 	if(enable){
+		#if TLK_CFG_PTS_ENABLE
+		uint16 bitpool = 53;
+		uint16 blocks = 16;
+		#endif
 		tlkmdi_src_resetParam(44100);
+		#if TLK_CFG_PTS_ENABLE
+		bitpool = btp_a2dpsrc_getbitpool(sTlkMdiSrcCtrl.handle);
+		blocks = btp_a2dpsrc_getblock(sTlkMdiSrcCtrl.handle);
+		tlkalg_sbc_encSetBitpool(blocks, bitpool);
+		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_switch: bitpool-0x%x, blocks-%d", bitpool, blocks);
+		#endif
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SRC, TLK_STATE_OPENED);
 	}else{
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SRC, TLK_STATE_CLOSED);

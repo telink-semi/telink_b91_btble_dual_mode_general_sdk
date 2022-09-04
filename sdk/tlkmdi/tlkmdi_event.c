@@ -116,7 +116,7 @@ void tlkmdi_event_handler(void)
 			sTlkMdiEventCB[majorID](majorID, minorID, buffer, buffLen);
 		}else if(sTlkMdiEventCB[0] != nullptr){
 			sTlkMdiEventCB[0](majorID, minorID, buffer, buffLen);
-		}		
+		}
 	}
 }
 
@@ -139,9 +139,16 @@ int tlkmdi_sendAudioEvent(uint08 minorID, void *pData, uint08 dataLen)
  * Return: Return TLK_ENONE is success, others failure.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_sendPhoneEvent(uint08 minorID, void *pData, uint08 dataLen)
+int tlkmdi_sendPhoneEvent(uint08 minorID, void *pData, uint08 dataLen, bool isRealDeal)
 {
-	return tlkmdi_event_push(TLKMDI_EVENT_MAJOR_PHONE, minorID, (uint08*)pData, dataLen);
+	if(!isRealDeal){
+		return tlkmdi_event_push(TLKMDI_EVENT_MAJOR_PHONE, minorID, (uint08*)pData, dataLen);
+	}else{
+		if(sTlkMdiEventCB[TLKMDI_EVENT_MAJOR_PHONE] != nullptr){
+			sTlkMdiEventCB[TLKMDI_EVENT_MAJOR_PHONE](TLKMDI_EVENT_MAJOR_PHONE, minorID, pData, dataLen);
+		}
+		return TLK_ENONE;
+	}
 }
 
 

@@ -64,7 +64,16 @@ const tlkusb_modCtrl_t sTlkUsbCdcModCtrl = {
 	tlkusb_cdcctrl_setInterface, //SetInterface
 };
 
-static uint08 sTlkUsbCdcRecvBuffer[TLKUSB_CDC_TXRX_EDPSIZE];
+static TlkUsbCdcRecvCB sTlkUsbCdcRecvCB = nullptr;
+
+
+
+
+void tlkusb_cdc_regRecvCB(TlkUsbCdcRecvCB cb)
+{
+	sTlkUsbCdcRecvCB = cb;
+}
+
 
 static int tlkusb_cdcctrl_init(void)
 {
@@ -108,31 +117,39 @@ static void tlkusb_cdcctrl_handler(void)
 	if(reg_usb_ep_irq_status & TLKUSB_CDC_EDP_RX_FLAG){
 		uint08 index;
 		uint08 length;
+		uint08 buffer[TLKUSB_CDC_TXRX_EDPSIZE];
 		reg_usb_ep_irq_status = TLKUSB_CDC_EDP_RX_FLAG;
 		length = reg_usb_ep_ptr(TLKUSB_CDC_EDP_RX);
 		reg_usb_ep_ptr(TLKUSB_CDC_EDP_RX) = 0;
 		if(length > TLKUSB_CDC_TXRX_EDPSIZE) length = TLKUSB_CDC_TXRX_EDPSIZE;
 		for(index=0; index<length; index++){
-			sTlkUsbCdcRecvBuffer[index] = reg_usb_ep_dat(TLKUSB_CDC_EDP_RX);
+			buffer[index] = reg_usb_ep_dat(TLKUSB_CDC_EDP_RX);
 		}
 		reg_usb_ep_ctrl(TLKUSB_CDC_EDP_RX) = FLD_EP_DAT_ACK;
-		//Just For Test
-		tlkusb_cdc_sendData(TLKUSB_CDC_INF_CCI, sTlkUsbCdcRecvBuffer, length);
+//		//Just For Test
+//		tlkusb_cdc_sendData(TLKUSB_CDC_INF_CCI, buffer, length);
+		if(sTlkUsbCdcRecvCB != nullptr){
+			sTlkUsbCdcRecvCB(TLKUSB_CDC_INF_CCI, buffer, length);
+		}
 	}
 	#if (TLKUSB_CDC_SECOND_ENABLE)
 	if(reg_usb_ep_irq_status & TLKUSB_CDC2_EDP_RX_FLAG){
 		uint08 index;
 		uint08 length;
+		uint08 buffer[TLKUSB_CDC_TXRX_EDPSIZE];
 		reg_usb_ep_irq_status = TLKUSB_CDC2_EDP_RX_FLAG;
 		length = reg_usb_ep_ptr(TLKUSB_CDC2_EDP_RX);
 		reg_usb_ep_ptr(TLKUSB_CDC2_EDP_RX) = 0;
 		if(length > TLKUSB_CDC_TXRX_EDPSIZE) length = TLKUSB_CDC_TXRX_EDPSIZE;
 		for(index=0; index<length; index++){
-			sTlkUsbCdcRecvBuffer[index] = reg_usb_ep_dat(TLKUSB_CDC2_EDP_RX);
+			buffer[index] = reg_usb_ep_dat(TLKUSB_CDC2_EDP_RX);
 		}
 		reg_usb_ep_ctrl(TLKUSB_CDC2_EDP_RX) = FLD_EP_DAT_ACK;
 		//Just For Test
-		tlkusb_cdc_sendData(TLKUSB_CDC2_INF_CCI, sTlkUsbCdcRecvBuffer, length);
+//		tlkusb_cdc_sendData(TLKUSB_CDC2_INF_CCI, buffer, length);
+		if(sTlkUsbCdcRecvCB != nullptr){
+			sTlkUsbCdcRecvCB(TLKUSB_CDC2_EDP_RX, buffer, length);
+		}
 	}
 	#endif
 }

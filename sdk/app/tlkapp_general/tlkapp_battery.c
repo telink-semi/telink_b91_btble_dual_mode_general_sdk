@@ -177,10 +177,10 @@ static void tlkapp_battery_enterDeep(uint08 setFlag)
 	}
 	
 	gpio_function_en(TLKAPP_WAKEUP_PIN);
-	gpio_output_dis(TLKAPP_WAKEUP_PIN); 		
-	gpio_input_en(TLKAPP_WAKEUP_PIN);		
-	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLDOWN_100K);
-	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_HIGH, 1);
+	gpio_output_dis(TLKAPP_WAKEUP_PIN);
+	gpio_input_en(TLKAPP_WAKEUP_PIN);
+	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN, GPIO_PIN_PULLUP_1M);
+	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_LOW, 1);
 	NDS_FENCE_IORW; //ensure that MIE bit of mstatus reg is cleared at hardware level
 	
 	cpu_sleep_wakeup(DEEPSLEEP_MODE, PM_WAKEUP_PAD, 0);  //deepsleep

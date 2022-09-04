@@ -99,7 +99,7 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		TLKUSB_CONFIG_POWER(100) // MaxPower = 100mA
 	},
 	// audio_control_interface
-	{	
+	{
 		sizeof(tlkusb_stdInterfaceDesc_t),
 		TLKUSB_TYPE_INTERFACE,
 		TLKUSB_AUD_INF_CTR,
@@ -193,9 +193,9 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		0, // AssociatedOutputTerminal
 		TLKUSB_AUD_SPK_CHANNEL_COUNT, // TotalChannels
 		#if (TLKUSB_AUD_SPK_CHANNEL_COUNT == 2)
-		0x0003, // ChannelConfig - stero
+		0x0000, //0x0003, // Channel Config bitmap(left and right)
 		#else
-		0x0001, // ChannelConfig - mono
+		0x0000, //0x0001, // ChannelConfig - mono
 		#endif
 		0, // ChannelStrIndex
 		TLKUSB_NO_DESCRIPTOR
@@ -242,9 +242,9 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		0, // AssociatedOutputTerminal
 		TLKUSB_AUD_MIC_CHANNEL_COUNT, // TotalChannels
 		#if (TLKUSB_AUD_MIC_CHANNEL_COUNT == 2)
-		0x0003, // ChannelConfig - stero
+		0x0000, //0x0003, // ChannelConfig - stero
 		#else
-		0x0001, // ChannelConfig - mono
+		0x0001, //0x0001, // ChannelConfig - mono
 		#endif
 		0, // ChannelStrIndex
 		TLKUSB_NO_DESCRIPTOR
@@ -310,26 +310,25 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		sizeof(tlkusb_audInterfaceAsDesc_t),
 		TLKUSB_TYPE_CS_INTERFACE,
 		AUDIO_DSUBTYPE_CSInterface_General,
-		6, // TerminalLink #6USB USB Streaming OT
-		1, // FrameDelay
+		1, // bTerminalLink: #1 USB Streaming IN
+		0, // bDelay
 		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}
 	},
 	// spk_audio_format
 	{
-		sizeof(tlkusb_audFormatDesc_t)+sizeof(tlkusb_audSampleDesc_t),
+		sizeof(tlkusb_audFormatDesc_t),
 		TLKUSB_TYPE_CS_INTERFACE,
 		AUDIO_DSUBTYPE_CSInterface_FormatType,
 		USB_AUDIO_FORMAT_PCM, // FormatType
 		TLKUSB_AUD_SPK_CHANNEL_COUNT, // Channels
 		2, // SubFrameSize
 		TLKUSB_AUD_SPK_RESOLUTION_BIT, // BitsResolution
-		1 // TotalDiscreteSampleRates
-	},
-	// spk_sample_rate
-	{
-		(TLKUSB_AUD_SPK_SAMPLE_RATE & 0xff),
-		((TLKUSB_AUD_SPK_SAMPLE_RATE & 0xFF00) >> 8),
-		((TLKUSB_AUD_SPK_SAMPLE_RATE & 0xFF0000) >> 16)
+		1, // TotalDiscreteSampleRates
+		{ // spk_sample_rate
+			(TLKUSB_AUD_SPK_SAMPLE_RATE & 0xff),
+			((TLKUSB_AUD_SPK_SAMPLE_RATE & 0xFF00) >> 8),
+			((TLKUSB_AUD_SPK_SAMPLE_RATE & 0xFF0000) >> 16)
+		}
 	},
 	// spk_stream_endpoint
 	{	
@@ -347,7 +346,7 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		sizeof(tlkusb_audSpcEndpointDesc_t),
 		TLKUSB_TYPE_CS_ENDPOINT,
 		AUDIO_DSUBTYPE_CSInterface_General,
-		AUDIO_EP_SAMPLE_FREQ_CONTROL,
+		AUDIO_EP_FULL_PACKETS_ONLY | AUDIO_EP_SAMPLE_FREQ_CONTROL,
 		0, // LockDelayUnits
 		{0, 0} // LockDelay
 	},
@@ -382,26 +381,25 @@ static const tlkusb_audAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		sizeof(tlkusb_audInterfaceAsDesc_t),
 		TLKUSB_TYPE_CS_INTERFACE,
 		AUDIO_DSUBTYPE_CSInterface_General,
-		6, // TerminalLink #6USB USB Streaming OT
+		6, // bTerminalLink: #6 USB Streaming OUT
 		1, // FrameDelay
 		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}
 	},
 	// mic_audio_format
 	{
-		sizeof(tlkusb_audFormatDesc_t)+sizeof(tlkusb_audSampleDesc_t),
+		sizeof(tlkusb_audFormatDesc_t),
 		TLKUSB_TYPE_CS_INTERFACE,
 		AUDIO_DSUBTYPE_CSInterface_FormatType,
 		USB_AUDIO_FORMAT_PCM, // FormatType
 		TLKUSB_AUD_MIC_CHANNEL_COUNT, // Channels
 		2, // SubFrameSize
 		TLKUSB_AUD_MIC_RESOLUTION_BIT, // BitsResolution
-		1 // TotalDiscreteSampleRates
-	},
-	// mic_sample_rate
-	{
-		(TLKUSB_AUD_MIC_SAMPLE_RATE & 0xff),
-		(TLKUSB_AUD_MIC_SAMPLE_RATE >> 8),
-		0x00
+		1, // TotalDiscreteSampleRates
+		{ // mic_sample_rate
+			(TLKUSB_AUD_MIC_SAMPLE_RATE & 0xff),
+			(TLKUSB_AUD_MIC_SAMPLE_RATE >> 8),
+			0x00
+		}
 	},
 	// mic_stream_endpoint
 	{	

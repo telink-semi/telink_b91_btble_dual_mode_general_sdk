@@ -66,8 +66,7 @@ void tlkapp_process(void)
 
 	if(AAAA_trace02 == 1){
 		tlkapp_dfu_load();
-		AAAA_trace02 = 0;
-//		TLKAPP_JUMP_TO_APP();
+		AAAA_trace02 = 0;//		TLKAPP_JUMP_TO_APP();
 	}
 
 	if(AAAA_trace04 == 1){

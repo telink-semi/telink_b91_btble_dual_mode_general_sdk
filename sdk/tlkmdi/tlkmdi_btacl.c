@@ -464,10 +464,9 @@ int tlkmdi_btacl_getRole(uint32 devClass)
 	uint08 devType = bth_devClassToDevType(devClass);
 	if(devType == BTH_REMOTE_DTYPE_HEADSET){
 		return BTH_ROLE_MASTER;
-	}else if ((devType == BTH_REMOTE_DTYPE_COMPUTER)||( devType == BTH_REMOTE_DTYPE_PHONE)){
+	}else if((devType == BTH_REMOTE_DTYPE_COMPUTER)||( devType == BTH_REMOTE_DTYPE_PHONE)){
 		return BTH_ROLE_SLAVE;
-	}
-	else{
+	}else{
 		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_getRole:other - %d", devType);
 		return BTH_ROLE_SLAVE;
 	}
@@ -928,7 +927,7 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 	if(pProf->ptype == BTP_PTYPE_RFC){
 		ret = btp_rfcomm_connect(pItem->handle);
 	}else if(pProf->ptype == BTP_PTYPE_A2DP){
-		ret = btp_a2dp_connect(pItem->handle);
+		ret = btp_a2dp_connect(pItem->handle, pProf->usrID);
 	}else if(pProf->ptype == BTP_PTYPE_HFP){
 //		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnDeal: hfp Channel-%d connFlag-%d usrId-%d handle-%d",
 //				pItem->hfpChannel, pItem->connFlag, pProf->usrID, pItem->handle);

@@ -27,7 +27,7 @@
 
 
 #define TLKMDI_DBG_FLAG         (TLKAPI_DBG_FLAG_ALL)
-#define TLKMDI_DBG_SIGN         "[MMI]"
+#define TLKMDI_DBG_SIGN         "[MDI]"
 
 
 

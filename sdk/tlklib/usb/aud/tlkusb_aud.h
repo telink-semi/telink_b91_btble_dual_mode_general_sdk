@@ -30,25 +30,12 @@
 int tlkusb_aud_init(void);
 
 
-int tlkusb_aud_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-int tlkusb_aud_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-int tlkusb_aud_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-int tlkusb_aud_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
+extern void tlkusb_audmic_autoZero(bool enable);
+extern void tlkusb_audspk_autoFlush(bool enable);
 
+extern bool tlkusb_audmic_sendData(uint08 *pData, uint16 dataLen, bool isCover);
+extern uint tlkusb_audspk_readData(uint08 *pBuff, uint08 buffLen, bool isParty);
 
-#if (TLKUSB_AUD_MIC_ENABLE)
-extern int tlkusb_audmic_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-extern int tlkusb_audmic_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-extern int tlkusb_audmic_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-extern int tlkusb_audmic_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-#endif //#if (TLKUSB_AUD_MIC_ENABLE)
-
-#if (TLKUSB_AUD_SPK_ENABLE)
-extern int tlkusb_audspk_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-extern int tlkusb_audspk_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-extern int tlkusb_audspk_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-extern int tlkusb_audspk_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-#endif //#if (TLKUSB_AUD_SPK_ENABLE)
 
 
 

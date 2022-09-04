@@ -51,6 +51,11 @@ extern uint08 gTlkUsbCurModType;
 
 int tlkusb_init(uint16 usbID)
 {
+	//set USB ID
+//	REG_ADDR8(0x1401f4) = 0x65;
+//	REG_ADDR16(0x1401fe) = 0x08d0;
+//	REG_ADDR8(0x1401f4) = 0x00;
+
 	gpio_input_en(GPIO_PA5);
 	gpio_input_en(GPIO_PA6);
 	

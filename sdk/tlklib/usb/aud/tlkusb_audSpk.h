@@ -37,26 +37,29 @@ typedef struct {
 	uint16 curVol;
 	uint16 volStep;
 	uint32 sampleRate;
+	tlkapi_fifo_t fifo;
 }tlkusb_audspk_ctrl_t;
 
 
 int tlkusb_audspk_init(void);
 
-
-int tlkusb_audspk_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-int tlkusb_audspk_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-
-int tlkusb_audspk_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-int tlkusb_audspk_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
+bool tlkusb_audspk_getEnable(void);
+void tlkusb_audspk_setEnable(bool enable);
 
 uint tlkusb_audspk_getVolume(void);
 void tlkusb_audspk_setVolume(uint16 volume);
 void tlkusb_audspk_enterMute(bool enable);
+void tlkusb_audspk_autoFlush(bool enable);
 
 int tlkusb_audspk_setInfCmdDeal(int type);
 int tlkusb_audspk_getInfCmdDeal(int req, int type);
 
 int tlkusb_audspk_setEdpCmdDeal(int type);
+
+
+void tlkusb_audspk_recvData(void);
+uint tlkusb_audspk_readData(uint08 *pBuff, uint08 buffLen, bool isParty);
+
 
 
 

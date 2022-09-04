@@ -27,6 +27,8 @@
 
 #define TLKAPI_FIFO_MIN_SIZE      64
 
+#define TLKAPI_FIFO_SET_COVER(pFifo, cover)   ((pFifo)->isCover = (cover))
+#define TLKAPI_FIFO_SET_PARTY(pFifo, party)   ((pFifo)->isParty = (party))
 
 typedef struct{
 	uint08 isCover; //Whether overwrite is allowed
@@ -145,7 +147,7 @@ bool tlkapi_fifo_isMore90(tlkapi_fifo_t *pFifo, uint16 dataLen);
  *     @fifo[IN]--Fifo management handle.
  *     @pBuff[OUT]--A buffer that holds read data.
  *     @readLen[IN]--The maximum length of the data to be read.
- * Return: The actual length of the data read. A negative value means 
+ * Return: The actual length of the data read or write. A negative value means 
  *         that the read failed.
  * Others: None.
 *******************************************************************************/

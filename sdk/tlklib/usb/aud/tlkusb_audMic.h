@@ -37,19 +37,15 @@ typedef struct {
 	uint16 curVol;
 	uint16 volStep;
 	uint32 sampleRate;
+	tlkapi_fifo_t fifo;
 }tlkusb_audmic_ctrl_t;
 
 
 
 int tlkusb_audmic_init(void);
 
-
-int tlkusb_audmic_d2hClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-int tlkusb_audmic_d2hClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-
-int tlkusb_audmic_h2dClassInfHandler(tlkusb_setup_req_t *pSetup, uint08 infNum);
-int tlkusb_audmic_h2dClassEdpHandler(tlkusb_setup_req_t *pSetup, uint08 edpNum);
-
+bool tlkusb_audmic_getEnable(void);
+void tlkusb_audmic_setEnable(bool enable);
 
 uint tlkusb_audmic_getVolume(void);
 void tlkusb_audmic_setVolume(sint16 volume);
@@ -60,6 +56,12 @@ int tlkusb_audmic_setInfCmdDeal(int type);
 int tlkusb_audmic_getInfCmdDeal(int req, int type);
 
 int tlkusb_audmic_setEdpCmdDeal(int type);
+
+
+void tlkusb_audmic_autoZero(bool enable);
+
+void tlkusb_audmic_fillData(void);
+bool tlkusb_audmic_sendData(uint08 *pData, uint16 dataLen, bool isCover);
 
 
 

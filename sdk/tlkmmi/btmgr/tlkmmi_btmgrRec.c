@@ -79,7 +79,7 @@ int tlkmmi_btmgr_recStart(uint08 *pDevAddr, uint32 devClass, bool enPage, bool e
 		return -TLK_EBUSY;
 	}
 	#endif
-//	my_dump_str_data(TLKMMI_BTMGR_DBG_ENABLE, "tlkmmi_btmgr_recOver 02", 0, 0);
+//	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recOver 02");
 	#if (TLK_MDI_BTACL_ENABLE)
 	if(tlkmdi_btacl_getBusyItem() != nullptr){
 		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recStart: failure - mdi acl busy");

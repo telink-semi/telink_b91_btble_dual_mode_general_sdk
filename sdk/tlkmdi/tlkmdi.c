@@ -30,7 +30,7 @@
 #include "tlkmdi/tlkmdi_btacl.h"
 #include "tlkmdi/tlkmdi_btinq.h"
 #include "tlkmdi/tlkmdi_btrec.h"
-#include "tlkmdi/tlkmdi_hfp.h"
+#include "tlkmdi/tlkmdi_bthfp.h"
 #include "tlkmdi/tlkmdi_usb.h"
 #if (TLK_MDI_FILE_ENABLE)
 #include "tlkmdi/tlkmdi_file.h"
@@ -84,15 +84,16 @@ int tlkmdi_init(void)
 	#if (TLK_MDI_BTHID_ENABLE)
 	tlkmdi_bthid_init();
 	#endif
+	#if (TLK_MDI_BTHFP_ENABLE)
+	tlkmdi_hfp_init();
+	#endif
+	
 	#if (TLK_MDI_AUDIO_ENABLE)
 	tlkmdi_audio_init();
 	#endif
 	
 	#if (TLK_MDI_KEY_ENABLE)
 	tlkmdi_key_init();
-	#endif
-	#if (TLK_MDI_HFP_ENABLE)
-	tlkmdi_hfp_init();
 	#endif
 	#if (TLK_MDI_USB_ENABLE)
 	tlkmdi_usb_init();

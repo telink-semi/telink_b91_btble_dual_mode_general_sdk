@@ -56,20 +56,18 @@ const tlkusb_modCtrl_t sTlkUsbAudModCtrl = {
 	tlkusb_audctrl_setInterface, //SetInterface
 };
 
-uint08 sTlkUsbAudMicEnable = 0;
-uint08 sTlkUsbAudSpkEnable = 0;
 
 
 static int tlkusb_audctrl_init(void)
 {
 	uint08 iso;
-	
-	sTlkUsbAudMicEnable = 0;
+
 	reg_usb_ep_irq_mask = BIT(7);			//audio in interrupt enable
 	plic_interrupt_enable(IRQ11_USB_ENDPOINT);
-	plic_set_priority(IRQ11_USB_ENDPOINT, 1);
+	plic_set_priority(IRQ11_USB_ENDPOINT, 2);
 	reg_usb_ep7_buf_addr = 0x00; //64 - 0x60
 	reg_usb_ep6_buf_addr = 0x80;
+	reg_usb_ep_max_size = (256 >> 3);
 	
 	iso = reg_usb_iso_mode;
 	#if (TLKUSB_AUD_MIC_ENABLE)
@@ -84,7 +82,6 @@ static int tlkusb_audctrl_init(void)
 }
 static void tlkusb_audctrl_reset(void)
 {
-	sTlkUsbAudMicEnable = 0;
 	#if (TLKUSB_AUD_SPK_ENABLE)
 	reg_usb_ep_ctrl(TLKUSB_AUD_EDP_SPK) = FLD_EP_DAT_ACK;
 	#endif
@@ -174,15 +171,14 @@ static int tlkusb_audctrl_setClassEdp(tlkusb_setup_req_t *pSetup, uint08 edpNumb
 static int tlkusb_audctrl_getInterface(tlkusb_setup_req_t *pSetup, uint08 infNumb)
 {
 	uint08 infNum = (pSetup->wIndex) & 0x07;
-//	usbhw_write_ctrl_ep_data(sTlkUsbAudMicEnable);
 	#if (TLKUSB_AUD_MIC_ENABLE)
 	if(infNum == TLKUSB_AUD_INF_MIC){
-		usbhw_write_ctrl_ep_data(sTlkUsbAudMicEnable);
+		usbhw_write_ctrl_ep_data(tlkusb_audmic_getEnable());
 	}
 	#endif
 	#if (TLKUSB_AUD_SPK_ENABLE)
 	if(infNum == TLKUSB_AUD_INF_SPK){
-		usbhw_write_ctrl_ep_data(sTlkUsbAudSpkEnable);
+		usbhw_write_ctrl_ep_data(tlkusb_audspk_getEnable());
 	}
 	#endif
 	return TLK_ENONE;
@@ -191,22 +187,15 @@ static int tlkusb_audctrl_setInterface(tlkusb_setup_req_t *pSetup, uint08 infNum
 {
 	uint08 enable = (pSetup->wValue) & 0xff;
 	uint08 infNum = (pSetup->wIndex) & 0x07;
+
 	#if (TLKUSB_AUD_MIC_ENABLE)
 	if(infNum == TLKUSB_AUD_INF_MIC){
-		sTlkUsbAudMicEnable = enable;
-		if(enable){
-			reg_usb_ep_ptr(TLKUSB_AUD_EDP_MIC) = 0;
-			reg_usb_ep_ctrl(TLKUSB_AUD_EDP_MIC) = 0x01; //ACK first packet
-		}
+		tlkusb_audmic_setEnable(enable);
 	}
 	#endif
 	#if (TLKUSB_AUD_SPK_ENABLE)
 	if(infNum == TLKUSB_AUD_INF_SPK){
-		sTlkUsbAudSpkEnable = enable;
-		if(enable){
-			reg_usb_ep_ptr(TLKUSB_AUD_EDP_SPK) = 0;
-			reg_usb_ep_ctrl(TLKUSB_AUD_EDP_SPK) = 0x01; //ACK first packet
-		}
+		tlkusb_audspk_setEnable(enable);
 	}
 	#endif
 	return TLK_ENONE;
