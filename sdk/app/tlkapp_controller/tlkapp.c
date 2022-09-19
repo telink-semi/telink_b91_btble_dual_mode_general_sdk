@@ -39,17 +39,6 @@
 extern void trng_init(void);
 
 
-volatile u32 AAAA_test001 = 0;
-volatile u32 AAAA_test002 = 0;
-volatile u32 AAAA_test003 = 0;
-volatile u32 AAAA_test004 = 0;
-volatile u32 AAAA_test005 = 0;
-volatile u32 AAAA_test006 = 0;
-volatile u32 AAAA_test007 = 0;
-volatile u32 AAAA_test008 = 0;
-volatile u32 AAAA_test009 = 0;
-volatile u32 AAAA_test00A = 0;
-
 
 /******************************************************************************
  * Function: tlkapp_init
@@ -63,28 +52,14 @@ int tlkapp_init(void)
   	g_plic_preempt_en = 1;
 	trng_init();
 	tlksdk_mode_select(0,1);
-	AAAA_test001 ++;
 	tlkapp_irq_init();
 	tlkapi_init();
-	AAAA_test002 ++;
 	tlkdev_init();
-	AAAA_test003 ++;
 	tlkstk_init();
-	AAAA_test004 ++;
 	tlkapp_debug_init();
-	AAAA_test008 ++;
 
 	return TLK_ENONE;
 }
-
-
-
-
-volatile u32 AAAA_test101 = 0;
-volatile u32 AAAA_test102 = 0;
-volatile u32 AAAA_test103 = 0;
-volatile u32 AAAA_test104 = 0;
-
 
 /******************************************************************************
  * Function: tlkapp_process
@@ -95,14 +70,9 @@ volatile u32 AAAA_test104 = 0;
 *******************************************************************************/
 void tlkapp_process(void)
 {
-	AAAA_test101 ++;	
 	tlkapi_process();
-	AAAA_test102 ++;
 	tlkdev_process();
-	AAAA_test103 ++;
 	tlkstk_process();
-	AAAA_test104 ++;
-
 }
 
 

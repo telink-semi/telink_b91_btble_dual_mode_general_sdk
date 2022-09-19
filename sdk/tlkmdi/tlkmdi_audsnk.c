@@ -27,11 +27,7 @@
 #include "drivers.h"
 #include "tlkmdi/tlkmdi_audio.h"
 #include "tlkalg/audio/sbc/tlkalg_sbc.h"
-#include "tlkdev/sys/tlkdev_spk.h"
 #include "tlkmdi/tlkmdi_audsnk.h"
-#if TLK_ALG_EQ_ENABLE
-#include "tlkalg/tlkalg_eq.h"
-#endif
 
 
 #include "tlkstk/bt/bth/bth_stdio.h"
@@ -184,6 +180,7 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 	if(enable){
 		sampleRate = btp_a2dpsnk_getSampleRate(handle);
 		if(sampleRate == 0){
+			tlkmdi_audsnk_close(handle);
 			tlkapi_error(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_switch: failure - get sample rate");
 			return false;
 		}
@@ -198,7 +195,7 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
     if(status == TLK_STATE_CLOSED && (btp_a2dpsnk_getStatus(handle) == BTP_A2DP_STATUS_STREAM)){
         tlkmdi_audsnk_close(handle);
 	}
-	tlkdev_spk_mute();
+	tlkdev_codec_muteSpk();
 	
 	sTlkMdiSnkCtrl.handle = handle;
 	sTlkMdiSnkCtrl.enable = enable;
@@ -207,13 +204,15 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 	sTlkMdiSnkCtrl.firstInit = true;
 	tlkapi_qfifo_clear(&spTlkMdiSnkFifo);
 	if(enable){
-		tlkdev_codec_init(TLKDEV_CODEC_MODE_SINGLE, TLKDEV_CODEC_SELC_INNER);
-		tlkdev_codec_setSampleRate(sampleRate);
+		sTlkMdiSnkCtrl.sampleRate = sampleRate;
+		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sampleRate);
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SNK, TLK_STATE_OPENED);
+		tlkdev_codec_setSpkOffset(640);
 	}else{
+		tlkdev_codec_close();
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SNK, TLK_STATE_CLOSED);
 	}
-	
+		
 	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_switch: %d %d %d", handle, status, isSucc);
 	
 	return isSucc;
@@ -349,32 +348,18 @@ static void tlkmdi_snk_spkHandler(void)
 	if(spTlkMdiSnkTmpBuff == nullptr) return;
 
 	while(true){
-//		tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_irqProc: 1");
 		length = 0;
-		if(tlkdev_spk_idleLen() > 512){
-			length = tlkmdi_snk_getPlaybackData((uint08*)spTlkMdiSnkTmpBuff);
+		if(tlkdev_codec_getSpkIdleLen() > 512){
+			length = tlkmdi_snk_getPlaybackData((uint08*)spTlkMdiSnkTmpBuff); //length=256
 		}
 		if(length == 0) break;
-
-		#if TLK_ALG_EQ_ENABLE
-		if(length && bt_ll_acl_alive())
-		{
-			short *p = NULL;
-			short stereo_pcm[128*2];
-			p = (signed short *)spTlkMdiSnkTmpBuff;
-			eq_para.eq_channel = EQ_CHANNEL_LEFT;
-			eq_proc_tws_music(eq_para, spTlkMdiSnkTmpBuff, spTlkMdiSnkTmpBuff, sTlkMdiSnkCtrl.frameSample, 0);
-		}
-		#endif 
-
-//		tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_irqProc: 2");
-		
+				
 		volume = tlkmdi_audio_getMusicVolume(false);
 		pData = (sint16*)spTlkMdiSnkTmpBuff;
 		for(index=0; index<length/2; index++){
 			pData[index] = (pData[index]*volume)>>TLKMDI_AUDIO_VOLUME_EXPAND;
 		}
-		tlkdev_spk_play(spTlkMdiSnkTmpBuff, length);
+		tlkdev_codec_fillSpkBuff(spTlkMdiSnkTmpBuff, length);
 	}
 }
 
@@ -410,12 +395,15 @@ void tlkmdi_snk_addEncFrame(uint08 *pData, uint16 dataLen)
 	
 	uint32 param = pData[13] | (pData[14] << 8) | (pData[15] << 16);
 	if(sTlkMdiSnkCtrl.firstInit || sTlkMdiSnkCtrl.encParma != param){
+		uint sampleRate;
 //		tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "==Reinit");
 		tlkapi_qfifo_clear(&spTlkMdiSnkFifo);
 		tlkmdi_snk_firstInit(param, pData, dataLen);
-		
-		if(sTlkMdiSnkCtrl.sampleRate != 0){
-			tlkdev_codec_setSampleRate(sTlkMdiSnkCtrl.sampleRate);
+		sampleRate = sTlkMdiSnkCtrl.sampleRate;
+		if(sTlkMdiSnkCtrl.sampleRate != sampleRate){
+			tlkdev_codec_close();
+			tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sTlkMdiSnkCtrl.sampleRate);		
+			tlkdev_codec_setSpkOffset(640);
 		}
 		sTlkMdiSnkCtrl.encParma = param;
 		sTlkMdiSnkCtrl.firstInit = false;
@@ -434,21 +422,7 @@ int tlkmdi_snk_firstInit(uint32 param, uint08 *pData, int dataLen)
 {
 	tlkmdi_snk_parseSbcParam(pData+13);
 	tlkmdi_snk_initFifo();
-	
-	#if TLK_ALG_EQ_ENABLE
-	if(audio_codec_flag_get(CODEC_FLAG_EQ_MUSIC_EN)){
-		eq_para.eq_type = EQ_TYPE_MUSIC;
-		eq_para.eq_channel = EQ_CHANNEL_LEFT;
-		eq_para.eq_nstage = eq_sys_para.music_eq_num;
-		if(48000 == sTlkMdiSnkCtrl.sampleRate){
-			eq_para.eq_sample_rate = 0;
-		}else{
-			eq_para.eq_sample_rate = 1;
-		}
-		eq_proc_settimg_init(eq_para);
-	}
-	#endif
-	
+		
 	return TLK_ENONE;
 }
 
@@ -519,8 +493,8 @@ static int tlkmdi_snk_parseSbcParam(uint08 *data)
 	sTlkMdiSnkCtrl.sampleRate = sampleRate;
 	sTlkMdiSnkCtrl.frameSample = 128;
 	
-//	my_dump_str_u32s(TLKMDI_SNK_DBG_ENABLE, "<enc: sbc param>", sampleRate, sbcBlock, subBand, bitPool);
-//	my_dump_str_u32s(TLKMDI_SNK_DBG_ENABLE, "<enc: sbc fsize>", frameSize, 0, 0, 0);
+	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "<enc: sbc param - %d %d %d %d>", sampleRate, sbcBlock, subBand, bitPool);
+	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "<enc: sbc fsize - %d>", frameSize);
 		
 	return TLK_ENONE;
 }

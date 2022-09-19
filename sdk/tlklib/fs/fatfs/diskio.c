@@ -132,10 +132,6 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 		
 	switch(cmd){
 		case CTRL_SYNC:
-//			tlkdev_xtsd01g_spiCsLow();
-//			if(tlkdev_xtsd01g_waitReady() == 0) res = RES_OK;
-//			else res = RES_ERROR;
-//			tlkdev_xtsd01g_spiCsHigh();
 			if(pDisk->isReady) res = RES_OK;
 			else res = RES_ERROR;
 			break;

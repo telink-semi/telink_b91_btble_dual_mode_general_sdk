@@ -30,12 +30,7 @@
 #include "tlkmdi/tlkmdi_audio.h"
 #include "tlkalg/audio/sbc/tlkalg_sbc.h"
 #include "tlkalg/audio/cvsd/tlkalg_cvsd.h"
-#include "tlkdev/sys/tlkdev_spk.h"
-#include "tlkdev/sys/tlkdev_mic.h"
 #include "tlkmdi/tlkmdi_audsco.h"
-#if TLK_ALG_EQ_ENABLE
-#include "tlkalg/eq/tlkalg_eq.h"
-#endif
 #if TLK_ALG_EC_ENABLE
 #include "tlkalg/audio/ec/tlkalg_ec.h"
 #endif
@@ -57,7 +52,6 @@
 #define TLKMDI_SCO_PLC_ENABLE              0
 #define TLKMDI_SCO_PLC_ENABLE1             1
 
-#define CODEC_DAC_MONO_MODE                1
 
 #define TLKMDI_SCO_GRAD_NUMBER             12
 #define TLKMDI_SCO_GRAD_VOLUME             1
@@ -173,18 +167,17 @@ bool tlkmdi_audsco_switch(uint16 handle, uint08 status)
 	sTlkMdiScoCtrl.dropSpkNumb = 10;
 	sTlkMdiScoCtrl.dropMicNumb = 10;
 
-	tlkdev_spk_mute();
+	tlkdev_codec_muteSpk();
 	
 	tlkmdi_sco_initCodec(enable);
 	if(enable){
 		tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_audsco_switch: enable");
-		tlkdev_codec_init(TLKDEV_CODEC_MODE_SINGLE, TLKDEV_CODEC_SELC_INNER);
-		tlkdev_codec_setSampleRate(16000);
-		audio_codec_adc_enable(1);
+		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_BOTH, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, 16000);
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_SCO, TLK_STATE_OPENED);
+		tlkdev_codec_setSpkOffset(320);
 	}else{
 		tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_audsco_switch: disable");
-		audio_codec_adc_enable(0);
+		tlkdev_codec_close();
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_SCO, TLK_STATE_CLOSED);
 	}
 
@@ -397,20 +390,20 @@ static void tlkmdi_sco_micHandler(void)
 	uint16 offset = 0;
 	uint08 *pMicPtr;
 	uint08 *pBuffer;
-	short spkData[256];
-	short micData[256];
-
+	short spkData[120];
+	short micData[120];
+		
 	pBuffer = tlkapi_qfifo_getBuff(&sTlkMdiScoMicFifo);
 	if(pBuffer == nullptr || sTlkMdiScoCtrl.enc_func == nullptr) return;
 
-	if(!tlkdev_mic_readData((uint08*)micData, 240, &offset)){
+	if(!tlkdev_codec_readMicData((uint08*)micData, 240, &offset)){
 		return;
 	}
 	#if TLK_ALG_EC_ENABLE
-	tlkdev_spk_backReadData((uint08*)spkData, 240, offset+140, true);
+	tlkdev_codec_backReadSpkData((uint08*)spkData, 240, offset+140, true);
 	pMicPtr = (uint08*)tlkalg_ec_frame((uint08*)micData, (uint08*)spkData);
 	#else
-	pMicPtr = micData;
+	pMicPtr = (uint08*)micData;
 	#endif
 	if(pMicPtr == nullptr) return;
 	
@@ -421,14 +414,7 @@ static void tlkmdi_sco_micHandler(void)
 	sint16* pcm_ptr = (sint16*)pMicPtr;
 	my_agc_process(sTlkMdiScoAgcBuffer, (const short* const*)&pcm_ptr, 120, (short* const*)&pcm_agc_ptr);
 	#endif
-	#if TLK_ALG_EQ_ENABLE
-	if(audio_codec_flag_get(CODEC_FLAG_EQ_VOICE_MIC_EN)){
-		eq_para.eq_type = EQ_TYPE_VOICE_MIC;
-		eq_para.eq_channel = EQ_CHANNEL_LEFT;
-		eq_proc_tws_speech(eq_para, pMicPtr, pMicPtr, 120, 0);
-	}
-	#endif
-	
+		
 	#if TLK_ALG_AGC_ENABLE
 	sTlkMdiScoCtrl.enc_func((uint08*)pcm_agc, 240, (uint08*)pBuffer);
 	#else
@@ -449,52 +435,23 @@ static void tlkmdi_sco_spkHandler(void)
 
 	while(count--){
 		int np = 0;
-		if(tlkdev_spk_idleLen() > 512){
+		if(tlkdev_codec_getSpkIdleLen() > 512){
 			np = tlkmdi_sco_getPcmData((sint16*)sTlkMdiScoBuff.pTempBuffer); //tvoice_get_playback_data, tmusic_get_playback_data, app_music_getPlaybackData
 		}
 		if(np == 0) break;
 
 //		tlkapi_array(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_spkHandler 002", sTlkMdiScoBuff.pTempBuffer, 16);
-		#if TLK_ALG_EQ_ENABLE
-		if(np && bt_ll_acl_alive())
-		{
-			short *p = nullptr;
-			short stereo_pcm[128*2];
-			p = (signed short *)sTlkMdiScoBuff.pTempBuffer;
-			/// 0. interleave revert proc
-			int samples = (audio_codec_flag_get(CODEC_FLAG_STEREO_EN)?240:120);
-			if(audio_codec_flag_get(CODEC_FLAG_STEREO_EN))
-			{
-				for(int i = 0; i < samples/2; i++){
-					stereo_pcm[i] = p[i*2];
-					stereo_pcm[i + samples/2] = p[i*2 + 1];
-				}
-				eq_para.eq_type = EQ_TYPE_VOICE_SPK;
-				eq_para.eq_channel = EQ_CHANNEL_LEFT;
-				eq_proc_tws_speech(eq_para,&stereo_pcm[0], &stereo_pcm[0], samples/2, 0);
-				eq_para.eq_channel = EQ_CHANNEL_RIGHT;
-				eq_proc_tws_speech(eq_para,&stereo_pcm[120], &stereo_pcm[120], samples/2, 0);
-				tlkalg_2chnmix(&stereo_pcm[0], &stereo_pcm[120], (sint16*)sTlkMdiScoBuff.pTempBuffer, 1, 120);
-			}
-			else
-			{
-				eq_para.eq_type = EQ_TYPE_VOICE_SPK;
-				eq_para.eq_channel = EQ_CHANNEL_LEFT;
-				eq_proc_tws_speech(eq_para, sTlkMdiScoBuff.pTempBuffer, sTlkMdiScoBuff.pTempBuffer, samples, 0);
-			}
-		}
-		#endif 
 		
 		if(np){			
             sint16 *dec_pcm = (int16_t *)sTlkMdiScoBuff.pTempBuffer;
             int temp;
-			int samples = audio_codec_flag_get(CODEC_FLAG_STEREO_EN)?240:120;
+			int samples = 120;
 			volume = tlkmdi_audio_getVoiceVolume(false);
             for(int i = 0; i < samples; i++){
                 temp = ((int)dec_pcm[i] * volume)>>TLKMDI_AUDIO_VOLUME_EXPAND;
                 dec_pcm[i] = temp;
             }
-			tlkdev_spk_play((uint08*)sTlkMdiScoBuff.pTempBuffer, np);
+			tlkdev_codec_fillSpkBuff((uint08*)sTlkMdiScoBuff.pTempBuffer, np);
 		}
 	}
 }
@@ -508,44 +465,23 @@ static int tlkmdi_sco_getPcmData(sint16 *pBuffer)
 	if(pData == nullptr || sTlkMdiScoCtrl.dec_func == nullptr) return 0;
 	
 //	log_task(SL_APP_MUSIC_EN, SL01_task_music_dec, 1);
-	#if CODEC_DAC_MONO_MODE
-		if(pData[0] != TLKMDI_SCO_PACKET_LOSS_FLAG){
+	if(pData[0] != TLKMDI_SCO_PACKET_LOSS_FLAG){
+		sTlkMdiScoCtrl.dec_func(pData, 60, (uint08*)pBuffer);
+		#if TLKMDI_SCO_PLC_ENABLE1
+		tlkalg_sbc_plcGoodFrame(&gTlkalgSbcPlcState, pBuffer, pBuffer);
+		#endif
+	}else{				
+		//my_dump_str_u32s (1, "voice plc", sTlkMdiScoCtrl.spk_enc_rptr, 0, 0, 0);
+		#if TLKMDI_SCO_PLC_ENABLE1
+		if (TLKMDI_SCO_CODEC_ID_MSBC == tlkmdi_sco_getCodec()){
+			tlkalg_msbc_decData((uint08 *)&gTlkalgSbcPlcIndices0[0], 57, (uint08*)pBuffer);
+		}else{
 			sTlkMdiScoCtrl.dec_func(pData, 60, (uint08*)pBuffer);
-			#if TLKMDI_SCO_PLC_ENABLE1
-			tlkalg_sbc_plcGoodFrame(&gTlkalgSbcPlcState, pBuffer, pBuffer);
-			#endif
-		}else{				
-			//my_dump_str_u32s (1, "voice plc", sTlkMdiScoCtrl.spk_enc_rptr, 0, 0, 0);
-			#if TLKMDI_SCO_PLC_ENABLE1
-			if (TLKMDI_SCO_CODEC_ID_MSBC == tlkmdi_sco_getCodec()){
-				tlkalg_msbc_decData((uint08 *)&gTlkalgSbcPlcIndices0[0], 57, (uint08*)pBuffer);
-			}else{
-				sTlkMdiScoCtrl.dec_func(pData, 60, (uint08*)pBuffer);
-			}
-			tlkalg_sbc_plcBadFrame(&gTlkalgSbcPlcState, pBuffer, pBuffer);			
-            #endif
 		}
-	#else
-		u16 pcm[120];
-		sint16 *my_pd = (sint16 *)pcm;
-		if(pData[0] != TLKMDI_SCO_PACKET_LOSS_FLAG){
-			sTlkMdiScoCtrl.dec_func(pData, 60, my_pd);
-			#if TLKMDI_SCO_PLC_ENABLE1
-			tlkalg_sbc_plcGoodFrame(&gTlkalgSbcPlcState, my_pd, my_pd);
-			#endif
-		}else{				
-			#if TLKMDI_SCO_PLC_ENABLE1
-			if (TLKMDI_SCO_CODEC_ID_MSBC == tlkmdi_sco_getCodec()){
-				tlkalg_msbc_decData((uint08 *)&gTlkalgSbcPlcIndices0[0], 57, my_pd);
-			}else{
-				sTlkMdiScoCtrl.dec_func(pData, 60, my_pd);
-			}
-			tlkalg_sbc_plcBadFrame(&gTlkalgSbcPlcState, my_pd, my_pd);
-			#endif
-		}
-		tmemcpy(pBuffer, pcm, 120*2);
-	#endif
-	
+		tlkalg_sbc_plcBadFrame(&gTlkalgSbcPlcState, pBuffer, pBuffer);			
+        #endif
+	}
+
 	if(sTlkMdiScoCtrl.dropMicNumb != 0) sTlkMdiScoCtrl.dropMicNumb --;
 	if(sTlkMdiScoCtrl.dropMicNumb != 0) return 0;
 	tlkapi_qfifo_dropData(&sTlkMdiScoSpkFifo);
@@ -669,7 +605,7 @@ static bool tlkmdi_sco_initBuffer(bool enable)
 	}
 	if(!isEnable){
 		#if (TLK_ALG_EC_ENABLE)
-		tlkalg_ec_init(nullptr, nullptr);
+		tlkalg_ec_init(nullptr, nullptr, nullptr);
 		#endif
 		#if (TLK_ALG_AGC_ENABLE)
 		sTlkMdiScoAgcBuffer = nullptr;
@@ -681,7 +617,8 @@ static bool tlkmdi_sco_initBuffer(bool enable)
 	else{
 		#if (TLK_ALG_EC_ENABLE)
 		tlkalg_ec_init(sTlkMdiScoBuff.pSpeexBuffer+TLKMDI_SCO_SPEEX_NS_OFFS,
-			sTlkMdiScoBuff.pAecmBuffer+TLKMDI_SCO_AECM_ST_OFFS);
+						sTlkMdiScoBuff.pAecmBuffer+TLKMDI_SCO_AEC_ST_OFFS,
+						sTlkMdiScoBuff.pScratchBuffer+TLKMDI_SCO_AEC_NS_SCRATCH_OFFS);
 		#endif
 		#if (TLK_ALG_AGC_ENABLE)
 		sTlkMdiScoAgcBuffer = sTlkMdiScoBuff.pSpeexBuffer+TLKMDI_SCO_AGC_ST_OFFS;
@@ -713,15 +650,18 @@ static bool tlkmdi_sco_mallocAlgBuffer(void)
 	if(sTlkMdiScoBuff.pTempBuffer == nullptr){
 		sTlkMdiScoBuff.pTempBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_TEMP_BUFFER_SIZE);
 	}
-	if(sTlkMdiScoBuff.pAecmBuffer == nullptr){
-		sTlkMdiScoBuff.pAecmBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_AECM_BUFFER_SIZE);
+	if(sTlkMdiScoBuff.pScratchBuffer == nullptr){
+		sTlkMdiScoBuff.pScratchBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_AEC_NS_SCRATCH_BUFFER_SIZE);
 	}
+	if(sTlkMdiScoBuff.pAecmBuffer == nullptr){
+		sTlkMdiScoBuff.pAecmBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_AEC_BUFFER_SIZE);
+	}
+	if(sTlkMdiScoBuff.pSpeexBuffer == nullptr){
+			sTlkMdiScoBuff.pSpeexBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_SPEEX_BUFFER_SIZE);
+		}
 	if(sTlkMdiScoBuff.pCacheBuffer == nullptr){
 		sTlkMdiScoBuff.pCacheBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_CACHE_BUFFER_SIZE);
 	} 
-	if(sTlkMdiScoBuff.pSpeexBuffer == nullptr){
-		sTlkMdiScoBuff.pSpeexBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_SPEEX_BUFFER_SIZE);
-	}
 	if(sTlkMdiScoBuff.pEncodeBuffer == nullptr){
 		sTlkMdiScoBuff.pEncodeBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_ENCODE_BUFFER_SIZE);
 	}
@@ -738,17 +678,21 @@ static void tlkmdi_sco_freeAlgBuffer(void)
 		tlkapi_free(sTlkMdiScoBuff.pTempBuffer);
 		sTlkMdiScoBuff.pTempBuffer = nullptr;
 	}
+	if(sTlkMdiScoBuff.pScratchBuffer != nullptr){
+		tlkapi_free(sTlkMdiScoBuff.pScratchBuffer);
+				sTlkMdiScoBuff.pScratchBuffer = nullptr;
+	}
 	if(sTlkMdiScoBuff.pAecmBuffer != nullptr){
 		tlkapi_free(sTlkMdiScoBuff.pAecmBuffer);
 		sTlkMdiScoBuff.pAecmBuffer = nullptr;
 	}
-	if(sTlkMdiScoBuff.pCacheBuffer != nullptr){
-		tlkapi_free(sTlkMdiScoBuff.pCacheBuffer);
-		sTlkMdiScoBuff.pCacheBuffer = nullptr;
-	}
 	if(sTlkMdiScoBuff.pSpeexBuffer != nullptr){
 		tlkapi_free(sTlkMdiScoBuff.pSpeexBuffer);
 		sTlkMdiScoBuff.pSpeexBuffer = nullptr;
+	}
+	if(sTlkMdiScoBuff.pCacheBuffer != nullptr){
+		tlkapi_free(sTlkMdiScoBuff.pCacheBuffer);
+		sTlkMdiScoBuff.pCacheBuffer = nullptr;
 	}
 	if(sTlkMdiScoBuff.pEncodeBuffer != nullptr){
 		tlkapi_free(sTlkMdiScoBuff.pEncodeBuffer);

@@ -34,7 +34,7 @@
 #define TLKUSB_UDB_EDP_OUT_FLAG    (1 << (TLKUSB_UDB_EDP_DBG_OUT & 7))
 
 static bool tlkusb_udb_recvDatDeal(void);
-static void mmi_pdebug_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown);
+static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown);
 
 
 static TlkUsbUsrDebugCB sTlkUsbUdbDebugCB;
@@ -95,7 +95,7 @@ void tlkusb_udb_recvHander(void)
 	do{
 		ready = tlkusb_udb_recvDatDeal();
 		if(ready){
-			mmi_pdebug_recvCmdProc(sTlkUsbUdbCmdBuffer, sTlkUsbUdbCmdLength, &isDown);
+			tlkusb_udb_recvCmdProc(sTlkUsbUdbCmdBuffer, sTlkUsbUdbCmdLength, &isDown);
 			if(isDown) sTlkUsbUdbCmdLength = 0;
 		}
 		tlkapi_debug_process();
@@ -142,7 +142,7 @@ static bool tlkusb_udb_recvDatDeal(void)
 	return false;
 }
 _attribute_ram_code_
-static void mmi_pdebug_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
+static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 {
 	uint08 rsp[64];
 	uint08 cmd = pData[0];
@@ -155,7 +155,7 @@ static void mmi_pdebug_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 		rsp[0] = 0x29;
 		tmemcpy(rsp + 1, pData+1, 5);
 		int type = pData[1];
-		u32 adr = pData[2] | (pData[3] << 8) | (pData[4] << 16) | (pData[5] << 24);
+		uint32 adr = pData[2] | (pData[3] << 8) | (pData[4] << 16) | (pData[5] << 24);
 		int n = pData[6] | (pData[7] << 8);
 		if(n > 256) n = 256;
 		

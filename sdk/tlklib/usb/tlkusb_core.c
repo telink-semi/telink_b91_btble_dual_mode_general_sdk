@@ -90,7 +90,7 @@ void tlkusb_core_enable(bool enable)
 /////////////////////////////////////////////////////////////////////////
 void tlkusb_core_handler(void)
 {
-	u32 irq = usbhw_get_ctrl_ep_irq();
+	uint32 irq = usbhw_get_ctrl_ep_irq();
 	if(irq & FLD_CTRL_EP_IRQ_SETUP){
 		usbhw_clr_ctrl_ep_irq(FLD_CTRL_EP_IRQ_SETUP);
 		tlkusb_ctrlTranSetupProc();

@@ -39,16 +39,20 @@
 
 
 //For speex_ns_state, agc_st. This is just for call.
-#define TLKMDI_SCO_SPEEX_NS_SIZE            9188 ////actual:9188
+#define TLKMDI_SCO_SPEEX_NS_SIZE            5888//9216//((ns_get_size()+16)/16 + 1024)
 #define TLKMDI_SCO_SPEEX_NS_OFFS            0
 #define TLKMDI_SCO_AGC_ST_SIZE              1024
 #define TLKMDI_SCO_AGC_ST_OFFS              (TLKMDI_SCO_SPEEX_NS_OFFS+TLKMDI_SCO_SPEEX_NS_SIZE)
 #define TLKMDI_SCO_SPEEX_BUFFER_SIZE        (TLKMDI_SCO_SPEEX_NS_SIZE+TLKMDI_SCO_AGC_ST_SIZE)
 
 //For aecm_st, aecm_kiss_fft_st_buff, aecm_kiss_ifft_st_buff, aecm_kiss_fftr_st_buff, aecm_kiss_ifftr_st_buff
-#define TLKMDI_SCO_AECM_ST_SIZE             10912//actual:10912
-#define TLKMDI_SCO_AECM_ST_OFFS             0
-#define TLKMDI_SCO_AECM_BUFFER_SIZE         (TLKMDI_SCO_AECM_ST_SIZE)
+#define TLKMDI_SCO_AEC_ST_SIZE              6912//((aec_get_size()+16)/16)
+#define TLKMDI_SCO_AEC_ST_OFFS              0
+#define TLKMDI_SCO_AEC_BUFFER_SIZE          (TLKMDI_SCO_AEC_ST_SIZE)
+
+#define TLKMDI_SCO_AEC_NS_SCRATCH_SIZE  		4096 //(aec_get_scratch_size() > ns_get_scratch_size()? aec_get_scratch_size() : ns_get_scratch_size())
+#define TLKMDI_SCO_AEC_NS_SCRATCH_OFFS      	0
+#define TLKMDI_SCO_AEC_NS_SCRATCH_BUFFER_SIZE	(TLKMDI_SCO_AEC_NS_SCRATCH_SIZE)
 
 #define TLKMDI_SCO_CVSD_PARAM_SIZE          TLKALG_CVSD_PARAM_SIZE
 #define TLKMDI_SCO_CVSD_CACHE_SIZE          TLKALG_CVSD_CACHE_SIZE
@@ -69,8 +73,8 @@
 #define TLKMDI_SCO_CACHE_BUFFER_SIZE        (TLKMDI_SCO_SPK_ENC_BUFF_SIZE*TLKMDI_SCO_SPK_ENC_BUFF_NUMB\
 	+TLKMDI_SCO_MIC_ENC_BUFF_SIZE*TLKMDI_SCO_MIC_ENC_BUFF_NUMB)
 
-//Total buffer = NS(9188)+AGC(1024)+AEC(10912)+CVSD(1664)+SBC(3368+1248)+TEMP(2048)+Catch(2048)
-//             = 9188+1024+10912+1664+4616+2048+2048 = 31500
+//Total buffer = NS(6912)+AGC(1024)+AEC(6912)+CVSD(1664)+SBC(3368+1248)+TEMP(2048)+Catch(2048)
+//             = 6912+1024+6912+1664+4616+2048+2048 = 25224
 
 
 #define TLKMDI_SCO_CODEC_ID_CVSD          1
@@ -89,6 +93,7 @@ typedef struct{
 	uint08 *pTempBuffer;
 	uint08 *pAecmBuffer;
 	uint08 *pSpeexBuffer;
+	uint08 *pScratchBuffer;
 	uint08 *pCacheBuffer;
 	uint08 *pEncodeBuffer;
 }tlkmdi_sco_buff_t;

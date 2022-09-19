@@ -32,8 +32,6 @@
 
 //Device
 #include "tlkdev/sys/tlkdev_bat.h"
-#include "tlkdev/sys/tlkdev_mic.h"
-#include "tlkdev/sys/tlkdev_spk.h"
 #include "tlkdev/sys/tlkdev_codec.h"
 
 

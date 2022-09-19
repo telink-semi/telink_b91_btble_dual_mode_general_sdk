@@ -25,34 +25,57 @@
 #define TLKDEV_CODEC_H
 
 
-//Select
 typedef enum{
-	TLKDEV_CODEC_SELC_INNER = 0,
-	TLKDEV_CODEC_SELC_OUTER = 1,
-}TLKDEV_CODEC_SEL_ENUM;
+	TLKDEV_CODEC_SUBDEV_DEF  = 0x00,
+	TLKDEV_CODEC_SUBDEV_MIC  = 0x01,
+	TLKDEV_CODEC_SUBDEV_SPK  = 0x02,
+	TLKDEV_CODEC_SUBDEV_BOTH = 0x03,
+}TLKDEV_CODEC_SUBDEV_ENUM;
 
 typedef enum{
-	TLKDEV_CODEC_MODE_SINGLE = 0,
-	TLKDEV_CODEC_MODE_DOUBLE = 1,
-}TLKDEV_CODEC_MODE_ENUM;
+	TLKDEV_CODEC_CHANNEL_LEFT   = 0x01,
+	TLKDEV_CODEC_CHANNEL_RIGHT  = 0x02,
+	TLKDEV_CODEC_CHANNEL_STEREO = 0x03,
+}TLKDEV_CODEC_CHANNEL_ENUM;
+typedef enum{
+	TLKDEV_CODEC_BITDEPTH_16 = 16,
+	TLKDEV_CODEC_BITDEPTH_20 = 20,
+	TLKDEV_CODEC_BITDEPTH_24 = 24,
+}TLKDEV_CODEC_BITDEPTH_ENUM;
+typedef enum{
+	TLKDEV_CODEC_SAMPLERATE_8000  = 8000,
+	TLKDEV_CODEC_SAMPLERATE_16000 = 16000,
+	TLKDEV_CODEC_SAMPLERATE_32000 = 32000,
+	TLKDEV_CODEC_SAMPLERATE_44100 = 44100,
+	TLKDEV_CODEC_SAMPLERATE_48000 = 48000,
+}TLKDEV_CODEC_SAMPLERATE_ENUM;
 
 
-typedef struct{
-	uint08 sel; //Refer to TLKDEV_CODEC_SEL_ENUM.
-	uint08 mode; //Refer to TLKDEV_CODEC_MODE_ENUM.
-	uint08 isInit;
-	uint08 reserve;
-	uint32 sampleRate;
-}tlkdev_codec_t;
+int tlkdev_codec_init(void);
 
+int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bitDepth, uint32 sampleRate);
+int tlkdev_codec_close(void);
 
+void tlkdev_codec_muteSpk(void);
 
+uint tlkdev_codec_getSpkOffset(void);
+uint tlkdev_codec_getMicOffset(void);
+void tlkdev_codec_setSpkOffset(uint16 offset);
+void tlkdev_codec_setMicOffset(uint16 offset);
 
-int tlkdev_codec_init(uint08 mode, uint08 codecSel);
-int tlkdev_codec_init2(uint08 mode, uint08 codecSel);
+void tlkdev_codec_setSpkBuffer(uint08 *pBuffer, uint16 buffLen);
+void tlkdev_codec_setMicBuffer(uint08 *pBuffer, uint16 buffLen);
 
-void tlkdev_codec_reset(void);
-void tlkdev_codec_setSampleRate(uint32 sampleRate);
+uint tlkdev_codec_getSpkIdleLen(void);
+uint tlkdev_codec_getSpkDataLen(void);
+uint tlkdev_codec_getMicDataLen(void);
+
+bool tlkdev_codec_readMicData(uint08 *pBuff, uint16 buffLen, uint16 *pOffset);
+
+void tlkdev_codec_zeroSpkBuff(uint16 zeroLen, bool isInc);
+bool tlkdev_codec_fillSpkBuff(uint08 *pData, uint16 dataLen);
+bool tlkdev_codec_backReadSpkData(uint08 *pBuff, uint16 buffLen, uint16 offset, bool isBack);
+
 
 
 #endif //TLKDEV_CODEC_H

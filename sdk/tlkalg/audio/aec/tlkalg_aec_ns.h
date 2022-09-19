@@ -29,7 +29,7 @@
 
 /*! Version number to ensure header and binary are matching. */
 #define AEC_NS_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
-#define AEC_NS_VERSION AEC_NS_VERSION_INT(1, 1, 9)
+#define AEC_NS_VERSION AEC_NS_VERSION_INT(1, 2, 0)
 
 #ifndef _SPEEX_TYPES_H
 #define _SPEEX_TYPES_H
@@ -57,6 +57,8 @@ typedef struct {
 
 typedef struct {
 	int   low_shelf_enable;          /* 1: enable lowshelf filter, 0: disable lowshelf filter */
+	int   post_gain_enable;          /* 1: enable post gain processing, 0: disable post gain processing */
+	int   hf_cutting_enable;         /* 1: cut frequency above 4kHz, 0: observe frequency above 4kHz */
 	int   noise_suppress_default;    /* noise suppression ratio, set to -15db by default */
 	int   echo_suppress_default;  
 	int   echo_suppress_active_default;
@@ -78,20 +80,10 @@ typedef struct {
 /** Get preprocessor denoiser state */
 #define SPEEX_PREPROCESS_GET_DENOISE 1
 
-/** Set preprocessor Automatic Gain Control state */
-#define SPEEX_PREPROCESS_SET_AGC 2
-/** Get preprocessor Automatic Gain Control state */
-#define SPEEX_PREPROCESS_GET_AGC 3
-
 /** Set preprocessor Voice Activity Detection state */
 #define SPEEX_PREPROCESS_SET_VAD 4
 /** Get preprocessor Voice Activity Detection state */
 #define SPEEX_PREPROCESS_GET_VAD 5
-
-/** Set preprocessor Automatic Gain Control level (float) */
-#define SPEEX_PREPROCESS_SET_AGC_LEVEL 6
-/** Get preprocessor Automatic Gain Control level (float) */
-#define SPEEX_PREPROCESS_GET_AGC_LEVEL 7
 
 /** Set preprocessor dereverb state */
 #define SPEEX_PREPROCESS_SET_DEREVERB 8
@@ -138,39 +130,9 @@ typedef struct {
 /** Get the corresponding echo canceller state */
 #define SPEEX_PREPROCESS_GET_ECHO_STATE 25
 
-/** Set maximal gain increase in dB/second (int32) */
-#define SPEEX_PREPROCESS_SET_AGC_INCREMENT 26
-
-/** Get maximal gain increase in dB/second (int32) */
-#define SPEEX_PREPROCESS_GET_AGC_INCREMENT 27
-
-/** Set maximal gain decrease in dB/second (int32) */
-#define SPEEX_PREPROCESS_SET_AGC_DECREMENT 28
-
-/** Get maximal gain decrease in dB/second (int32) */
-#define SPEEX_PREPROCESS_GET_AGC_DECREMENT 29
-
-/** Set maximal gain in dB (int32) */
-#define SPEEX_PREPROCESS_SET_AGC_MAX_GAIN 30
-
-/** Get maximal gain in dB (int32) */
-#define SPEEX_PREPROCESS_GET_AGC_MAX_GAIN 31
-
-/*  Can't set loudness */
-/** Get loudness */
-#define SPEEX_PREPROCESS_GET_AGC_LOUDNESS 33
-
-/*  Can't set gain */
-/** Get current gain (int32 percent) */
-#define SPEEX_PREPROCESS_GET_AGC_GAIN 35
-
 /*  Can't set spectrum size */
 /** Get spectrum size for power spectrum (int32) */
 #define SPEEX_PREPROCESS_GET_PSD_SIZE 37
-
-/*  Can't set power spectrum */
-/** Get power spectrum (int32[] of squared values) */
-#define SPEEX_PREPROCESS_GET_PSD 39
 
 /*  Can't set noise size */
 /** Get spectrum size for noise estimate (int32)  */
@@ -184,10 +146,6 @@ typedef struct {
 /** Get speech probability in last frame (int32).  */
 #define SPEEX_PREPROCESS_GET_PROB 45
 
-/** Set preprocessor Automatic Gain Control level (int32) */
-#define SPEEX_PREPROCESS_SET_AGC_TARGET 46
-/** Get preprocessor Automatic Gain Control level (int32) */
-#define SPEEX_PREPROCESS_GET_AGC_TARGET 47
 /** Set threshold to implement NS */
 #define SPEEX_PREPROCESS_SET_THRESHOLD_LOW 48
 #define SPEEX_PREPROCESS_SET_THRESHOLD_HIGH 49
@@ -202,14 +160,14 @@ typedef struct SpeexPreprocessState_ SpeexPreprocessState;
 
 #if GSCON
 	/*! Version number to ensure header and binary are matching. */
-	#define GSC_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
-	#define GSC_VERSION GSC_VERSION_INT(1, 0, 0)
+	//#define GSC_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
+	//#define GSC_VERSION GSC_VERSION_INT(1, 0, 0)
 
 	#define MICNUM (2)
 
 	typedef struct gscState_ gscState;
 
-	int gsc_get_version(void);
+//	int gsc_get_version(void);
 	int gsc_get_size();
 	int gsc_state_init(gscState* st, int frame_size, int exchange_mic);
 	int gsc_BeamFormer(short* x_in, short* ref_in, short* x_out, gscState* st, int was_speech);
@@ -218,9 +176,22 @@ typedef struct SpeexPreprocessState_ SpeexPreprocessState;
 int aec_ns_get_version(void);
 
 #if AECON
+/** Return persistent memory size required by AEC
+ */
 int aec_get_size();
+
+/** Return scratch memory size required by AEC
+ */
+int aec_get_scratch_size();
 #endif
+
+/** Return persistent memory size required by NS
+ */
 int ns_get_size();
+
+/** Return scratch memory size required by NS
+ */
+int ns_get_scratch_size();
 
 #if AECON
 /** Creates a new echo canceller state
@@ -228,7 +199,7 @@ int ns_get_size();
  * @param filter_length Number of samples of echo to cancel (should generally correspond to 100-500 ms)
  * @return Newly-created echo canceller state
  */
-extern void aec_init(SpeexEchoState* st, AEC_CFG_PARAS* param, int frame_size, int filter_length);
+void aec_init(SpeexEchoState* st, AEC_CFG_PARAS* param, int frame_size, int filter_length);
 
 /** Performs echo cancellation a frame, based on the audio sent to the speaker (no delay is added
  * to playback in this form)
@@ -237,8 +208,13 @@ extern void aec_init(SpeexEchoState* st, AEC_CFG_PARAS* param, int frame_size, i
  * @param rec Signal from the microphone (near end + far end echo)
  * @param play Signal played to the speaker (received from far end)
  * @param out Returns near-end signal with echo removed
+ * @param pScratch Point to the scratch buffer which was alloced by caller
  */
-extern void aec_process_frame(SpeexEchoState* st, const spx_int16_t* rec, const spx_int16_t* play, spx_int16_t* out);
+void aec_process_frame(SpeexEchoState* st,
+                       const spx_int16_t* in,
+	                   const spx_int16_t* far_end,
+	                   spx_int16_t* out,
+	                   void* pScratch);
 #endif
 
 /** Creates a new preprocessing state. You MUST create one state per channel processed.
@@ -247,15 +223,17 @@ extern void aec_process_frame(SpeexEchoState* st, const spx_int16_t* rec, const 
  * @param sampling_rate Sampling rate used for the input.
  * @return Newly created preprocessor state
 */
-//extern void ns_init1(SpeexPreprocessState* st, NS_CFG_PARAS* param, int frame_size, int sampling_rate);
-extern void ns_init(void* pst, void *pParam, int frame_size, int sampling_rate);
+void ns_init(SpeexPreprocessState* st, NS_CFG_PARAS* param, int frame_size, int sampling_rate);
 
 /** Preprocess a frame
  * @param st Preprocessor state
  * @param x Audio sample vector (in and out). Must be same size as specified in ns_init().
+ * @param pScratch Point to the scratch buffer which was alloced by caller
  * @return Bool value for voice activity (1 for speech, 0 for noise/silence), ONLY if VAD turned on.
 */
-extern int ns_process_frame(SpeexPreprocessState* st, spx_int16_t* x);
+int ns_process_frame(SpeexPreprocessState* st,
+                     spx_int16_t* x,
+                     void* pScratch);
 
 /** Used like the ioctl function to control the preprocessor parameters
  * @param st Preprocessor state
@@ -263,9 +241,9 @@ extern int ns_process_frame(SpeexPreprocessState* st, spx_int16_t* x);
  * @param ptr Data exchanged to-from function
  * @return 0 if no error, -1 if request in unknown
 */
-extern int ns_set_parameter(SpeexPreprocessState* st, int request, void* ptr);
+int ns_set_parameter(SpeexPreprocessState* st, int request, void* ptr);
 
-extern float ns_get_gain_average(SpeexPreprocessState* st);
+float ns_get_gain_average(SpeexPreprocessState* st);
 
-extern void ns_free(SpeexPreprocessState* st);
+void ns_free(SpeexPreprocessState* st);
 #endif

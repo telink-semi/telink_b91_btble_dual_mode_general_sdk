@@ -27,9 +27,9 @@
 
 #define TLKMMI_FILE_ENABLE          1
 #define TLKMMI_AUDIO_ENABLE         1
-#define TLKMMI_BTMGR_ENABLE         (1 && TLK_STK_BT_ENABLE)
+#define TLKMMI_BTMGR_ENABLE         (1 && TLK_STK_BTH_ENABLE)
 #define TLKMMI_LEMGR_ENABLE         (1 && TLK_STK_LE_ENABLE)
-#define TLKMMI_PHONE_ENABLE         1
+#define TLKMMI_PHONE_ENABLE         (1 && TLK_STK_BTH_ENABLE)
 
 
 #define TLKMMI_FILE_DBG_ENABLE      (1 && TLKMMI_CFG_DBG_ENABLE)

@@ -36,18 +36,6 @@ extern void btc_core_isr(void);
 
 
 
-volatile uint32 AAAA_irq_test001 = 0;
-volatile uint32 AAAA_irq_test002 = 0;
-volatile uint32 AAAA_irq_test003 = 0;
-volatile uint32 AAAA_irq_test004 = 0;
-volatile uint32 AAAA_irq_test005 = 0;
-volatile uint32 AAAA_irq_test006 = 0;
-volatile uint32 AAAA_irq_test007 = 0;
-volatile uint32 AAAA_irq_test008 = 0;
-volatile uint32 AAAA_irq_test009 = 0;
-volatile uint32 AAAA_irq_test00A = 0;
-
-
 /******************************************************************************
  * Function: main
  * Descript: This is main function.
@@ -71,7 +59,6 @@ int main(void)
 
 	while(1)
 	{
-		
 		tlkapp_process();
 	}
 	
@@ -87,11 +74,8 @@ int main(void)
 *******************************************************************************/
 _attribute_retention_code_ void stimer_irq_handler(void)
 {
-	AAAA_irq_test001 ++;
     btc_ll_system_tick_isr();
-	AAAA_irq_test002 ++;
     ble_ll_system_tick_isr();
-	AAAA_irq_test003 ++;
 }
 
 /******************************************************************************
@@ -103,15 +87,11 @@ _attribute_retention_code_ void stimer_irq_handler(void)
 *******************************************************************************/
 _attribute_retention_code_ void rf_irq_handler(void)
 {
-	AAAA_irq_test004 ++;
 	ble_sdk_rf_irq_handler();
-	AAAA_irq_test005 ++;
 }
 
 
 extern void tlkusb_audirq_handler(void);
-extern void tlkusb_mscirq_handler(void);
-
 /******************************************************************************
  * Function: usb_endpoint_irq_handler
  * Descript: Usb endpoint interrupt handler.
@@ -122,19 +102,11 @@ extern void tlkusb_mscirq_handler(void);
 _attribute_retention_code_ 
 void usb_endpoint_irq_handler(void)
 {
-	AAAA_irq_test006 ++;
 	#if (TLK_USB_AUD_ENABLE)
 	tlkusb_audirq_handler();
 	#endif
-	AAAA_irq_test007 ++;
-	#if (TLK_USB_MSC_ENABLE)
-	tlkusb_mscirq_handler();
-	#endif
-	AAAA_irq_test008 ++;
 }
 
-
-static volatile unsigned int tdebug_zb_bt_irq = 0;
 
 /******************************************************************************
  * Function: zb_bt_irq_handler
@@ -145,10 +117,6 @@ static volatile unsigned int tdebug_zb_bt_irq = 0;
 *******************************************************************************/
 _attribute_retention_code_ void zb_bt_irq_handler(void)
 {
-	AAAA_irq_test009 ++;
-    tdebug_zb_bt_irq++;
     btc_core_isr();
-	AAAA_irq_test00A ++;
-
 }
 

@@ -132,6 +132,7 @@ typedef struct{
 }btp_a2dpReconfigCompleteEvt_t;
 
 
+
 int  btp_event_init(void);
 void btp_event_regCB(uint16 evtID, btp_event_func func);
 int  btp_send_event(uint16 evtID, uint08 *pData, uint16 dataLen);

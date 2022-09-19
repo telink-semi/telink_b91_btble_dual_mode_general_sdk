@@ -45,6 +45,12 @@
 	#define tlkapi_assert(...)
 	#define tlkapi_sprintf(...)
 	void tlkapi_debug_process(void);
+
+	#define tlkapi_sendStr(...)
+	#define tlkapi_sendData(...)
+	#define tlkapi_sendU08s(...)
+	#define tlkapi_sendU16s(...)
+	#define tlkapi_sendU32s(...)
 #endif
 
 
@@ -74,6 +80,11 @@
 #define tlkapi_assert    tlkapi_debug_assert
 #define tlkapi_sprintf   tlkapi_debug_sprintf
 
+#define tlkapi_sendStr(en,pStr)                        {if(en) tlkapi_debug_sendData(pStr,0,0);}
+#define tlkapi_sendData(en,pStr,pData,dataLen)         {if(en) tlkapi_debug_sendData(pStr,(uint08*)pData,dataLen);}
+#define tlkapi_sendU08s(en,pStr,val0,val1,val2,val3)   {if(en) tlkapi_debug_sendU08s(pStr,val0,val1,val2,val3);}
+#define tlkapi_sendU16s(en,pStr,val0,val1,val2,val3)   {if(en) tlkapi_debug_sendU16s(pStr,val0,val1,val2,val3);}
+#define tlkapi_sendU32s(en,pStr,val0,val1,val2,val3)   {if(en) tlkapi_debug_sendU32s(pStr,val0,val1,val2,val3);}
 
 #define TLKAPI_WARN_HEAD       "<WARN>"
 #define TLKAPI_INFO_HEAD       "<INFO>"

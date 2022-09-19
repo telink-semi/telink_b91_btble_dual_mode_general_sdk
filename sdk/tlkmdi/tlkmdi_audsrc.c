@@ -64,8 +64,6 @@ static uint08 *spTlkMdiSrcPktBuff = nullptr;
 static uint08 *spTlkMdiSrcEncBuff = nullptr;
 
 
-extern int hci_rxfifo_half_full(void);
-
 
 /******************************************************************************
  * Function: tlkmdi_audplay_init
@@ -184,7 +182,7 @@ bool tlkmdi_audsrc_toNext(void)
 {
 	uint16 index;
 	if(!sTlkMdiSrcCtrl.runing) return false;
-	tlkdev_spk_mute();
+	tlkdev_codec_muteSpk();
 	tlkmdi_mp3_updateEnable(true);
 	index = tlkmdi_mp3_getPlayIndex();
 	tlkmdi_audio_sendPlayOverEvt(TLKPRT_COMM_AUDIO_CHN_PLAY, index);
@@ -196,7 +194,7 @@ bool tlkmdi_audsrc_toPrev(void)
 {
 	uint16 index;
 	if(!sTlkMdiSrcCtrl.runing) return false;
-	tlkdev_spk_mute();
+	tlkdev_codec_muteSpk();
 	tlkmdi_mp3_updateEnable(true);
 	index = tlkmdi_mp3_getPlayIndex();
 	tlkmdi_audio_sendPlayOverEvt(TLKPRT_COMM_AUDIO_CHN_PLAY, index);
@@ -367,7 +365,7 @@ static bool tlkmdi_src_start(uint16 index)
 {
 	bool isSucc;
 
-	tlkdev_spk_mute();
+	tlkdev_codec_muteSpk();
 	tlkmdi_mp3_updateEnable(true);
 	isSucc = tlkmdi_mp3_play(index);
 	if(!isSucc){
@@ -396,7 +394,7 @@ static void tlkmdi_src_mp3Handler(void) //in irq
 	}
 	if(sTlkMdiSrcCtrl.mp3State == TLKMDI_MP3_STATUS_WAIT || sTlkMdiSrcCtrl.mp3State == TLKMDI_MP3_STATUS_DONE){
 		uint16 index = tlkmdi_mp3_getPlayIndex();
-		tlkdev_spk_mute();
+		tlkdev_codec_muteSpk();
 		if(sTlkMdiSrcCtrl.mp3State == TLKMDI_MP3_STATUS_DONE){
 			sTlkMdiSrcCtrl.runing = false;
 		}else{

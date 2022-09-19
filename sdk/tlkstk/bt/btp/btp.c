@@ -38,6 +38,7 @@
 #include "tlkstk/bt/btp/spp/btp_spp.h"
 #include "tlkstk/bt/btp/att/btp_att.h"
 #include "tlkstk/bt/btp/hid/btp_hid.h"
+#include "tlkstk/bt/btp/spp/btp_iap.h"
 
 
 int btp_init(void)
@@ -64,6 +65,9 @@ int btp_init(void)
 	#endif
 	#if (TLKBTP_CFG_SPP_ENABLE)
 	btp_spp_init();
+	#endif
+	#if (TLKBTP_CFG_IAP_ENABLE)
+	btp_iap_init();
 	#endif
 	#if (TLKBTP_CFG_ATT_ENABLE)
 	btp_att_init();
@@ -101,6 +105,9 @@ void btp_destroy(uint16 aclHandle)
 	#endif
 	#if (TLKBTP_CFG_SPP_ENABLE)
 	btp_spp_destroy(aclHandle);
+	#endif
+	#if (TLKBTP_CFG_IAP_ENABLE)
+	btp_iap_destroy(aclHandle);
 	#endif
 	#if (TLKBTP_CFG_RFC_ENABLE)
 	btp_rfcomm_destroy(aclHandle);

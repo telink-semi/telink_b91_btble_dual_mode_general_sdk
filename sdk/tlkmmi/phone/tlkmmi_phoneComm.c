@@ -60,7 +60,6 @@ int tlkmmi_phone_commInit(void)
 {
 	tlkmdi_comm_regCallCB(tlkmmi_phone_cmdHandler);
 	
-
 	return TLK_ENONE;
 }
 

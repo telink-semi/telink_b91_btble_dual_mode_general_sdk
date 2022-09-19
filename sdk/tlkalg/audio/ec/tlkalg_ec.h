@@ -21,13 +21,15 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef MY_EC_H
-#define MY_EC_H
+#ifndef TLKALG_EC_H
+#define TLKALG_EC_H
 
 
-void tlkalg_ec_init(u8 *pSpeexNs, u8 *pAecm);
+
+void tlkalg_ec_init(uint08 *pNs, uint08 *pAec, uint08 *pScratch);
 short *tlkalg_ec_frame(uint08 *pMicData, uint08 *pSpkData);
 
 
 
-#endif
+#endif //TLKALG_EC_H
+

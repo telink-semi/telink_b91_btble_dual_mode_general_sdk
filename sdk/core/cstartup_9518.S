@@ -443,7 +443,11 @@ SYNC8_DCT_LOOP:
 	c.addi	a0,16
 	maddr32	a5,a3,t4
 	maddr32	a5,a4,t3
-	c.srai	a5,0xe
+
+	li 	a6,32768			//2^(NUM_FRAC_BITS_COS-1)
+	add 	a5,a5,a6
+
+	c.srai	a5,0x10		//NUM_FRAC_BITS_COS f
 	sh	a5,-2(a2)
 	bne	a0,s2,SYNC8_DCT_LOOP
 	c.lwsp	s0,12(sp)
@@ -502,7 +506,7 @@ SYNC8_BFILTER_LOOP:
 	c.addi	a1,20
 	c.addi	a2,2
 
-	c.srai	a5,0xb	// MY_EXTER_BIT: 1-0xb; 2-0xa; 3-0x9
+	c.srai	a5,0xd	// MY_EXTER_BIT: 1-0xb; 2-0xa; 3-0x9 + SBCDEC_EXTRA_BITS e
 	ksubh	a5,t0,a5
 	sh	a5,-2(a0)
 	bne	a1,t2, SYNC8_BFILTER_LOOP

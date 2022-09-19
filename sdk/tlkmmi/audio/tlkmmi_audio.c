@@ -61,14 +61,7 @@ tlkapi_timer_t gTlkMmiAudioIrqTimer;
 *******************************************************************************/
 int tlkmmi_audio_init(void)
 {
-	audio_set_codec_in_path_a_d_gain(CODEC_IN_D_GAIN_0_DB, CODEC_IN_A_GAIN_8_DB); //mic sco
-	audio_set_codec_out_path_a_d_gain(CODEC_OUT_D_GAIN_0_DB, CODEC_OUT_A_GAIN_0_DB); //mic sco
-	
-	tlkdev_codec_init(TLKDEV_CODEC_MODE_SINGLE, TLKDEV_CODEC_SELC_INNER);
-	tlkdev_codec_setSampleRate(44100);
-
-	audio_set_codec_adc_wnf(CODEC_ADC_WNF_INACTIVE);
-	audio_codec_adc_enable(0);
+	tlkdev_codec_init();
 	
 	tlkmmi_audio_infoInit();
 	tlkmmi_audio_commInit();
@@ -178,7 +171,7 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 			#endif
 		}
 		gTlkMmiAudioTmrState = 0;
-		tlkdev_spk_mute();
+		tlkdev_codec_muteSpk();
 		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
 	}
 	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_SRC){
@@ -199,7 +192,7 @@ static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_NONE) return false;
 	
 	if(!tlkmmi_audio_modinfIrqProc(gTlkMmiAudioCurOptype)){
-		tlkdev_spk_mute();
+		tlkdev_codec_muteSpk();
 		timeIntval = 100000;
 	}else{
 		timeIntval = tlkmmi_audio_modinfIntval(gTlkMmiAudioCurOptype);

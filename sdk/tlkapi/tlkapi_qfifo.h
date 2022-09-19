@@ -25,6 +25,7 @@
 #define TLKAPI_QFIFO_H
 
 
+#define TLKAPI_QFIFO_NEED_SIZE(numb, size)     ((size)*(numb))
 
 #define tlkapi_qfifo_size(pFifo)               ((pFifo)->size)
 #define tlkapi_qfifo_count(pFifo)              ((pFifo)->numb)

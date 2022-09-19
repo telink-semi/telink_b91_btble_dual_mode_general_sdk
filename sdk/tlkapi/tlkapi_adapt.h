@@ -36,7 +36,7 @@ typedef struct tlkapi_procs_s  tlkapi_procs_t;
 
 
 /******************************************************************************
- * Function: LstkProcsCB, LstkTimerCB
+ * Function: TlkApiProcsCB, TlkApiTimerCB
  * Descript: Defines the format of the user callback interface.
  * Params:
  *     @pProcs[IN]--The node of Process Control.

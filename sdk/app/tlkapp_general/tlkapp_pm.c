@@ -177,9 +177,7 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 	tlkdev_xt26g0x_shutDown();
 	#endif
 	
-	tlkdev_codec_reset();
 	sTlkAppPmState = TLKAPP_PM_STATE_SLEEP;
-
 }
 
 

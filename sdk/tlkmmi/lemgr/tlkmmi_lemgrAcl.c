@@ -245,7 +245,9 @@ int tlkmmi_lemgr_aclInit(void)
 	tlkmmi_lemgr_setAclName(tlkmmi_lemgr_getName(), tlkmmi_lemgr_getNameLen());
 	tlkmmi_lemgr_setAclAddr(tlkmmi_lemgr_getAddr(), 6);
 	//tlkmmi_lemgr_startAdv(0, 0);
-	
+	extern void rf_set_le_tx_tp_slice (u8 slice);
+	rf_set_le_tx_tp_slice(RF_POWER_P9p11dBm);
+
 	return TLK_ENONE;
 }
 _attribute_ble_retention_code_

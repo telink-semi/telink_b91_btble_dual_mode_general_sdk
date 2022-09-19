@@ -47,6 +47,10 @@
 #if (TLK_MDI_KEY_ENABLE)
 #include "tlkmdi/tlkmdi_key.h"
 #endif
+#if (TLK_MDI_LED_ENABLE)
+#include "tlkmdi/tlkmdi_led.h"
+#endif
+
 #include "tlkmdi/tlkmdi.h"
 
 
@@ -94,6 +98,9 @@ int tlkmdi_init(void)
 	
 	#if (TLK_MDI_KEY_ENABLE)
 	tlkmdi_key_init();
+	#endif
+	#if (TLK_MDI_LED_ENABLE)
+	tlkmdi_led_init();
 	#endif
 	#if (TLK_MDI_USB_ENABLE)
 	tlkmdi_usb_init();

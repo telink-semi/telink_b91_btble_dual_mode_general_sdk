@@ -84,7 +84,6 @@ typedef struct{
 	TlkMdiKeyEventCB evtCB;
 }tlkmdi_key_unit_t;
 typedef struct{
-	uint08 intvType;
 	tlkapi_timer_t timer;
 	tlkmdi_key_unit_t unit[TLKMDI_KEY_MAX_NUMB];
 }tlkmdi_key_ctrl_t;
@@ -94,8 +93,8 @@ typedef struct{
 
 int tlkmdi_key_init(void);
 
-int tlkmdi_key_insert(uint08 keyID, uint08 evtMsk, uint32 ioPort, uint08 level, TlkMdiKeyEventCB evtCB);
-int tlkmdi_key_remove(uint08 keyID);
+int tlkmdi_key_insert(uint08 keyID, uint08 evtMsk, uint32 ioPort, uint08 level, uint08 upDown, TlkMdiKeyEventCB evtCB);
+int tlkmdi_key_remove(uint08 keyID, uint08 upDown, bool enInput);
 
 
 

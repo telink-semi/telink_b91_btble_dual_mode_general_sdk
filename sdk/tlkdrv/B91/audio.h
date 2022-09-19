@@ -1031,70 +1031,6 @@ void i2c_init(codec_type_e codec_type);
  
 /*******************************      BLE Stack Use     ******************************/
  
-typedef enum _codec_mode
-{
-    CODEC_MODE_PWR_OFF = 1,
-    CODEC_MODE_PWR_DOWN,
-    CODEC_MODE_SLEEP,
-    CODEC_MODE_ANAREC,
-    CODEC_MODE_DIGREC,
-
-    CODEC_MODE_PLAYBACK,        // A2DP (DAC:44.1k / 48k)
-    CODEC_MODE_PLAYBACK_ANAREC, //  SCO (ADC + DAC: 16K / 8K)
-    CODEC_MODE_PLAYBACK_DIGREC,
-} codec_mode_e;
-
-typedef struct codec_mode_switch {
-    unsigned char codec_mode_curr;
-    unsigned int  codec_freq_curr;
-    
-    unsigned char codec_mode_new;
-    unsigned int  codec_freq_new;
-    
-    unsigned int *speaker_buff_new;
-    unsigned int  speaker_size_new;
-    unsigned int *mic_buff_new;
-    unsigned int  mic_size_new;
-    
-    unsigned char codec_mode_mid;
-    unsigned int  codec_freq_mid;
-    
-    unsigned int  codec_last_sys_tick;
-} codec_mode_switch_t;
-
-enum {
-	CODEC_FLAG_MUSIC	    = (0x01L <<  0),
-    CODEC_FLAG_VOICE        = (0x01L <<  1),
-    
-    CODEC_FLAG_DMA_SPK      = (0x01L <<  2),
-    CODEC_FLAG_DMA_MIC      = (0x01L <<  3),
-    
-    CODEC_FLAG_EQ_MUSIC_EN        	= (0x01L <<  4),
-	CODEC_FLAG_EQ_VOICE_MIC_EN		= (0x01L <<  5),
-	CODEC_FLAG_EQ_VOICE_SPK_EN		= (0x01L <<  6),
-	
-	CODEC_FLAG_STEREO_EN			= (0x01L <<  7),
-};
-
-extern unsigned int codec_flag;
-;
-static inline void audio_codec_flag_set (unsigned int flag, int en)
-{
-	u32 r = core_disable_interrupt ();
-	if (en)
-	{
-		codec_flag |= flag;
-	}
-	else
-	{
-		codec_flag &= ~flag;
-	}
-	core_restore_interrupt (r);
-}
-
-#define audio_codec_flag_get(f)		(codec_flag&(f)) 
- 
-void audio_init_mode(audio_flow_mode_e flow_mode, audio_sample_rate_e rate, audio_channel_wl_mode_e channel_wl);
 
 static inline int audio_sample_rate_to_index (int audio_rate)
 {
@@ -1115,22 +1051,14 @@ static inline int audio_index_to_sample_rate (int index)
 	return audio_rate;
 }
 
-void    audio_codec_adc_enable(int en);
 
-void    audio_codec_switch_task(void);
-int	    audio_codec_mode_config(int sample_rate, u32 *speaker_buff, int speaker_size, u32 *mic_buff, int mic_size);
+ 
+void audio_init_mode(audio_flow_mode_e flow_mode, audio_sample_rate_e rate, audio_channel_wl_mode_e channel_wl);
 
-typedef struct {
-	unsigned int audio_dma_ctl;
-	unsigned int audio_dma_src_addr;
-	unsigned int audio_dma_dst_addr;
-	unsigned int audio_dma_data_len;
-	unsigned int audio_dma_llp_ptr;
-}dma_llp_config_t;
+void audio_codec_adc_enable(int en);
 
 void audio_codec_pwr_down(void);
-void audio_data_fifo0_path_sel (audio_mux_ain_e ain0_sel, audio_mux_aout_e aout0_sel);
 void audio_codec_config (audio_channel_wl_mode_e channel_wl,int sample_rate, u32 * speaker_buff, int speaker_size, u32 *mic_buff, int mic_size);
-void aduio_set_chn_wl(audio_channel_wl_mode_e chn_wl);
-void audio_set_mono_chn(audio_data_invert_e en);
+
+
 #endif

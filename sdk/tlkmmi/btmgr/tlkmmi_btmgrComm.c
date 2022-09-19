@@ -198,6 +198,7 @@ uint08 tlkmmi_btmgr_ptypeToCtype(uint08 ptype, uint08 usrID)
 			else ctype = TLKPRT_COMM_BT_CHN_HFP_HF;
 			break;
 		case BTP_PTYPE_IAP:
+			ctype = TLKPRT_COMM_BT_CHN_IAP;
 			break;
 		case BTP_PTYPE_SPP:
 			ctype = TLKPRT_COMM_BT_CHN_SPP;
@@ -642,7 +643,7 @@ static void tlkmmi_btmgr_recvStartPairCmdDeal(uint08 *pData, uint08 dataLen)
 	uint08 enPageScan;
 
 	if(dataLen < 3){
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: error length");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvStartPairCmdDeal: error length");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
 		return;
 	}
@@ -651,19 +652,19 @@ static void tlkmmi_btmgr_recvStartPairCmdDeal(uint08 *pData, uint08 dataLen)
 	enInqScan = pData[1];
 	enPageScan = pData[2];
 	if(!enInqScan && !enPageScan){
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: error param");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvStartPairCmdDeal: error param");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EPARAM, nullptr, 0);
 		return;
 	}
 	
 	if(!isForce && tlkmmi_btmgr_recIsBusy()){
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: busy");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvStartPairCmdDeal: busy");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EBUSY, nullptr, 0);
 		return;
 	}
 	
 	if(tlkmdi_btacl_getIdleCount() == 0){
-		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvDisconnCmdDeal: no quota");
+		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvStartPairCmdDeal: no quota");
 		tlkmdi_comm_sendBtRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EQUOTA, nullptr, 0);
 		return;
 	}

@@ -30,40 +30,41 @@ static void p25q32s_Interface_Init(SPI_GPIO_GroupTypeDef pin);
 static void p25q32s_Interface_Read(uint08 *cmd_data, uint32 cmd_length, uint08 *pdata, uint32 length);
 static void p25q32s_Interface_Write(uint08 *cmd_data, uint32 cmd_length, uint08 *pdata, uint32 length);
 
-void tlkdev_p25q32h_setPowerState(bool isRelease);
-bool tlkdev_p25q32h_writePage(uint32 addr, uint08 *pdata, uint32 length);
+void p25q32h_setPowerState(bool isRelease);
+bool p25q32h_writePage(uint32 addr, uint08 *pdata, uint32 length);
 
-uint08 tlkdev_p25q32h_get_status(void);
-bool tlkdev_p25q32h_busy_wait(void);
-void tlkdev_p25q32h_write_command(uint08 command);
-void tlkdev_p25q32h_write_enable(void);
-void tlkdev_p25q32h_write_disable(void);
-uint16 tlkdev_p25q32h_getChipId(void);
-uint32 tlkdev_p25q32h_getJedecId(void);
+uint08 p25q32h_get_status(void);
+bool p25q32h_busy_wait(void);
+void p25q32h_write_command(uint08 command);
+void p25q32h_write_enable(void);
+void p25q32h_write_disable(void);
+uint16 p25q32h_getChipId(void);
+uint32 p25q32h_getJedecId(void);
 
+static uint08 sTlkDevP25q32hIsReady = false;
 
-
-int tlkdev_p25q32h_init(void)
+int p25q32h_init(void)
 {
 	p25q32s_Interface_Init(SPI_GPIO_GROUP_A2A3A4D6);
-	tlkdev_p25q32h_setPowerState(true);
+	p25q32h_setPowerState(true);
 	sleep_ms(200);
+	sTlkDevP25q32hIsReady = true;
 	return TLK_ENONE;
 }
 
-uint32 tlkdev_p25q32h_read(uint32 addr, uint08 *pdata, uint32 length)
+uint32 p25q32h_read(uint32 addr, uint08 *pdata, uint32 length)
 {
-	 uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_READ_DATA, addr >> 16, addr >> 8, addr >> 0,};
+	 uint08 cmd_data[] = {P25Q32H_CMDID_READ_DATA, addr >> 16, addr >> 8, addr >> 0,};
 	 p25q32s_Interface_Read(cmd_data, sizeof(cmd_data), pdata, length);
 	 return length;
 }
-uint32 tlkdev_p25q32h_write(uint32 addr, uint08 *pdata, uint32 length)
+uint32 p25q32h_write(uint32 addr, uint08 *pdata, uint32 length)
 {
 	 uint32 feasible_size    = length;
 	 uint32 currentAddress   = addr;
-	 uint32 currentEndOfPage = (currentAddress / TLKDEV_P25Q32H_PAGE_SIZE + 1) * TLKDEV_P25Q32H_PAGE_SIZE - 1;
+	 uint32 currentEndOfPage = (currentAddress / P25Q32H_PAGE_SIZE + 1) * P25Q32H_PAGE_SIZE - 1;
 
-	 if(length > (TLKDEV_P25Q32H_TOTAL_SIZE - addr)) feasible_size = TLKDEV_P25Q32H_TOTAL_SIZE - addr;
+	 if(length > (P25Q32H_TOTAL_SIZE - addr)) feasible_size = P25Q32H_TOTAL_SIZE - addr;
 
 	 uint32 bytes_left_to_send = feasible_size;
 	 uint32 bytes_written      = 0;
@@ -71,126 +72,128 @@ uint32 tlkdev_p25q32h_write(uint32 addr, uint08 *pdata, uint32 length)
 	 while(bytes_written < feasible_size){
 		if(currentAddress + bytes_left_to_send > currentEndOfPage) bytes_left_to_send = currentEndOfPage - currentAddress + 1;
 
-		if(tlkdev_p25q32h_writePage(currentAddress, pdata + bytes_written, bytes_left_to_send) == false) return 0;
+		if(p25q32h_writePage(currentAddress, pdata + bytes_written, bytes_left_to_send) == false) return 0;
 
 		bytes_written     += bytes_left_to_send;
 		currentAddress     = currentEndOfPage + 1;
-		currentEndOfPage  += TLKDEV_P25Q32H_PAGE_SIZE;
+		currentEndOfPage  += P25Q32H_PAGE_SIZE;
 		bytes_left_to_send = feasible_size - bytes_written;
 	 }
 	 return bytes_written;
 }
-bool tlkdev_p25q32h_writePage(uint32 addr, uint08 *pdata, uint32 length)
+bool p25q32h_writePage(uint32 addr, uint08 *pdata, uint32 length)
 {
-	 tlkdev_p25q32h_write_enable();
+	 p25q32h_write_enable();
 
-	 uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_PAGE_PROGRAM, addr >> 16, addr >> 8, addr >> 0, };
+	 uint08 cmd_data[] = {P25Q32H_CMDID_PAGE_PROGRAM, addr >> 16, addr >> 8, addr >> 0, };
 	 p25q32s_Interface_Write(cmd_data, sizeof(cmd_data), pdata, length);
-	 return tlkdev_p25q32h_busy_wait();
+	 return p25q32h_busy_wait();
 }
 
 
-void tlkdev_p25q32h_erasePage(uint32 addr)
+void p25q32h_erasePage(uint32 addr)
 {
-	 tlkdev_p25q32h_write_enable();
+	 p25q32h_write_enable();
 
-	 uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_PAGE_ERASE, addr >> 16, addr >> 8, addr >> 0, };
+	 uint08 cmd_data[] = {P25Q32H_CMDID_PAGE_ERASE, addr >> 16, addr >> 8, addr >> 0, };
 	 p25q32s_Interface_Write(cmd_data, sizeof(cmd_data), NULL , 0);
 
-	 tlkdev_p25q32h_busy_wait();
+	 p25q32h_busy_wait();
 }
-void tlkdev_p25q32h_eraseSector(uint32 addr)
+void p25q32h_eraseSector(uint32 addr)
 {
-	 tlkdev_p25q32h_write_enable();
+	 p25q32h_write_enable();
 
-	 uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_SECTOR_ERASE, addr >> 16, addr >> 8, addr >> 0, };
+	 uint08 cmd_data[] = {P25Q32H_CMDID_SECTOR_ERASE, addr >> 16, addr >> 8, addr >> 0, };
 	 p25q32s_Interface_Write(cmd_data, sizeof(cmd_data), NULL , 0);
 
-	 tlkdev_p25q32h_busy_wait();
+	 p25q32h_busy_wait();
 }
-void tlkdev_p25q32h_eraseBlock32K(uint32 addr)
+void p25q32h_eraseBlock32K(uint32 addr)
 {
-	 tlkdev_p25q32h_write_enable();
+	 p25q32h_write_enable();
 
-	 uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_BLOCK32K_ERASE, addr >> 16, addr >> 8, addr >> 0, };
+	 uint08 cmd_data[] = {P25Q32H_CMDID_BLOCK32K_ERASE, addr >> 16, addr >> 8, addr >> 0, };
 	 p25q32s_Interface_Write(cmd_data, sizeof(cmd_data), NULL , 0);
 
-	 tlkdev_p25q32h_busy_wait();
+	 p25q32h_busy_wait();
 }
-void tlkdev_p25q32h_eraseBlock64K(uint32 addr)
+void p25q32h_eraseBlock64K(uint32 addr)
 {
-	 tlkdev_p25q32h_write_enable();
+	 p25q32h_write_enable();
 
-	 uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_BLOCK64K_ERASE, addr >> 16, addr >> 8, addr >> 0, };
+	 uint08 cmd_data[] = {P25Q32H_CMDID_BLOCK64K_ERASE, addr >> 16, addr >> 8, addr >> 0, };
 	 p25q32s_Interface_Write(cmd_data, sizeof(cmd_data), NULL , 0);
 
-	 tlkdev_p25q32h_busy_wait();
+	 p25q32h_busy_wait();
 }
 
 
-void tlkdev_p25q32h_eraseChip(void)
+void p25q32h_eraseChip(void)
 {
-	 tlkdev_p25q32h_write_enable();
-	 tlkdev_p25q32h_write_command(TLKDEV_P25Q32H_CMDID_CHIP_ERASE);
-	 while(tlkdev_p25q32h_get_status() & 0x01);
+	 p25q32h_write_enable();
+	 p25q32h_write_command(P25Q32H_CMDID_CHIP_ERASE);
+	 while(p25q32h_get_status() & 0x01);
 }
 
 
 
-uint08 tlkdev_p25q32h_get_status(void)
+uint08 p25q32h_get_status(void)
 {
 	 uint08 status;
-	 uint08 command = TLKDEV_P25Q32H_CMDID_READ_STATUS;
+	 uint08 command = P25Q32H_CMDID_READ_STATUS;
 	 p25q32s_Interface_Read(&command, sizeof(command), &status, sizeof(status));
 	 return status;
 }
 
-bool tlkdev_p25q32h_busy_wait(void)
+bool p25q32h_busy_wait(void)
 {
-	 for(int index = 0; index < TLKDEV_P25Q32H_BUSY_TIMEOUT_VALUE; index ++){
-		 if(!(tlkdev_p25q32h_get_status() & 0x01)) return true;
+	 for(int index = 0; index < P25Q32H_BUSY_TIMEOUT_VALUE; index ++){
+		 if(!(p25q32h_get_status() & 0x01)){
+		 	 return true;
+		 }
 	 }
 	 return false;
 }
 
-void tlkdev_p25q32h_write_command(uint08 command)
+void p25q32h_write_command(uint08 command)
 {
 	 p25q32s_Interface_Write(&command, sizeof(command), NULL, 0);
-	 tlkdev_p25q32h_busy_wait();
+	 p25q32h_busy_wait();
 }
 
-void tlkdev_p25q32h_write_enable(void)
+void p25q32h_write_enable(void)
 {
-	 tlkdev_p25q32h_write_command(TLKDEV_P25Q32H_CMDID_WRITE_ENABLE);
+	 p25q32h_write_command(P25Q32H_CMDID_WRITE_ENABLE);
 }
 
-void tlkdev_p25q32h_write_disable(void)
+void p25q32h_write_disable(void)
 {
-	 tlkdev_p25q32h_write_command(TLKDEV_P25Q32H_CMDID_WRITE_DISABLE);
+	 p25q32h_write_command(P25Q32H_CMDID_WRITE_DISABLE);
 }
 
-uint16 tlkdev_p25q32h_getChipId(void)
+uint16 p25q32h_getChipId(void)
 {
-     uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_MANUFACT_DEVICE_ID, 0x00, 0x00, 0x00,};
+     uint08 cmd_data[] = {P25Q32H_CMDID_MANUFACT_DEVICE_ID, 0x00, 0x00, 0x00,};
      uint08 chip_id[2]; // [0] manufacturer_id  [1] device_id
      p25q32s_Interface_Read(cmd_data, sizeof(cmd_data), chip_id, sizeof(chip_id));
      return (uint16)((chip_id[0] << 8) | chip_id[1]);
 }
 
-uint32 tlkdev_p25q32h_getJedecId(void)
+uint32 p25q32h_getJedecId(void)
 {
-     uint08 cmd_data[] = {TLKDEV_P25Q32H_CMDID_JEDEC_DEVICE_ID, 0x00, 0x00, 0x00,};
+     uint08 cmd_data[] = {P25Q32H_CMDID_JEDEC_DEVICE_ID, 0x00, 0x00, 0x00,};
      uint08 jedec_id[3]; // [0] manufacturer_id  [1] memory_type_id  [2] capacity_id
      p25q32s_Interface_Read(cmd_data, sizeof(cmd_data), jedec_id, sizeof(jedec_id));
      return (uint32)((jedec_id[0] << 16) | (jedec_id[1] << 8) | jedec_id[2]);
 }
 
-void tlkdev_p25q32h_setPowerState(bool isRelease)
+void p25q32h_setPowerState(bool isRelease)
 {
 	 if(isRelease){
-		 tlkdev_p25q32h_write_command(TLKDEV_P25Q32H_CMDID_RELEASE_POWER_DOWN);
+		 p25q32h_write_command(P25Q32H_CMDID_RELEASE_POWER_DOWN);
 	 }else{
-		 tlkdev_p25q32h_write_command(TLKDEV_P25Q32H_CMDID_POWER_DOWN);
+		 p25q32h_write_command(P25Q32H_CMDID_POWER_DOWN);
 	 }
 }
 
@@ -201,29 +204,33 @@ void tlkdev_p25q32h_setPowerState(bool isRelease)
 
 
 
-static void p25q32s_Interface_Init(gpio_pin_e pin)
+static void p25q32s_Interface_Init(SPI_GPIO_GroupTypeDef pin)
 {
-	spi_master_init(0x00, SPI_MODE0);
+	spi_master_init(0x00,SPI_MODE0);
 	spi_master_gpio_set(pin);
-	spi_masterCSpin_select(TLKDEV_P25Q32H_SPI_CS_GPIO);
-	gpio_setup_up_down_resistor(TLKDEV_P25Q32H_SPI_CS_GPIO,PM_PIN_PULLUP_1M);
+	spi_masterCSpin_select(P25Q32H_SPI_CS_GPIO);
+	gpio_setup_up_down_resistor(P25Q32H_SPI_CS_GPIO,PM_PIN_PULLUP_1M);
 }
 static void p25q32s_Interface_Write(uint08 *cmd_data, uint32 cmd_length, uint08 *pdata, uint32 length)
 {
-	spi_write(cmd_data, cmd_length, pdata, length, TLKDEV_P25Q32H_SPI_CS_GPIO);
+	spi_write(cmd_data, cmd_length, pdata, length, P25Q32H_SPI_CS_GPIO);
 }
 static void p25q32s_Interface_Read(uint08 *cmd_data, uint32 cmd_length, uint08 *pdata, uint32 length)
 {
-	 spi_read(cmd_data, cmd_length, pdata, length, TLKDEV_P25Q32H_SPI_CS_GPIO);
+	 spi_read(cmd_data, cmd_length, pdata, length, P25Q32H_SPI_CS_GPIO);
 }
 
 
- 
+
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 /********** The time format (16bits) is:**************
-Bits15 ~ 11 represents hours, which can be 0 ~ 23; 
-bits10 ~ 5 represents minutes, which can be 0 ~ 59; 
+Bits15 ~ 11 represents hours, which can be 0 ~ 23;
+bits10 ~ 5 represents minutes, which can be 0 ~ 59;
 bits4 ~ 0 represents seconds, which can be 0 ~ 29, and each unit is 2 seconds, which means that the actual second value is 2 times of the value.
 */
 
@@ -259,7 +266,7 @@ static const uint08 scTlkDevP25q32hDiskDBR[64] =
 	TLKDEV_P25Q32H_DISK_RSV_NUMB & 0xFF, (TLKDEV_P25Q32H_DISK_RSV_NUMB & 0xFF00) >> 8, //Number of reserved sectors, 8 (14~15)
 	TLKDEV_P25Q32H_DISK_FAT_COPIES, //The number of FAT copies of this partition, which is 2 (16)
 	(TLKDEV_P25Q32H_DISK_CLUSTER_SIZE >> 5) & 0xFF, (TLKDEV_P25Q32H_DISK_CLUSTER_SIZE >> 13) & 0xFF, //Number of root directory entries, 1024(00 04) entries (17~18). Unit:32Bytes
-	(TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xFF00)>>8, //The number of small sectors (<=32M), here is 0, which means to read the value from the large sector field (19~20)
+	(TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff), (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff00)>>8, //The number of small sectors (<=32M), here is 0, which means to read the value from the large sector field (19~20)
 	0xF8, //Media descriptor, 0xF8 means hard disk (21)
 	(TLKDEV_P25Q32H_DISK_FAT_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_FAT_NUMB & 0xFF00)>>8, //Number of sectors per FAT, 64 (22~23)
 	(TLKDEV_P25Q32H_DISK_CLUSTER_NUMB & 0xFF), (TLKDEV_P25Q32H_DISK_CLUSTER_NUMB & 0xFF00)>>8, //Number of sectors per track, 64 (24~25)
@@ -301,13 +308,13 @@ static const uint08 scTlkDevP25q32hDiskRoot[64] = //------------- Block2: Root D
 
 	0x00, 0x00,  //Start cluster low word
 	0x00, 0x00, 0x00, 0x00, //file length
-	
+
 	// second entry is readme file
-	'R' , 'E' , 'A' , 'D' , 'M' , 'E' , ' ' , ' ' , 'T' , 'X' , 'T' , 
+	'R' , 'E' , 'A' , 'D' , 'M' , 'E' , ' ' , ' ' , 'T' , 'X' , 'T' ,
 	0x00, //File properties, representing read-write files
 	0x00, //Reserved
 	0x00, //0xC6, //0x00-Create time millisecond timestamp
-	
+
 	//File creation time, 15:48:26
 	TLKDEV_P25Q32H_DISK_TIME_LB(15,48,26), TLKDEV_P25Q32H_DISK_TIME_HB(15,48,26),
 	//File creation date, August 19, 2008
@@ -320,12 +327,11 @@ static const uint08 scTlkDevP25q32hDiskRoot[64] = //------------- Block2: Root D
 	//Last modified time, 15:50:33
 	TLKDEV_P25Q32H_DISK_TIME_LB(15,50,33), TLKDEV_P25Q32H_DISK_TIME_HB(15,50,33), //0x88, 0x6D,
 	//Last revision date, August 19, 2008
-	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,19), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,19), //0x65, 0x43, 
-	
+	TLKDEV_P25Q32H_DISK_DATE_LB(2008,8,19), TLKDEV_P25Q32H_DISK_DATE_HB(2008,8,19), //0x65, 0x43,
+
 	0x02, 0x00, //Start cluster low word, cluster 2.
 	sizeof(scTlkDevP25q32hDiskReadMe)-1, 0x00, 0x00, 0x00 // readme's files size (4 Bytes)
 };
-
 
 
 
@@ -335,12 +341,12 @@ int tlkdev_p25q32h_diskInit(void)
 	uint32 blkCount;
 	uint08 temp[512];
 
-//	if(!sTlkDevP25q32hIsReady) return -TLK_ENOREADY;
-	
+	if(!sTlkDevP25q32hIsReady) return -TLK_ENOREADY;
+
 	ret = tlkdev_p25q32h_diskRead(temp, 0, 1);
 	if(ret != TLK_ENONE) return TLK_ENONE;
 	if((temp[510] != 0x55) || (temp[511] != 0xaa)) return -TLK_EFAIL;
-	
+
 	blkCount = (temp[461]<<24) + (temp[460]<<16) + (temp[459]<<8) + temp[458];
 	if(blkCount != TLKDEV_P25Q32H_DISK_BLOCK_NUMB){
 		ret = tlkdev_p25q32h_diskFormat();
@@ -349,17 +355,38 @@ int tlkdev_p25q32h_diskInit(void)
 }
 int tlkdev_p25q32h_diskRead(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb)
 {
-	tlkdev_p25q32h_read(blkOffs * TLKDEV_P25Q32H_DISK_BLOCK_SIZE, pBuff, TLKDEV_P25Q32H_DISK_BLOCK_SIZE*blkNumb);
+	uint08 index;
+	uint32 baseAddr = blkOffs*TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+	uint08 *pData = pBuff;
+	for(index=0; index<blkNumb; index++){
+		p25q32h_read(baseAddr, pData, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+		baseAddr += TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+		pData    += TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+	}
 	return TLK_ENONE;
 }
 int tlkdev_p25q32h_diskWrite(uint08 *pData, uint32 blkOffs, uint16 blkNumb)
-{ 
-	uint08 temp[4096];
-	uint32 address = blkOffs*TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
-	tlkdev_p25q32h_read((TLKDEV_P25Q32H_DISK_BLOCK_SIZE & 0xfffff000), temp, TLKDEV_P25Q32H_DISK_BLOCK_SIZE & 0xfff);
-	tlkdev_p25q32h_eraseSector(address);
-	tmemcpy(temp, address & 0xFFF, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
-	tlkdev_p25q32h_writePage(address & 0xfffff000, temp, 4096);
+{
+	uint08 index;
+	uint32 pageNum;
+	uint08 buffer[4096];
+	uint08 *pWrite;
+	uint32 sectAddr;
+	uint32 baseAddr = blkOffs*TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+	for(index=0; index<blkNumb; index++){
+		pWrite   = buffer;
+		sectAddr = baseAddr & 0xFFFFF000;
+		p25q32h_read(baseAddr & 0xFFFFF000, buffer, 4096);
+		p25q32h_eraseSector(baseAddr);
+		memcpy(buffer+(baseAddr & 0xFFF), pData, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+		baseAddr += TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+		pData    += TLKDEV_P25Q32H_DISK_BLOCK_SIZE;
+		for(pageNum=0; pageNum<(4096/P25Q32H_PAGE_SIZE); pageNum++){
+			p25q32h_writePage(sectAddr, pWrite, P25Q32H_PAGE_SIZE);
+			sectAddr += P25Q32H_PAGE_SIZE;
+			pWrite   += P25Q32H_PAGE_SIZE;
+		}
+	}
 	return TLK_ENONE;
 }
 int tlkdev_p25q32h_diskFormat(void)
@@ -368,61 +395,62 @@ int tlkdev_p25q32h_diskFormat(void)
 	uint08 fatNum;
 	uint32 offset;
 	uint08 block[TLKDEV_P25Q32H_DISK_BLOCK_SIZE];
-	
-//	if(!sTlkDevXtsd01gIsReady) return -TLK_ENOREADY;
-	
+
+	if(!sTlkDevP25q32hIsReady) return -TLK_ENOREADY;
+
 	offset = TLKDEV_P25Q32H_DISK_DBR_OFFSET;
-	
+
 	//write DBR
-	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
-	tmemcpy(block, scTlkDevP25q32hDiskDBR, sizeof(scTlkDevP25q32hDiskDBR));
+	memset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	memcpy(block, scTlkDevP25q32hDiskDBR, sizeof(scTlkDevP25q32hDiskDBR));
 	block[510] = 0x55;
 	block[511] = 0xaa;
-	tlkdev_xtsd01g_diskWrite(block, offset, 1);
-	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	tlkdev_p25q32h_diskWrite(block, offset, 1);
+	memset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
 	for(index = 1; index < TLKDEV_P25Q32H_DISK_RSV_NUMB; index ++){
-		tlkdev_xtsd01g_diskWrite(block, offset+index, 1);
+		tlkdev_p25q32h_diskWrite(block, offset+index, 1);
 	}
 	offset += index;
-	
+
 	//write FAT
 	for(fatNum = 0; fatNum < TLKDEV_P25Q32H_DISK_FAT_COPIES; fatNum++){
-		tmemcpy(block, scTlkDevP25q32hDiskFat, sizeof(scTlkDevP25q32hDiskFat));
-		tlkdev_xtsd01g_diskWrite(block, offset, 1);
-		tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+		memcpy(block, scTlkDevP25q32hDiskFat, sizeof(scTlkDevP25q32hDiskFat));
+		tlkdev_p25q32h_diskWrite(block, offset, 1);
+		memset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
 		for(index = 1; index < TLKDEV_P25Q32H_DISK_FAT_NUMB; index ++){
-			tlkdev_xtsd01g_diskWrite(block, offset+index, 1);
+			tlkdev_p25q32h_diskWrite(block, offset+index, 1);
 		}
 		offset += index;
 	}
-	
+
 	//write root dir
-	tmemcpy(block, scTlkDevP25q32hDiskRoot, sizeof(scTlkDevP25q32hDiskRoot));
-	tlkdev_xtsd01g_diskWrite(block, offset, 1);
-	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	memcpy(block, scTlkDevP25q32hDiskRoot, sizeof(scTlkDevP25q32hDiskRoot));
+	tlkdev_p25q32h_diskWrite(block, offset, 1);
+	memset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
 	for(index = 1; index < TLKDEV_P25Q32H_DISK_CLUSTER_NUMB; index ++){
-		tlkdev_xtsd01g_diskWrite(block, offset+index, 1);
+		tlkdev_p25q32h_diskWrite(block, offset+index, 1);
 	}
 	offset += index;
-	
+
 	//write file
-	tmemcpy(block, scTlkDevP25q32hDiskReadMe, sizeof(scTlkDevP25q32hDiskReadMe));
-	tlkdev_xtsd01g_diskWrite(block, offset, 1);
+	memcpy(block, scTlkDevP25q32hDiskReadMe, sizeof(scTlkDevP25q32hDiskReadMe));
+	tlkdev_p25q32h_diskWrite(block, offset, 1);
 	offset ++;
 
 	//write MBR
-	tmemset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
-	tmemcpy(&block[446], scTlkDevP25q32hDiskMBR, sizeof(scTlkDevP25q32hDiskMBR));
+	memset(block, 0, TLKDEV_P25Q32H_DISK_BLOCK_SIZE);
+	memcpy(&block[446], scTlkDevP25q32hDiskMBR, sizeof(scTlkDevP25q32hDiskMBR));
 	block[461] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff000000)>>24;
 	block[460] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff0000)>>16;
 	block[459] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff00)>>8;
 	block[458] = (TLKDEV_P25Q32H_DISK_BLOCK_NUMB & 0xff);
 	block[510] = 0x55;
 	block[511] = 0xaa;
-	tlkdev_xtsd01g_diskWrite(block, 0, 1);
-	
+	tlkdev_p25q32h_diskWrite(block, 0, 1);
+
 	return TLK_ENONE;
 }
+
 
 
 

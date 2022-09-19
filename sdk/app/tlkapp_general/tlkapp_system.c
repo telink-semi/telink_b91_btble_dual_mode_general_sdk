@@ -32,6 +32,9 @@
 #if (TLK_MDI_KEY_ENABLE)
 #include "tlkmdi/tlkmdi_key.h"
 #endif
+#if (TLK_MDI_LED_ENABLE)
+#include "tlkmdi/tlkmdi_led.h"
+#endif
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_handle.h"
@@ -62,17 +65,6 @@ static tlkapp_system_ctrl_t sTlkAppSystemCtrl;
 
 
 #if (TLK_MDI_KEY_ENABLE)
-static void tlkapp_system_keyInit(void)
-{
-	gpio_function_en(GPIO_PA2);
-	gpio_function_en(GPIO_PA3);
-	gpio_output_dis(GPIO_PA2);
-	gpio_output_dis(GPIO_PA3);
-	gpio_input_en(GPIO_PA2);
-	gpio_input_en(GPIO_PA3);
-	gpio_set_up_down_res(GPIO_PA2, GPIO_PIN_PULLUP_1M);
-	gpio_set_up_down_res(GPIO_PA3, GPIO_PIN_PULLUP_1M);
-}
 static void tlkapp_system_keyEventCB(uint08 keyID, uint08 evtID, uint08 isPress)
 {
 	tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkapp_system_keyEventCB: keyID-%d, evtID-%d, isPress-%d",
@@ -91,11 +83,14 @@ int  tlkapp_system_init(void)
 {
 	tmemset(&sTlkAppSystemCtrl, 0, sizeof(tlkapp_system_ctrl_t));
 	#if (TLK_MDI_KEY_ENABLE)
-	tlkapp_system_keyInit();
-//	tlkmdi_key_insert(0x04, TLKMDI_KEY_EVTMSK_DEFAULT, GPIO_PA2, 0, tlkapp_system_keyEventCB);
-//	tlkmdi_key_insert(0x05, TLKMDI_KEY_EVTMSK_DEFAULT, GPIO_PA3, 0, tlkapp_system_keyEventCB);
-	tlkmdi_key_insert(0x04, TLKMDI_KEY_EVTMSK_ALL, GPIO_PA2, 0, tlkapp_system_keyEventCB);
-	tlkmdi_key_insert(0x05, TLKMDI_KEY_EVTMSK_ALL, GPIO_PA3, 0, tlkapp_system_keyEventCB);
+	tlkmdi_key_insert(0x04, TLKMDI_KEY_EVTMSK_ALL, GPIO_PA2, 0, GPIO_PIN_PULLUP_1M, tlkapp_system_keyEventCB);
+	tlkmdi_key_insert(0x05, TLKMDI_KEY_EVTMSK_ALL, GPIO_PA3, 0, GPIO_PIN_PULLUP_1M, tlkapp_system_keyEventCB);
+	#endif
+	#if (TLK_MDI_LED_ENABLE)
+	tlkmdi_led_insert(0x01, GPIO_PD3, GPIO_PIN_PULLUP_10K, 1);
+	tlkmdi_led_insert(0x02, GPIO_PD4, GPIO_PIN_PULLUP_10K, 1);
+	tlkmdi_led_ctrl(0x01, true, 15, 200, 200, true);
+	tlkmdi_led_ctrl(0x02, true, 3, 500, 500, false);
 	#endif
 	
 	tlkmdi_comm_regSysCB(tlkapp_system_cmdHandler);

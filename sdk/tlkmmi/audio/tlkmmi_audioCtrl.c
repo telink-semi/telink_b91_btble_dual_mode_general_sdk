@@ -47,7 +47,7 @@
 extern int btp_avrcp_notyVolume(uint08 volume);
 
 
-static void tlkmdi_audio_eventCB(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen);
+static void tlkmmi_audio_eventCB(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen);
 static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, uint32 userArg);
 static bool tlkmmi_audio_ctrlProcs(tlkapi_procs_t *pProcs, uint32 userArg);
 static int  tlkmmi_audio_sendProgressEvt(uint08 optype, uint16 progress);
@@ -85,7 +85,7 @@ int tlkmmi_audio_ctrlInit(void)
 
 	tmemset(&gTlkMmiAudioCtrl, 0, sizeof(tlkmmi_audio_ctrl_t));
 
-	tlkmdi_event_regCB(TLKMDI_EVENT_MAJOR_AUDIO, tlkmdi_audio_eventCB);
+	tlkmdi_event_regCB(TLKMDI_EVENT_MAJOR_AUDIO, tlkmmi_audio_eventCB);
 	tlkmmi_adapt_initTimer(&gTlkMmiAudioCtrl.timer, tlkmmi_audio_ctrlTimer, NULL, TLKMMI_AUDIO_TIMEOUT);
 	tlkmmi_adapt_initProcs(&gTlkMmiAudioCtrl.procs, tlkmmi_audio_ctrlProcs, NULL);
 	
@@ -550,9 +550,9 @@ void tlkmmi_audio_optypeChanged(uint08 newOptype, uint16 newHandle, uint08 oldOp
 }
 
 
-static void tlkmdi_audio_eventCB(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen)
+static void tlkmmi_audio_eventCB(uint08 majorID, uint08 minorID, uint08 *pData, uint08 dataLen)
 {
-	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmdi_audio_eventCB: minorID-%d", minorID);
+	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_eventCB: minorID-%d", minorID);
 	if(minorID == TLKMDI_AUDIO_EVTID_START){
 		tlkmmi_audio_startEvtDeal(pData, dataLen);
 	}else if(minorID == TLKMDI_AUDIO_EVTID_CLOSE){

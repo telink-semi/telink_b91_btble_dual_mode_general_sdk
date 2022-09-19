@@ -95,11 +95,11 @@ static hspi_pin_config_t sTlkDevXtsd04gHspiPinCfg = {
 };
 #endif
 
-static uint08 sTlkDevXtsd01gType=0;
+static uint08 sTlkDevXtsd01gIsOK = true;
+static uint08 sTlkDevXtsd01gType = 0;
 static uint08 sTlkDevXtsd01gIsEnter = 0;
 static uint08 sTlkDevXtsd01gIsReady = false;
 static uint08 sTlkDevXtsd01gPowerIsOn = false;
-
 
 
 int tlkdev_xtsd01g_init(void)
@@ -108,7 +108,8 @@ int tlkdev_xtsd01g_init(void)
     uint16 retry;
     uint08 buf[10];
 	uint16 i;
-//	uint08 buffer[32];
+	
+	if(!sTlkDevXtsd01gIsOK) return -TLK_EFAIL;
 	
 	sTlkDevXtsd01gIsEnter = 1;
 	
@@ -152,6 +153,7 @@ int tlkdev_xtsd01g_init(void)
 	}while(r1 && retry--);
 	
 	if(retry == 0){
+		sTlkDevXtsd01gIsOK = false;
 		#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
 		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash_init");
 		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "wait for busy fail");
@@ -174,35 +176,6 @@ int tlkdev_xtsd01g_init(void)
 		return -TLK_EFAIL;
 	}
 	
-	#if 0//get Capacity
-	uint08 csd[16] = {0};
-	uint32 Capacity;
-	uint08 n;
-	uint16 csize;
-
-	memset(csd, 0, 16);
-
-	r1=tlkdev_xtsd04g_sendCmd(TLKDEV_XTSD01G_CMD_09,0,0x01);
-	if(r1 == 0){
-		r1=tlkdev_xtsd04g_spiRecvData(buffer,16);
-		if(r1==0x00)tmemcpy(csd,buffer,16);//in order to align(4) for dma
-	}
-
-	if(r1 != 0){
-		tlkdev_xtsd04g_spiDisSelect();
-		sTlkDevXtsd01gIsEnter = 0;
-		return 0xdd;
-	}
-	
-	if((csd[0]&0xC0)==0x40){
-		csize = csd[9] + ((uint16)csd[8] << 8) + 1;
-		Capacity = (uint32)csize << 10;
-	}else{
-		n = (csd[5] & 15) + ((csd[10] & 128) >> 7) + ((csd[9] & 3) << 1) + 2;
-		csize = (csd[8] >> 6) + ((uint16)csd[7] << 2) + ((uint16)(csd[6] & 3) << 10) + 1;
-		Capacity= (uint32)csize << (n - 9);
-	}
-	#endif
 	tlkdev_xtsd04g_spiDisSelect();
 	tlkdev_xtsd01g_switchHighSpeed();
 	
@@ -575,7 +548,7 @@ static uint08 tlkdev_xtsd04g_sendCmd(uint08 cmd, uint32 arg, uint08 crc)
 {
 	uint08 r1;
 	uint32 t=0;
-	uint32 Count=0XFF;
+	uint32 count=0XFF;
 	
 	tlkdev_xtsd04g_spiDisSelect();
 	if(tlkdev_xtsd04g_spiSelect()) return 0XFF;
@@ -593,9 +566,9 @@ static uint08 tlkdev_xtsd04g_sendCmd(uint08 cmd, uint32 arg, uint08 crc)
 		if(r1 != 0xff) break;
 		t ++;
 		delay_us(10);
-	}while(t<Count);
+	}while(t<count);
 	#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
-	if(t == Count){
+	if(t == count){
 		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash");
 		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd04g_sendCmd");
 		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");

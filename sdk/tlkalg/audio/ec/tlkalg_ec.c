@@ -27,50 +27,71 @@
 
 #include "tlkalg_ec.h"
 
+
 #include "tlkalg/audio/aec/tlkalg_aec_ns.h"
 #include "tlkalg/audio/agc/tlkalg_agc.h"
 
 
 static SpeexPreprocessState *sTlkAlgEcNsCtrl = nullptr;
 static SpeexEchoState       *sTlkAlgEcAecCtrl = nullptr;
+static void				    *sTlkAlgEcScratch = nullptr;
 
 static short sTlkAlgEcOutBuffer[256];
 
 
 
-void tlkalg_ec_init(uint08 *pSpeexNs, uint08 *pAecm)
+void tlkalg_ec_init(uint08 *pNs, uint08 *pAec ,uint08 *pScratch)
 {
-	sTlkAlgEcNsCtrl  = (SpeexPreprocessState*)pSpeexNs;
-	sTlkAlgEcAecCtrl = (SpeexEchoState*)pAecm;
+	sTlkAlgEcNsCtrl  = (SpeexPreprocessState*)pNs;
+	sTlkAlgEcAecCtrl = (SpeexEchoState*)pAec;
+	sTlkAlgEcScratch = (void*)pScratch;
 
+	#if TLK_ALG_AEC_ENABLE
 	if(sTlkAlgEcAecCtrl != nullptr){
 		AEC_CFG_PARAS aecParas;
-		aecParas.sampling_rate = 16000;
-		aecParas.use_dc_notch = 1;
-		aecParas.use_pre_emp = 1;
+		aecParas.use_pre_emp = 1;    					/* 1: enable pre-emphasis filter, 0: disable pre-emphasis filter */
+		aecParas.use_dc_notch = 0;     					/* 1: enable DC removal filter, 0: disable DC removal filter */
+		aecParas.sampling_rate = 16000;    				/* sample rate */
 		aec_init(sTlkAlgEcAecCtrl, &aecParas, 120, 120);
 	}
+	#endif
+	#if TLK_ALG_EC_ENABLE
 	if(sTlkAlgEcNsCtrl != nullptr){
 		NS_CFG_PARAS nsParas;
-		nsParas.noise_suppress_default = -15;
-		nsParas.echo_suppress_default = -55;
-		nsParas.echo_suppress_active_default = -45;
-		nsParas.low_shelf_enable = 0;
-		nsParas.ns_smoothness = 27853;      // QCONST16(0.85f,15)
-		nsParas.ns_threshold_low = 100000.0f;
-		ns_init(sTlkAlgEcNsCtrl, &nsParas, SPEEX_FRAME_SIZE, 16000);
-		ns_set_parameter(sTlkAlgEcNsCtrl, SPEEX_PREPROCESS_SET_ECHO_STATE, sTlkAlgEcAecCtrl);
+		nsParas.low_shelf_enable = 1,					//low shelf enable
+		nsParas.post_gain_enable = 1,					//post gain enable
+		nsParas.hf_cutting_enable = 0,					//high filter enable
+		nsParas.noise_suppress_default = -15,			//noise suppress
+		nsParas.echo_suppress_default = -55,			//echo suppress
+		nsParas.echo_suppress_active_default = -45,	//eche suppress active
+		nsParas.ns_smoothness = 27853,      			//NS smoothness  QCONST16(0.85f,15)
+		nsParas.ns_threshold_low = 0.0f,				//NS threshold
+		ns_init(sTlkAlgEcNsCtrl, &nsParas, 120, 16000);
+		if(sTlkAlgEcAecCtrl != nullptr){
+			ns_set_parameter(sTlkAlgEcNsCtrl, SPEEX_PREPROCESS_SET_ECHO_STATE, sTlkAlgEcAecCtrl);
+		}
 	}
+	#endif
 }
 
 short *tlkalg_ec_frame(uint08 *pMicData, uint08 *pSpkData)
 {
+#if TLK_ALG_AEC_ENABLE
 	if(sTlkAlgEcAecCtrl != nullptr){
-		aec_process_frame(sTlkAlgEcAecCtrl, (const spx_int16_t*)pMicData, (const spx_int16_t*)pSpkData, (spx_int16_t*)sTlkAlgEcOutBuffer);
+		aec_process_frame(sTlkAlgEcAecCtrl, (const spx_int16_t*)pMicData, (const spx_int16_t*)pSpkData, (spx_int16_t*)sTlkAlgEcOutBuffer,(void *)sTlkAlgEcScratch);
 	}
+#else
+	uint16 *mic_tp = sTlkAlgEcOutBuffer;
+	uint16 *mic_out_tp = (unsigned short *)pMicData;
+	for(int i=0;i<120;i++){
+		*mic_tp++ = *mic_out_tp++;
+	}
+#endif
+	
 	if(sTlkAlgEcNsCtrl != nullptr){
-		ns_process_frame(sTlkAlgEcNsCtrl, sTlkAlgEcOutBuffer);
+		ns_process_frame(sTlkAlgEcNsCtrl, sTlkAlgEcOutBuffer, (void *)sTlkAlgEcScratch);
 	}
+	
 	return sTlkAlgEcOutBuffer;
 }
 

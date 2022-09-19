@@ -284,19 +284,19 @@ void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen)
 	pBuff[buffLen++] = '[';
 	tempVar = (serial & 0xF000)>>12;
 	if(tempVar <= 9) tempVar = '0'+tempVar;
-	else tempVar = 'A'+(tempVar-10);
+	else tempVar = 'a'+(tempVar-10);
 	pBuff[buffLen++] = tempVar;
 	tempVar = (serial & 0x0F00)>>8;
 	if(tempVar <= 9) tempVar = '0'+tempVar;
-	else tempVar = 'A'+(tempVar-10);
+	else tempVar = 'a'+(tempVar-10);
 	pBuff[buffLen++] = tempVar;
 	tempVar = (serial & 0x00F0)>>4;
 	if(tempVar <= 9) tempVar = '0'+tempVar;
-	else tempVar = 'A'+(tempVar-10);
+	else tempVar = 'a'+(tempVar-10);
 	pBuff[buffLen++] = tempVar;
 	tempVar = (serial & 0x000F)>>0;
 	if(tempVar <= 9) tempVar = '0'+tempVar;
-	else tempVar = 'A'+(tempVar-10);
+	else tempVar = 'a'+(tempVar-10);
 	pBuff[buffLen++] = tempVar;
 	pBuff[buffLen++] = ']';
 	

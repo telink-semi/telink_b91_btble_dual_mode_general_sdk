@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010100 //Application, 5.1.0.0
+#define TLK_APP_VERSION              0x05010102 //Application, 5.1.1.2
 #endif
 #define TLK_LIB_VERSION              0x05010000 //Libary, 5.1.0.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -57,7 +57,7 @@
 #define TLK_CFG_OS_ENABLE            0
 #endif
 #ifndef TLK_CFG_PM_ENABLE
-#define TLK_CFG_PM_ENABLE            1
+#define TLK_CFG_PM_ENABLE            0
 #endif
 #ifndef TLK_CFG_WDG_ENABLE
 #define TLK_CFG_WDG_ENABLE           0 //WatchDog
@@ -78,10 +78,10 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           1
+#define TLK_CFG_DBG_ENABLE           0
 #endif
 #ifndef TLK_CFG_USB_ENABLE
-#define TLK_CFG_USB_ENABLE           1
+#define TLK_CFG_USB_ENABLE           0
 #endif
 #ifndef TLK_CFG_PTS_ENABLE
 #define TLK_CFG_PTS_ENABLE           0
@@ -121,7 +121,7 @@
  * Descr: STK.
 *******************************************************************************/
 #ifndef TLK_ALG_EQ_ENABLE
-#define TLK_ALG_EQ_ENABLE            (0 && TLK_CFG_ALG_ENABLE)
+#define TLK_ALG_EQ_ENABLE            (0 && TLK_CFG_ALG_ENABLE) //not support
 #endif
 #ifndef TLK_ALG_EC_ENABLE
 #define TLK_ALG_EC_ENABLE            (1 && TLK_CFG_ALG_ENABLE)
@@ -198,7 +198,10 @@
 #define TLK_MDI_MP3_ENABLE           (1 && TLK_CFG_FS_ENABLE)
 #endif
 #ifndef TLK_MDI_KEY_ENABLE
-#define TLK_MDI_KEY_ENABLE           (1)
+#define TLK_MDI_KEY_ENABLE           (0)
+#endif
+#ifndef TLK_MDI_LED_ENABLE
+#define TLK_MDI_LED_ENABLE           (0)
 #endif
 #ifndef TLK_MDI_USB_ENABLE
 #define TLK_MDI_USB_ENABLE           (1 && TLK_CFG_USB_ENABLE)

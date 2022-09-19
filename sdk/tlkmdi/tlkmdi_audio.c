@@ -72,7 +72,8 @@ extern uint16 gTlkMmiAudioCurHandle;
 
 
 
-int tlkmdi_audio_init() {
+int tlkmdi_audio_init(void)
+{
     btp_avrcp_regVolumeChangeCB(tlkmdi_audio_volumeChangeEvt);
     return TLK_ENONE;
 }
@@ -424,13 +425,13 @@ static void tlkmdi_audio_getRawVolumeNew(uint08 srcVolume, uint08 *pCalVolume, u
 	//tlkapi_trace(TLKMDI_AUD_DBG_FLAG, TLKMDI_AUD_DBG_SIGN, "tlkmdi_audio_getRawVolumeNew start srcVol %d, calVol %d", srcVolume, *pCalVolume);
 
 	pVolumeTalble = tlkmdi_audio_getAudioParamter(type, &step);
-    if (pVolumeTalble == nullptr || step == 0){
+    if(pVolumeTalble == nullptr || step == 0){
         return;
 	}
 
 	//assure the step index
 	for(i = 1; i < step; i++){
-        if (pVolumeTalble[i] > srcVolume && pVolumeTalble[i - 1] <= srcVolume){
+        if(pVolumeTalble[i] > srcVolume && pVolumeTalble[i - 1] <= srcVolume){
 			i = i - 1;
             break;
 		}
@@ -450,7 +451,7 @@ static bool tlkmdi_audio_volumeIncNew(uint08 *pSrcVolume, uint08 *pCalVolume, ui
 
 	//tlkapi_trace(TLKMDI_AUD_DBG_FLAG, TLKMDI_AUD_DBG_SIGN, "tlkmdi_audio_volumeIncNew start srcVol %d, calVol %d", *pSrcVolume, *pCalVolume);
 	pVolume = tlkmdi_audio_getAudioParamter(type, &step);
-    if (pVolume == nullptr || step == 0){
+    if(pVolume == nullptr || step == 0){
         return false;
 	}
 
@@ -463,10 +464,10 @@ static bool tlkmdi_audio_volumeIncNew(uint08 *pSrcVolume, uint08 *pCalVolume, ui
 	vendor = tlkmdi_btacl_get_peer_devType(gTlkMmiAudioCurHandle);
 	pUsrTable = tlkmdi_audio_getAudioUsrTable(type, vendor);
 
-	if (*pSrcVolume >= pVolume[step - 1]){
+	if(*pSrcVolume >= pVolume[step - 1]){
 		*pCalVolume = pUsrTable[step - 1];
 		*pSrcVolume = pVolume[step - 1];
-	}else {
+	}else{
 		*pCalVolume = pUsrTable[i];
 		*pSrcVolume = pVolume[i];
 	}
@@ -499,10 +500,10 @@ static bool tlkmdi_audio_volumeDecNew(uint08 *pSrcVolume, uint08 *pCalVolume, ui
 	vendor = tlkmdi_btacl_get_peer_devType(gTlkMmiAudioCurHandle);
 	pUsrTable = tlkmdi_audio_getAudioUsrTable(type, vendor);
 
-	if (*pSrcVolume <= pVolume[0]) {
+	if(*pSrcVolume <= pVolume[0]){
 		*pCalVolume = pUsrTable[0];
 		*pSrcVolume = pVolume[0];
-	} else {
+	}else{
 		*pCalVolume = pUsrTable[i];
 		*pSrcVolume = pVolume[i];
 	}
@@ -522,7 +523,7 @@ static bool tlkmdi_audio_setVolumeNew(uint08 *pSrcVolume, uint08 *pCalVolume, ui
 	//tlkapi_trace(TLKMDI_AUD_DBG_FLAG, TLKMDI_AUD_DBG_SIGN, "tlkmdi_audio_setVolumeNew start srcVol %d, calVol %d", *pSrcVolume, *pCalVolume);
 
 	pTempVolume = tlkmdi_audio_getAudioParamter(type, &step);
-    if (pTempVolume == nullptr || step == 0){
+    if(pTempVolume == nullptr || step == 0){
         return false;
 	}
 
@@ -545,26 +546,26 @@ static uint08* tlkmdi_audio_getAudioParamter(uint16 audioType,  uint16* pStep)
 	vendor = tlkmdi_btacl_get_peer_devType(gTlkMmiAudioCurHandle);
 	//tlkapi_trace(TLKMDI_AUD_DBG_FLAG, TLKMDI_AUD_DBG_SIGN, "tlkmdi_audio_getAudioParamter audioType %d", audioType);
 
-	if (audioType == TLKPRT_COMM_VOLUME_TYPE_TONE){
+	if(audioType == TLKPRT_COMM_VOLUME_TYPE_TONE){
 		pAudioParamter = &sBtToneRealVolTable[0];
 		*pStep = TLKMDI_AUDIO_TONE_VOLUME_STEP_MAX;
-	} else if (audioType == TLKPRT_COMM_VOLUME_TYPE_MUSIC){
+	}else if(audioType == TLKPRT_COMM_VOLUME_TYPE_MUSIC){
 		pAudioParamter = &sBtMusicPlayerRealVolTable[0];
 		*pStep = TLKMDI_AUDIO_MUSIC_PLAYER_VOLUME_STEP_MAX;
-	} else {
-	    if (vendor == TLKMDI_AUDIO_VENDOR_ANDROID_DEVICE){
-            if (audioType == TLKPRT_COMM_VOLUME_TYPE_VOICE){
+	}else{
+	    if(vendor == TLKMDI_AUDIO_VENDOR_ANDROID_DEVICE){
+            if(audioType == TLKPRT_COMM_VOLUME_TYPE_VOICE){
 		        pAudioParamter = &sBtVoiceRealVolTableAndroid[0];
 		        *pStep = TLKMDI_AUDIO_ANDROID_VOLUME_STEP_MAX;
-		    } else if (audioType == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
+		    }else if(audioType == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		        pAudioParamter = &sBtA2dpRealVolTableAndroid[0];
 		        *pStep = TLKMDI_AUDIO_ANDROID_VOLUME_STEP_MAX;
 		    }
-	    } else {
-            if (audioType == TLKPRT_COMM_VOLUME_TYPE_VOICE){
+	    }else{
+            if(audioType == TLKPRT_COMM_VOLUME_TYPE_VOICE){
 		        pAudioParamter = &sBtVoiceRealVolTableIos[0];
 		        *pStep = TLKMDI_AUDIO_ANDROID_VOLUME_STEP_MAX;
-	        } else {
+	        }else{
 		        pAudioParamter = &sBtA2dpRealVolTableIos[0];
 		        *pStep = TLKMDI_AUDIO_ANDROID_VOLUME_STEP_MAX;
 	        }
@@ -581,18 +582,18 @@ static bool tlkmdi_audio_calAudio(uint16 type, uint08* pSrcVolume, uint08* pCalV
 	//tlkapi_trace(TLKMDI_AUD_DBG_FLAG, TLKMDI_AUD_DBG_SIGN, "tlkmdi_audio_calAudio enter!");
 	vendor = tlkmdi_btacl_get_peer_devType(gTlkMmiAudioCurHandle);
     pUsrVolumeTable = tlkmdi_audio_getAudioUsrTable(type, vendor);
-	if (pUsrVolumeTable == nullptr){
+	if(pUsrVolumeTable == nullptr){
 		//tlkapi_trace(TLKMDI_AUD_DBG_FLAG, TLKMDI_AUD_DBG_SIGN, "tlkmdi_audio_calAudio User Volume Table is NULL");
         return false;
 	}
 	
-	if (*pSrcVolume <= pTempVol[0]) {
+	if(*pSrcVolume <= pTempVol[0]){
 		*pCalVolume = pUsrVolumeTable[0];
 		*pSrcVolume = pTempVol[0];
-	} else if (*pSrcVolume >= pTempVol[step - 1]){
+	}else if(*pSrcVolume >= pTempVol[step - 1]){
 		*pCalVolume = pUsrVolumeTable[step - 1];
 		*pSrcVolume = pTempVol[step - 1];
-	}else {
+	}else{
 		*pCalVolume = pUsrVolumeTable[index];
 		*pSrcVolume = pTempVol[index];
 	}
@@ -602,14 +603,14 @@ static bool tlkmdi_audio_calAudio(uint16 type, uint08* pSrcVolume, uint08* pCalV
 static uint08* tlkmdi_audio_getAudioUsrTable(uint16 type, uint16 vendor)
 {
     uint08* pUsrVolumeTable = nullptr;
-	if (type == TLKPRT_COMM_VOLUME_TYPE_TONE){
+	if(type == TLKPRT_COMM_VOLUME_TYPE_TONE){
 		pUsrVolumeTable = &sUsrToneVolTable[0];
-	} else if(type == TLKPRT_COMM_VOLUME_TYPE_MUSIC){
+	}else if(type == TLKPRT_COMM_VOLUME_TYPE_MUSIC){
 		pUsrVolumeTable = &sUsrMusicPlayerVolTable[0];
-	} else {
-		if (vendor == TLKMDI_AUDIO_VENDOR_ANDROID_DEVICE){
+	}else{
+		if(vendor == TLKMDI_AUDIO_VENDOR_ANDROID_DEVICE){
 			pUsrVolumeTable = &sUsrVolTableAndroid[0];
-	    } else {
+	    }else{
 	    	pUsrVolumeTable = &sUsrVolTableIos[0];
 	    }
     }
@@ -618,7 +619,8 @@ static uint08* tlkmdi_audio_getAudioUsrTable(uint16 type, uint16 vendor)
 
 #endif
 
-static void tlkmdi_audio_volumeChangeEvt(uint16 aclHandle, uint08 volume) {
+static void tlkmdi_audio_volumeChangeEvt(uint16 aclHandle, uint08 volume)
+{
     sTlkMdiAudioMusicVolume = volume;
 }
 

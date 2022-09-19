@@ -52,7 +52,7 @@ int tlkmdi_key_init(void)
 }
 
 
-int tlkmdi_key_insert(uint08 keyID, uint08 evtMsk, uint32 ioPort, uint08 level, TlkMdiKeyEventCB evtCB)
+int tlkmdi_key_insert(uint08 keyID, uint08 evtMsk, uint32 ioPort, uint08 level, uint08 upDown, TlkMdiKeyEventCB evtCB)
 {
 	tlkmdi_key_unit_t *pUnit;
 
@@ -73,12 +73,19 @@ int tlkmdi_key_insert(uint08 keyID, uint08 evtMsk, uint32 ioPort, uint08 level, 
 	if(level != 0) pUnit->level = 1;
 	else pUnit->level = 0;
 	pUnit->evtCB = evtCB;
+
+	gpio_function_en(pUnit->ioPort);
+	gpio_output_dis(pUnit->ioPort);
+	gpio_input_en(pUnit->ioPort);
+	gpio_set_up_down_res(pUnit->ioPort, upDown);
+	
 	tlkmdi_adapt_insertTimer(&sTlkMdiKeyCtrl.timer);
 	
 	return TLK_ENONE;
 }
-int tlkmdi_key_remove(uint08 keyID)
+int tlkmdi_key_remove(uint08 keyID, uint08 upDown, bool enInput)
 {
+	uint08 index;
 	tlkmdi_key_unit_t *pUnit;
 	
 	pUnit = tlkmdi_key_getUsedUnit(keyID);
@@ -87,7 +94,18 @@ int tlkmdi_key_remove(uint08 keyID)
 	if((pUnit->flags & TLKMDI_KEY_FLAG_PRESS) != 0 && (pUnit->evtMsk & TLKMDI_KEY_EVTID_RELEASE) != 0){
 		pUnit->evtCB(pUnit->keyID, TLKMDI_KEY_EVTID_RELEASE, (pUnit->flags & TLKMDI_KEY_FLAG_PRESS) != 0);
 	}
+	gpio_function_en(pUnit->ioPort);
+	gpio_set_input_en(pUnit->ioPort, enInput);
+    gpio_set_output_en(pUnit->ioPort, 0);
+	gpio_setup_up_down_resistor(pUnit->ioPort, upDown);
 	tmemcpy(pUnit, 0, sizeof(tlkmdi_key_unit_t));
+
+	for(index=0; index<TLKMDI_KEY_MAX_NUMB; index++){
+		if(sTlkMdiKeyCtrl.unit[index].keyID != 0) break;
+	}
+	if(index == TLKMDI_KEY_MAX_NUMB){
+		tlkmdi_adapt_removeTimer(&sTlkMdiKeyCtrl.timer);
+	}
 	
 	return TLK_ENONE;
 }
@@ -101,9 +119,9 @@ static bool tlkmdi_key_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 		isBusy1 = tlkmdi_key_check(&sTlkMdiKeyCtrl.unit[index]);
 		if(!isBusy0 && isBusy1) isBusy0 = true;
 	}
-	if(sTlkMdiKeyCtrl.intvType == 0x00 && isBusy0){
+	if(isBusy0){
 		tlkmdi_adapt_updateTimer(&sTlkMdiKeyCtrl.timer, TLKMDI_KEY_TIMEOUT1, false);
-	}else if(sTlkMdiKeyCtrl.intvType != 0x00 && !isBusy0){
+	}else{
 		tlkmdi_adapt_updateTimer(&sTlkMdiKeyCtrl.timer, TLKMDI_KEY_TIMEOUT0, false);
 	}
 	return true;
