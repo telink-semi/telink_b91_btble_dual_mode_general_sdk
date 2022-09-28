@@ -25,7 +25,6 @@
 #define BTP_AVRCP_H
 
 
-#define BTP_AVRCP_DBG_SIGN       "[AVRCP]"
 
 
 /* Define PASSTHROUGH OP_ID */

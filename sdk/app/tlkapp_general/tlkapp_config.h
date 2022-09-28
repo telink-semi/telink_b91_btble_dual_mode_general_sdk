@@ -25,9 +25,7 @@
 
 
 
-
-#define TLKAPP_DBG_ENABLE       1
-#define TLKAPP_DBG_FLAG         (TLKAPP_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
+#define TLKAPP_DBG_FLAG         ((TLK_MAJOR_DBGID_APP << 24) | (TLK_MINOR_DBGID_APP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKAPP_DBG_SIGN         "[APP]"
 
 

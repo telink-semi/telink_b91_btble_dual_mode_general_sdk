@@ -47,7 +47,8 @@
  *
  */
 
-
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 #include <stdlib.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
@@ -231,3 +232,6 @@ __attribute__((section(".ram_code")))  UBaseType_t uxListRemove( ListItem_t * co
     return pxList->uxNumberOfItems;
 }
 /*-----------------------------------------------------------*/
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

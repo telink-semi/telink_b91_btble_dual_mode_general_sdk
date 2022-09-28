@@ -26,6 +26,7 @@
 #include "string.h"
 #include "drivers.h"
 #include "tlk_config.h"
+#include "tlk_debug.h"
 #include "tlkapi/tlkapi_type.h"
 #include "tlkapi/tlkapi_error.h"
 #include "tlkapi/tlkapi_qfifo.h"
@@ -33,22 +34,18 @@
 #include "tlkapi/tlkapi_string.h"
 
 
-#if !(TLK_CFG_DBG_ENABLE)
-#if (TLK_USB_UDB_ENABLE)
-_attribute_ram_code_sec_noinline_
-#endif
-void tlkapi_debug_process(void)
-{
-
-}
-#endif
-
 #if (TLK_CFG_DBG_ENABLE)
 
 
-#define TLKAPI_DEBUG_ITEM_SIZE       144
+#define TLKAPI_DEBUG_ITEM_SIZE       146
 #define TLKAPI_DEBUG_ITEM_NUMB       16
 
+
+extern void tlk_debug_init(void);
+extern bool tlk_debug_dbgIsEnable(unsigned int flags, unsigned int printFlag);
+extern bool tlk_debug_vcdIsEnable(unsigned int flags, unsigned int vcdFlag);
+extern bool tlk_debug_dbgIsEnable1(unsigned int flags);
+extern char *tlk_debug_getDbgSign(unsigned int flags);
 
 #if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
 extern int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen);
@@ -60,31 +57,69 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 
 
 static uint16 sTlkApiDebugSerial;
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
-static uint16 sTlkApiDebugOffset;
-#endif
-
 static uint08 sTlkApiDebugBuffer[(TLKAPI_DEBUG_ITEM_SIZE+2)*TLKAPI_DEBUG_ITEM_NUMB];
 static tlkapi_qfifo_t sTlkApiDebugFifo;
 
+#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+static uint16 sTlkApiDebugOffset;
+#endif
 #if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
 static uint32 sTlkApiDebugGpioPin;
 static uint32 sTlkApiDebugBitIntv;
 #endif
+#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+static uint08 sTlkApiUartSendIsBusy = false;
+#endif
+
 
 
 int tlkapi_debug_init(void)
 {
-	tlkapi_qfifo_init(&sTlkApiDebugFifo, TLKAPI_DEBUG_ITEM_NUMB, (TLKAPI_DEBUG_ITEM_SIZE+2), sTlkApiDebugBuffer,
-		(TLKAPI_DEBUG_ITEM_SIZE+2)*TLKAPI_DEBUG_ITEM_NUMB);
+	tlk_debug_init();
+	tlkapi_qfifo_init(&sTlkApiDebugFifo, TLKAPI_DEBUG_ITEM_NUMB, (TLKAPI_DEBUG_ITEM_SIZE+2),
+		sTlkApiDebugBuffer, (TLKAPI_DEBUG_ITEM_SIZE+2)*TLKAPI_DEBUG_ITEM_NUMB);
 
 	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
-	sTlkApiDebugGpioPin = TLKAPI_DEBUG_GPIO_PIN;
-	sTlkApiDebugBitIntv = 16000000/TLKAPI_DEBUG_BAUD_RATE;
-	gpio_function_en(sTlkApiDebugGpioPin);
-	gpio_set_up_down_res(sTlkApiDebugGpioPin, GPIO_PIN_PULLUP_1M);
-	gpio_output_en(sTlkApiDebugGpioPin);
-	gpio_set_high_level(sTlkApiDebugGpioPin);
+		sTlkApiDebugGpioPin = TLKAPI_DEBUG_GPIO_PIN;
+		sTlkApiDebugBitIntv = 16000000/TLKAPI_DEBUG_BAUD_RATE;
+		gpio_function_en(sTlkApiDebugGpioPin);
+		gpio_set_up_down_res(sTlkApiDebugGpioPin, GPIO_PIN_PULLUP_1M);
+		gpio_output_en(sTlkApiDebugGpioPin);
+		gpio_set_high_level(sTlkApiDebugGpioPin);
+	#endif
+	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+		unsigned short div;
+		unsigned char bwpc;
+
+		sTlkApiUartSendIsBusy = false;
+		
+		uart_reset(TLKAPI_DEBUG_UART_PORT);
+		
+		gpio_set_up_down_res(TLKAPI_DEBUG_UART_TX_PIN, GPIO_PIN_PULLUP_10K);
+		gpio_input_en(TLKAPI_DEBUG_UART_TX_PIN);
+		//uart_set_fuc_pin
+		#if (TLKAPI_DEBUG_UART_TX_PIN == UART0_TX_PD2)
+		unsigned char mask = (unsigned char)~(BIT(5)|BIT(4));
+		reg_gpio_func_mux(TLKAPI_DEBUG_UART_TX_PIN)=(reg_gpio_func_mux(TLKAPI_DEBUG_UART_TX_PIN) & mask);
+		#else
+		#error "Refer 'uart_set_fuc_pin' to select and set the PIN"
+		#endif
+		gpio_function_dis(TLKAPI_DEBUG_UART_TX_PIN);
+		
+		uart_cal_div_and_bwpc(TLKAPI_DEBUG_UART_BAUDRATE, sys_clk.pclk*1000*1000, &div, &bwpc);
+		uart_init(TLKAPI_DEBUG_UART_PORT, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);	
+		uart_set_dma_rx_timeout(TLKAPI_DEBUG_UART_PORT, bwpc, 12, UART_BW_MUL1);		
+
+		uart_set_tx_dma_config(TLKAPI_DEBUG_UART_PORT, TLKAPI_DEBUG_UART_TX_DMA);
+		
+		uart_clr_tx_done(TLKAPI_DEBUG_UART_PORT);
+
+		dma_clr_irq_mask(TLKAPI_DEBUG_UART_TX_DMA, TC_MASK|ABT_MASK|ERR_MASK);
+
+		uart_set_irq_mask(TLKAPI_DEBUG_UART_PORT, UART_TXDONE_MASK); 
+		
+		plic_interrupt_enable(IRQ19_UART0);
+		plic_set_priority(IRQ19_UART0, 2);
 	#endif
 	
 	return TLK_ENONE;
@@ -101,53 +136,65 @@ int tlkapi_debug_sprintf(char *pOut, const char *format, ...)
 	return vsprintf(pOut, format, args);
 }
 
+_attribute_noinline_
 void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...)
 {
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_WARN_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_WARN)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
 	va_list args;
 	va_start(args, format);
 	tlkapi_debug_common(flags, pSign, TLKAPI_WARN_HEAD, format, args);
 	va_end(args);
 }
+_attribute_noinline_
 void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...)
 {
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_INFO_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_INFO)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
 	va_list args;
 	va_start(args, format);
 	tlkapi_debug_common(flags, pSign, TLKAPI_INFO_HEAD, format, args);
 	va_end(args);
 }
+_attribute_noinline_
 void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...)
 {
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_TRACE_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_TRACE)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
 	va_list args;
 	va_start(args, format);
 	tlkapi_debug_common(flags, pSign, TLKAPI_TRACE_HEAD, format, args);
 	va_end(args);
 }
+_attribute_noinline_
 void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...)
 {
-	if(/*(flags & 0x01) == 0 || */(flags & TLKAPI_DBG_FATAL_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_FATAL)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
 	va_list args;
 	va_start(args, format);
 	tlkapi_debug_common(flags, pSign, TLKAPI_FATAL_HEAD, format, args);
 	va_end(args);
 }
+_attribute_noinline_
 void tlkapi_debug_error(uint flags, char *pSign, const char *format, ...)
 {
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_ERROR_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ERROR)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
 	va_list args;
 	va_start(args, format);
 	tlkapi_debug_common(flags, pSign, TLKAPI_ERROR_HEAD, format, args);
 	va_end(args);
 }
+_attribute_noinline_
 void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen)
 {
 	uint08 *pBuff;
 	uint16 index;
 	uint16 serial;
 	
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_ARRAY_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ARRAY)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
 
 	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
 	if(pBuff == nullptr) return;
@@ -165,12 +212,13 @@ void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uin
 	dataLen = ((uint16)pBuff[1] << 8) | pBuff[0];
 	if(dataLen != 0) tlkapi_qfifo_dropBuff(&sTlkApiDebugFifo);
 }
+_attribute_noinline_
 void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...)
 {
-	if((flags & 0x01) == 0 || (flags & TLKAPI_DBG_ASSERT_FLAG) == 0) return;
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ASSERT)) return;
 	uint08 count = 8;
 	while(count--){
-		tlkapi_debug_sendData((char*)format, 0, 0);
+		tlkapi_debug_sendData(flags, (char*)format, 0, 0);
 		tlkapi_debug_delayForPrint(100000);
 	}
 	while(true){}
@@ -178,6 +226,9 @@ void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *for
 
 bool tlkapi_debug_isBusy(void)
 {
+	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+	if(sTlkApiUartSendIsBusy) return true;
+	#endif
 	if(sTlkApiDebugFifo.wptr == sTlkApiDebugFifo.rptr) return false;
 	return true;
 }
@@ -205,11 +256,6 @@ void tlkapi_debug_process(void)
 	uint16 offset;
 	uint08 sendLen;
 	uint16 dataLen;
-
-//	#if (TLK_USB_UDB_ENABLE)
-//	extern void tlkusb_process(void);
-//	tlkusb_process();
-//	#endif
 	
 	pData = tlkapi_qfifo_getData(&sTlkApiDebugFifo);
 	if(pData == nullptr) return;
@@ -252,23 +298,50 @@ void tlkapi_debug_process(void)
 	pData[0] = 0x00;
 	pData[1] = 0x00;
 	tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
+#elif(TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+	if(!sTlkApiUartSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkApiDebugFifo)){
+		uint08 * pData = tlkapi_qfifo_getData(&sTlkApiDebugFifo);
+		if(pData == nullptr || (pData[0] == 0 && pData[1] == 0) || pData[2] != 0 || pData[3] != 0){
+			if(pData != nullptr){
+				pData[0] = 0; pData[1] = 0; pData[2] = 0; pData[3] = 0;
+			}
+			tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
+		}else{
+			uint16 dataLen = ((uint16)pData[1] << 8) | pData[0];
+			if(dataLen == 0 || dataLen > TLKAPI_DEBUG_ITEM_SIZE){
+				tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
+			}else{
+				sTlkApiUartSendIsBusy = true;
+				uart_send_dma(TLKAPI_DEBUG_UART_PORT, pData+4, dataLen);
+			}
+		}
+	}
 #endif
 }
 
 _attribute_ram_code_sec_noinline_ 
-void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen)
+void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen)
 {
 	uint08 *pBuff;
 	uint16 strLen;
 	uint16 tempVar;
 	uint16 buffLen;
 	uint16 serial;
+	uint08 signLen;
+	char *pDbgSign;
+
+	if(!tlk_debug_dbgIsEnable1(flags)) return;
+	
 
 	serial = sTlkApiDebugSerial ++;
-
-	strLen = tstrlen(pStr);	
+	
 	pBuff = tlkapi_qfifo_takeBuff(&sTlkApiDebugFifo);
 	if(pBuff == nullptr) return;
+
+	strLen = tstrlen(pStr);	
+	pDbgSign = tlk_debug_getDbgSign(flags);
+	if(pDbgSign == nullptr) signLen = 0;
+	else signLen = strlen(pDbgSign);
 
 	buffLen = 0;
 	pBuff[buffLen++] = 0x00; //(5+extLen+strLen+dataLen) & 0xFF;
@@ -279,6 +352,9 @@ void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen)
 	pBuff[buffLen++] = 0x22;
 	pBuff[buffLen++] = 0x00;
 	pBuff[buffLen++] = 0x00;
+	#elif (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+	pBuff[buffLen++] = 0x00; //(5+extLen+strLen+dataLen) & 0xFF;
+	pBuff[buffLen++] = 0x00; //((5+extLen+strLen+dataLen) & 0xFF00) >> 8;
 	#endif
 	// Add Serial
 	pBuff[buffLen++] = '[';
@@ -299,6 +375,12 @@ void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen)
 	else tempVar = 'a'+(tempVar-10);
 	pBuff[buffLen++] = tempVar;
 	pBuff[buffLen++] = ']';
+	
+	if(buffLen+signLen+16 > TLKAPI_DEBUG_ITEM_SIZE) return;
+	if(signLen != 0){
+		tmemcpy(pBuff+buffLen, pDbgSign, signLen);
+		buffLen += signLen;
+	}
 	
 	if(buffLen+strLen+4 > TLKAPI_DEBUG_ITEM_SIZE) strLen = TLKAPI_DEBUG_ITEM_SIZE-buffLen-4;
 	if(strLen != 0){
@@ -340,36 +422,42 @@ void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint
 		buffLen += dataLen;
 	}
 }
+#elif (TLK_USB_UDB_ENABLE)
+_attribute_retention_code_ 
+void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen)
+{
+	
+}
 #endif
 _attribute_ram_code_sec_noinline_ 
-void tlkapi_debug_sendU08s(void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3)
+void tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3)
 {
 	uint08 buffer[4];
 	buffer[0] = val0;
 	buffer[1] = val1;
 	buffer[2] = val2;
 	buffer[3] = val3;
-	tlkapi_debug_sendData(pStr, (uint08*)buffer, 4);
+	tlkapi_debug_sendData(flags, pStr, (uint08*)buffer, 4);
 }
 _attribute_ram_code_sec_noinline_ 
-void tlkapi_debug_sendU16s(void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3)
+void tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3)
 {
 	uint16 buffer[4];
 	buffer[0] = val0;
 	buffer[1] = val1;
 	buffer[2] = val2;
 	buffer[3] = val3;
-	tlkapi_debug_sendData(pStr, (uint08*)buffer, 8);
+	tlkapi_debug_sendData(flags, pStr, (uint08*)buffer, 8);
 }
 _attribute_ram_code_sec_noinline_ 
-void tlkapi_debug_sendU32s(void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3)
+void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3)
 {
 	uint32 buffer[4];
 	buffer[0] = val0;
 	buffer[1] = val1;
 	buffer[2] = val2;
 	buffer[3] = val3;
-	tlkapi_debug_sendData(pStr, (uint08*)buffer, 16);
+	tlkapi_debug_sendData(flags, pStr, (uint08*)buffer, 16);
 }
 
 
@@ -400,7 +488,7 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 	if(pSign != nullptr) printf(pSign);
 	if(pHead != nullptr) printf(pHead);
 	vprintf(format, args);
-	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+	#if (TLKAPI_DEBUG_METHOD != TLKAPI_DEBUG_METHOD_UDB)
 	printf("\r\n");
 	#endif
 	
@@ -444,6 +532,40 @@ static void tlkapi_debug_putchar(uint08 byte)
 }
 #endif
 
+#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+_attribute_ram_code_sec_ 
+void uart0_irq_handler(void)
+{
+	if(uart_get_irq_status(TLKAPI_DEBUG_UART_PORT, UART_TXDONE)){
+	    uart_clr_tx_done(TLKAPI_DEBUG_UART_PORT);
+		if(sTlkApiUartSendIsBusy){
+			sTlkApiUartSendIsBusy = false;
+			uint08 *pData = tlkapi_qfifo_getData(&sTlkApiDebugFifo);
+			if(pData != nullptr){
+				pData[0] = 0; pData[1] = 0; pData[2] = 0; pData[3] = 0;
+			}
+			tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
+			pData = tlkapi_qfifo_getData(&sTlkApiDebugFifo);
+			if(pData == nullptr || (pData[0] == 0 && pData[1] == 0) || pData[2] != 0 || pData[3] != 0){
+				if(pData != nullptr){
+					pData[0] = 0; pData[1] = 0; pData[2] = 0; pData[3] = 0;
+				}
+				tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
+			}else{
+				uint16 dataLen = ((uint16)pData[1] << 8) | pData[0];
+				if(dataLen == 0 || dataLen > TLKAPI_DEBUG_ITEM_SIZE){
+					tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
+				}else{
+					sTlkApiUartSendIsBusy = true;
+					uart_send_dma(TLKAPI_DEBUG_UART_PORT, pData+4, dataLen);
+				}
+			}
+		}
+	}
+}
+#endif
+
+
 #endif
 
 __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
@@ -461,12 +583,20 @@ __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
 	
 	dataLen = ((uint16)pBuff[1] << 8) | pBuff[0];
 	if(dataLen != 0){
+		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+		dataLen += 4;
+		#else
 		dataLen += 2;
+		#endif
 		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
 		if(dataLen < 7) return size;
 		#endif
 	}else{
+		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+		headLen = 4;
+		#else
 		headLen = 2;
+		#endif
 		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
 		pBuff[headLen++] = 0x82;
 		pBuff[headLen++] = 0x08;
@@ -488,4 +618,38 @@ __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
 #endif
     return size;
 }
+
+
+#if !(TLK_CFG_DBG_ENABLE)
+void tlkapi_debug_process(void)
+{
+
+}
+
+_attribute_ram_code_sec_noinline_
+void tlkapi_debug_default(void)
+{
+	
+}
+
+void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_error(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+int  tlkapi_debug_sprintf(char *pOut, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+
+void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+
+void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void tlkapi_debug_delayForPrint(uint32 us) __attribute__((weak, alias("tlkapi_debug_default")));
+
+
+#endif
+
 

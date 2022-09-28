@@ -28,15 +28,18 @@
 #include "tlkmdi/tlkmdi_comm.h"
 
 
-#define TLKMDI_BTREC_DBG_FLAG         (TLKMDI_BTREC_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_BTREC_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_COMM_DBG_FLAG       ((TLK_MINOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_COMM << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_COMM_DBG_SIGN       "[MDI]"
 
 
+#if (TLK_DEV_SERIAL_ENABLE)
 static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen);
-
+#endif
 
 static uint08 sTlkMdiCommSendNumb = 0x00;
+#if (TLK_DEV_SERIAL_ENABLE)
 static uint08 sTlkMdiCommRecvNumb = 0xFF;
+#endif
 static tlkmdi_comm_cmdCB sTlkMdiCommCmdCB[TLKPRT_COMM_MTYPE_MAX] = {0};
 static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX] = {0};
 
@@ -49,8 +52,9 @@ static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX] = {0};
 *******************************************************************************/
 int tlkmdi_comm_init(void)
 {
-	tlkdev_serial_init();
+	#if (TLK_DEV_SERIAL_ENABLE)
 	tlkdev_serial_regCB(tlkmdi_comm_recvHandler);
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -361,6 +365,7 @@ int tlkmdi_comm_sendAudioEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 *******************************************************************************/
 int tlkmdi_comm_sendCmd(uint08 mType, uint08 cmdID, uint08 *pData, uint08 dataLen)
 {
+	#if (TLK_DEV_SERIAL_ENABLE)
 	int ret;
 	uint08 head[4];
 	head[0] = mType; //Mtype
@@ -370,9 +375,13 @@ int tlkmdi_comm_sendCmd(uint08 mType, uint08 cmdID, uint08 *pData, uint08 dataLe
 	ret = tlkdev_serial_send(TLKPRT_COMM_PTYPE_CMD, head, 4, pData, dataLen);
 	if(ret == TLK_ENONE) sTlkMdiCommSendNumb++;
 	return ret;
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 int tlkmdi_comm_sendRsp(uint08 mType, uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen)
 {
+	#if (TLK_DEV_SERIAL_ENABLE)
 	int ret;
 	uint08 head[6];
 	head[0] = mType; //Mtype
@@ -384,9 +393,13 @@ int tlkmdi_comm_sendRsp(uint08 mType, uint08 cmdID, uint08 status, uint08 reason
 	ret = tlkdev_serial_send(TLKPRT_COMM_PTYPE_RSP, head, 6, pData, dataLen);
 	if(ret == TLK_ENONE) sTlkMdiCommSendNumb++;
 	return ret;
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 int tlkmdi_comm_sendEvt(uint08 mType, uint08 evtID, uint08 *pData, uint08 dataLen)
 {
+	#if (TLK_DEV_SERIAL_ENABLE)
 	int ret;
 	uint08 head[4];
 	head[0] = mType; //Mtype
@@ -396,10 +409,14 @@ int tlkmdi_comm_sendEvt(uint08 mType, uint08 evtID, uint08 *pData, uint08 dataLe
 	ret = tlkdev_serial_send(TLKPRT_COMM_PTYPE_EVT, head, 4, pData, dataLen);
 	if(ret == TLK_ENONE) sTlkMdiCommSendNumb++;
 	return ret;
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 
 int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen)
 {
+	#if (TLK_DEV_SERIAL_ENABLE)
 	uint08 head[4];
 	if(pData == nullptr || dataLen == 0 || dataLen > 256) return -TLK_EPARAM;
 	head[0] = (numb & 0x00FF); //Num
@@ -407,14 +424,22 @@ int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen
 	head[2] = datID; //DID
 	head[3] = dataLen-1; //Lens
 	return tlkdev_serial_send(TLKPRT_COMM_PTYPE_DAT, head, 4, pData, dataLen);
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 
 int tlkmdi_comm_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen)
 {
+	#if (TLK_DEV_SERIAL_ENABLE)
 	return tlkdev_serial_send(pktType, pHead, headLen, pBody, bodyLen);
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 
 
+#if (TLK_DEV_SERIAL_ENABLE)
 static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen)
 {
 	uint08 mtype;
@@ -433,15 +458,15 @@ static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen)
 		numb  = pFrame[6];
 		lens  = pFrame[7];
 		if(frmLen < 4+TLKPRT_COMM_FRM_EXTLEN || frmLen < 4+lens+TLKPRT_COMM_FRM_EXTLEN){
-			tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "Recv CmdOrRspOrEvtPkt Length Error: frmLen-%d lens-%d", frmLen, lens);
+			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv CmdOrRspOrEvtPkt Length Error: frmLen-%d lens-%d", frmLen, lens);
 			return;
 		}
 		if(mtype >= TLKPRT_COMM_MTYPE_MAX){
-			tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "Recv Error MsgType: mtype-%d", mtype);
+			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error MsgType: mtype-%d", mtype);
 			return;
 		}
 		if((uint08)(sTlkMdiCommRecvNumb+1) != numb){
-			tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "Stall Packet: %d %d", sTlkMdiCommRecvNumb, numb);
+			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Stall Packet: %d %d", sTlkMdiCommRecvNumb, numb);
 		}
 		sTlkMdiCommRecvNumb = numb;
 		if(sTlkMdiCommCmdCB[mtype] != nullptr){
@@ -456,18 +481,18 @@ static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen)
 		numb  = (((uint16)pFrame[6]) << 8) | pFrame[5];
 		lens  = (((uint16)pFrame[8]) << 8) | pFrame[7];
 		if(frmLen < 4+TLKPRT_COMM_FRM_EXTLEN || frmLen < 4+lens+TLKPRT_COMM_FRM_EXTLEN){
-			tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "Recv DatPkt Length Error: frmLen-%d lens-%d", frmLen, lens);
+			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Length Error: frmLen-%d lens-%d", frmLen, lens);
 			return;
 		}
 		if(datID != 0 && datID <= TLKMDI_COMM_DATA_CHANNEL_MAX && sTlkMdiCommDatCB[datID-1] != nullptr){
 			sTlkMdiCommDatCB[datID-1](datID, numb, pFrame+9, lens);
 		}else{
-			tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "Recv DatPkt Unexpect: not used - datID[%d]", datID);
+			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Unexpect: not used - datID[%d]", datID);
 		}
 	}
 	else{
-		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "Recv Error PktType: ptype-%d", ptype);
+		tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error PktType: ptype-%d", ptype);
 	}
 }
-
+#endif
 

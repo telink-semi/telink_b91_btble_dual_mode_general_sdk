@@ -69,8 +69,8 @@
 								<option id="nds.c.link.option.libs.1698510065" name="Libraries (-l)" superClass="nds.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="dsp"/>
 									<listOptionValue builtIn="false" value="m"/>
-									<listOptionValue builtIn="false" value="B91_btble_stack_nolog"/>
-									<listOptionValue builtIn="false" value="B91_btble_driver_nolog"/>
+									<listOptionValue builtIn="false" value="B91_btble_stack"/>
+									<listOptionValue builtIn="false" value="B91_btble_driver"/>
 									<listOptionValue builtIn="false" value="B91_mp3_dec"/>
 									<listOptionValue builtIn="false" value="B91_aec_ns"/>
 									<listOptionValue builtIn="false" value="B91_AGC"/>

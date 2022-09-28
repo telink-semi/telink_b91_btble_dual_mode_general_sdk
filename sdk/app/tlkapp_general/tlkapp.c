@@ -89,7 +89,9 @@ int tlkapp_init(void)
 #endif
 
 	sTlkAppTimer = clock_time()|1;
+#if (TLKMMI_LEMGR_ENABLE)
     tlkmmi_lemgr_startAdv(0, 0);
+#endif
 
 	return TLK_ENONE;
 }

@@ -48,7 +48,9 @@
 *******************************************************************************/
 int tlkmmi_btmgr_init(void)
 {
+	#if !TLK_CFG_PTS_ENABLE
 	bth_device_item_t *pDevice;
+	#endif
 
 	tlkmmi_btmgr_commInit();
 	tlkmmi_btmgr_ctrlInit();
@@ -63,20 +65,24 @@ int tlkmmi_btmgr_init(void)
 	#endif
 	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTMGR_DEVICE_CLASS);
-	#if TLK_MDI_PTS_ENABLE
+	#if TLK_CFG_PTS_ENABLE
 	bth_hci_sendWriteScanEnableCmd(0x03);//(INQUIRY_SCAN_ENABLE | PAGE_SCAN_ENABLE);
 	#endif
     bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
-	
+
+	#if !TLK_CFG_PTS_ENABLE
 	pDevice = bth_device_getLast();
 	if(pDevice != nullptr){
-		#if TLK_MDI_PTS_ENABLE
+		#if TLK_CFG_PTS_ENABLE
 		#else
 		tlkmmi_btmgr_recStart(pDevice->devAddr, pDevice->devClass, true, true);
 		#endif
 	}else{
 		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 	}
+	#else
+	tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+	#endif
 	
 	return TLK_ENONE;
 }

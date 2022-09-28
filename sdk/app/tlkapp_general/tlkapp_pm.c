@@ -104,44 +104,39 @@ int tlkapp_pm_init(void)
 *******************************************************************************/
 void tlkapp_pm_handler(void)
 {
-	uint08 apiIsBusy = tlkapi_pmIsBusy();
-	uint08 devIsBusy = tlkdev_pmIsBusy();
-	uint08 mdiIsBusy = tlkmdi_pmIsbusy();
-	uint08 mmiIsBusy = tlkmmi_pmIsbusy();
-	uint08 stkIsBusy = tlkstk_pmIsBusy();
-	uint08 appIsBusy = tlkapp_pmIsBusy();
-	uint08 padIsBusy = !gpio_read(TLKAPP_WAKEUP_PIN);
+	bool isBusy = false;
 	
 	if(gTlkAppSystemBusyTimer != 0 && clock_time_exceed(gTlkAppSystemBusyTimer, 1000000)){
 		//Solve the problem that Android phones are difficult to connect
 		gTlkAppSystemBusyTimer = 0;
 	}
+	
+	if(gTlkAppSystemBusyTimer != 0 || !gpio_read(TLKAPP_WAKEUP_PIN)){
+		isBusy = true;
+	}else{
+		isBusy = tlkapi_pmIsBusy() || tlkdev_pmIsBusy() || tlkmdi_pmIsbusy()
+			  || tlkmmi_pmIsbusy() || tlkstk_pmIsBusy() || tlkapp_pmIsBusy();
+	}
 
 	if(sTlkAppPmTraceTimer == 0 || clock_time_exceed(sTlkAppPmTraceTimer, 1000000)){
 		sTlkAppPmTraceTimer = clock_time()|1;
-		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d %d %d %d", appIsBusy,
-			stkIsBusy, apiIsBusy, devIsBusy, mdiIsBusy, mmiIsBusy, padIsBusy);
+		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d %d %d %d", 
+			tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), tlkapi_pmIsBusy(), tlkdev_pmIsBusy(), 
+			tlkmdi_pmIsbusy(), tlkmmi_pmIsbusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
 	}
 	
-	if(//1 ||
-			gTlkAppSystemBusyTimer != 0 || appIsBusy || stkIsBusy || apiIsBusy
-			|| devIsBusy || mdiIsBusy || mmiIsBusy || padIsBusy)
-	{
+	if(isBusy){
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
 		btc_set_sniff_req_enable(0);//disable
 		bth_sendLeaveSleepCmd();
 		gTlkAppPmSysIdleTimer =  clock_time()|1;
-	}
-	else{
-		if(sTlkAppPmState == TLKAPP_PM_STATE_SLEEP) return;
-		
+	}else{		
 		//enter deepsleep when system is idle
 		if(gTlkAppPmSysIdleTimer != 0 && clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000)){
 			if(tlkapp_pm_enterDeepSleepEnable()){
 				cpu_sleep_wakeup_32k_rc(DEEPSLEEP_MODE, PM_WAKEUP_PAD, 0);
 			}
-		}
-		else{
+		}else{
 			btc_set_sniff_req_enable(1);//enable
 			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);
 			btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);

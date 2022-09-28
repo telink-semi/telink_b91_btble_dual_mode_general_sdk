@@ -50,6 +50,9 @@
 #ifndef SEMAPHORE_H
 #define SEMAPHORE_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h" must appear in source files before "include semphr.h"
 #endif
@@ -478,7 +481,7 @@ typedef QueueHandle_t SemaphoreHandle_t;
  * \defgroup xSemaphoreGive xSemaphoreGive
  * \ingroup Semaphores
  */
-#define xSemaphoreGive( xSemaphore )    xQueueGenericSend( ( QueueHandle_t ) ( xSemaphore ), NULL, semGIVE_BLOCK_TIME, queueSEND_TO_BACK )
+#define xSemaphoreGive( xSemaphore )    xQueueGenericSend( ( QueueHandle_t ) ( xSemaphore ), NULL, 0, semGIVE_BLOCK_TIME, queueSEND_TO_BACK )
 
 /**
  * semphr. h
@@ -1192,5 +1195,8 @@ typedef QueueHandle_t SemaphoreHandle_t;
  *
  */
 #define uxSemaphoreGetCount( xSemaphore )                uxQueueMessagesWaiting( ( QueueHandle_t ) ( xSemaphore ) )
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* SEMAPHORE_H */

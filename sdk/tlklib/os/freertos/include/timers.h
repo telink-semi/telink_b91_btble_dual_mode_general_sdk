@@ -51,6 +51,9 @@
 #ifndef TIMERS_H
 #define TIMERS_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h must appear in source files before include timers.h"
 #endif
@@ -103,7 +106,7 @@ typedef struct tmrTimerControl * TimerHandle_t;
 /*
  * Defines the prototype to which timer callback functions must conform.
  */
-typedef void (* TimerCallbackFunction_t)( TimerHandle_t xTimer );
+typedef void (* TimerCallbackFunction_t)( TimerHandle_t xTimer, void *pUsrArg );
 
 /*
  * Defines the prototype to which functions used with the
@@ -1371,4 +1374,7 @@ BaseType_t xTimerGenericCommand( TimerHandle_t xTimer,
     }
 #endif
 /* *INDENT-ON* */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+
 #endif /* TIMERS_H */

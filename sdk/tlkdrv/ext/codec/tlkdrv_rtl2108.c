@@ -104,7 +104,7 @@ static int tlkdrv_rtl2108_init(uint08 subDev)
 	sTlkDrvRtl2108Ctrl.isInit = true;
 	sTlkDrvRtl2108Ctrl.isOpen = false;
 	sTlkDrvRtl2108Ctrl.isMute = false;
-	sTlkDrvRtl2108Ctrl.micVol = 100;
+	sTlkDrvRtl2108Ctrl.micVol = 60;
 	sTlkDrvRtl2108Ctrl.bitDepth = 16;
 	sTlkDrvRtl2108Ctrl.sampleRate = 48000;
 	

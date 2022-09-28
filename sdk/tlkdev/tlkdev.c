@@ -38,21 +38,20 @@ extern void tlkusb_process(void);
 
 int tlkdev_init(void)
 {
-#if TLKAPP_GENERAL_ENABLE
 	#if (TLK_DEV_XTSD01G_ENABLE)
-		tlkdev_xtsd01g_init();
-	#endif
-	#if (TLK_DEV_XT26G0X_ENABLE)
-		tlkdev_xt26g0x_init();
+	tlkdev_xtsd01g_init();
 	#endif
 	#if (TLK_CFG_WDG_ENABLE)
 	wd_set_interval_ms(3000);
 	wd_start();
 	#endif
-#endif
-#if TLKAPP_CONTROLLER_ENABLE&&TLKAPP_HCI_UART_MODE
+
+	#if (TLK_DEV_SERIAL_ENABLE)
 	tlkdev_serial_init();
-#endif
+	#endif
+	#if (TLK_DEV_HCIUART_ENABLE)
+	tlkdev_hciuart_init();
+	#endif
 
 	return TLK_ENONE;
 }
@@ -60,8 +59,11 @@ int tlkdev_init(void)
 
 void tlkdev_process(void)
 {
-	#if !TLKAPP_HCI_USB_MODE
+	#if (TLK_DEV_SERIAL_ENABLE)
 	tlkdev_serial_handler();
+	#endif
+	#if (TLK_DEV_HCIUART_ENABLE)
+	tlkdev_hciuart_handler();
 	#endif
 	
 	#if (TLK_CFG_WDG_ENABLE)

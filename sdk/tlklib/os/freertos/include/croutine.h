@@ -50,6 +50,9 @@
 #ifndef CO_ROUTINE_H
 #define CO_ROUTINE_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h must appear in source files before include croutine.h"
 #endif
@@ -770,5 +773,8 @@ BaseType_t xCoRoutineRemoveFromEventList( const List_t * pxEventList );
     }
 #endif
 /* *INDENT-ON* */
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* CO_ROUTINE_H */

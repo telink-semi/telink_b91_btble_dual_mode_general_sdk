@@ -31,7 +31,6 @@
 
 
 extern void hci_host_to_controller(void);
-extern void hci_set_tx_critical_sec_en(uint08 flow);
 
 extern unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
 extern void core_leave_critical(unsigned char preempt_en ,unsigned int r);
@@ -81,7 +80,6 @@ int tlkapi_timer_init(void)
 	#else
 	plic_interrupt_enable(IRQ3_TIMER1);
 	#endif
-	hci_set_tx_critical_sec_en(1);
 		
 	return TLK_ENONE;
 }
@@ -129,6 +127,22 @@ bool tlkapi_timer_isbusy(void)
 bool tlkapi_timer_isPmBusy(void)
 {
 	return false;
+}
+
+/******************************************************************************
+ * Function: tlkapi_timer_isout
+ * Descript: Detects whether the current timer has timed out.
+ * Params:
+ *     @timer[IN]--Reference timer.
+ *     @ticks[IN]--Timeout. unit: 1/16 us:
+ * Return: True means the timer is timeout, false means not.
+ * Others: None.
+*******************************************************************************/
+//_attribute_ram_code_sec_noinline_
+bool tlkapi_timer_isout(uint32 timer, uint32 ticks)
+{
+	if((uint32)(clock_time()-timer) >= ticks) return true;
+	else return false;
 }
 
 

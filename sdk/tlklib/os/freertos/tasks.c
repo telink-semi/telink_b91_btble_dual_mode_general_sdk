@@ -47,6 +47,8 @@
  *
  */
 
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 /* Standard includes. */
 #include <stdlib.h>
 #include <string.h>
@@ -5416,3 +5418,6 @@ static void prvAddCurrentTaskToDelayedList( TickType_t xTicksToWait,
     #endif
 
 #endif /* if ( configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H == 1 ) */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

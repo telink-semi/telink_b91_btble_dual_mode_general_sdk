@@ -49,10 +49,15 @@
  */
 
 
-#include "drivers.h"
-
 #ifndef PORTMACRO_H
 #define PORTMACRO_H
+
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
+#include "drivers.h"
+
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -218,6 +223,9 @@ definition is found. */
 #ifdef __cplusplus
 }
 #endif
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* PORTMACRO_H */
 

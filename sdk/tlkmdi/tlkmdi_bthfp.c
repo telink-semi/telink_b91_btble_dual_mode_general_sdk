@@ -34,8 +34,8 @@
 #include "tlkprt/tlkprt_stdio.h"
 
 
-#define TLKMDI_HFPHF_DBG_FLAG         (TLKMDI_HFP_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_HFPHF_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_BTHFP_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_HFP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_BTHFP_DBG_SIGN       "[MDI]"
 
 
 static void tlkmdi_hfphf_reset(void);
@@ -145,7 +145,7 @@ static void tlkmdi_hfphf_reset(void)
 	pUnit->callFlag = TLKMDI_HFPHF_CALL_FLAG_NONE;
 	pUnit->callBusy = TLKMDI_HFPHF_CALL_BUSY_NONE;
 	if((callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_MASK) != 0 && (callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_CLOSE) == 0){
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 04");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 04");
 		tlkmdi_hfphf_sendStatusEvt(TLKMDI_HFPHF_EVTID_CALL_CLOSE, handle, 0, callDir, numbLen);
 	}
 	
@@ -159,7 +159,7 @@ static void tlkmdi_hfphf_reset(void)
 	pUnit->callFlag = TLKMDI_HFPHF_CALL_FLAG_NONE;
 	pUnit->callBusy = TLKMDI_HFPHF_CALL_BUSY_NONE;
 	if((callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_MASK) != 0 && (callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_CLOSE) == 0){
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 05");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 05");
 		tlkmdi_hfphf_sendStatusEvt(TLKMDI_HFPHF_EVTID_CALL_CLOSE, handle, 1, callDir, numbLen);
 	}
 }
@@ -167,7 +167,7 @@ static void tlkmdi_hfphf_sendStatusEvt(uint08 evtID, uint16 handle, uint08 callN
 {
 	tlkmdi_hfphf_statusEvt_t evt;
 
-	tlkapi_trace(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_sendStatusEvt: evtID-%d,callNum-%d,callDir-%d,numbLen-%d", 
+	tlkapi_trace(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_sendStatusEvt: evtID-%d,callNum-%d,callDir-%d,numbLen-%d", 
 		evtID, callNum, callDir, numbLen);
 	
 	evt.handle  = handle;
@@ -188,7 +188,7 @@ static int tlkmdi_hfphf_volumeChangedEvt(uint08 *pData, uint16 dataLen)
 
 	pEvt = (btp_hfpVolumeChangedEvt_t*)pData;
 	if(pEvt->volType == BTP_HFP_VOLUME_TYPE_SPK){
-		tlkapi_trace(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_volumeChangedEvt: %d", pEvt->volume);
+		tlkapi_trace(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_volumeChangedEvt: %d", pEvt->volume);
 		tlkmdi_audio_setVoiceVolume(pEvt->volume);
 	}
 	return TLK_ENONE;
@@ -200,11 +200,11 @@ static int tlkmdi_hfphf_statusChangedEvt(uint08 *pData, uint16 dataLen)
 
 	pEvt = (btp_hfpStatusChangedEvt_t*)pData;
 	if(sTlkMdiHfpCtrl.handle != 0 && pEvt->handle != sTlkMdiHfpCtrl.handle){
-		tlkapi_error(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_statusChangedEvt: busys ");
+		tlkapi_error(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_statusChangedEvt: busys ");
 		return -TLK_EBUSY;
 	}
 	
-	tlkapi_trace(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_statusChangedEvt: handle-%d,status-%d,callDir-%d,numbLen-%d", 
+	tlkapi_trace(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_statusChangedEvt: handle-%d,status-%d,callDir-%d,numbLen-%d", 
 		pEvt->handle, pEvt->status, pEvt->callDir, pEvt->numbLen);
 	sTlkMdiHfpCtrl.handle = pEvt->handle;
 	if(pEvt->status == BTP_HFP_CALL_STATUS_START){
@@ -221,7 +221,7 @@ static int tlkmdi_hfphf_statusChangedEvt(uint08 *pData, uint16 dataLen)
 	}
 	if(pEvt->status == BTP_HFP_CALL_STATUS_NORING){
 		if((sTlkMdiHfpCtrl.flags & TLKMDI_HFPHF_FLAG_ACTIVE) == 0){
-			tlkapi_error(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_reset");
+			tlkapi_error(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_reset");
 			tlkmdi_hfphf_reset();
 		}else if((sTlkMdiHfpCtrl.unit[0].callFlag & TLKMDI_HFPHF_CALL_FLAG_READY) != 0
 			&& (sTlkMdiHfpCtrl.unit[1].callFlag & TLKMDI_HFPHF_CALL_FLAG_READY) != 0){
@@ -238,7 +238,7 @@ static int tlkmdi_hfphf_numberInquiryEvt(uint08 *pData, uint16 dataLen)
 
 	pEvt = (btp_hfpNumberInquiryEvt_t*)pData;
 	if(sTlkMdiHfpCtrl.handle != pEvt->handle){
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_numberInquiryEvt: unexpected status 1");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_numberInquiryEvt: unexpected status 1");
 		return -TLK_EFAIL;
 	}
 	
@@ -261,7 +261,7 @@ static void tlkmdi_hfphf_inquirySaveDeal(btp_hfpNumberInquiryEvt_t *pEvt)
 	if(pEvt->numbLen == 0) return;
 	if(pEvt->numbLen > TLKMDI_HFPHF_NUMBER_MAX_LEN) pEvt->numbLen = TLKMDI_HFPHF_NUMBER_MAX_LEN;
 
-	tlkapi_trace(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_inquirySaveDeal: handle-%d,status-%d,callDir-%d,numbLen-%d", 
+	tlkapi_trace(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_inquirySaveDeal: handle-%d,status-%d,callDir-%d,numbLen-%d", 
 		pEvt->handle, pEvt->status, pEvt->callDir, pEvt->numbLen);
 	pUnit = tlkmdi_hfphf_getUsedCallUnit(pEvt->numbLen, pEvt->pNumber);
 	if(pUnit == nullptr){
@@ -278,7 +278,7 @@ static void tlkmdi_hfphf_inquirySaveDeal(btp_hfpNumberInquiryEvt_t *pEvt)
 			uint08 numb;
 			if(pUnit == &sTlkMdiHfpCtrl.unit[0]) numb = 0;
 			else numb = 1;
-			tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 01");
+			tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 01");
 			tlkmdi_hfphf_sendStatusEvt(TLKMDI_HFPHF_EVTID_CALL_CLOSE, sTlkMdiHfpCtrl.handle, numb, pUnit->callDir, pUnit->numbLen);
 		}
 		pUnit->callStat = pEvt->status;
@@ -329,22 +329,22 @@ static void tlkmdi_hfphf_inquirySaveDeal(btp_hfpNumberInquiryEvt_t *pEvt)
 	}
 
 	if(pUnit == &sTlkMdiHfpCtrl.unit[0]){
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "save node 0");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "save node 0");
 	}else{
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "save node 1");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "save node 1");
 	}
 }
 static void tlkmdi_hfphf_inquiryStopDeal(void)
 {
 	tlkmdi_hfphf_unit_t *pUnit;
 
-	tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_inquiryStopDeal:");
+	tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_inquiryStopDeal:");
 	pUnit = &sTlkMdiHfpCtrl.unit[0];
 	if((pUnit->callFlag & TLKMDI_HFPHF_CALL_FLAG_READY) == 0){
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_inquiryStopDeal: 01");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_inquiryStopDeal: 01");
 		if(pUnit->numbLen != 0 && (pUnit->callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_MASK) != 0
 			&& (pUnit->callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_CLOSE) == 0){
-			tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 02");
+			tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 02");
 			tlkmdi_hfphf_sendStatusEvt(TLKMDI_HFPHF_EVTID_CALL_CLOSE, sTlkMdiHfpCtrl.handle, 0, pUnit->callDir, pUnit->numbLen);
 		}
 		pUnit->numbLen = 0;
@@ -355,10 +355,10 @@ static void tlkmdi_hfphf_inquiryStopDeal(void)
 	}
 	pUnit = &sTlkMdiHfpCtrl.unit[1];
 	if((pUnit->callFlag & TLKMDI_HFPHF_CALL_FLAG_READY) == 0){
-		tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_inquiryStopDeal: 02");
+		tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_inquiryStopDeal: 02");
 		if(pUnit->numbLen != 0 && (pUnit->callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_MASK) != 0
 			&& (pUnit->callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_CLOSE) == 0){
-			tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 03");
+			tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKMDI_HFPHF_EVTID_CALL_CLOSE: 03");
 			tlkmdi_hfphf_sendStatusEvt(TLKMDI_HFPHF_EVTID_CALL_CLOSE, sTlkMdiHfpCtrl.handle, 1, pUnit->callDir, pUnit->numbLen);
 		}
 		pUnit->numbLen = 0;
@@ -372,7 +372,7 @@ static void tlkmdi_hfphf_inquiryBusyDeal(void)
 {
 	tlkmdi_hfphf_unit_t *pUnit;
 
-	tlkapi_warn(TLKMDI_HFPHF_DBG_FLAG, TLKMDI_HFPHF_DBG_SIGN, "tlkmdi_hfphf_inquiryBusyDeal:");
+	tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_hfphf_inquiryBusyDeal:");
 	
 	pUnit = &sTlkMdiHfpCtrl.unit[0];
 	if((pUnit->callBusy & TLKMDI_HFPHF_CALL_BUSY_REPORT_WAIT) != 0){

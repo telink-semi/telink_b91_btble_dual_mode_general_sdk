@@ -47,6 +47,8 @@
  *
  */
 
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 /* Standard includes. */
 #include <stdlib.h>
 
@@ -421,16 +423,16 @@
             {
                 if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING )
                 {
-                    xReturn = xQueueSendToBack( xTimerQueue, &xMessage, xTicksToWait );
+                    xReturn = xQueueSendToBack( xTimerQueue, &xMessage, 0, xTicksToWait );
                 }
                 else
                 {
-                    xReturn = xQueueSendToBack( xTimerQueue, &xMessage, tmrNO_DELAY );
+                    xReturn = xQueueSendToBack( xTimerQueue, &xMessage, 0, tmrNO_DELAY );
                 }
             }
             else
             {
-                xReturn = xQueueSendToBackFromISR( xTimerQueue, &xMessage, pxHigherPriorityTaskWoken );
+                xReturn = xQueueSendToBackFromISR( xTimerQueue, &xMessage, 0, pxHigherPriorityTaskWoken );
             }
 
             traceTIMER_COMMAND_SEND( xTimer, xCommandID, xOptionalValue, xReturn );
@@ -567,7 +569,7 @@
         }
 
         /* Call the timer callback. */
-        pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
+        pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer, pxTimer->pvTimerID );
     }
 /*-----------------------------------------------------------*/
 
@@ -770,7 +772,7 @@
         BaseType_t xTimerListsWereSwitched, xResult;
         TickType_t xTimeNow;
 
-        while( xQueueReceive( xTimerQueue, &xMessage, tmrNO_DELAY ) != pdFAIL ) /*lint !e603 xMessage does not have to be initialised as it is passed out, not in, and it is not used unless xQueueReceive() returns pdTRUE. */
+        while( xQueueReceive( xTimerQueue, &xMessage, 0, tmrNO_DELAY ) != pdFAIL ) /*lint !e603 xMessage does not have to be initialised as it is passed out, not in, and it is not used unless xQueueReceive() returns pdTRUE. */
         {
             #if ( INCLUDE_xTimerPendFunctionCall == 1 )
                 {
@@ -836,7 +838,7 @@
                         {
                             /* The timer expired before it was added to the active
                              * timer list.  Process it now. */
-                            pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
+                            pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer, pxTimer->pvTimerID );
                             traceTIMER_EXPIRED( pxTimer );
 
                             if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
@@ -936,7 +938,7 @@
             /* Execute its callback, then send a command to restart the timer if
              * it is an auto-reload timer.  It cannot be restarted here as the lists
              * have not yet been switched. */
-            pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer );
+            pxTimer->pxCallbackFunction( ( TimerHandle_t ) pxTimer, pxTimer->pvTimerID );
 
             if( ( pxTimer->ucStatus & tmrSTATUS_IS_AUTORELOAD ) != 0 )
             {
@@ -1098,7 +1100,7 @@
             xMessage.u.xCallbackParameters.pvParameter1 = pvParameter1;
             xMessage.u.xCallbackParameters.ulParameter2 = ulParameter2;
 
-            xReturn = xQueueSendFromISR( xTimerQueue, &xMessage, pxHigherPriorityTaskWoken );
+            xReturn = xQueueSendFromISR( xTimerQueue, &xMessage, 0, pxHigherPriorityTaskWoken );
 
             tracePEND_FUNC_CALL_FROM_ISR( xFunctionToPend, pvParameter1, ulParameter2, xReturn );
 
@@ -1130,7 +1132,7 @@
             xMessage.u.xCallbackParameters.pvParameter1 = pvParameter1;
             xMessage.u.xCallbackParameters.ulParameter2 = ulParameter2;
 
-            xReturn = xQueueSendToBack( xTimerQueue, &xMessage, xTicksToWait );
+            xReturn = xQueueSendToBack( xTimerQueue, &xMessage, 0, xTicksToWait );
 
             tracePEND_FUNC_CALL( xFunctionToPend, pvParameter1, ulParameter2, xReturn );
 
@@ -1165,3 +1167,6 @@
  * to include software timer functionality.  If you want to include software timer
  * functionality then ensure configUSE_TIMERS is set to 1 in FreeRTOSConfig.h. */
 #endif /* configUSE_TIMERS == 1 */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

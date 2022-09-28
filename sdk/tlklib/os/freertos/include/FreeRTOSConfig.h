@@ -51,6 +51,9 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 /*-----------------------------------------------------------
  * Application specific definitions.
  *
@@ -204,6 +207,9 @@ provided in this demo can be extended to save even more power. */
 #define configRECORD_STACK_HIGH_ADDRESS		1
 #endif
 #endif
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* FREERTOS_CONFIG_H */
 

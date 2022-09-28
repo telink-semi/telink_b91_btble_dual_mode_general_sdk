@@ -207,7 +207,7 @@ static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen)
 
 		case 0xFF:
 		{
-			tlkmdi_btacl_connect(pData+2,0x7a020c,0x3a98);
+
 		}
 			break;
 

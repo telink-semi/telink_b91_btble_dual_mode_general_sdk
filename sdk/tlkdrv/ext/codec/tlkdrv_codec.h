@@ -26,8 +26,8 @@
 
 #define TLKDRV_CODEC_DEBUG_ENABLE           0
 
-#define TLKDRV_CODEC_ICODEC_ENABLE          1 //Must Enable
-#define TLKDRV_CODEC_RTL2108_ENABLE         1
+#define TLKDRV_CODEC_ICODEC_ENABLE          1 
+#define TLKDRV_CODEC_RTL2108_ENABLE         0
 
 #define TLKDRV_CODEC_SPK_DMA                DMA3
 #define TLKDRV_CODEC_MIC_DMA                DMA2

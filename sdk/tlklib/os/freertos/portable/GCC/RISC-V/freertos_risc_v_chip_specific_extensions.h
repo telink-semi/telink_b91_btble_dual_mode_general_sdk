@@ -82,6 +82,9 @@
 #ifndef __FREERTOS_RISC_V_EXTENSIONS_H__
 #define __FREERTOS_RISC_V_EXTENSIONS_H__
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #define portasmHAS_MTIME 	1
 
 #if __riscv_flen == 64
@@ -274,5 +277,7 @@
 	csrw mhsp_ctl, t0
 	.endm
 
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* __FREERTOS_RISC_V_EXTENSIONS_H__ */

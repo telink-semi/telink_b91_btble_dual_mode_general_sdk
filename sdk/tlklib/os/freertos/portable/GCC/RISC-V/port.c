@@ -52,6 +52,8 @@
  * Implementation of functions defined in portable.h for the RISC-V RV32 port.
  *----------------------------------------------------------*/
 
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 /* Scheduler includes. */
 #include "../../../include/FreeRTOS.h"
 #include "../../../include/task.h"
@@ -115,7 +117,7 @@ void vPortSetupTimerInterrupt( void ) __attribute__(( weak ));
 PRIVILEGED_DATA uint64_t ullNextTime = 0ULL;
 PRIVILEGED_DATA uint64_t *pullNextTime = &ullNextTime;
 size_t uxTimerIncrementsForOneTick = ( size_t ) ( ( configCPU_CLOCK_HZ ) / ( configTICK_RATE_HZ ) ); /* Assumes increment won't go over 32-bits. */
-uint32_t ullMachineTimerCompareRegisterBase = configMTIMECMP_BASE_ADDRESS;
+uint32_t const ullMachineTimerCompareRegisterBase = configMTIMECMP_BASE_ADDRESS;
 PRIVILEGED_DATA volatile uint64_t * pullMachineTimerCompareRegister = NULL;
 
 /* Set configCHECK_FOR_STACK_OVERFLOW to 3 to add ISR stack checking to task
@@ -292,4 +294,6 @@ _attribute_retention_code_  void bt_ll_proto_task_sleep(unsigned int wakeup_tick
 }
 
 #endif
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 

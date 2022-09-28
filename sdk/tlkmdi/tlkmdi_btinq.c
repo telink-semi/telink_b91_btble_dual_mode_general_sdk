@@ -34,8 +34,8 @@
 #include "tlkstk/hci/hci_cmd.h"
 
 
-#define TLKMDI_BTINQ_DBG_FLAG         (TLKMDI_BTINQ_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_BTINQ_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_BTINQ_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_INQ << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_BTINQ_DBG_SIGN       "[MDI]"
 
 
 static int tlkmdi_btinq_resultEvt(uint08 *pData, uint16 dataLen);

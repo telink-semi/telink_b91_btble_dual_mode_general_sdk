@@ -51,6 +51,9 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h" must appear in source files before "include queue.h"
 #endif
@@ -334,8 +337,8 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  * \defgroup xQueueSend xQueueSend
  * \ingroup QueueManagement
  */
-#define xQueueSendToFront( xQueue, pvItemToQueue, xTicksToWait ) \
-    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), ( xTicksToWait ), queueSEND_TO_FRONT )
+#define xQueueSendToFront( xQueue, pvItemToQueue, sendLen, xTicksToWait ) \
+    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), (sendLen), ( xTicksToWait ), queueSEND_TO_FRONT )
 
 /**
  * queue. h
@@ -417,8 +420,8 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  * \defgroup xQueueSend xQueueSend
  * \ingroup QueueManagement
  */
-#define xQueueSendToBack( xQueue, pvItemToQueue, xTicksToWait ) \
-    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), ( xTicksToWait ), queueSEND_TO_BACK )
+#define xQueueSendToBack( xQueue, pvItemToQueue, sendLen, xTicksToWait ) \
+    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), (sendLen), ( xTicksToWait ), queueSEND_TO_BACK )
 
 /**
  * queue. h
@@ -502,8 +505,8 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  * \defgroup xQueueSend xQueueSend
  * \ingroup QueueManagement
  */
-#define xQueueSend( xQueue, pvItemToQueue, xTicksToWait ) \
-    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), ( xTicksToWait ), queueSEND_TO_BACK )
+#define xQueueSend( xQueue, pvItemToQueue, sendLen, xTicksToWait ) \
+    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), (sendLen), ( xTicksToWait ), queueSEND_TO_BACK )
 
 /**
  * queue. h
@@ -586,8 +589,8 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  * \defgroup xQueueOverwrite xQueueOverwrite
  * \ingroup QueueManagement
  */
-#define xQueueOverwrite( xQueue, pvItemToQueue ) \
-    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), 0, queueOVERWRITE )
+#define xQueueOverwrite( xQueue, pvItemToQueue, sendLen ) \
+    xQueueGenericSend( ( xQueue ), ( pvItemToQueue ), (sendLen), 0, queueOVERWRITE )
 
 
 /**
@@ -677,6 +680,7 @@ typedef struct QueueDefinition   * QueueSetMemberHandle_t;
  */
 BaseType_t xQueueGenericSend( QueueHandle_t xQueue,
                               const void * const pvItemToQueue,
+                              const unsigned int sendLen,
                               TickType_t xTicksToWait,
                               const BaseType_t xCopyPosition ) PRIVILEGED_FUNCTION;
 
@@ -775,6 +779,7 @@ BaseType_t xQueueGenericSend( QueueHandle_t xQueue,
  */
 BaseType_t xQueuePeek( QueueHandle_t xQueue,
                        void * const pvBuffer,
+                       unsigned int buffLen,
                        TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
 /**
@@ -810,7 +815,8 @@ BaseType_t xQueuePeek( QueueHandle_t xQueue,
  * \ingroup QueueManagement
  */
 BaseType_t xQueuePeekFromISR( QueueHandle_t xQueue,
-                              void * const pvBuffer ) PRIVILEGED_FUNCTION;
+                              void * const pvBuffer,
+                              unsigned int buffLen) PRIVILEGED_FUNCTION;
 
 /**
  * queue. h
@@ -904,6 +910,7 @@ BaseType_t xQueuePeekFromISR( QueueHandle_t xQueue,
  */
 BaseType_t xQueueReceive( QueueHandle_t xQueue,
                           void * const pvBuffer,
+                          unsigned int buffLen,
                           TickType_t xTicksToWait ) PRIVILEGED_FUNCTION;
 
 /**
@@ -1026,8 +1033,8 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  * \defgroup xQueueSendFromISR xQueueSendFromISR
  * \ingroup QueueManagement
  */
-#define xQueueSendToFrontFromISR( xQueue, pvItemToQueue, pxHigherPriorityTaskWoken ) \
-    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), ( pxHigherPriorityTaskWoken ), queueSEND_TO_FRONT )
+#define xQueueSendToFrontFromISR( xQueue, pvItemToQueue, sendLen, pxHigherPriorityTaskWoken ) \
+    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), (sendLen), ( pxHigherPriorityTaskWoken ), queueSEND_TO_FRONT )
 
 
 /**
@@ -1098,8 +1105,8 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  * \defgroup xQueueSendFromISR xQueueSendFromISR
  * \ingroup QueueManagement
  */
-#define xQueueSendToBackFromISR( xQueue, pvItemToQueue, pxHigherPriorityTaskWoken ) \
-    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), ( pxHigherPriorityTaskWoken ), queueSEND_TO_BACK )
+#define xQueueSendToBackFromISR( xQueue, pvItemToQueue, sendLen, pxHigherPriorityTaskWoken ) \
+    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), (sendLen), ( pxHigherPriorityTaskWoken ), queueSEND_TO_BACK )
 
 /**
  * queue. h
@@ -1186,8 +1193,8 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  * \defgroup xQueueOverwriteFromISR xQueueOverwriteFromISR
  * \ingroup QueueManagement
  */
-#define xQueueOverwriteFromISR( xQueue, pvItemToQueue, pxHigherPriorityTaskWoken ) \
-    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), ( pxHigherPriorityTaskWoken ), queueOVERWRITE )
+#define xQueueOverwriteFromISR( xQueue, pvItemToQueue, sendLen, pxHigherPriorityTaskWoken ) \
+    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), (sendLen), ( pxHigherPriorityTaskWoken ), queueOVERWRITE )
 
 /**
  * queue. h
@@ -1261,8 +1268,8 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  * \defgroup xQueueSendFromISR xQueueSendFromISR
  * \ingroup QueueManagement
  */
-#define xQueueSendFromISR( xQueue, pvItemToQueue, pxHigherPriorityTaskWoken ) \
-    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), ( pxHigherPriorityTaskWoken ), queueSEND_TO_BACK )
+#define xQueueSendFromISR( xQueue, pvItemToQueue, sendLen, pxHigherPriorityTaskWoken ) \
+    xQueueGenericSendFromISR( ( xQueue ), ( pvItemToQueue ), (sendLen), ( pxHigherPriorityTaskWoken ), queueSEND_TO_BACK )
 
 /**
  * queue. h
@@ -1343,6 +1350,7 @@ void vQueueDelete( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
  */
 BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue,
                                      const void * const pvItemToQueue,
+                                     unsigned int sendLen,
                                      BaseType_t * const pxHigherPriorityTaskWoken,
                                      const BaseType_t xCopyPosition ) PRIVILEGED_FUNCTION;
 BaseType_t xQueueGiveFromISR( QueueHandle_t xQueue,
@@ -1437,6 +1445,7 @@ BaseType_t xQueueGiveFromISR( QueueHandle_t xQueue,
  */
 BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue,
                                  void * const pvBuffer,
+                                 unsigned int buffLen,
                                  BaseType_t * const pxHigherPriorityTaskWoken ) PRIVILEGED_FUNCTION;
 
 /*
@@ -1735,5 +1744,7 @@ uint8_t ucQueueGetQueueType( QueueHandle_t xQueue ) PRIVILEGED_FUNCTION;
     }
 #endif
 /* *INDENT-ON* */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* QUEUE_H */

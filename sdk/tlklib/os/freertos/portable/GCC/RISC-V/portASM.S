@@ -93,6 +93,9 @@
 	#error Assembler did not define __riscv_xlen
 #endif
 
+//#include "tlkapi/tlkapi_stdio.h"
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 #include "freertos_risc_v_chip_specific_extensions.h"
 
 /* Check the freertos_risc_v_chip_specific_extensions.h and/or command line
@@ -515,3 +518,4 @@ vPortRestoreActiveTask:
 .endfunc
 
 
+#endif //#if (TLK_OS_FREERTOS_ENABLE)

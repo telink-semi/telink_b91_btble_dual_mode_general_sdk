@@ -45,6 +45,16 @@ bool tlkapi_timer_isPmBusy(void);
 
 void tlkapi_timer_handler(void);
 
+/******************************************************************************
+ * Function: tlkapi_timer_isout
+ * Descript: Detects whether the current timer has timed out.
+ * Params:
+ *     @timer[IN]--Reference timer.
+ *     @ticks[IN]--Timeout. unit: 1/16 us:
+ * Return: True means the timer is timeout, false means not.
+ * Others: None.
+*******************************************************************************/
+bool tlkapi_timer_isout(uint32 timer, uint32 ticks);
 
 /******************************************************************************
  * Function: tlkapi_timer_init

@@ -29,10 +29,8 @@
 
 
 
-#define TLKDEV_XTSD01G_DEBUG_ENABLE      (1 && TLKDEV_CFG_DBG_ENABLE)
+#define TLKDEV_XTSD01G_DEBUG_ENABLE      (0 && TLKDEV_CFG_DBG_ENABLE)
 
-#define TLKDEV_XTSD01G_DBG_FLAG         (TLKDEV_XTSD01G_DEBUG_ENABLE | TLKAPI_DBG_FLAG_ALL)
-#define TLKDEV_XTSD01G_DBG_SIGN         "[XTSD04G]"
 
 
 #define TLKDEV_XTSD01G_IRQ_DISABLE()     uint32 rie = core_disable_interrupt()
@@ -132,9 +130,9 @@ int tlkdev_xtsd01g_init(void)
 	}
 	if(r1 != 0x01){
 		#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash_init");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "enable spi mode fail");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "sd_nand_flash_init");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "enable spi mode fail");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
 		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
 		#endif
 		tlkdev_xtsd04g_spiDisSelect();
@@ -155,9 +153,9 @@ int tlkdev_xtsd01g_init(void)
 	if(retry == 0){
 		sTlkDevXtsd01gIsOK = false;
 		#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash_init");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "wait for busy fail");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "sd_nand_flash_init");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "wait for busy fail");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
 		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
 		#endif
 		tlkdev_xtsd04g_spiDisSelect();
@@ -232,8 +230,8 @@ int tlkdev_xtsd01g_read(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb)
 
 	if(!sTlkDevXtsd01gIsReady) return -TLK_EFAIL;
 	if(sTlkDevXtsd01gIsEnter != 0){
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd01g_read Reentry");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_xtsd01g_read Reentry");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
 		return -TLK_EREPEAT;
 	}
 	if(!sTlkDevXtsd01gPowerIsOn){
@@ -264,8 +262,8 @@ int tlkdev_xtsd01g_write(uint08 *pData, uint32 blkOffs, uint16 blkNumb)
 	if(!sTlkDevXtsd01gIsReady) return -TLK_EFAIL;
 	
 	if(sTlkDevXtsd01gIsEnter != 0){
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd01g_write Reentry");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_xtsd01g_write Reentry");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
 		return -TLK_EREPEAT;
 	}
 	if(!sTlkDevXtsd01gPowerIsOn){
@@ -359,8 +357,8 @@ uint tlkdev_xtsd01g_getBlockCount(void)
 	if(sTlkDevXtsd01gIsEnter != 0)
 	{
 		#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd01g_getBlockCount Reentry");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_xtsd01g_getBlockCount Reentry");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some logic error is happen, the function is Reentry when sd nand flash is using in other function ");
 		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
 		#endif
 		return 0x11;
@@ -499,9 +497,9 @@ static uint08 tlkdev_xtsd04g_spiGetResponse(uint08 Response)
 	}while(t < Count);
 	#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
 	if(t == Count){
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd04g_spiGetResponse");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "sd_nand_flash");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_xtsd04g_spiGetResponse");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
 		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
 	}
 	#endif
@@ -569,9 +567,9 @@ static uint08 tlkdev_xtsd04g_sendCmd(uint08 cmd, uint32 arg, uint08 crc)
 	}while(t<count);
 	#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
 	if(t == count){
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd04g_sendCmd");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "sd_nand_flash");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_xtsd04g_sendCmd");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
 		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
 	}
 	#endif
@@ -614,9 +612,9 @@ static uint08 tlkdev_xtsd01g_waitReady(void)
 	}while(t<Count);
 	#if(TLKDEV_XTSD01G_DEBUG_ENABLE)
 	if(t == Count){
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "sd_nand_flash");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "tlkdev_xtsd01g_waitReady");
-		tlkapi_trace(TLKDEV_XTSD01G_DBG_FLAG, TLKDEV_XTSD01G_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "sd_nand_flash");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_xtsd01g_waitReady");
+		tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "maybe some error is happen,Please keep the site and contact telink");
 		while(1) tlkapi_debug_process(); /* open this for usb log printf*/
 	}
 	#endif

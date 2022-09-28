@@ -39,8 +39,8 @@
 extern uint8_t bt_ll_access_write_page_scan_activity(pagescan_inr_t interval, pagescan_win_t window);
 extern uint8_t bt_ll_access_write_inquiry_scan_activity(inqscan_inr_t interval, inqscan_win_t window);
 
-#define TLKMDI_BTREC_DBG_FLAG         (TLKMDI_BTREC_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_BTREC_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_BTREC_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_REC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_BTREC_DBG_SIGN       "[MDI]"
 
 
 static bool tlkmdi_btrec_timer(tlkapi_timer_t *pTimer, uint32 userArg);

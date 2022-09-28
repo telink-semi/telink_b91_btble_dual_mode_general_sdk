@@ -25,15 +25,12 @@
 #define TLKAPI_STDIO_H
 
 
-#define TLKAPI_DBG_FLAG         (TLKAPI_CFG_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
-#define TLKAPI_DBG_SIGN         "[API]"
-
-
 
 #include "stdbool.h"
 #include "string.h"
 #include "tlk_config.h"
 #include "tlk_define.h"
+#include "tlk_debug.h"
 #include "tlkdrv/B91/compiler.h"
 #include "tlkapi/tlkapi_type.h"
 #include "tlkapi/tlkapi_chip.h"

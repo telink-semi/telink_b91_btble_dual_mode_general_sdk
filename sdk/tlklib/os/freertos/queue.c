@@ -47,6 +47,8 @@
  *
  */
 
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 #include <stdlib.h>
 #include <string.h>
 
@@ -216,13 +218,14 @@ static BaseType_t prvIsQueueFull( const Queue_t * pxQueue ) PRIVILEGED_FUNCTION;
  */
 static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
                                       const void * pvItemToQueue,
+									  unsigned int sendLen,
                                       const BaseType_t xPosition ) PRIVILEGED_FUNCTION;
 
 /*
  * Copies an item out of a queue.
  */
 static void prvCopyDataFromQueue( Queue_t * const pxQueue,
-                                  void * const pvBuffer ) PRIVILEGED_FUNCTION;
+                                  void * const pvBuffer, unsigned int buffLen) PRIVILEGED_FUNCTION;
 
 #if ( configUSE_QUEUE_SETS == 1 )
 
@@ -526,7 +529,7 @@ static void prvInitialiseNewQueue( const UBaseType_t uxQueueLength,
             traceCREATE_MUTEX( pxNewQueue );
 
             /* Start with the semaphore in the expected state. */
-            ( void ) xQueueGenericSend( pxNewQueue, NULL, ( TickType_t ) 0U, queueSEND_TO_BACK );
+            ( void ) xQueueGenericSend( pxNewQueue, NULL, 0, ( TickType_t ) 0U, queueSEND_TO_BACK );
         }
         else
         {
@@ -662,7 +665,7 @@ static void prvInitialiseNewQueue( const UBaseType_t uxQueueLength,
             {
                 /* Return the mutex.  This will automatically unblock any other
                  * task that might be waiting to access the mutex. */
-                ( void ) xQueueGenericSend( pxMutex, NULL, queueMUTEX_GIVE_BLOCK_TIME, queueSEND_TO_BACK );
+                ( void ) xQueueGenericSend( pxMutex, NULL, 0, queueMUTEX_GIVE_BLOCK_TIME, queueSEND_TO_BACK );
             }
             else
             {
@@ -790,6 +793,7 @@ static void prvInitialiseNewQueue( const UBaseType_t uxQueueLength,
 
 BaseType_t xQueueGenericSend( QueueHandle_t xQueue,
                               const void * const pvItemToQueue,
+                              unsigned int sendLen,
                               TickType_t xTicksToWait,
                               const BaseType_t xCopyPosition )
 {
@@ -805,6 +809,8 @@ BaseType_t xQueueGenericSend( QueueHandle_t xQueue,
             configASSERT( !( ( xTaskGetSchedulerState() == taskSCHEDULER_SUSPENDED ) && ( xTicksToWait != 0 ) ) );
         }
     #endif
+    if(pxQueue != NULL && sendLen == 0) sendLen = pxQueue->uxItemSize;
+	if(pxQueue != NULL && sendLen > pxQueue->uxItemSize) return pdFALSE;
 
     /*lint -save -e904 This function relaxes the coding standard somewhat to
      * allow return statements within the function itself.  This is done in the
@@ -883,7 +889,7 @@ BaseType_t xQueueGenericSend( QueueHandle_t xQueue,
                     }
                 #else /* configUSE_QUEUE_SETS */
                     {
-                        xYieldRequired = prvCopyDataToQueue( pxQueue, pvItemToQueue, xCopyPosition );
+                        xYieldRequired = prvCopyDataToQueue( pxQueue, pvItemToQueue, sendLen, xCopyPosition );
 
                         /* If there was a task waiting for data to arrive on the
                          * queue then unblock it now. */
@@ -1002,6 +1008,7 @@ BaseType_t xQueueGenericSend( QueueHandle_t xQueue,
 
 BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue,
                                      const void * const pvItemToQueue,
+                                     unsigned int sendLen,
                                      BaseType_t * const pxHigherPriorityTaskWoken,
                                      const BaseType_t xCopyPosition )
 {
@@ -1012,6 +1019,9 @@ BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue,
     configASSERT( pxQueue );
     configASSERT( !( ( pvItemToQueue == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
     configASSERT( !( ( xCopyPosition == queueOVERWRITE ) && ( pxQueue->uxLength != 1 ) ) );
+
+	if(pxQueue != NULL && sendLen == 0) sendLen = pxQueue->uxItemSize;
+	if(pxQueue != NULL && sendLen > pxQueue->uxItemSize) return pdFALSE;
 
     /* RTOS ports that support interrupt nesting have the concept of a maximum
      * system call (or maximum API call) interrupt priority.  Interrupts that are
@@ -1048,7 +1058,7 @@ BaseType_t xQueueGenericSendFromISR( QueueHandle_t xQueue,
              *  in a task disinheriting a priority and prvCopyDataToQueue() can be
              *  called here even though the disinherit function does not check if
              *  the scheduler is suspended before accessing the ready lists. */
-            ( void ) prvCopyDataToQueue( pxQueue, pvItemToQueue, xCopyPosition );
+            ( void ) prvCopyDataToQueue( pxQueue, pvItemToQueue, sendLen, xCopyPosition );
 
             /* The event list is not altered if the queue is locked.  This will
              * be done when the queue is unlocked later. */
@@ -1337,6 +1347,7 @@ BaseType_t xQueueGiveFromISR( QueueHandle_t xQueue,
 
 BaseType_t xQueueReceive( QueueHandle_t xQueue,
                           void * const pvBuffer,
+                          unsigned int buffLen,
                           TickType_t xTicksToWait )
 {
     BaseType_t xEntryTimeSet = pdFALSE;
@@ -1357,6 +1368,8 @@ BaseType_t xQueueReceive( QueueHandle_t xQueue,
         }
     #endif
 
+	if(xQueue != NULL && buffLen == 0) buffLen = pxQueue->uxItemSize;
+
     /*lint -save -e904  This function relaxes the coding standard somewhat to
      * allow return statements within the function itself.  This is done in the
      * interest of execution time efficiency. */
@@ -1371,7 +1384,7 @@ BaseType_t xQueueReceive( QueueHandle_t xQueue,
             if( uxMessagesWaiting > ( UBaseType_t ) 0 )
             {
                 /* Data available, remove one item. */
-                prvCopyDataFromQueue( pxQueue, pvBuffer );
+                prvCopyDataFromQueue( pxQueue, pvBuffer, buffLen);
                 traceQUEUE_RECEIVE( pxQueue );
                 pxQueue->uxMessagesWaiting = uxMessagesWaiting - ( UBaseType_t ) 1;
 
@@ -1699,6 +1712,7 @@ BaseType_t xQueueSemaphoreTake( QueueHandle_t xQueue,
 
 BaseType_t xQueuePeek( QueueHandle_t xQueue,
                        void * const pvBuffer,
+                       unsigned int buffLen,
                        TickType_t xTicksToWait )
 {
     BaseType_t xEntryTimeSet = pdFALSE;
@@ -1720,6 +1734,8 @@ BaseType_t xQueuePeek( QueueHandle_t xQueue,
         }
     #endif
 
+	if(xQueue != NULL && buffLen == 0) buffLen = pxQueue->uxItemSize;
+
     /*lint -save -e904  This function relaxes the coding standard somewhat to
      * allow return statements within the function itself.  This is done in the
      * interest of execution time efficiency. */
@@ -1738,7 +1754,7 @@ BaseType_t xQueuePeek( QueueHandle_t xQueue,
                  * data, not removing it. */
                 pcOriginalReadPosition = pxQueue->u.xQueue.pcReadFrom;
 
-                prvCopyDataFromQueue( pxQueue, pvBuffer );
+                prvCopyDataFromQueue( pxQueue, pvBuffer, buffLen);
                 traceQUEUE_PEEK( pxQueue );
 
                 /* The data is not being removed, so reset the read pointer. */
@@ -1850,6 +1866,7 @@ BaseType_t xQueuePeek( QueueHandle_t xQueue,
 
 BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue,
                                  void * const pvBuffer,
+                                 unsigned int buffLen,
                                  BaseType_t * const pxHigherPriorityTaskWoken )
 {
     BaseType_t xReturn;
@@ -1858,6 +1875,8 @@ BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue,
 
     configASSERT( pxQueue );
     configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
+
+	if(xQueue != NULL && buffLen == 0) buffLen = pxQueue->uxItemSize;
 
     /* RTOS ports that support interrupt nesting have the concept of a maximum
      * system call (or maximum API call) interrupt priority.  Interrupts that are
@@ -1886,7 +1905,7 @@ BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue,
 
             traceQUEUE_RECEIVE_FROM_ISR( pxQueue );
 
-            prvCopyDataFromQueue( pxQueue, pvBuffer );
+            prvCopyDataFromQueue( pxQueue, pvBuffer, buffLen );
             pxQueue->uxMessagesWaiting = uxMessagesWaiting - ( UBaseType_t ) 1;
 
             /* If the queue is locked the event list will not be modified.
@@ -1944,7 +1963,7 @@ BaseType_t xQueueReceiveFromISR( QueueHandle_t xQueue,
 /*-----------------------------------------------------------*/
 
 BaseType_t xQueuePeekFromISR( QueueHandle_t xQueue,
-                              void * const pvBuffer )
+                              void * const pvBuffer, unsigned int buffLen )
 {
     BaseType_t xReturn;
     UBaseType_t uxSavedInterruptStatus;
@@ -1955,6 +1974,8 @@ BaseType_t xQueuePeekFromISR( QueueHandle_t xQueue,
     configASSERT( !( ( pvBuffer == NULL ) && ( pxQueue->uxItemSize != ( UBaseType_t ) 0U ) ) );
     configASSERT( pxQueue->uxItemSize != 0 ); /* Can't peek a semaphore. */
 
+	if(xQueue != NULL && buffLen == 0) buffLen = pxQueue->uxItemSize;
+	
     /* RTOS ports that support interrupt nesting have the concept of a maximum
      * system call (or maximum API call) interrupt priority.  Interrupts that are
      * above the maximum system call priority are kept permanently enabled, even
@@ -1981,7 +2002,7 @@ BaseType_t xQueuePeekFromISR( QueueHandle_t xQueue,
             /* Remember the read position so it can be reset as nothing is
              * actually being removed from the queue. */
             pcOriginalReadPosition = pxQueue->u.xQueue.pcReadFrom;
-            prvCopyDataFromQueue( pxQueue, pvBuffer );
+            prvCopyDataFromQueue( pxQueue, pvBuffer, buffLen );
             pxQueue->u.xQueue.pcReadFrom = pcOriginalReadPosition;
 
             xReturn = pdPASS;
@@ -2145,6 +2166,7 @@ void vQueueDelete( QueueHandle_t xQueue )
 
 static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
                                       const void * pvItemToQueue,
+                                      unsigned int sendLen,
                                       const BaseType_t xPosition )
 {
     BaseType_t xReturn = pdFALSE;
@@ -2173,7 +2195,7 @@ static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
     }
     else if( xPosition == queueSEND_TO_BACK )
     {
-        ( void ) memcpy( ( void * ) pxQueue->pcWriteTo, pvItemToQueue, ( size_t ) pxQueue->uxItemSize ); /*lint !e961 !e418 !e9087 MISRA exception as the casts are only redundant for some ports, plus previous logic ensures a null pointer can only be passed to memcpy() if the copy size is 0.  Cast to void required by function signature and safe as no alignment requirement and copy length specified in bytes. */
+        ( void ) memcpy( ( void * ) pxQueue->pcWriteTo, pvItemToQueue, sendLen ); /*lint !e961 !e418 !e9087 MISRA exception as the casts are only redundant for some ports, plus previous logic ensures a null pointer can only be passed to memcpy() if the copy size is 0.  Cast to void required by function signature and safe as no alignment requirement and copy length specified in bytes. */
         pxQueue->pcWriteTo += pxQueue->uxItemSize;                                                       /*lint !e9016 Pointer arithmetic on char types ok, especially in this use case where it is the clearest way of conveying intent. */
 
         if( pxQueue->pcWriteTo >= pxQueue->u.xQueue.pcTail )                                             /*lint !e946 MISRA exception justified as comparison of pointers is the cleanest solution. */
@@ -2187,7 +2209,7 @@ static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
     }
     else
     {
-        ( void ) memcpy( ( void * ) pxQueue->u.xQueue.pcReadFrom, pvItemToQueue, ( size_t ) pxQueue->uxItemSize ); /*lint !e961 !e9087 !e418 MISRA exception as the casts are only redundant for some ports.  Cast to void required by function signature and safe as no alignment requirement and copy length specified in bytes.  Assert checks null pointer only used when length is 0. */
+        ( void ) memcpy( ( void * ) pxQueue->u.xQueue.pcReadFrom, pvItemToQueue, sendLen ); /*lint !e961 !e9087 !e418 MISRA exception as the casts are only redundant for some ports.  Cast to void required by function signature and safe as no alignment requirement and copy length specified in bytes.  Assert checks null pointer only used when length is 0. */
         pxQueue->u.xQueue.pcReadFrom -= pxQueue->uxItemSize;
 
         if( pxQueue->u.xQueue.pcReadFrom < pxQueue->pcHead ) /*lint !e946 MISRA exception justified as comparison of pointers is the cleanest solution. */
@@ -2227,7 +2249,7 @@ static BaseType_t prvCopyDataToQueue( Queue_t * const pxQueue,
 /*-----------------------------------------------------------*/
 
 static void prvCopyDataFromQueue( Queue_t * const pxQueue,
-                                  void * const pvBuffer )
+                                  void * const pvBuffer, unsigned int buffLen )
 {
     if( pxQueue->uxItemSize != ( UBaseType_t ) 0 )
     {
@@ -2242,7 +2264,8 @@ static void prvCopyDataFromQueue( Queue_t * const pxQueue,
             mtCOVERAGE_TEST_MARKER();
         }
 
-        ( void ) memcpy( ( void * ) pvBuffer, ( void * ) pxQueue->u.xQueue.pcReadFrom, ( size_t ) pxQueue->uxItemSize ); /*lint !e961 !e418 !e9087 MISRA exception as the casts are only redundant for some ports.  Also previous logic ensures a null pointer can only be passed to memcpy() when the count is 0.  Cast to void required by function signature and safe as no alignment requirement and copy length specified in bytes. */
+		if(buffLen > pxQueue->uxItemSize) buffLen = pxQueue->uxItemSize;
+        ( void ) memcpy( ( void * ) pvBuffer, ( void * ) pxQueue->u.xQueue.pcReadFrom, buffLen ); /*lint !e961 !e418 !e9087 MISRA exception as the casts are only redundant for some ports.  Also previous logic ensures a null pointer can only be passed to memcpy() when the count is 0.  Cast to void required by function signature and safe as no alignment requirement and copy length specified in bytes. */
     }
 }
 /*-----------------------------------------------------------*/
@@ -3034,3 +3057,6 @@ BaseType_t xQueueIsQueueFullFromISR( const QueueHandle_t xQueue )
     }
 
 #endif /* configUSE_QUEUE_SETS */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

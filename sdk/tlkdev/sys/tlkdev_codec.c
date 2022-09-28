@@ -34,8 +34,8 @@ __attribute__((aligned(4))) uint16 gTlkDevCodecMicBuffer[TLK_DEV_MIC_BUFF_SIZE/2
 
 int tlkdev_codec_init(void)
 {
-	audio_set_codec_in_path_a_d_gain(CODEC_IN_D_GAIN_0_DB, CODEC_IN_A_GAIN_8_DB); //spk
-	audio_set_codec_out_path_a_d_gain(CODEC_OUT_D_GAIN_0_DB, CODEC_OUT_A_GAIN_0_DB); //mic
+	audio_set_codec_in_path_a_d_gain(CODEC_IN_D_GAIN_0_DB, CODEC_IN_A_GAIN_8_DB); //mic
+	audio_set_codec_out_path_a_d_gain(CODEC_OUT_D_GAIN_0_DB, CODEC_OUT_A_GAIN_0_DB); //spk
 
 	tlkdrv_codec_setSpkBuffer((uint08*)gTlkDevCodecSpkBuffer, TLK_DEV_SPK_BUFF_SIZE);
 	tlkdrv_codec_setMicBuffer((uint08*)gTlkDevCodecMicBuffer, TLK_DEV_MIC_BUFF_SIZE);

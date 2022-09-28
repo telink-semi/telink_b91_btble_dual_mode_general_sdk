@@ -30,8 +30,8 @@
 
 
 
-#define TLKMDI_AUDHF_DBG_FLAG         (TLKMDI_HF_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_AUDHF_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_AUDHF_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_HFP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_AUDHF_DBG_SIGN       "[MDI]"
 
 
 static bool tlkmdi_audhfp_timer(tlkapi_timer_t *pTimer, uint32 userArg);

@@ -27,6 +27,8 @@
 
 ### BREAKING CHANGES
 * 重构codec管理，增加外部codec挂载接口
+* 重构debug逻辑，解决库中代码调试困难的问题
+* debug与非debug使用同一个库
 
 ### CodeSize
 * N/A

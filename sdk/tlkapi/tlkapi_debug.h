@@ -34,24 +34,40 @@
 #define TLKAPI_DBG_ASSERT_FLAG      0x80
 #define TLKAPI_DBG_FLAG_ALL         0xFE
 
+#define tlkapi_warn      tlkapi_debug_warn
+#define tlkapi_info      tlkapi_debug_info
+#define tlkapi_trace     tlkapi_debug_trace
+#define tlkapi_fatal     tlkapi_debug_fatal
+#define tlkapi_error     tlkapi_debug_error
+#define tlkapi_array     tlkapi_debug_array
+#define tlkapi_assert    tlkapi_debug_assert
+#define tlkapi_sprintf   tlkapi_debug_sprintf
 
-#if !(TLK_CFG_DBG_ENABLE)
-	#define tlkapi_warn(...)
-	#define tlkapi_info(...)
-	#define tlkapi_trace(...)
-	#define tlkapi_fatal(...)
-	#define tlkapi_error(...)
-	#define tlkapi_array(...)
-	#define tlkapi_assert(...)
-	#define tlkapi_sprintf(...)
-	void tlkapi_debug_process(void);
+#define tlkapi_sendStr(flags,pStr)                        tlkapi_debug_sendData(flags,pStr,0,0)
+#define tlkapi_sendData(flags,pStr,pData,dataLen)         tlkapi_debug_sendData(flags,pStr,(uint08*)pData,dataLen)
+#define tlkapi_sendU08s(flags,pStr,val0,val1,val2,val3)   tlkapi_debug_sendU08s(flags,pStr,(uint08)(val0),(uint08)(val1),(uint08)(val2),(uint08)(val3))
+#define tlkapi_sendU16s(flags,pStr,val0,val1,val2,val3)   tlkapi_debug_sendU16s(flags,pStr,(uint16)(val0),(uint16)(val1),(uint16)(val2),(uint16)(val3))
+#define tlkapi_sendU32s(flags,pStr,val0,val1,val2,val3)   tlkapi_debug_sendU32s(flags,pStr,(uint32)(val0),(uint32)(val1),(uint32)(val2),(uint32)(val3))
 
-	#define tlkapi_sendStr(...)
-	#define tlkapi_sendData(...)
-	#define tlkapi_sendU08s(...)
-	#define tlkapi_sendU16s(...)
-	#define tlkapi_sendU32s(...)
-#endif
+
+void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...);
+void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...);
+void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...);
+void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...);
+void tlkapi_debug_error(uint flags, char *pSign, const char *format, ...);
+void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
+void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...);
+int  tlkapi_debug_sprintf(char *pOut, const char *format, ...);
+
+void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen);
+void tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
+void tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
+void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
+
+void tlkapi_debug_process(void);
+
+void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
+void tlkapi_debug_delayForPrint(uint32 us);
 
 
 #if (TLK_CFG_DBG_ENABLE)
@@ -64,27 +80,21 @@
 #define TLKAPI_DEBUG_METHOD          TLKAPI_DEBUG_METHOD_UDB
 #else
 #define TLKAPI_DEBUG_METHOD          TLKAPI_DEBUG_METHOD_GPIO
+//#define TLKAPI_DEBUG_METHOD          TLKAPI_DEBUG_METHOD_UART
 #endif
 
+#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+#define TLKAPI_DEBUG_GPIO_PIN        GPIO_PD5
+#define TLKAPI_DEBUG_BAUD_RATE       1000000
+#endif
 
-#define TLKAPI_DEBUG_GPIO_PIN       GPIO_PD5
-#define TLKAPI_DEBUG_BAUD_RATE      1000000
+#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+#define TLKAPI_DEBUG_UART_PORT       UART0
+#define TLKAPI_DEBUG_UART_TX_DMA     DMA7
+#define TLKAPI_DEBUG_UART_TX_PIN     UART0_TX_PD2
+#define TLKAPI_DEBUG_UART_BAUDRATE   921600
+#endif
 
-
-#define tlkapi_warn      tlkapi_debug_warn
-#define tlkapi_info      tlkapi_debug_info
-#define tlkapi_trace     tlkapi_debug_trace
-#define tlkapi_fatal     tlkapi_debug_fatal
-#define tlkapi_error     tlkapi_debug_error
-#define tlkapi_array     tlkapi_debug_array
-#define tlkapi_assert    tlkapi_debug_assert
-#define tlkapi_sprintf   tlkapi_debug_sprintf
-
-#define tlkapi_sendStr(en,pStr)                        {if(en) tlkapi_debug_sendData(pStr,0,0);}
-#define tlkapi_sendData(en,pStr,pData,dataLen)         {if(en) tlkapi_debug_sendData(pStr,(uint08*)pData,dataLen);}
-#define tlkapi_sendU08s(en,pStr,val0,val1,val2,val3)   {if(en) tlkapi_debug_sendU08s(pStr,val0,val1,val2,val3);}
-#define tlkapi_sendU16s(en,pStr,val0,val1,val2,val3)   {if(en) tlkapi_debug_sendU16s(pStr,val0,val1,val2,val3);}
-#define tlkapi_sendU32s(en,pStr,val0,val1,val2,val3)   {if(en) tlkapi_debug_sendU32s(pStr,val0,val1,val2,val3);}
 
 #define TLKAPI_WARN_HEAD       "<WARN>"
 #define TLKAPI_INFO_HEAD       "<INFO>"
@@ -95,39 +105,11 @@
 #define TLKAPI_ASSERT_HEAD     "<ASSERT>"
 
 
-
 int  tlkapi_debug_init(void);
 
 void tlkapi_debug_reset(void);
 
-void tlkapi_debug_process(void);
-
-
-int tlkapi_debug_sprintf(char *pOut, const char *format, ...);
-
-void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_error(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...);
-
 bool tlkapi_debug_isBusy(void);
-
-
-void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen);
-void tlkapi_debug_sendU08s(void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
-void tlkapi_debug_sendU16s(void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
-void tlkapi_debug_sendU32s(void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
-
-
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
-void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
-#endif
-
-void tlkapi_debug_delayForPrint(uint32 us);
-
 
 #endif //#if (TLK_CFG_DBG_ENABLE)
 

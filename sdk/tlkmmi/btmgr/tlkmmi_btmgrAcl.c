@@ -467,6 +467,7 @@ static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl)
 
 static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 {
+	#if !(TLK_CFG_PTS_ENABLE)
 	int ret;
 	uint08 dtype;
 	uint16 delayMs;
@@ -547,6 +548,7 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 		    tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hid failure");
 	    }
 	}
+	#endif
 }
 
 

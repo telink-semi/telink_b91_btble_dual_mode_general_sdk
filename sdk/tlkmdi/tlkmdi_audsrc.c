@@ -36,8 +36,8 @@
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 
 
-#define TLKMDI_AUDSRC_DBG_FLAG         (TLKMDI_SRC_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_AUDSRC_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_AUDSRC_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SRC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_AUDSRC_DBG_SIGN       "[MDI]"
 
 
 //uint16 gTlkDevMicBuffer[TLK_DEV_MIC_BUFF_SIZE/2];

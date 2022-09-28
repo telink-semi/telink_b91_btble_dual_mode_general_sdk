@@ -54,6 +54,9 @@
 #ifndef PORTABLE_H
 #define PORTABLE_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 /* Each FreeRTOS port has a unique portmacro.h header file.  Originally a
  * pre-processor definition was used to ensure the pre-processor found the correct
  * portmacro.h file for the port being used.  That scheme was deprecated in favour
@@ -235,5 +238,7 @@ void vPortEndScheduler( void ) PRIVILEGED_FUNCTION;
     }
 #endif
 /* *INDENT-ON* */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* PORTABLE_H */

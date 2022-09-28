@@ -32,8 +32,8 @@
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 
 
-#define TLKMDI_FILE_DBG_FLAG         (TLKMDI_FILE_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_FILE_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_FILE_DBG_FLAG       ((TLK_MINOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_FILE << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_FILE_DBG_SIGN       "[MDI]"
 
 
 static int tlkmdi_file_authSignDefault(uint16 schCode, tlkmdi_file_unit_t *pUnit);

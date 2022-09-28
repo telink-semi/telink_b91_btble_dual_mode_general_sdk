@@ -41,8 +41,8 @@
 
 #define TLKMDI_SNK_VOLUME_STEP           3
 
-#define TLKMDI_AUDSNK_DBG_FLAG         (TLKMDI_SNK_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_AUDSNK_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_AUDSNK_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SNK << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_AUDSNK_DBG_SIGN       "[MDI]"
 
 
 static int tlkmdi_audsnk_statusChangedEvt(uint08 *pData, uint16 dataLen);

@@ -25,6 +25,8 @@
 #include "tlkmdi/tlkmdi_event.h"
 
 
+#define TLKMDI_EVT_DBG_FLAG       ((TLK_MINOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_EVT << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_EVT_DBG_SIGN       "[MDI]"
 
 extern unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
 extern void core_leave_critical(unsigned char preempt_en ,unsigned int r);
@@ -109,7 +111,7 @@ void tlkmdi_event_handler(void)
 	if(tlkapi_qfifo_usedNum(&sTlkMdiEventQFifo) == 0) return;
 	while(tlkmdi_event_pop(&majorID, &minorID, buffer, TLKMDI_EVENT_UNIT_SIZE, &buffLen) == TLK_ENONE){
 		if(majorID >= TLKMDI_EVENT_MAJOR_MAX){
-			tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_handler: fault event %d", majorID);
+			tlkapi_error(TLKMDI_EVT_DBG_FLAG, TLKMDI_EVT_DBG_SIGN, "tlkmdi_event_handler: fault event %d", majorID);
 			continue;
 		}
 		if(sTlkMdiEventCB[majorID] != nullptr){
@@ -158,16 +160,16 @@ static int tlkmdi_event_push(uint08 majorID, uint08 minorID, uint08 *pData, uint
 	uint08 *pBuff;
 
 	if(dataLen+3 > TLKMDI_EVENT_UNIT_SIZE){
-		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_push: failure - msg too long  %d", dataLen);
+		tlkapi_error(TLKMDI_EVT_DBG_FLAG, TLKMDI_EVT_DBG_SIGN, "tlkmdi_event_push: failure - msg too long  %d", dataLen);
 		return -TLK_EPARAM;
 	}
 	unsigned int r=core_enter_critical(1,1);
 	pBuff = tlkapi_qfifo_getBuff(&sTlkMdiEventQFifo);
 	if(pBuff == nullptr){
-		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_push: failure - no quota");
+		tlkapi_error(TLKMDI_EVT_DBG_FLAG, TLKMDI_EVT_DBG_SIGN, "tlkmdi_event_push: failure - no quota");
 		ret = -TLK_EQUOTA;
 	}else{
-//		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_push: majorID-%d minorID-%d", majorID, minorID);
+//		tlkapi_error(TLKMDI_EVT_DBG_FLAG, TLKMDI_EVT_DBG_SIGN, "tlkmdi_event_push: majorID-%d minorID-%d", majorID, minorID);
 		pBuff[0] = majorID;
 		pBuff[1] = minorID;
 		pBuff[2] = dataLen;
@@ -185,7 +187,7 @@ static int tlkmdi_event_pop(uint08 *pMajorID, uint08 *pMinorID, uint08 *pBuff, u
 
 	if(pLength != nullptr) *pLength = 0;
 	if(pMajorID == nullptr || pMinorID == nullptr){
-		tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_event_pop: failure - error param");
+		tlkapi_error(TLKMDI_EVT_DBG_FLAG, TLKMDI_EVT_DBG_SIGN, "tlkmdi_event_pop: failure - error param");
 		return -TLK_EPARAM;
 	}
 

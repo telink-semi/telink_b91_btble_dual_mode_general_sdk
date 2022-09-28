@@ -90,10 +90,35 @@ typedef struct{
 
 
 
-
+/******************************************************************************
+ * Function: tlkmdi_key_init
+ * Descript: Initial the timer of the key.
+ * Params: None.
+ * Return: TLK_ENONE is success.
+*******************************************************************************/
 int tlkmdi_key_init(void);
 
+/******************************************************************************
+ * Function: tlkmdi_key_insert
+ * Descript: Insert a key,initial its GPIO and make timer working.
+ * Params: @keyID[IN]--The ketID, for instance 0x01, 0x02.
+ * 		   @evtMsk[IN]--A marker for key events, refer to 'TLKMDI_KEY_EVTMSK_ENUM'.
+ * 		   @ioPort[IN]--ioPort
+ * 		   @level[IN]--Key effective level.
+ * 		   @upDown[IN]--refer to 'gpio_pull_type_e'.
+ * 		   @evtCB[IN]--key callback
+ * Return: TLK_ENONE is success, other value is failure.
+*******************************************************************************/
 int tlkmdi_key_insert(uint08 keyID, uint08 evtMsk, uint32 ioPort, uint08 level, uint08 upDown, TlkMdiKeyEventCB evtCB);
+
+/******************************************************************************
+ * Function: tlkmdi_key_remove
+ * Descript: Disable the gpio for the key and remove a timer.
+ * Params: @keyID[IN]--The keyID.
+ * 		   @upDown[IN]--refer to 'gpio_pull_type_e'.
+ * 		   @enInput[IN]--true enable input, false disable input.
+ * Return: TLK_ENONE is success, other value is failure.
+*******************************************************************************/
 int tlkmdi_key_remove(uint08 keyID, uint08 upDown, bool enInput);
 
 

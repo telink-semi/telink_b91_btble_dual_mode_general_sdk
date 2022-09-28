@@ -33,8 +33,8 @@
 #include "tlkmdi/tlkmdi_adapt.h"
 
 
-#define TLKMDI_AUDMP3_DBG_FLAG         (TLKMDI_MP3_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_AUDMP3_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_AUDMP3_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_MP3 << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_AUDMP3_DBG_SIGN       "[MDI]"
 
 
 #define TLKMDI_MP3_LABEL_HLEN          10 //Label Head Length

@@ -51,6 +51,9 @@
 #ifndef INC_TASK_H
 #define INC_TASK_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h must appear in source files before include task.h"
 #endif
@@ -2781,7 +2784,7 @@ void vTaskSetTimeOutState( TimeOut_t * const pxTimeOut ) PRIVILEGED_FUNCTION;
  *  // spent in the Blocked state does not exceed MAX_TIME_TO_WAIT. This
  *  // continues until either the buffer contains at least uxWantedBytes bytes,
  *  // or the total amount of time spent in the Blocked state reaches
- *  // MAX_TIME_TO_WAIT – at which point the task reads however many bytes are
+ *  // MAX_TIME_TO_WAIT - at which point the task reads however many bytes are
  *  // available up to a maximum of uxWantedBytes.
  *
  *  size_t xUART_Receive( uint8_t *pucBuffer, size_t uxWantedBytes )
@@ -3072,5 +3075,8 @@ void vTaskInternalSetTimeOutState( TimeOut_t * const pxTimeOut ) PRIVILEGED_FUNC
 #ifdef __cplusplus
     }
 #endif
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 /* *INDENT-ON* */
 #endif /* INC_TASK_H */

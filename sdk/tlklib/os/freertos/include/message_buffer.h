@@ -84,6 +84,9 @@
 #ifndef FREERTOS_MESSAGE_BUFFER_H
 #define FREERTOS_MESSAGE_BUFFER_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h must appear in source files before include message_buffer.h"
 #endif
@@ -840,5 +843,7 @@ typedef void * MessageBufferHandle_t;
     } /* extern "C" */
 #endif
 /* *INDENT-ON* */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* !defined( FREERTOS_MESSAGE_BUFFER_H ) */

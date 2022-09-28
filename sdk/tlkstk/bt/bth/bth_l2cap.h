@@ -99,13 +99,13 @@ typedef enum{
 
 
 
-#define L2CAP_CFG_TYPE_MTU		    0x01
-#define L2CAP_CFG_TYPEF_FLUSH_TO	0x02
-#define L2CAP_CFG_TYPE_QOS		    0x03
-#define L2CAP_CFG_TYPE_RTN		    0x04
-#define L2CAP_CFG_TYPE_FCS		    0x05
-#define L2CAP_CFG_TYPE_EXT_FLOW		0x06
-#define L2CAP_CFG_TYPE_EXT_WIN_SIZE		0x07
+#define L2CAP_CFG_TYPE_MTU            0x01
+#define L2CAP_CFG_TYPE_FLUSH_TO       0x02
+#define L2CAP_CFG_TYPE_QOS            0x03
+#define L2CAP_CFG_TYPE_RTN            0x04
+#define L2CAP_CFG_TYPE_FCS            0x05
+#define L2CAP_CFG_TYPE_EXT_FLOW       0x06
+#define L2CAP_CFG_TYPE_EXT_WIN_SIZE   0x07
 
 
 #define L2CAP_INFOTYPE_CONNLESS_MTU         0x01

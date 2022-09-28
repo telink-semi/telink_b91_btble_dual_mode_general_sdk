@@ -784,41 +784,4 @@ static void uart_set_fuc_pin(uart_tx_pin_e tx_pin,uart_rx_pin_e rx_pin)
  	gpio_function_dis(tx_pin);
  	gpio_function_dis(rx_pin);
  }
-#if TLKAPP_CONTROLLER_ENABLE
-/**
- * @brief     This function serves to set uart rx_dma channel and tx dma disable.
- * @param[in] uart_num - UART0 or UART1.
- * @param[in] en      - enable or disable.
- * @return    none
- */
-void uart_set_dma_enable(uart_num_e uart_num, u8 en)
-{
-	if(!en){
-		dma_chn_dis(uart_dma_rx_chn[uart_num]);
-		dma_chn_dis(uart_dma_tx_chn[uart_num]);
-	}
-	else{
-		dma_chn_en(uart_dma_rx_chn[uart_num]);
-		dma_chn_en(uart_dma_tx_chn[uart_num]);
-	}
 
-
-}
-/**
- * @brief     This function serves to set only uart rx_dma channel enable or disable.
- * @param[in] uart_num - UART0 or UART1.
- * @param[in] en      - enable or disable.
- * @return    none
- */
-_attribute_ram_code_sec_noinline_ void uart_set_rx_dma_enable(uart_num_e uart_num, u8 en)
-{
-	if(!en){
-		dma_chn_dis(uart_dma_rx_chn[uart_num]);
-	}
-	else{
-		dma_chn_en(uart_dma_rx_chn[uart_num]);
-	}
-
-}
-
-#endif

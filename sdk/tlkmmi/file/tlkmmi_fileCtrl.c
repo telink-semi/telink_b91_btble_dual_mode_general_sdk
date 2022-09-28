@@ -90,7 +90,7 @@ int tlkmmi_file_ctrlInit(void)
 	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
 	tlkmdi_comm_regFileCB(tlkmmi_file_serialRecvProc);
 	#endif
-	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+	#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
 	btp_spp_regDataCB(tlkmmi_file_btSppRecvProc);
 	#endif
 	#if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))

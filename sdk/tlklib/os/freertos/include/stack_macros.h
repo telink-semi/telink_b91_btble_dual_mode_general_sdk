@@ -50,6 +50,8 @@
 #ifndef STACK_MACROS_H
 #define STACK_MACROS_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
 /*
  * Call the stack overflow hook function if the stack of the task being swapped
  * out is currently overflowed, or looks like it might have overflowed in the
@@ -146,5 +148,6 @@
 #endif
 
 
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* STACK_MACROS_H */

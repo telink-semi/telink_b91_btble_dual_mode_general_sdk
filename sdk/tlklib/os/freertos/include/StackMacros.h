@@ -46,6 +46,7 @@
  * https://github.com/FreeRTOS
  *
  */
+#if (TLK_OS_FREERTOS_ENABLE)
 
 
 #ifndef _MSC_VER /* Visual Studio doesn't support #warning. */
@@ -53,3 +54,7 @@
 #endif
 
 #include "stack_macros.h"
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

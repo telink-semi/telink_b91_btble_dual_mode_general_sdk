@@ -29,16 +29,6 @@
 #define BTH_L2CAP_MTU_SIZE                656//676
 
 
-#define BTH_CFG_CMD_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-#define BTH_CFG_EVT_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-#define BTH_CFG_ACL_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-#define BTH_CFG_SCO_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-#define BTH_CFG_L2C_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-#define BTH_CFG_SIG_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-
-#define BTH_CFG_DEV_DBG_ENABLE            (1 && TLKBTH_CFG_DBG_ENABLE)
-
-
 
 
 

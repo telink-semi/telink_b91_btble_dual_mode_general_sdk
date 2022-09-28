@@ -33,12 +33,21 @@
 
 #define BM_CLR_MASK_V(x, mask)    ( (x) & ~(mask) )
 
-
+#ifndef BM_SET
 #define BM_SET(x, mask)         ( (x) |= (mask) )
+#endif
+#ifndef BM_CLR
 #define BM_CLR(x, mask)       	( (x) &= ~(mask) )
+#endif
+#ifndef BM_IS_SET
 #define BM_IS_SET(x, mask)   	( (x) & (mask) )
+#endif
+#ifndef BM_IS_CLR
 #define BM_IS_CLR(x, mask)   	( (~x) & (mask) )
+#endif
+#ifndef BM_FLIP
 #define BM_FLIP(x, mask)      	( (x) ^=  (mask) )
+#endif
 
 #define ONES(x)					BIT_MASK_LEN(x)
 #define ONES_32					0xffffffff

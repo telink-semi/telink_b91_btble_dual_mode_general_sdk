@@ -25,9 +25,6 @@
 #define BTH_STDIO_H
 
 
-#define BTH_DBG_SIGN       "[BTH]"
-#define BTH_DBG_FLAG       (TLKAPI_DBG_FLAG_ALL)
-
 
 #include "tlkstk/bt/bth/bth_config.h"
 #include "tlkstk/bt/bth/bth_define.h"

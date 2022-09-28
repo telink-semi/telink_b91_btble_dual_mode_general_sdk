@@ -25,6 +25,11 @@
 #include "tlkapi/tlkapi.h"
 #include "drivers.h"
 
+
+#define TLKAPI_DBG_FLAG         ((TLK_MAJOR_DBGID_SYS << 24) | (TLK_MINOR_DBGID_SYS_API << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKAPI_DBG_SIGN         "[API]"
+
+
 #if (TLKAPI_CHIP_STACK_CHECK_ENABLE)
 static uint32 sTlkApiStackCheckTimer = 0;
 #endif

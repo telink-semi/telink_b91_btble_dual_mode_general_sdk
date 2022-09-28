@@ -50,6 +50,8 @@
 #ifndef DEPRECATED_DEFINITIONS_H
 #define DEPRECATED_DEFINITIONS_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
 
 /* Each FreeRTOS port has a unique portmacro.h header file.  Originally a
  * pre-processor definition was used to ensure the pre-processor found the correct
@@ -298,5 +300,8 @@
 #ifdef __IAR_78K0R_Kx3L__
     #include "../../Source/portable/IAR/78K0R/portmacro.h"
 #endif
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* DEPRECATED_DEFINITIONS_H */

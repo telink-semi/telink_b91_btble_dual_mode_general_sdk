@@ -73,6 +73,9 @@
 #ifndef STREAM_BUFFER_H
 #define STREAM_BUFFER_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h must appear in source files before include stream_buffer.h"
 #endif
@@ -886,5 +889,7 @@ size_t xStreamBufferNextMessageLengthBytes( StreamBufferHandle_t xStreamBuffer )
     }
 #endif
 /* *INDENT-ON* */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* !defined( STREAM_BUFFER_H ) */

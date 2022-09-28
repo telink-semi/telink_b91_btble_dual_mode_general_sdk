@@ -33,10 +33,24 @@
 #define tlkapi_qfifo_isEmpty(pFifo)            (!(pFifo)->full && (pFifo)->wptr == (pFifo)->rptr)
 
 
+#define tlkapi_qfifo_getFull(pFifo)            ((pFifo)->full)
+#define tlkapi_qfifo_getTemp(pFifo)            ((pFifo)->temp)
+#define tlkapi_qfifo_getResv(pFifo)            ((pFifo)->resv)
+#define tlkapi_qfifo_getRptr(pFifo)            ((pFifo)->rptr)
+#define tlkapi_qfifo_getWptr(pFifo)            ((pFifo)->wptr)
+#define tlkapi_qfifo_setFull(pFifo,value)      ((pFifo)->full = (value))
+#define tlkapi_qfifo_setTemp(pFifo,value)      ((pFifo)->temp = (value))
+#define tlkapi_qfifo_setResv(pFifo,value)      ((pFifo)->resv = (value))
+#define tlkapi_qfifo_setRptr(pFifo,value)      ((pFifo)->rptr = (value))
+#define tlkapi_qfifo_setWptr(pFifo,value)      ((pFifo)->wptr = (value))
+
+#define tlkapi_qfifo_getBase(pFifo)            ((pFifo)->pBuff)
 
 // must align for 4-bytes, size*count<0xFFFF
 typedef struct{
 	uint08 full;
+	uint08 temp;
+	uint16 resv;
 	uint16 numb;
 	uint16 size;
 	uint16 wptr;

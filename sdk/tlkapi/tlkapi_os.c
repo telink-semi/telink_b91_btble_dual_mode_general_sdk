@@ -22,6 +22,7 @@
  *******************************************************************************************************/
 #include "string.h" 
 #include "tlk_config.h"
+#if (TLK_CFG_OS_ENABLE)
 #include "tlkapi/tlkapi_type.h"
 #include "tlkapi/tlkapi_error.h"
 #include "tlkapi/tlkapi_os.h"
@@ -31,6 +32,5 @@
 
 
 
-
-
+#endif //#if (TLK_CFG_OS_ENABLE)
 

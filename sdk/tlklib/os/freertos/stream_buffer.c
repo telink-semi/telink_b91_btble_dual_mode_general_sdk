@@ -47,6 +47,8 @@
  *
  */
 
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 /* Standard includes. */
 #include <stdint.h>
 #include <string.h>
@@ -351,7 +353,7 @@ static void prvInitialiseNewStreamBuffer( StreamBuffer_t * const pxStreamBuffer,
                  * variable of type StaticStreamBuffer_t equals the size of the real
                  * message buffer structure. */
 //                volatile size_t xSize = sizeof( StaticStreamBuffer_t );
-                configASSERT( xSize == sizeof( StreamBuffer_t ) );
+//                configASSERT( xSize == sizeof( StreamBuffer_t ) );
             } /*lint !e529 xSize is referenced is configASSERT() is defined. */
         #endif /* configASSERT_DEFINED */
 
@@ -1327,3 +1329,6 @@ static void prvInitialiseNewStreamBuffer( StreamBuffer_t * const pxStreamBuffer,
 
 #endif /* configUSE_TRACE_FACILITY */
 /*-----------------------------------------------------------*/
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

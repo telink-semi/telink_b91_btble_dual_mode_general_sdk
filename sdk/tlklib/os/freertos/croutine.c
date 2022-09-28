@@ -47,6 +47,8 @@
  *
  */
 
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 #include "./include/FreeRTOS.h"
 #include "./include/task.h"
 #include "./include/croutine.h"
@@ -382,3 +384,6 @@
     }
 
 #endif /* configUSE_CO_ROUTINES == 0 */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

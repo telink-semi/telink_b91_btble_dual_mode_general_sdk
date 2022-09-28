@@ -50,6 +50,9 @@
 #ifndef INC_FREERTOS_H
 #define INC_FREERTOS_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 /*
  * Include the generic headers required for the FreeRTOS port being used.
  */
@@ -1364,5 +1367,8 @@ typedef StaticStreamBuffer_t StaticMessageBuffer_t;
     }
 #endif
 /* *INDENT-ON* */
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* INC_FREERTOS_H */

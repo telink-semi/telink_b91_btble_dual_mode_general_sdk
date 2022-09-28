@@ -88,7 +88,7 @@
 #define BTP_SDP_ATTR_SERVICE_AVAILABILITY     0x0008
 #define BTP_SDP_ATTR_PROFILE_DESC_LIST        0x0009
 #define BTP_SDP_ATTR_DOC_URL                  0x000a
-#define BTP_SDP_ATTR_CLNT_EXEC_URL            0x000b
+#define BTP_SDP_ATTR_CLIENT_EXEC_URL          0x000b
 #define BTP_SDP_ATTR_ICON_URL                 0x000c
 #define BTP_SDP_ATTR_ADD_PROTO_DESC_LIST      0x000d
 #define BTP_SDP_ATTR_SERVICE_NAME             0x0100

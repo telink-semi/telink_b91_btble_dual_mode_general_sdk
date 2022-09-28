@@ -29,8 +29,9 @@
 #include "drivers.h"
 
 
-#define TLKMDI_LED_DBG_FLAG         (TLKMDI_LED_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_LED_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_LED_DBG_FLAG       ((TLK_MINOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_LED << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_LED_DBG_SIGN       "[MDI]"
+
 
 #if (TLKMDI_LED_NOR_MAX_NUMB != 0)
 static bool tlkmdi_led_timer(tlkapi_timer_t *pTimer, uint32 userArg);
@@ -47,7 +48,12 @@ static tlkmdi_led_pwm_unit_t *tlkmdi_pwmled_getUsedUnit(uint08 ledID);
 
 static tlkmdi_led_ctrl_t sTlkMdiLedCtrl;
 
-
+/******************************************************************************
+ * Function: tlkmdi_led_init
+ * Descript: Initial I/O and PWM timers of the led
+ * Params: None.
+ * Return: TLK_ENONE is success.
+*******************************************************************************/
 int tlkmdi_led_init(void)
 {
 	tmemset(&sTlkMdiLedCtrl, 0, sizeof(tlkmdi_led_ctrl_t));
@@ -63,6 +69,15 @@ int tlkmdi_led_init(void)
 
 #if (TLKMDI_LED_NOR_MAX_NUMB != 0)
 
+/******************************************************************************
+ * Function: tlkmdi_led_insert
+ * Descript: Insert a led and initial the GPIO for the led.
+ * Params: @ledID[IN]--The ledID, for instance 0x01, 0x02.
+ * 		   @ioPort[IN]--ioPort
+ * 		   @upDown[IN]--refer to 'gpio_pull_type_e'.
+ * 		   @onLevel[IN]--LED effective level.
+ * Return: TLK_ENONE is success, other value is failure.
+*******************************************************************************/
 int tlkmdi_led_insert(uint08 ledID, uint32 ioPort, uint08 upDown, uint08 onLevel)
 {
 	tlkmdi_led_nor_unit_t *pUnit;
@@ -91,6 +106,15 @@ int tlkmdi_led_insert(uint08 ledID, uint32 ioPort, uint08 upDown, uint08 onLevel
 		
 	return TLK_ENONE;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_led_remove
+ * Descript: Disable the gpio for the led and remove a timer.
+ * Params: @ledID[IN]--The ledID.
+ * 		   @upDown[IN]--refer to 'gpio_pull_type_e'.
+ * 		   @enOutput[IN]--enOutput, true enable output, false disable output.
+ * Return: TLK_ENONE is success, other value is false.
+*******************************************************************************/
 int tlkmdi_led_remove(uint08 ledID, uint08 upDown, bool enOutput)
 {
 	uint08 index;
@@ -115,6 +139,12 @@ int tlkmdi_led_remove(uint08 ledID, uint08 upDown, bool enOutput)
 	return TLK_ENONE;
 }
 
+/******************************************************************************
+ * Function: tlkmdi_led_isOn
+ * Descript: Get the led switch status.
+ * Params: @ledID[IN]--The ledID.
+ * Return: True is on, false is off.
+*******************************************************************************/
 bool tlkmdi_led_isOn(uint08 ledID)
 {
 	tlkmdi_led_nor_unit_t *pUnit;
@@ -122,6 +152,13 @@ bool tlkmdi_led_isOn(uint08 ledID)
 	if(pUnit == nullptr) return false;
 	return pUnit->isOpen;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_led_isCtrl
+ * Descript: Get the led control status.
+ * Params: @ledID[IN]--The ledID.
+ * Return: true is controlled, false is not controlled.
+*******************************************************************************/
 bool tlkmdi_led_isCtrl(uint08 ledID)
 {
 	tlkmdi_led_nor_unit_t *pUnit;
@@ -130,6 +167,12 @@ bool tlkmdi_led_isCtrl(uint08 ledID)
 	return pUnit->isCtrl;
 }
 
+/******************************************************************************
+ * Function: tlkmdi_led_on
+ * Descript: Turn on a led.
+ * Params: @ledID[IN]--The ledID.
+ * Return: True is success, false is failure.
+*******************************************************************************/
 bool tlkmdi_led_on(uint08 ledID)
 {
 	tlkmdi_led_nor_unit_t *pUnit;
@@ -140,6 +183,13 @@ bool tlkmdi_led_on(uint08 ledID)
 	gpio_set_level(pUnit->ioPort, pUnit->level);
 	return true;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_led_off
+ * Descript: Turn off a led.
+ * Params: @ledID[IN]--The ledID.
+ * Return: True is success, false is failure.
+*******************************************************************************/
 bool tlkmdi_led_off(uint08 ledID)
 {
 	tlkmdi_led_nor_unit_t *pUnit;
@@ -150,6 +200,20 @@ bool tlkmdi_led_off(uint08 ledID)
 	gpio_set_level(pUnit->ioPort, !pUnit->level);
 	return true;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_led_ctrl
+ * Descript: Control led flash,the led flash frequency can be controlled by
+ * 			 'onTimerMs' and 'offTimerMs', can also choose to keep the led on
+ * 			 or off after the flashing is over.
+ * Params: @ledID[IN]--The ledID.
+ * 		   @firstOn[IN]--The state of the first work, true is on, false is off.
+ * 		   @count[IN]--led flash count.
+ * 		   @onTimerMs[IN]--on time.
+ * 		   @offTimerMs[IN]--off time.
+ * 		   @isKeepOn[IN]--The status after the flash is over, true is on, false is off.
+ * Return: True is success, false is failure.
+*******************************************************************************/
 bool tlkmdi_led_ctrl(uint08 ledID, uint08 firstOn, uint16 count, uint16 onTimerMs, uint16 offTimerMs, bool isKeepOn) 
 {
 	tlkmdi_led_nor_unit_t *pUnit;
@@ -271,6 +335,15 @@ static void tlkmdi_pwmled_innerOff(tlkmdi_led_pwm_unit_t *pUnit)
 	tlkmdi_led_pwmStop(pUnit->pwmID-1);
 }
 
+/******************************************************************************
+ * Function: tlkmdi_pwmled_insert
+ * Descript: Insert an led with a PWM function, enable the PWM function of the LED.
+ * Params: @ledID[IN]--The ledID.
+ * 		   @ioPort[IN]--ioPort
+ * 		   @pwmID[IN]--refer to 'pwm_id_e'.
+ * 		   @isInvert[IN]--default true.
+ * Return: TLK_ENONE is success, other value is failure.
+*******************************************************************************/
 int tlkmdi_pwmled_insert(uint08 ledID, uint32 ioPort, uint08 pwmID, bool isInvert)
 {
 	tlkmdi_led_pwm_unit_t *pUnit;
@@ -299,6 +372,15 @@ int tlkmdi_pwmled_insert(uint08 ledID, uint32 ioPort, uint08 pwmID, bool isInver
 
 	return TLK_ENONE;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_pwmled_remove
+ * Descript: Disable the gpio for the led, remove an led with a PWM function.
+ * Params: @ledID[IN]--The ledID.
+ * 		   @upDown[IN]--refer to 'gpio_pull_type_e'.
+ * 		   @enOutput[IN]--enOutput, true enable output, false disable output.
+ * Return: TLK_ENONE is success,other value is failure.
+*******************************************************************************/
 int tlkmdi_pwmled_remove(uint08 ledID, uint08 upDown, bool enOutput)
 {
 	uint08 index;
@@ -326,6 +408,12 @@ int tlkmdi_pwmled_remove(uint08 ledID, uint08 upDown, bool enOutput)
 	return TLK_ENONE;
 }
 
+/******************************************************************************
+ * Function: tlkmdi_pwmled_on
+ * Descript: Turn on an led with a PWM function.
+ * Params: @keledIDyID[IN]--The ledID.
+ * Return: true is on, false is off.
+*******************************************************************************/
 bool tlkmdi_pwmled_on(uint08 ledID, uint16 pwmPeriodUs, uint16 pwmDutyUs)
 {
 	tlkmdi_led_pwm_unit_t *pUnit;
@@ -338,6 +426,13 @@ bool tlkmdi_pwmled_on(uint08 ledID, uint16 pwmPeriodUs, uint16 pwmDutyUs)
 	tlkmdi_pwmled_innerOn(pUnit, pwmDutyUs);
 	return true;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_pwmled_off
+ * Descript: Turn off a led with a PWM function.
+ * Params: @ledID[IN]--The ledID.
+ * Return: true is on, false is off.
+*******************************************************************************/
 bool tlkmdi_pwmled_off(uint08 ledID)
 {
 	tlkmdi_led_pwm_unit_t *pUnit;
@@ -349,6 +444,24 @@ bool tlkmdi_pwmled_off(uint08 ledID)
 	tlkmdi_pwmled_innerOff(pUnit);
 	return true;
 }
+
+/******************************************************************************
+ * Function: tlkmdi_pwmled_ctrl
+ * Descript: Use PWM to control led breathing,can choose to keep the led on
+ * 			 or off after the breathing is over.
+ * Params: @ledID[IN]--The ledID.
+ * 		   @firstOn[IN]--The state of the first work, true is on, false is off.
+ * 		   @count[IN]--breath count.
+ * 		   @onTimerMs[IN]--on time.
+ * 		   @offTimerMs[IN]--off time.
+ * 		   @pwmPeriodUs[IN]--One PWM cycle.
+ * 		   @pwmDutyUs[IN]--Duty cycle.
+ * 		   @dutyFlushUs[IN]--Duty cycle(pwmDutyUs) changes time.
+ * 		   @stepUs[IN]--breath step.
+ * 		   @isKeepOn[IN]--The status after the breath is over, true is on,
+ * 		   				false is off.
+ * Return: True is success, false is failure.
+*******************************************************************************/
 bool tlkmdi_pwmled_ctrl(uint08 ledID, uint08 firstOn, uint16 count, uint16 onTimerMs, uint16 offTimerMs,
 	uint16 pwmPeriodUs, uint16 pwmDutyUs, uint16 dutyFlushUs, uint08 stepUs, uint08 isKeepOn)
 {

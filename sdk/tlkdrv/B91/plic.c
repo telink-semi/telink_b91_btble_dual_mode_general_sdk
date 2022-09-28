@@ -24,6 +24,10 @@
 #include "tlkapi/tlkapi_debug.h"
 #include "drivers.h"
 
+
+#define TLKDRV_PLIC_DBG_FLAG      ((TLK_MAJOR_DBGID_DRV << 24) | (TLK_MINOR_DBGID_DRV_SYS << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+
+
 #if IRQ_DEBUG_ENABLE
 _attribute_data_retention_sec_  volatile EXCEPT_HANDLER_S_T except_handler_b;
 #endif 
@@ -36,7 +40,6 @@ _attribute_data_retention_sec_ unsigned char      g_plic_preempt_en = 1;
  */
 
 volatile uint32 sCoreCriticalCount0 = 0;
-volatile uint32 sCoreCriticalCount1 = 0;
 
 
 _attribute_ram_code_sec_noinline_ 
@@ -187,12 +190,14 @@ _attribute_retention_code_ __attribute__((weak)) void except_handler(long cause,
 	#if (TLK_CFG_DBG_ENABLE)
 	for(volatile unsigned int i = 0; i < 20; i++)
 	{		
-		tlkapi_debug_sendU32s("cause",
+		tlkapi_debug_sendU32s(TLKDRV_PLIC_DBG_FLAG,
+					"cause",
 					except_handler_e.pc, 
 					except_handler_e.lr, 
 					except_handler_e.sp, 
 					except_handler_e.cause);
-		tlkapi_debug_sendU32s("PC,LR,SP,GP",
+		tlkapi_debug_sendU32s(TLKDRV_PLIC_DBG_FLAG,
+					"PC,LR,SP,GP",
 					except_handler_e.pc, 
 					except_handler_e.lr, 
 					except_handler_e.sp, 

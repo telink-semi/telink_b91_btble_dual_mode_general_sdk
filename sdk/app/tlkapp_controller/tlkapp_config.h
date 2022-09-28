@@ -64,6 +64,7 @@
 
 #if TLKAPP_HCI_UART_MODE
 #define TLK_DEV_SERIAL_ENABLE        (0)
+#define TLK_DEV_HCIUART_ENABLE       (1)
 //baudrate of UART
 #define UART_BAUDRATE   115200
 /*! HCI Transport configuration  */

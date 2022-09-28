@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010102 //Application, 5.1.1.2
+#define TLK_APP_VERSION              0x05010103 //Application, 5.1.1.3
 #endif
 #define TLK_LIB_VERSION              0x05010000 //Libary, 5.1.0.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -78,13 +78,25 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           0
+#define TLK_CFG_DBG_ENABLE           1
 #endif
 #ifndef TLK_CFG_USB_ENABLE
-#define TLK_CFG_USB_ENABLE           0
+#define TLK_CFG_USB_ENABLE           1
 #endif
 #ifndef TLK_CFG_PTS_ENABLE
 #define TLK_CFG_PTS_ENABLE           0
+#endif
+
+/******************************************************************************
+ * Macro: TLK_OS_xxx_ENABLE
+ * Descr: USB.
+ * Items: 
+*******************************************************************************/
+#ifndef TLK_OS_FREERTOS_ENABLE
+#define TLK_OS_FREERTOS_ENABLE       (1 && TLK_CFG_OS_ENABLE)
+#endif
+#ifndef TLK_OS_HEAP_SIZE
+#define TLK_OS_HEAP_SIZE             (1024*16)
 #endif
 
 /******************************************************************************
@@ -209,9 +221,6 @@
 #ifndef TLK_MDI_FS_ENABLE
 #define TLK_MDI_FS_ENABLE            (1 && TLK_CFG_FS_ENABLE)
 #endif
-#ifndef TLK_MDI_PTS_ENABLE
-#define TLK_MDI_PTS_ENABLE           (0 && TLK_CFG_PTS_ENABLE)
-#endif
 /******************************************************************************
  * Macro: TLK_DEV_xxxxx_ENABLE
  * Descr: Enable or disable related devices by configuration.
@@ -224,6 +233,9 @@
 #endif
 #ifndef TLK_DEV_SERIAL_ENABLE
 #define TLK_DEV_SERIAL_ENABLE        (1)
+#endif
+#ifndef TLK_DEV_HCIUART_ENABLE
+#define TLK_DEV_HCIUART_ENABLE       (0)
 #endif
 
 #ifndef TLK_DEV_MIC_BUFF_SIZE
@@ -277,46 +289,6 @@
 
 //BLE: F6000~FBFFF
 
-/******************************************************************************
- * Macro: TLKDEV_CFG_DBG_ENABLE, TLKDEV_CFG_VCD_ENABLE
- * Descr: Enable or disable the function of DEBUG or VCD_LOG by configuration.
- * Items:
- *     @TLKDEV_CFG_DBG_ENABLE--Enable or disable the function of DEBUG.
- *     @TLKDEV_CFG_VCD_ENABLE--Enable or disable the function of VCD_LOG.
-*******************************************************************************/
-#ifndef TLKBTH_CFG_DBG_ENABLE
-#define TLKBTH_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
-#endif 
-#ifndef TLKBTH_CFG_VCD_ENABLE
-#define TLKBTH_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
-#endif
-#ifndef TLKBTP_CFG_DBG_ENABLE
-#define TLKBTP_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
-#endif
-#ifndef TLKBTP_CFG_VCD_ENABLE
-#define TLKBTP_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
-#endif
-#ifndef TLKALG_CFG_DBG_ENABLE
-#define TLKALG_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
-#endif
-#ifndef TLKALG_CFG_VCD_ENABLE
-#define TLKALG_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
-#endif
-#ifndef TLKAPI_CFG_DBG_ENABLE
-#define TLKAPI_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
-#endif
-#ifndef TLKDEV_CFG_DBG_ENABLE
-#define TLKDEV_CFG_DBG_ENABLE                 (0 && TLK_CFG_DBG_ENABLE)
-#endif
-#ifndef TLKDEV_CFG_VCD_ENABLE
-#define TLKDEV_CFG_VCD_ENABLE                 (0 && TLK_USB_VCD_ENABLE)
-#endif
-#ifndef TLKMDI_CFG_DBG_ENABLE
-#define TLKMDI_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
-#endif
-#ifndef TLKMMI_CFG_DBG_ENABLE
-#define TLKMMI_CFG_DBG_ENABLE                 (1 && TLK_CFG_DBG_ENABLE)
-#endif
 
 
 

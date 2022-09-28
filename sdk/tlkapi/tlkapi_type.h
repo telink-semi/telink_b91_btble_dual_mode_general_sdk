@@ -89,6 +89,15 @@ typedef unsigned long long	 uint64;
 	    (value)  = (array)[(offset)+0]; (value) <<= 8; \
 	    (value) |= (array)[(offset)+1];
 
+#define ARRAY_TO_UINT24L(array, offset, value)         \
+		(value) |= (array)[(offset)+2]; (value) <<= 8; \
+		(value) |= (array)[(offset)+1]; (value) <<= 8; \
+		(value) |= (array)[(offset)+0];
+#define ARRAY_TO_UINT24B(array, offset, value)         \
+		(value) |= (array)[(offset)+0]; (value) <<= 8; \
+		(value) |= (array)[(offset)+1]; (value) <<= 8; \
+		(value) |= (array)[(offset)+2];
+
 #define ARRAY_TO_UINT32L(array, offset, value)         \
 	    (value)  = (array)[(offset)+3]; (value) <<= 8; \
 	    (value) |= (array)[(offset)+2]; (value) <<= 8; \
@@ -126,6 +135,15 @@ typedef unsigned long long	 uint64;
 #define UINT16H_TO_ARRAY(value, array, offset)       \
 		(array)[(offset)+1] = ((value) & 0xFF);      \
 		(array)[(offset)+0] = ((value) & 0xFF00)>>8;
+
+#define UINT24L_TO_ARRAY(value, array, offset)       \
+		(array)[(offset)+0] = ((value) & 0xFF); 	 \
+		(array)[(offset)+1] = ((value) & 0xFF00)>>8; \
+		(array)[(offset)+2] = ((value) & 0xFF0000)>>16;
+#define UINT24B_TO_ARRAY(value, array, offset)       \
+		(array)[(offset)+3] = ((value) & 0xFF); 	 \
+		(array)[(offset)+2] = ((value) & 0xFF00)>>8; \
+		(array)[(offset)+1] = ((value) & 0xFF0000)>>16;
 
 #define UINT32L_TO_ARRAY(value, array, offset)           \
 		(array)[(offset)+0] = ((value) & 0xFF); 	     \

@@ -25,27 +25,19 @@
 #define TLKSTK_MYUDB_H
 
 
-#include "app/app_config.h"
+#include "tlk_config.h"
+#include "tlk_debug.h"
 #include "tlkstk_logdef.h"
 #include "tlkdrv/B91/reg_include/usb_reg.h"
 
-#define TLKSTK_MYUDB_DEBUG_ENABLE             0
+
+
+#define TLKSTK_MYUDB_DEBUG_ENABLE             (1 && TLK_CFG_DBG_ENABLE)
 #define TLKSTK_MYUDB_CTRL_DEBUG_ENABLE        (1 && TLKSTK_MYUDB_DEBUG_ENABLE)
 
 
-#if (TLKSTK_MYUDB_DEBUG_ENABLE)
-#define	usb_send_str(s)	tlkapi_debug_sendData(s, 0, 0)
-#define	usb_send_data(p,n) tlkapi_debug_sendData(0,p,n)
-#define my_dump_str_data(en,s,p,n)		if(en){tlkapi_debug_sendData(s,(u8*)(p),n);}
-#define my_dump_str_u32s(en,s,d0,d1,d2,d3)		if(en){tlkapi_debug_sendU32s(s,(u32)(d0),(u32)(d1),(u32)(d2),(u32)(d3));}
-#define my_uart_send_str_data			tlkapi_debug_sendData
-#else
-#define	usb_send_str(s)
-#define	usb_send_data(p,n)
-#define my_dump_str_data(en,s,p,n)
-#define my_dump_str_u32s(en,s,d0,d1,d2,d3)
-#define my_uart_send_str_data
-#endif
+#define my_dump_str_data(flags,s,p,n)           tlkapi_debug_sendData(flags,s,(uint08*)(p),n)
+#define my_dump_str_u32s(flags,s,d0,d1,d2,d3)   tlkapi_debug_sendU32s(flags,s,(uint32)(d0),(uint32)(d1),(uint32)(d2),(uint32)(d3))
 
 
 
@@ -109,8 +101,8 @@
 
 
 
-extern void tlkapi_debug_sendData(char *pStr, uint08 *pData, uint16 dataLen);
-extern void tlkapi_debug_sendU32s(void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
+extern void tlkapi_debug_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
+extern void tlkapi_debug_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
 
 
 
@@ -177,88 +169,67 @@ extern void tlkapi_debug_sendU32s(void *pStr, uint32 val0, uint32 val1, uint32 v
 
 
 #ifndef	DUMP_BLE_MSG
-#define DUMP_BLE_MSG     (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
+#define DUMP_BLE_MSG      (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
 #endif
+
 
 #ifndef	DUMP_ACL_MSG
-#define DUMP_ACL_MSG     (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
+#define DUMP_ACL_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_ACL << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
-
-#ifndef	DUMP_HCI_MSG
-#define DUMP_HCI_MSG     (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_LMP_MSG
-#define DUMP_LMP_MSG     (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_EVT_MSG
-#define DUMP_EVT_MSG     (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_APP_MSG
-#define DUMP_APP_MSG     (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_ENC_MSG
-#define DUMP_ENC_MSG     (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_AUTH_MSG
-#define DUMP_AUTH_MSG    (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_PAIR_MSG
-#define DUMP_PAIR_MSG    (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_RSW_MSG
-#define DUMP_RSW_MSG     (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-
-#ifndef	DUMP_QOS_MSG
-#define DUMP_QOS_MSG     (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_AFH_MSG
-#define DUMP_AFH_MSG     (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_NAME_MSG
-#define DUMP_NAME_MSG    (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-
-#ifndef	DUMP_PAGE_MSG
-#define DUMP_PAGE_MSG    (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-
-#ifndef	DUMP_DETACH_MSG
-#define DUMP_DETACH_MSG    (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-
-#ifndef	DUMP_TIMER_MSG
-#define DUMP_TIMER_MSG    (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_RESET_CORE_MSG
-#define DUMP_RESET_CORE_MSG    (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
-#ifndef	DUMP_SNIFF_MSG
-#define DUMP_SNIFF_MSG    (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
-
 #ifndef	DUMP_SCO_MSG
-#define DUMP_SCO_MSG     (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
+#define DUMP_SCO_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_SCO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_HCI_MSG
+#define DUMP_HCI_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_HCI << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_EVT_MSG
+#define DUMP_EVT_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_EVT << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_ENC_MSG
+#define DUMP_ENC_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_ENC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_AUTH_MSG
+#define DUMP_AUTH_MSG     ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_AUTH << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_PAIR_MSG
+#define DUMP_PAIR_MSG     ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_PAIR << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_RSW_MSG
+#define DUMP_RSW_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_RSW << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_QOS_MSG
+#define DUMP_QOS_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_QOS << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_AFH_MSG
+#define DUMP_AFH_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_AFH << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_LMP_MSG
+#define DUMP_LMP_MSG      ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_LMP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_TASK_MSG
+#define DUMP_TASK_MSG     ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_TASK << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_NAME_MSG
+#define DUMP_NAME_MSG     ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_NAME << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_PAGE_MSG
+#define DUMP_PAGE_MSG     ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_PAGE << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_SNIFF_MSG
+#define DUMP_SNIFF_MSG    ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_SNIFF << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_TIMER_MSG
+#define DUMP_TIMER_MSG    ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_TIMER << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_RESET_MSG
+#define DUMP_RESET_MSG    ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_RESET << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+#ifndef	DUMP_DETACH_MSG
+#define DUMP_DETACH_MSG   ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_DETACH << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
-#ifndef	DUMP_TASK_MSG
-#define DUMP_TASK_MSG    (1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
+
+
 
 
 #endif //TLKSTK_MYUDB_H

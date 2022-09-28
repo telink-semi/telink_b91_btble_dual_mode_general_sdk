@@ -50,6 +50,9 @@
 #ifndef EVENT_GROUPS_H
 #define EVENT_GROUPS_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 #ifndef INC_FREERTOS_H
     #error "include FreeRTOS.h" must appear in source files before "include event_groups.h"
 #endif
@@ -794,5 +797,7 @@ void vEventGroupClearBitsCallback( void * pvEventGroup,
     }
 #endif
 /* *INDENT-ON* */
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* EVENT_GROUPS_H */

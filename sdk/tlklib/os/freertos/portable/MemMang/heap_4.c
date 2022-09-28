@@ -55,6 +55,9 @@
  * See heap_1.c, heap_2.c and heap_3.c for alternative implementations, and the
  * memory management pages of https://www.FreeRTOS.org for more information.
  */
+
+#include "tlk_config.h"
+#if (TLK_OS_FREERTOS_ENABLE)
 #include <stdlib.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
@@ -82,9 +85,9 @@
 
 /* The application writer has already defined the array used for the RTOS
 * heap - probably so it can be placed in a special segment or address. */
-    extern uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+    extern uint8_t ucHeap[ TLK_OS_HEAP_SIZE ];
 #else
-    PRIVILEGED_DATA static uint8_t ucHeap[ configTOTAL_HEAP_SIZE ];
+    PRIVILEGED_DATA static uint8_t ucHeap[ TLK_OS_HEAP_SIZE ];
 #endif /* configAPPLICATION_ALLOCATED_HEAP */
 
 /* Define the linked list structure.  This is used to link free blocks in order
@@ -359,7 +362,7 @@ static void prvHeapInit( void ) /* PRIVILEGED_FUNCTION */
     BlockLink_t * pxFirstFreeBlock;
     uint8_t * pucAlignedHeap;
     size_t uxAddress;
-    size_t xTotalHeapSize = configTOTAL_HEAP_SIZE;
+    size_t xTotalHeapSize = TLK_OS_HEAP_SIZE;
 
     /* Ensure the heap starts on a correctly aligned boundary. */
     uxAddress = ( size_t ) ucHeap;
@@ -515,3 +518,7 @@ void vPortGetHeapStats( HeapStats_t * pxHeapStats )
     }
     taskEXIT_CRITICAL();
 }
+
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
+

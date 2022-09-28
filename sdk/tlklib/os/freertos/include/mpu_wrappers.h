@@ -50,6 +50,9 @@
 #ifndef MPU_WRAPPERS_H
 #define MPU_WRAPPERS_H
 
+#if (TLK_OS_FREERTOS_ENABLE)
+
+
 /* This file redefines API functions to be called through a wrapper macro, but
  * only for ports that are using the MPU. */
 #ifdef portUSING_MPU_WRAPPERS
@@ -206,5 +209,7 @@
 
 #endif /* portUSING_MPU_WRAPPERS */
 
+
+#endif //#if (TLK_OS_FREERTOS_ENABLE)
 
 #endif /* MPU_WRAPPERS_H */

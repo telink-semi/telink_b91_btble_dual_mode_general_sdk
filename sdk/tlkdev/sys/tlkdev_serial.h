@@ -27,6 +27,25 @@
 #if (TLK_DEV_SERIAL_ENABLE)
 
 
+typedef enum{
+	TLKDEV_SERIAL_MSTATE_HEAD = 0,
+	TLKDEV_SERIAL_MSTATE_ATTR,
+	TLKDEV_SERIAL_MSTATE_BODY,
+	TLKDEV_SERIAL_MSTATE_CHECK,
+	TLKDEV_SERIAL_MSTATE_TAIL,
+	TLKDEV_SERIAL_MSTATE_READY,
+}TLKDEV_SERIAL_MSTATE_ENUM;
+
+
+#define TLKDEV_SERIAL_PORT               UART1
+#define TLKDEV_SERIAL_TX_PIN             UART1_TX_PD6
+#define TLKDEV_SERIAL_RX_PIN             UART1_RX_PD7
+#define TLKDEV_SERIAL_DMA_ENABLE         1
+
+#define TLKDEV_SERIAL_DMA_TX             DMA4
+#define TLKDEV_SERIAL_DMA_RX             DMA5
+
+
 typedef void(*tlkdev_serial_recvCB)(uint08 *pFrame, uint16 frmLen);
 
 
@@ -42,29 +61,9 @@ void tlkdev_serial_handler(void);
 int  tlkdev_serial_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 void tlkdev_serial_setBaudrate(uint32 baudrate);
 
-#else //TLK_DEV_SERIAL_ENABLE
-
-#include "tlkstk/hci/bt_hci.h"
-
-#if TLKAPP_HCI_UART_MODE
-int  tlkdev_serial_init(void);
-void tlkdev_serial_handler(void);
-//typedef int(*tlkdev_serial_sendCB)(uint08 *pFrame, uint16 frmLen);
-void tlkdev_serial_regCB(tlk_hci_serial_sendCB cb);
 
 
-#define UART_DMA_SIZE  PENDING_BUF_LEN/4//  0x400
-
-
-#define	UART_MANUAL_FLOW_CTR_RTS_STOP				gpio_set_high_level(UART_RTS_PIN)
-#define	UART_MANUAL_FLOW_CTR_RTS_START				gpio_set_low_level(UART_RTS_PIN)
-
-
-
-#define UART_DMA_TX     DMA3
-#define UART_DMA_RX     DMA2
-#endif
-#endif
+#endif //TLK_DEV_SERIAL_ENABLE
 
 #endif //TLKDEV_SERIAL_H
 

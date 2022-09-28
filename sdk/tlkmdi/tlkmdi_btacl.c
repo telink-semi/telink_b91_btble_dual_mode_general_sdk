@@ -65,8 +65,9 @@ static int tlkmdi_btacl_profileDisconnEvt(uint08 *pData, uint16 dataLen);
 static void tlkmdi_btacl_set_peer_devType(uint16 aclHandle, uint16 devtype);
 
 
-#define TLKMDI_BTACL_DBG_FLAG         (TLKMDI_BTACL_DBG_ENABLE | TLKMDI_DBG_FLAG) 
-#define TLKMDI_BTACL_DBG_SIGN         TLKMDI_DBG_SIGN
+#define TLKMDI_BTACL_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_ACL << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_BTACL_DBG_SIGN       "[MDI]"
+
 
 typedef struct
 {
@@ -584,10 +585,8 @@ static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 	}
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "sTlkMdiBtAclConnCB: active %d", pItem->active);
 	pEvt->isEncrypt = true; // TODO: There's a problem here in next.
-	#if (TLK_MDI_PTS_ENABLE)
-	if(!pEvt->isEncrypt && pItem->active){
-		btp_sdpclt_connect(pItem->handle);
-	}
+	#if (TLK_CFG_PTS_ENABLE)
+	
 	#else
 	if(!pEvt->isEncrypt){
 		btp_sdpclt_connect(pItem->handle);
@@ -630,8 +629,8 @@ static int tlkmdi_btacl_encryptEvt(uint08 *pData, uint16 dataLen)
 	
 	tlkapi_array(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt", pData, dataLen);
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: active %d", pItem->active);
-	#if (TLK_MDI_PTS_ENABLE)
-	if (pItem->active){
+	#if (TLK_CFG_PTS_ENABLE)
+	if(pItem->active){
 	    btp_sdpclt_connect(pItem->handle);
 	    tlkmdi_adapt_insertTimer(&pItem->timer);
 	}
