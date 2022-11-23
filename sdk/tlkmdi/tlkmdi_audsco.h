@@ -106,6 +106,10 @@ typedef struct{
 	uint16 handle;
 	uint08 dropSpkNumb;
 	uint08 dropMicNumb;
+	uint16 spkBuffLen;
+	uint16 micBuffLen;
+	uint16 spkReadOffs;
+	uint16 micReadOffs;
 	TlkMdiScoDecFunc dec_func;
 	TlkMdiScoEncFunc enc_func;
 	TlkMdiScoPlcFunc plc_func;

@@ -43,6 +43,9 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 #if (TLKAPI_TIMER_ENABLE)
 static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg);
 #endif //#if (TLKAPI_TIMER_ENABLE)
+#if (TLK_ALG_EQ_ENABLE)
+void tlkalg_eq_loadParam(uint32 addr, uint16 index, uint08 flag);
+#endif
 
 
 uint16 gTlkMmiAudioCurHandle;
@@ -51,6 +54,7 @@ uint08 gTlkMmiAudioTmrState = 0;
 uint08 gTlkMmiAudioTmrCount = 0;
 tlkapi_timer_t gTlkMmiAudioCurTimer;
 tlkapi_timer_t gTlkMmiAudioIrqTimer;
+static uint08 sTlkMmiAudioCodecIdleTmrCount = 0;
 
 /******************************************************************************
  * Function: tlkmmi_audio_init
@@ -61,6 +65,9 @@ tlkapi_timer_t gTlkMmiAudioIrqTimer;
 *******************************************************************************/
 int tlkmmi_audio_init(void)
 {
+	#if (TLK_ALG_EQ_ENABLE)
+	tlkalg_eq_loadParam(TLK_CFG_FLASH_EQ_TEST_ADDR, 0xffff, 0);
+	#endif
 	tlkdev_codec_init();
 	
 	tlkmmi_audio_infoInit();
@@ -85,12 +92,13 @@ int tlkmmi_audio_init(void)
 *******************************************************************************/
 bool tlkmmi_audio_isBusy(void)
 {
-	if(gTlkMmiAudioCurOptype != 0 || gTlkMmiAudioTmrState != 0) return true;
+	if(gTlkMmiAudioCurOptype != 0 || gTlkMmiAudioTmrState != 0 || sTlkMmiAudioCodecIdleTmrCount != 0) return true;
 	return false;
 }
 
 void tlkmmi_audio_connect(uint16 handle, uint08 ptype, uint08 usrID)
 {
+#if (TLK_STK_BTP_ENABLE)
 	if(ptype == BTP_PTYPE_A2DP){
 		int srcIndex;
 		int snkIndex;
@@ -108,6 +116,7 @@ void tlkmmi_audio_connect(uint16 handle, uint08 ptype, uint08 usrID)
 			tlkmmi_audio_modinfStart(dstOptype, handle, 0);
 		}
 	}
+#endif
 }
 /******************************************************************************
  * Function: tlkmmi_audio_disconn
@@ -121,6 +130,37 @@ void tlkmmi_audio_disconn(uint16 handle)
 	tlkmmi_audio_removeStatusByHandle(handle);
 }
 
+void tlkmmi_audio_start(void)
+{
+	#if (TLKAPI_TIMER_ENABLE)
+	tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, 1000, true);
+	#endif
+	gTlkMmiAudioTmrState = 2;
+	gTlkMmiAudioTmrCount = TLKMMI_AUDIO_TIMER_TIMEOUT;
+	sTlkMmiAudioCodecIdleTmrCount = TLKMMI_AUDIO_CODEC_IDLE_TIMEOUT;
+	tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
+	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_SRC){
+		if(gTlkMmiAudioCtrl.report.enable) tlkmmi_adapt_insertTimer(&gTlkMmiAudioCtrl.timer);
+	}
+	tlkmmi_adapt_insertTimer(&gTlkMmiAudioCurTimer);
+}
+void tlkmmi_audio_close(void)
+{
+	uint08 optype = gTlkMmiAudioCurOptype;
+	uint16 handle = gTlkMmiAudioCurHandle;
+	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: status over");
+	tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
+	gTlkMmiAudioCurOptype = TLKMMI_AUDIO_OPTYPE_NONE;
+	gTlkMmiAudioCurHandle = 0;
+	sTlkMmiAudioCodecIdleTmrCount = 0;
+	#if (TLKAPI_TIMER_ENABLE)
+	tlkapi_timer_removeNode(&gTlkMmiAudioIrqTimer);
+	#endif
+	gTlkMmiAudioTmrState = 0;
+	tlkmmi_audio_removeStatus(handle, optype);
+	tlkmmi_adapt_removeTimer(&gTlkMmiAudioCurTimer);
+}
+
 
 static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
@@ -130,29 +170,15 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 		tlkmmi_audio_modinfTimer(gTlkMmiAudioCurOptype);
 		if(gTlkMmiAudioTmrCount != 0) gTlkMmiAudioTmrCount--;
 		if(!tlkmmi_audio_modinfIsBusy(gTlkMmiAudioCurOptype)){
-			uint08 optype = gTlkMmiAudioCurOptype;
-			uint16 handle = gTlkMmiAudioCurHandle;
-			tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: status over");
-			tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
-			gTlkMmiAudioCurOptype = TLKMMI_AUDIO_OPTYPE_NONE;
-			gTlkMmiAudioCurHandle = 0;
-			#if (TLKAPI_TIMER_ENABLE)
-			tlkapi_timer_removeNode(&gTlkMmiAudioIrqTimer);
-			#endif
-			gTlkMmiAudioTmrState = 0;
-			tlkmmi_audio_removeStatus(handle, optype);
-//			my_dump_str_data(TLKMMI_AUDIO_DBG_ENABLE, "tlkmmi_audio_handler: optype = ", &gTlkMmiAudioCurOptype, 1);
+			if(sTlkMmiAudioCodecIdleTmrCount != 0){
+				sTlkMmiAudioCodecIdleTmrCount--;
+			}else{
+				tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler close: optype = %d", gTlkMmiAudioCurOptype);
+				tlkmmi_audio_close();
+			}
 		}else if(gTlkMmiAudioTmrState == 0){
 			tlkapi_info(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: start timer");
-			#if (TLKAPI_TIMER_ENABLE)
-			tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, 3000, true);
-			#endif
-			gTlkMmiAudioTmrState = 2;
-			gTlkMmiAudioTmrCount = TLKMMI_AUDIO_TIMER_TIMEOUT;
-			tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
-			if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_SRC){
-				if(gTlkMmiAudioCtrl.report.enable) tlkmmi_adapt_insertTimer(&gTlkMmiAudioCtrl.timer);
-			}
+			tlkmmi_audio_start();
 		}else if(gTlkMmiAudioTmrCount == 0){
 			tlkapi_fatal(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: timer fault");
 			#if (TLKAPI_TIMER_ENABLE)
@@ -171,6 +197,7 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 			#endif
 		}
 		gTlkMmiAudioTmrState = 0;
+		sTlkMmiAudioCodecIdleTmrCount = 0;
 		tlkdev_codec_muteSpk();
 		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
 	}

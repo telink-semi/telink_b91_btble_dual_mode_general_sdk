@@ -24,6 +24,7 @@
 #ifndef BTP_MODULE_H
 #define BTP_MODULE_H
 
+#if (TLK_STK_BTP_ENABLE)
 
 
 
@@ -38,6 +39,7 @@ int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 chan
 int btp_module_disconn(uint16 aclHandle, uint08 ptype, uint08 usrID);
 
 
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //BTP_MODULE_H
 

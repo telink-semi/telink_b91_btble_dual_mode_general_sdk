@@ -33,8 +33,8 @@
  *
  ****************************************************************************************
  */
-#ifndef _CO_UTILS_H_
-#define _CO_UTILS_H_
+#ifndef TLKSTK_UTILS_H
+#define TLKSTK_UTILS_H
 
 /**
  ****************************************************************************************
@@ -749,4 +749,4 @@ uint16_t co_ble_pkt_dur_in_us(uint8_t len, uint8_t rate);
 #endif // (BLE_EMB_PRESENT)
 /// @} CO_UTILS
 
-#endif // _CO_UTILS_H_
+#endif // TLKSTK_UTILS_H

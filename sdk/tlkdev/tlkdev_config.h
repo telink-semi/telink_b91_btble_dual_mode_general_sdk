@@ -30,12 +30,8 @@
 #define TLKDEV_SYS_BAT_ENABLE         1
 
 
-#define TLKDEV_EXT_PUYA_P25Q32H_ENABLE         0
 
 
-#ifndef TLK_DEV_XT26G0X_ENABLE
-#define TLK_DEV_XT26G0X_ENABLE       (0 && TLK_CFG_DEV_ENABLE) //not support
-#endif
 
 
 

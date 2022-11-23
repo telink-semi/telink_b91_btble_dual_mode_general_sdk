@@ -1,12 +1,13 @@
 /********************************************************************************************************
- * @file     usbhw.h
+ * @file	usbhw.h
  *
- * @brief    This is the header file for BTBLE SDK
+ * @brief	This is the header file for B91
  *
- * @author	 BTBLE GROUP
- * @date         2,2022
+ * @author	Driver Group
+ * @date	2019
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2019, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ *          All rights reserved.
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +20,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 /**	@page USBHW
  *
  *	Introduction
@@ -395,11 +396,12 @@ static inline void usb_set_pin_en(void)
 	gpio_function_dis(GPIO_PA6);
 	gpio_input_en(GPIO_PA5|GPIO_PA6);//DP/DM must set input enable
 	usb_dp_pullup_en (1);
+	write_reg8(0x100c01, (read_reg8(0x100c01) | BIT(7)));   //swire_usb_en
 }
-
 
 static inline void usb_set_pin_dis(void)
 {
 	gpio_input_dis(GPIO_PA5|GPIO_PA6);//DP/DM must set input enable
 	usb_dp_pullup_en (0);
 }
+

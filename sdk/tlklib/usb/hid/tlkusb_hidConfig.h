@@ -34,8 +34,8 @@
 #define TLKUSB_HID_MOUSE_POLL_INTERVAL      4  // in ms
 #define TLKUSB_HID_KEYBOARD_POLL_INTERVAL   10 // in ms
 
-#define TLKUSB_HID_REPORT_ID_AUDIO          1
-#define TLKUSB_HID_REPORT_ID_MOUSE          2
+#define TLKUSB_HID_REPORT_ID_AUDIO          1 
+#define TLKUSB_HID_REPORT_ID_MOUSE          2 // mouse
 #define TLKUSB_HID_REPORT_ID_KB_MEDIA       3 // media
 #define TLKUSB_HID_REPORT_ID_KB_SYS         4 // system : power,sleep,wakeup
 #define TLKUSB_HID_REPORT_ID_SOMATIC        5 // somatic sensor,  may have many report ids

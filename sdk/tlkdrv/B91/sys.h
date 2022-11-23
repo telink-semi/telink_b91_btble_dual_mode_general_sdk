@@ -96,8 +96,6 @@
 #define TCMD_WAIT					0x7
 #define TCMD_WAREG					0x8
 
-#define convert_ram_addr_cpu2bus(addr)  ((u32)((((u32)(addr)) >=0x80000)?(((u32)(addr))- 0x80000 + 0xc0200000) : (((u32)(addr)) + 0xc0000000)))
-#define convert_ram_addr_bus2cpu(addr)  ((u32)((((u32)(addr)) >=0xc0200000)?(((u32)(addr)) + 0x80000 - 0xc0200000) : (((u32)(addr)) - 0xc0000000)))
 
 
 #define convert_ram_addr_cpu_to_bus(addr)  convert_ram_addr_cpu2bus(addr)

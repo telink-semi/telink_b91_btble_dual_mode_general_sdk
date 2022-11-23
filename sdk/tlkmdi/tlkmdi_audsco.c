@@ -59,7 +59,7 @@
 
 
 
-extern void bt_ll_sco_data_callback_register(void *prx, void *ptx);
+extern void btc_sco_regDataCB(void *prx, void *ptx);
 extern void tlkalg_2chnmix(short* pLeft, short* pRight, short* pOut, int stride, int length);
 
 
@@ -120,7 +120,7 @@ static TlkMdiScoConnCB sTlkMdiScoConnCB = nullptr;
 *******************************************************************************/
 int tlkmdi_audsco_init(void)
 {
-	bt_ll_sco_data_callback_register(tlkmdi_sco_addSpkEncFrame, tlkmdi_sco_getMicEncFrame);
+	btc_sco_regDataCB(tlkmdi_sco_addSpkEncFrame, tlkmdi_sco_getMicEncFrame);
 
 	bth_event_regCB(BTH_EVTID_SCOCONN_COMPLETE, tlkmdi_sco_connectEvt);
 	bth_event_regCB(BTH_EVTID_SCODISC_COMPLETE, tlkmdi_sco_disconnEvt);
@@ -166,6 +166,10 @@ bool tlkmdi_audsco_switch(uint16 handle, uint08 status)
 	sTlkMdiScoCtrl.handle = handle;
 	sTlkMdiScoCtrl.dropSpkNumb = 10;
 	sTlkMdiScoCtrl.dropMicNumb = 10;
+	sTlkMdiScoCtrl.spkReadOffs = 0;
+	sTlkMdiScoCtrl.micReadOffs = 0;
+	sTlkMdiScoCtrl.spkBuffLen = tlkdev_codec_getSpkBuffLen();
+	sTlkMdiScoCtrl.micBuffLen = tlkdev_codec_getMicBuffLen();
 
 	tlkdev_codec_muteSpk();
 	
@@ -399,9 +403,18 @@ static void tlkmdi_sco_micHandler(void)
 	if(!tlkdev_codec_readMicData((uint08*)micData, 240, &offset)){
 		return;
 	}
+		
 	#if TLK_ALG_EC_ENABLE
-	tlkdev_codec_backReadSpkData((uint08*)spkData, 240, offset+140, true);
+	tlkdev_codec_readSpkData((uint08*)spkData, 240, sTlkMdiScoCtrl.spkReadOffs);
 	pMicPtr = (uint08*)tlkalg_ec_frame((uint08*)micData, (uint08*)spkData);
+	sTlkMdiScoCtrl.micReadOffs += 240;
+	sTlkMdiScoCtrl.spkReadOffs += 240;
+	if(sTlkMdiScoCtrl.micReadOffs >= sTlkMdiScoCtrl.micBuffLen){
+		sTlkMdiScoCtrl.micReadOffs -= sTlkMdiScoCtrl.micBuffLen;
+	}
+	if(sTlkMdiScoCtrl.spkReadOffs >= sTlkMdiScoCtrl.spkBuffLen){
+		sTlkMdiScoCtrl.spkReadOffs -= sTlkMdiScoCtrl.spkBuffLen;
+	}
 	#else
 	pMicPtr = (uint08*)micData;
 	#endif
@@ -414,7 +427,7 @@ static void tlkmdi_sco_micHandler(void)
 	sint16* pcm_ptr = (sint16*)pMicPtr;
 	my_agc_process(sTlkMdiScoAgcBuffer, (const short* const*)&pcm_ptr, 120, (short* const*)&pcm_agc_ptr);
 	#endif
-		
+	
 	#if TLK_ALG_AGC_ENABLE
 	sTlkMdiScoCtrl.enc_func((uint08*)pcm_agc, 240, (uint08*)pBuffer);
 	#else
@@ -429,7 +442,6 @@ static void tlkmdi_sco_spkHandler(void)
 	uint08 volume;
 	
 	if(sTlkMdiScoBuff.pTempBuffer == nullptr) return;
-	//sTlkMdiScoTempBuff -- sbc 128; aac 1024
 
 //	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_spkHandler 001");
 

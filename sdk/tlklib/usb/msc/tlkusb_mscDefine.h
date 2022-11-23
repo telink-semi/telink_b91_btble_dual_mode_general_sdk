@@ -43,7 +43,7 @@ typedef enum{
 
 typedef enum{
 	TLKUSB_MSC_EDP_IN  = 1,
-	TLKUSB_MSC_EDP_OUT = 6,
+	TLKUSB_MSC_EDP_OUT = 5,
 }TLKUSB_MSC_EDP_ENUM;
 
 
@@ -52,6 +52,7 @@ typedef enum{
 #define MS_COMMAND_DIR_DATA_OUT                        (0<<7)
 #define MS_COMMAND_DIR_DATA_IN                         (1<<7)
 
+//SCSI Command
 #define MS_SCSI_CMD_INQUIRY                               0x12
 #define MS_SCSI_CMD_REQUEST_SENSE                         0x03
 #define MS_SCSI_CMD_TEST_UNIT_READY                       0x00
@@ -66,6 +67,7 @@ typedef enum{
 #define MS_SCSI_CMD_MODE_SENSE_6                          0x1A
 #define MS_SCSI_CMD_MODE_SENSE_10                         0x5A
 
+//Sense key
 #define MS_SCSI_SENSE_KEY_GOOD                            0x00
 #define MS_SCSI_SENSE_KEY_RECOVERED_ERROR                 0x01
 #define MS_SCSI_SENSE_KEY_NOT_READY                       0x02
@@ -121,21 +123,21 @@ enum MS_CommandStatusCodes_t
 
 typedef struct
 {
-	uint32 Signature;
-	uint32 Tag;
-	uint32 DataTransferLength;
-	uint08 Flags;
-	uint08 LUN;
-	uint08 SCSICommandLength;
-	uint08 SCSICommandData[16];
+	uint32 Signature;	/* Signature.*/
+	uint32 Tag;			/*Same in CBW and CSW.*/
+	uint32 DataTransferLength;/*Data length*/
+	uint08 Flags;		/*Data transmission direction.0x00:Host->Device 0x80:Device->Host*/
+	uint08 LUN;			/*For a device with multiple LUN logical units, select a target. If there are no multiple LUN, write 0.*/
+	uint08 SCSICommandLength;	//Command Length
+	uint08 SCSICommandData[16];	//Command data
 }  MS_CommandBlockWrapper_t;
 
 typedef struct
 {
-	uint32 Signature;
-	uint32 Tag;
-	uint32 DataTransferResidue;
-	uint08 Status;
+	uint32 Signature;	/* Signature.*/
+	uint32 Tag;			/*Same in CBW and CSW.*/
+	uint32 DataTransferResidue;	/*Data to be transferred.*/
+	uint08 Status;		/*Indicates the execution status of a command*/
 }  MS_CommandStatusWrapper_t;
 
 typedef struct
@@ -159,29 +161,29 @@ typedef struct
 
 typedef struct
 {
-	uint08 DeviceType          : 5;
-	uint08 PeripheralQualifier : 3;
+	uint08 DeviceType          : 5;	/*PERIPHERAL Device type*/
+	uint08 PeripheralQualifier : 3;	/*PERIPHERAL QUALIFIER*/
 	uint08 Reserved            : 7;
-	uint08 Removable           : 1;
-	uint08 Version;
-	uint08 ResponseDataFormat  : 4;
+	uint08 Removable           : 1;	/*Whether the device can be removed.*/
+	uint08 Version;					/* the implemented version of the SPC standard.*/
+	uint08 ResponseDataFormat  : 4;	/*Response data format.*/
 	uint08 Reserved2           : 1;
-	uint08 NormACA             : 1;
+	uint08 NormACA             : 1;	/*Normal ACA supported..*/
 	uint08 TrmTsk              : 1;
 	uint08 AERC                : 1;
-	uint08 AdditionalLength;
+	uint08 AdditionalLength;		/*the length in bytes of the remaining standard INQUIRY data.*/
 	uint08 Reserved3[2];
 	uint08 SoftReset           : 1;
-	uint08 CmdQue              : 1;
+	uint08 CmdQue              : 1;	/*If the logical unit does not support the QUE bit, CMDQUE bit shall be set to one indicating that the logical unit supports the task management model*/
 	uint08 Reserved4           : 1;
 	uint08 Linked              : 1;
 	uint08 Sync                : 1;
 	uint08 WideBus16Bit        : 1;
 	uint08 WideBus32Bit        : 1;
 	uint08 RelAddr             : 1;
-	uint08 VendorID[8];
-	uint08 ProductID[16];
-	uint08 RevisionID[4];
+	uint08 VendorID[8];			/*Vendor information*/
+	uint08 ProductID[16];		/*Product information*/
+	uint08 RevisionID[4];		/*Release information*/
 } MS_SCSI_Inquiry_Response_t;
 
 

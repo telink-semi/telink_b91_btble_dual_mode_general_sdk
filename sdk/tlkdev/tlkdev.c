@@ -23,60 +23,33 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkdev/sys/tlkdev_serial.h"
+#if (TLK_DEV_HCIUART_ENABLE)
+#include "tlkdev/sys/tlkdev_hciuart.h"
+#endif
 #include "tlkdev/tlkdev.h"
-#if (TLK_DEV_XTSD01G_ENABLE)
-#include "tlkdev/ext/xtx/tlkdev_xtsd01g.h"
+#if (TLK_DEV_STORE_ENABLE)
+#include "tlkdev/sys/tlkdev_store.h"
 #endif
-#if (TLK_DEV_XT26G0X_ENABLE)
-#include "tlkdev/ext/xtx/tlkdev_xt26g0x.h"
-#endif
-//#include "drivers.h"
-
 
 extern void tlkusb_process(void);
 
 
 int tlkdev_init(void)
 {
-	#if (TLK_DEV_XTSD01G_ENABLE)
-	tlkdev_xtsd01g_init();
-	#endif
-	#if (TLK_CFG_WDG_ENABLE)
-	wd_set_interval_ms(3000);
-	wd_start();
-	#endif
-
 	#if (TLK_DEV_SERIAL_ENABLE)
 	tlkdev_serial_init();
 	#endif
 	#if (TLK_DEV_HCIUART_ENABLE)
 	tlkdev_hciuart_init();
 	#endif
-
-	return TLK_ENONE;
-}
-
-
-void tlkdev_process(void)
-{
-	#if (TLK_DEV_SERIAL_ENABLE)
-	tlkdev_serial_handler();
-	#endif
-	#if (TLK_DEV_HCIUART_ENABLE)
-	tlkdev_hciuart_handler();
+	#if (TLK_DEV_STORE_ENABLE)
+	tlkdev_store_init();
 	#endif
 	
-	#if (TLK_CFG_WDG_ENABLE)
-	wd_clear();
-	#endif
+	return TLK_ENONE;
 }
-
-bool tlkdev_pmIsBusy(void)
+void tlkdev_deinit(void)
 {
-	#if (TLK_DEV_SERIAL_ENABLE)
-	return tlkdev_serial_isBusy();
-	#else
-	return false;
-	#endif
+	
 }
 

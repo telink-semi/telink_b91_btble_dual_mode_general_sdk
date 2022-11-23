@@ -31,14 +31,12 @@
 #include "tlkstk/inner/tlkstk_myudb.h"
 
 
-#if (TLKAPI_CHIP_STACK_CHECK_ENABLE)
 #define TLKAPI_CHIP_STACK_CHACK_OFFSET    256
 #define TLKAPI_CHIP_STACK_CHACK_SIGN      0xAA5533CC
 extern unsigned long _STACK_TOP, _BSS_VMA_END, _BSS_VMA_START, _ZERO_BSS_BEGIN;
 static uint32 sTlkApiChipStackStart = 0;
 static uint32 sTlkApiChipStackCurLen = 0;
 static uint16 sTlkApiChipStackLength = 0;
-#endif
 
 
 _attribute_retention_code_  //switch clock must execute in ram_code
@@ -50,12 +48,13 @@ void tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_ENUM clock)
 	    CCLK_96M_HCLK_48M_PCLK_24M_48M_MSPI;
 	}else if(clock == TLKAPI_CHIP_CLOCK_48M){
 	    CCLK_48M_HCLK_48M_PCLK_24M;
+	}else if(clock == TLKAPI_CHIP_CLOCK_32M){
+		CCLK_32M_HCLK_32M_PCLK_16M;
 	}else{
 		//consider later
 	}
 }
 
-#if (TLKAPI_CHIP_STACK_CHECK_ENABLE)
 void tlkapi_chip_stackInit(void)
 {
 	uint32 index;
@@ -117,7 +116,6 @@ bool tlkapi_chip_stackOverflow(void)
 	if(sTlkApiChipStackCurLen == sTlkApiChipStackLength) return true;
 	else return false;
 }
-#endif
 
 
 extern unsigned int trng_rand(void);

@@ -29,7 +29,7 @@
 
 #include "drivers.h"
 #include "tlklib/usb/udb/tlkusb_udb.h"
-#include "tlklib/usb/aud/tlkusb_aud.h"
+#include "tlklib/usb/uac/tlkusb_uac.h"
 
 
 static void tlkusb_ctrlTranSetupProc(void);
@@ -54,12 +54,12 @@ static void tlkusb_getReportDescDeal(tlkusb_setup_req_t *pSetup);
 
 
 typedef struct{
-	uint16 usbID;
-	uint08 stall;
-	uint08 rptr;
-	uint16 cmdLen;
-	uint16 rspLen;
-	uint08 *pRspData;
+	uint16 usbID;	//usb id
+	uint08 stall;	//stall
+	uint08 rptr;	
+	uint16 cmdLen;	//command length
+	uint16 rspLen;	//response length
+	uint08 *pRspData;//response data
 }tlkusb_ctrl_t;
 
 uint08 gTlkUsbCurModType = 0;
@@ -74,20 +74,33 @@ int tlkusb_core_init(uint16 usbID)
 	sTlkUsbCtrl.usbID = usbID;
 	tlkusb_module_init(gTlkUsbCurModType);
 		
-	reg_usb_mdev &= ~BIT(3); //vendor command: bRequest[7] = 0
+	reg_usb_mdev &= ~ BIT(3); //vendor command: bRequest[7] = 0
 	
 	usbhw_enable_manual_interrupt(FLD_CTRL_EP_AUTO_STD | FLD_CTRL_EP_AUTO_DESC | FLD_CTRL_EP_AUTO_INTF);
 	
 	return TLK_ENONE;
 }
-
+/******************************************************************************
+ * Function: tlkusb_core_enable
+ * Descript: This function use to enable/disable usb core by change the state of DP pin of USB interface.
+ * Params: 
+ *		@enable[IN]--1:enable 0:disable
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkusb_core_enable(bool enable)
 {
 	if(enable) usb_dp_pullup_en(1);
 	else usb_dp_pullup_en(0);
 }
 
-/////////////////////////////////////////////////////////////////////////
+/******************************************************************************
+ * Function: tlkusb_core_handler
+ * Descript: This function use to loop through usb devices.
+ * Params: None
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkusb_core_handler(void)
 {
 	uint32 irq = usbhw_get_ctrl_ep_irq();
@@ -107,15 +120,27 @@ void tlkusb_core_handler(void)
 	if(reg_usb_irq_mask & FLD_USB_IRQ_RESET_O){
 		reg_usb_irq_mask |= FLD_USB_IRQ_RESET_O; 
 		tlkusb_module_reset(gTlkUsbCurModType);
-    }
-
+	}
+//	if(usbhw_get_irq_status(USB_IRQ_RESET_STATUS)){
+//		usbhw_clr_irq_status(USB_IRQ_RESET_STATUS);
+//		tlkusb_module_reset(gTlkUsbCurModType);
+//	}
+//	if(usbhw_get_irq_status(USB_IRQ_SUSPEND_STATUS)){
+//		usbhw_clr_irq_status(USB_IRQ_SUSPEND_STATUS);
+//	}
 	
 	sTlkUsbCtrl.stall = 0;
 		
 	tlkusb_module_handler(gTlkUsbCurModType);
 }
 
-
+/******************************************************************************
+ * Function: tlkusb_ctrlSendResponse
+ * Descript: This function use to send response.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 static void tlkusb_ctrlSendResponse(void)
 {
 	uint16 len;
@@ -130,6 +155,13 @@ static void tlkusb_ctrlSendResponse(void)
 		++sTlkUsbCtrl.pRspData;
 	}
 }
+/******************************************************************************
+ * Function: tlkusb_ctrlTranSetupProc
+ * Descript: This function use to transfer setup information.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 static void tlkusb_ctrlTranSetupProc(void)
 {
 	sTlkUsbCtrl.stall = 0;
@@ -143,6 +175,13 @@ static void tlkusb_ctrlTranSetupProc(void)
 	if(sTlkUsbCtrl.stall) usbhw_write_ctrl_ep_ctrl(FLD_EP_DAT_STALL);
 	else usbhw_write_ctrl_ep_ctrl(FLD_EP_DAT_ACK);
 }
+/******************************************************************************
+ * Function: tlkusb_ctrlTranDataProc
+ * Descript: This function use to transfer data.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 static void tlkusb_ctrlTranDataProc(void)
 {
 	sTlkUsbCtrl.stall = 0;
@@ -152,12 +191,26 @@ static void tlkusb_ctrlTranDataProc(void)
 	if(sTlkUsbCtrl.stall) usbhw_write_ctrl_ep_ctrl(FLD_EP_DAT_STALL);
 	else usbhw_write_ctrl_ep_ctrl(FLD_EP_DAT_ACK);
 }
+/******************************************************************************
+ * Function: tlkusb_ctrlTranStatusProc
+ * Descript: This function use to transfer status.
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 static void tlkusb_ctrlTranStatusProc(void)
 {
 	if(sTlkUsbCtrl.stall) usbhw_write_ctrl_ep_ctrl(FLD_EP_STA_STALL);
 	else usbhw_write_ctrl_ep_ctrl(FLD_EP_STA_ACK);
 }
-
+/******************************************************************************
+ * Function: tlkusb_ctrlTranSetupReqProc
+ * Descript: This function use to deal with request.
+ * Params: 
+ *		@isSetupReq[IN]--Whether Setup request or not.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 static void tlkusb_ctrlTranSetupReqProc(bool isSetupReq)
 {
 	uint08 bmReqType = sMmiUsbCtrlReq.bReqType;
@@ -189,7 +242,7 @@ static void tlkusb_ctrlTranSetupReqProc(bool isSetupReq)
 			break;
 		case (TLKUSB_REQTYPE_DIR_DEV2HOST | TLKUSB_REQTYPE_MAJ_VENDOR | TLKUSB_REQTYPE_REC_INTERFACE):
 			if(!isSetupReq) return;
-			tlkusb_vendorD2HInfDeal(&sMmiUsbCtrlReq);			
+			tlkusb_vendorD2HInfDeal(&sMmiUsbCtrlReq);
 			break;
 		case (TLKUSB_REQTYPE_DIR_DEV2HOST | TLKUSB_REQTYPE_MAJ_VENDOR | TLKUSB_REQTYPE_REC_DEVICE):
 			if(!isSetupReq) return;

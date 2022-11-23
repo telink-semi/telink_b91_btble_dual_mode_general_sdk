@@ -156,7 +156,7 @@ static bool tlkmdi_key_check(tlkmdi_key_unit_t *pUnit)
 	uint08 level;
 	if(pUnit->keyID == 0) return false;
 
-	if(gpio_read(pUnit->ioPort) != 0) level = 1;
+	if(gpio_get_level(pUnit->ioPort) != 0) level = 1;
 	else level = 0;
 	if(level == pUnit->level) press = true;
 	else press = false;

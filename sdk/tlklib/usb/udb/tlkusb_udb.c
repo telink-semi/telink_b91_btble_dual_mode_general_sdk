@@ -70,6 +70,15 @@ void tlkusb_udb_regDbgCB(TlkUsbUsrDebugCB cb)
 	sTlkUsbUdbDebugCB = cb;
 }
 
+/******************************************************************************
+ * Function: tlkusb_udb_sendData
+ * Descript: Send data.
+ * Params:
+ * 		@pData[IN]--Data to send.
+ *		@dataLen[IN]--Data Length.
+ * Return: TLK_ENONE is SUCCESS.
+ * Others: None.
+*******************************************************************************/
 
 _attribute_ram_code_ 
 int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen)
@@ -86,7 +95,13 @@ int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen)
 	return TLK_ENONE;
 }
 
-
+/******************************************************************************
+ * Function: tlkusb_udb_recvHander
+ * Descript: Receive data hander.
+ * Params: None
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 _attribute_ram_code_ 
 void tlkusb_udb_recvHander(void)
 {
@@ -98,7 +113,7 @@ void tlkusb_udb_recvHander(void)
 			tlkusb_udb_recvCmdProc(sTlkUsbUdbCmdBuffer, sTlkUsbUdbCmdLength, &isDown);
 			if(isDown) sTlkUsbUdbCmdLength = 0;
 		}
-		tlkapi_debug_process();
+		tlkapi_debug_handler();
 	}while(isDown);
 	if(ready){
 		if(sTlkUsbUdbCmdBuffer[0] == 0x11){

@@ -48,11 +48,12 @@ extern uint16 gTlkDevSpkBuffer[];
 static int  tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen);
 static void tlkmdi_audsrc_keyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 isPress);
 
+#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 //extern void btp_avrcp_setvolume(uint16 handle, uint08 volume);
 extern int  hci_rxfifo_half_full(void);
 extern bool btp_a2dpsrc_isInStream(uint16 handle);
-
 extern int  btp_a2dpsrc_setSampleRate(uint16 aclHandle, uint32 sampleRate);
+#endif
 
 static void tlkmdi_src_mp3Handler(void);
 static void tlkmdi_src_fillHandler(void);
@@ -88,23 +89,34 @@ static int tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen)
 	pEvt = (btp_a2dpStatusChangeEvt_t*)pData;
 	if(sTlkMdiSrcCtrl.enable && sTlkMdiSrcCtrl.handle != pEvt->handle){
 		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_a2dpStatusEvt: other device request");
+		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 		if(pEvt->status == BTP_A2DP_STATUS_STREAM) btp_a2dpsrc_suspend(pEvt->handle);
+		#endif
 		return -TLK_EFAIL;
 	}
 
 	if(pEvt->status == BTP_A2DP_STATUS_STREAM){
+		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 		uint sampleRate = btp_a2dpsrc_getSampleRate(pEvt->handle);
+		#else
+		uint sampleRate = 0;
+		#endif
+		uint08 waitStart;
 		if(sTlkMdiSrcCtrl.waitStart != 0 && sampleRate != tlkmdi_mp3_getSampleRate()){
+			#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 			tlkmdi_audsrc_close(pEvt->handle);
+			#endif
 			return -TLK_EFAIL;
 		}
-		sTlkMdiSrcCtrl.sampleRate = sampleRate;
-		if(sTlkMdiSrcCtrl.waitStart == 0){
-			tlkmdi_audio_sendStartEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SRC, pEvt->handle);
-		}
+		waitStart = sTlkMdiSrcCtrl.waitStart;
 		sTlkMdiSrcCtrl.waitStart = 0;
 		sTlkMdiSrcCtrl.waitTimer = 0;
-	}else{
+		sTlkMdiSrcCtrl.sampleRate = sampleRate;
+		if(waitStart == 0){
+			tlkmdi_audio_sendStartEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SRC, pEvt->handle);
+		}
+	}
+	else{
 		tlkmdi_audsrc_switch(pEvt->handle, TLK_STATE_CLOSED);
 		tlkmdi_audio_sendCloseEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SRC, pEvt->handle);
 	}
@@ -113,6 +125,7 @@ static int tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen)
 static void tlkmdi_audsrc_keyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 isPress)
 {
 	tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_keyChangedEvt:{handle-%d,keyID-%d,isPress-%d}", aclHandle, keyID, isPress);
+	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	if(!isPress){
 		if(keyID == BTP_AVRCP_KEYID_PLAY){
 			if(!sTlkMdiSrcCtrl.enable){
@@ -134,15 +147,21 @@ static void tlkmdi_audsrc_keyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 i
 			if(sTlkMdiSrcCtrl.enable) tlkmdi_audsrc_toPrev();
 		}
 	}
+	#endif
 }
 
 
 int tlkmdi_audsrc_start(uint16 handle, uint32 param)
 {
+	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	return btp_a2dpsrc_start(handle);
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 int tlkmdi_audsrc_close(uint16 handle)
 {
+	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	if(sTlkMdiSrcCtrl.handle != handle){
 		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_close: enable handle");
 		return -TLK_EHANDLE;
@@ -151,10 +170,14 @@ int tlkmdi_audsrc_close(uint16 handle)
 	sTlkMdiSrcCtrl.waitStart = 0;
 	tlkmdi_audsrc_switch(sTlkMdiSrcCtrl.handle, TLK_STATE_CLOSED);
 	return btp_a2dpsrc_suspend(sTlkMdiSrcCtrl.handle);
+	#else
+	return -TLK_ENOSUPPORT;
+	#endif
 }
 
 void tlkmdi_audsrc_timer(void)
 {
+	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	if(sTlkMdiSrcCtrl.waitStart == 1){
 		int ret = btp_a2dpsrc_setSampleRate(sTlkMdiSrcCtrl.handle, tlkmdi_mp3_getSampleRate());
 		if(ret == TLK_ENONE){
@@ -176,6 +199,7 @@ void tlkmdi_audsrc_timer(void)
 		sTlkMdiSrcCtrl.waitStart = 3;
 		tlkmdi_audsrc_close(sTlkMdiSrcCtrl.handle);
 	}
+	#endif
 }
 
 bool tlkmdi_audsrc_toNext(void)
@@ -220,13 +244,17 @@ bool tlkmdi_audsrc_switch(uint16 handle, uint08 status)
 	if(handle == 0 && enable) enable = false;
 	if(!enable) tlkmdi_mp3_updateEnable(false);
 	if(status == TLK_STATE_CLOSED && sTlkMdiSrcCtrl.handle != 0){
+		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 		btp_a2dpsrc_suspend(sTlkMdiSrcCtrl.handle);
+		#endif
 	}
 	if(sTlkMdiSrcCtrl.enable == enable) return true;
 	
 	if(!enable) sTlkMdiSrcCtrl.enable = false;
 	if(!tlkmdi_mp3_enable(enable) && enable){
+		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 		tlkmdi_audsrc_close(handle);
+		#endif
 		tlkapi_error(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_switch: enable failure - %d", enable);
 		return false;
 	}
@@ -474,6 +502,7 @@ static void tlkmdi_src_fillHandler(void)
 		tlkalg_sbc_encJoint((uint08*)pcm, 128*4, pBuffer);
 		sTlkMdiSrcCtrl.sndFrame ++;
 	}
+	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	if(sTlkMdiSrcCtrl.sndFrame >= TLKMDI_SRC_FRAME_NUMB && !hci_rxfifo_half_full()){// retry send last send fail pkt;
 		uint16 pktLen;
 		pktLen = 1+frameSize*TLKMDI_SRC_FRAME_NUMB;
@@ -483,6 +512,7 @@ static void tlkmdi_src_fillHandler(void)
 		sTlkMdiSrcCtrl.seqNumber ++;
 		sTlkMdiSrcCtrl.timeStamp += 8;
 	}
+	#endif
 }
 
 #endif //#if (TLKMDI_CFG_AUDSRC_ENABLE)

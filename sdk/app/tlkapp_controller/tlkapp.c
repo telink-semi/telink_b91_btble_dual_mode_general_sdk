@@ -71,7 +71,9 @@ int tlkapp_init(void)
 void tlkapp_process(void)
 {
 	tlkapi_process();
-	tlkdev_process();
+	#if (TLK_DEV_HCIUART_ENABLE)
+	tlkdev_hciuart_handler();
+	#endif
 	tlkstk_process();
 }
 

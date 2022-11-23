@@ -26,13 +26,11 @@
 #if (TLK_USB_MSC_ENABLE)
 
 
-//#define TLK_DEV_XTSD01G_ENABLE             (0 && TLK_CFG_FS_ENABLE)
-//#define TLK_DEV_XT26G0X_ENABLE             (1 && TLK_CFG_FS_ENABLE)
 
-
+//Serial num str
+#define TLKUSB_MSC_STRING_VENDOR        L"Telink"
 #define TLKUSB_MSC_STRING_PRODUCT       L"Telink B91 BTBLE Storage"
-#define TLKUSB_MSC_STRING_SERIAL0       L"TLSR9218-XTSD04G0"
-#define TLKUSB_MSC_STRING_SERIAL1       L"TLSR9218-XT2602E"
+#define TLKUSB_MSC_STRING_SERIAL        L"TLSR9218-SD Nand"
 
 
 typedef struct {

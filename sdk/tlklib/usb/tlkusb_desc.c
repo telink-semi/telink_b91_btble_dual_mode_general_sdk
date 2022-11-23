@@ -92,7 +92,13 @@ static const tlkusb_stdDeviceDesc_t sMmiUsbDeviceDesc = {
 
 extern uint08 gTlkUsbCurModType;
 
-
+/******************************************************************************
+ * Function: tlkusb_getLanguageDesc
+ * Descript: This function use to get language descriptor.
+ * Params: None
+ * Return: Language descriptor.
+ * Others: None.
+*******************************************************************************/
 uint08 *tlkusb_getLanguageDesc(void)
 {
 	uint08 *pDesc;
@@ -100,6 +106,13 @@ uint08 *tlkusb_getLanguageDesc(void)
 	if(pDesc == nullptr) pDesc = (uint08*)(&sMmiUsbLanguageDesc);
 	return pDesc;
 }
+/******************************************************************************
+ * Function: tlkusb_getVendorDesc
+ * Descript: This function use to get vendor descriptor.
+ * Params: None
+ * Return: Vendor descriptor.
+ * Others: None.
+*******************************************************************************/
 uint08 *tlkusb_getVendorDesc(void)
 {
 	uint08 *pDesc;
@@ -107,6 +120,13 @@ uint08 *tlkusb_getVendorDesc(void)
 	if(pDesc == nullptr) pDesc = (uint08*)(&sMmiUsbVendorDesc);
 	return pDesc;
 }
+/******************************************************************************
+ * Function: tlkusb_getProductDesc
+ * Descript: This function use to get product descriptor.
+ * Params: None
+ * Return: Product descriptor.
+ * Others: None.
+*******************************************************************************/
 uint08 *tlkusb_getProductDesc(void)
 {
 	uint08 *pDesc;
@@ -114,6 +134,13 @@ uint08 *tlkusb_getProductDesc(void)
 	if(pDesc == nullptr) pDesc = (uint08*)(&sMmiUsbProductDesc);
 	return pDesc;
 }
+/******************************************************************************
+ * Function: tlkusb_module_getStringDesc
+ * Descript: This function use to get serial descriptor.
+ * Params: None
+ * Return: Serial descriptor.
+ * Others: None.
+*******************************************************************************/
 uint08 *tlkusb_getSerialDesc(void)
 {
 	uint08 *pDesc;
@@ -121,7 +148,13 @@ uint08 *tlkusb_getSerialDesc(void)
 	if(pDesc == nullptr) pDesc = (uint08*)(&sMmiUsbSerialDesc);
 	return pDesc;
 }
-
+/******************************************************************************
+ * Function: tlkusb_getLanguageLens
+ * Descript: This function use to get language length.
+ * Params: None
+ * Return: Number of language length.
+ * Others: None.
+*******************************************************************************/
 uint16 tlkusb_getLanguageLens(void)
 {
 	uint16 descLen;
@@ -129,6 +162,13 @@ uint16 tlkusb_getLanguageLens(void)
 	if(descLen == 0) descLen = sizeof(TLKUSB_LANG_ID_ENGLISH);
 	return descLen;
 }
+/******************************************************************************
+ * Function: tlkusb_getProductLens
+ * Descript: This function use to get language product length.
+ * Params: None
+ * Return: Number of product string length.
+ * Others: None.
+*******************************************************************************/
 uint16 tlkusb_getProductLens(void)
 {
 	uint16 descLen;
@@ -136,6 +176,13 @@ uint16 tlkusb_getProductLens(void)
 	if(descLen == 0) descLen = sizeof(TLKUSB_STRING_PRODUCT);
 	return descLen;
 }
+/******************************************************************************
+ * Function: tlkusb_getVendorLens
+ * Descript: This function use to get language vendor length.
+ * Params: None
+ * Return: Number of vendor string length.
+ * Others: None.
+*******************************************************************************/
 uint16 tlkusb_getVendorLens(void)
 {
 	uint16 descLen;
@@ -143,6 +190,13 @@ uint16 tlkusb_getVendorLens(void)
 	if(descLen == 0) descLen = sizeof(TLKUSB_STRING_VENDOR);
 	return descLen;
 }
+/******************************************************************************
+ * Function: tlkusb_getSerialLens
+ * Descript: This function use to get serial length.
+ * Params: None
+ * Return: Number of serial length.
+ * Others: None.
+*******************************************************************************/
 uint16 tlkusb_getSerialLens(void)
 {
 	uint16 descLen;
@@ -151,7 +205,13 @@ uint16 tlkusb_getSerialLens(void)
 	return descLen;
 }
 
-
+/******************************************************************************
+ * Function: tlkusb_getDeviceDesc
+ * Descript: This function use to get device descriptor.
+ * Params: None
+ * Return: Device descriptor.
+ * Others: None.
+*******************************************************************************/
 uint08 *tlkusb_getDeviceDesc(void)
 {
 	uint08 *pDesc;
@@ -159,6 +219,13 @@ uint08 *tlkusb_getDeviceDesc(void)
 	if(pDesc == nullptr) pDesc = (uint08*)(&sMmiUsbDeviceDesc);
 	return pDesc;	
 }
+/******************************************************************************
+ * Function: tlkusb_getConfigDesc
+ * Descript: This function use to get config descriptor.
+ * Params: None
+ * Return: Config descriptor.
+ * Others: None.
+*******************************************************************************/
 uint08 *tlkusb_getConfigDesc(void)
 {
 	uint08 *pDesc;
@@ -166,7 +233,13 @@ uint08 *tlkusb_getConfigDesc(void)
 //	if(pDesc == nullptr) pDesc = (uint08*)(&sMmiUsbConfigDesc);
 	return pDesc;
 }
-
+/******************************************************************************
+ * Function: tlkusb_getDeviceLens
+ * Descript: This function use to get device descriptor length.
+ * Params: None
+ * Return: Number of device descriptor length.
+ * Others: None.
+*******************************************************************************/
 uint16 tlkusb_getDeviceLens(void)
 {
 	uint16 descLen;
@@ -174,6 +247,13 @@ uint16 tlkusb_getDeviceLens(void)
 	if(descLen == 0) descLen = sizeof(tlkusb_stdDeviceDesc_t);
 	return descLen;
 }
+/******************************************************************************
+ * Function: tlkusb_getConfigLens
+ * Descript: This function use to get config descriptor length.
+ * Params: None
+ * Return: Number of config descriptor length.
+ * Others: None.
+*******************************************************************************/
 uint16 tlkusb_getConfigLens(void)
 {
 	uint16 descLen;

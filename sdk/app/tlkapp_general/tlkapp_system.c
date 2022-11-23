@@ -45,12 +45,15 @@
 #include "tlkapp_system.h"
 
 
-
+#if (TLK_ALG_EQ_ENABLE)
+extern void tlkalg_eq_saveParam(void);
+#endif
+#if (TLK_STK_BT_ENABLE)
 static void tlkapp_system_connectCompleteEvt(uint16 handle, uint08 status, uint08 *pBtAddr);
 static void tlkapp_system_disconnCompleteEvt(uint16 handle, uint08 reason, uint08 *pBtAddr);
 static void tlkapp_system_profileConnectEvt(uint16 handle, uint08 status, uint08 ptype, uint08 usrID);
 static void tlkapp_system_profileDisconnEvt(uint16 handle, uint08 reason, uint08 ptype, uint08 usrID);
-
+#endif
 
 static void tlkapp_system_cmdHandler(uint08 msgID, uint08 *pData, uint08 dataLen);
 static void tlkapp_system_getVersionDeal(void);
@@ -94,11 +97,12 @@ int  tlkapp_system_init(void)
 	#endif
 	
 	tlkmdi_comm_regSysCB(tlkapp_system_cmdHandler);
-	
+	#if (TLK_STK_BT_ENABLE)
 	tlkmdi_btmgr_regAclConnectCB(tlkapp_system_connectCompleteEvt);
 	tlkmdi_btmgr_regAclDisconnCB(tlkapp_system_disconnCompleteEvt);
 	tlkmdi_btmgr_regProfileConnectCB(tlkapp_system_profileConnectEvt);
 	tlkmdi_btmgr_regProfileDisconnCB(tlkapp_system_profileDisconnEvt);
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -134,6 +138,9 @@ void tlkapp_system_handler(void)
 *******************************************************************************/ 
 void tlkapp_system_poweroff(void)
 {
+	#if (TLK_ALG_EQ_ENABLE)
+	tlkalg_eq_saveParam();
+	#endif
 	usb_dp_pullup_en (0);
 	
 	cpu_sleep_wakeup(DEEPSLEEP_MODE, 0, 0);
@@ -144,6 +151,7 @@ void tlkapp_system_poweroff(void)
 	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_HIGH, 0); 
 }
 
+#if (TLK_STK_BT_ENABLE)
 /******************************************************************************
  * Function: tlkapp_system_connectCompleteEvt
  * Descript: This function is used to handle connection completion events.
@@ -234,7 +242,7 @@ static void tlkapp_system_profileDisconnEvt(uint16 handle, uint08 reason, uint08
 		#endif
 	}
 }
-
+#endif
 
 
 static void tlkapp_system_cmdHandler(uint08 msgID, uint08 *pData, uint08 dataLen)

@@ -46,7 +46,16 @@ int tlkusb_cdc_init(void)
 }
 
 
-
+/******************************************************************************
+ * Function: tlkusb_cdc_sendData
+ * Descript: This function use to send data for CDC device.
+ * Params:
+ * 		@intfNum[IN]--InterfaceNumber.
+ * 		@pData[IN]--data
+ * 		@dataLen[IN]--Length of data.
+ * Return: TLK_ENONE is SUCCESS.
+ * Others: None.
+*******************************************************************************/
 int tlkusb_cdc_sendData(uint08 intfNum, uint08 *pData, uint08 dataLen)
 {
 	uint08 index;

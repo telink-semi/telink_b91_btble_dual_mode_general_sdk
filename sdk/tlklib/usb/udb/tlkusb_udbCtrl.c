@@ -52,9 +52,6 @@ const tlkusb_modCtrl_t sTlkUsbUdbModCtrl = {
 	nullptr, //GetInterface
 	nullptr, //SetInterface
 };
-#if (TLKUSB_UDB_VCD_ENABLE)
-static uint32 sTlkUsbUdbVcdTicks;
-#endif
 
 
 
@@ -71,8 +68,6 @@ static int tlkusb_udbctrl_init(void)
 	reg_usb_ep_buf_addr(TLKUSB_UDB_EDP_VCD_IN) = 0;
 	reg_usb_ep8_fifo_mode = 1;
 	#endif
-
-	sTlkUsbUdbVcdTicks = 0;
 
 	reg_usb_mdev &= ~BIT(3); //vendor command: bRequest[7] = 0
 	
@@ -98,12 +93,6 @@ static void tlkusb_udbctrl_deinit(void)
 
 static void tlkusb_udbctrl_handler(void)
 {
-	#if (TLKUSB_UDB_VCD_ENABLE)
-	if(sTlkUsbUdbVcdTicks == 0 || clock_time_exceed(sTlkUsbUdbVcdTicks, 10000)){
-		sTlkUsbUdbVcdTicks = clock_time() | 1;
-		log_sync(1); //SL_STACK_VCD_EN
-	}
-	#endif
 //	tlkusb_udb_sendHander();
 	tlkusb_udb_recvHander();
 }

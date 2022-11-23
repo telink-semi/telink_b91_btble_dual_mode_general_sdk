@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     tlkmdi_usb
+ * @file     tlkmdi_usb.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -33,7 +33,7 @@ int tlkmdi_usb_init(void);
 
 void tlkmdi_usb_shutdown(void);
 
-void tlkmdi_usb_process(void);
+void tlkmdi_usb_handler(void);
 
 
 

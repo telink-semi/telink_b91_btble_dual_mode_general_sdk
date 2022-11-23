@@ -72,7 +72,7 @@ static const tlkusb_stdStringDesc_t sMmiUsbCdcSerialDesc = {
 
 #if (TLK_USB_CDC_ENABLE)
 static const tlkusb_stdDeviceDesc_t sMmiUsbCdcDeviceDesc = { 
-	sizeof(tlkusb_stdDeviceDesc_t), //
+	sizeof(tlkusb_stdDeviceDesc_t), //Length
 	TLKUSB_TYPE_DEVICE , // Header
 	0x0110,
 	USB_CSCP_NoDeviceClass, // Class
@@ -89,8 +89,8 @@ static const tlkusb_stdDeviceDesc_t sMmiUsbCdcDeviceDesc = {
 };
 static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 	{
-		sizeof(tlkusb_stdConfigureDesc_t),
-		TLKUSB_TYPE_CONFIGURE, // Length, type
+		sizeof(tlkusb_stdConfigureDesc_t),//Length
+		TLKUSB_TYPE_CONFIGURE, // Type
 		sizeof(tlkusb_cdcConfigDesc_t), // TotalLength: variable
 		TLKUSB_CDC_INF_MAX, // NumInterfaces
 		1, // Configuration index
@@ -101,7 +101,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 #if (1)
 	{
 		// iad0
-		sizeof(tlkusb_stdAssociateDesc_t),
+		sizeof(tlkusb_stdAssociateDesc_t),//Length
 		TLKUSB_TYPE_ASSOCIATE, // Header
 		TLKUSB_CDC_INF_CCI, // FirstInterfaceIndex
 		2, // TotalInterface
@@ -112,7 +112,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 	},
 	{
 		// cdc_interface
-		sizeof(tlkusb_stdInterfaceDesc_t),
+		sizeof(tlkusb_stdInterfaceDesc_t), //Length
 		TLKUSB_TYPE_INTERFACE, // Header
 		TLKUSB_CDC_INF_CCI, // InterfaceNumber
 		0, // AlternateSetting
@@ -126,21 +126,21 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		// cdc_descriptor
 		//CDC_Functional_Header
 		{
-			sizeof(tlkusb_cdcFunctionHead_t),
+			sizeof(tlkusb_cdcFunctionHead_t),//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_Header, // Subtype
 			0x0110 // CDCSpecification
 		},
 		// CDC_Functional_ACM =
 		{
-			sizeof(tlkusb_cdcFunctionAcm_t),
+			sizeof(tlkusb_cdcFunctionAcm_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_ACM, // Subtype
 			0x02 // Capabilities
 		},
 		// CDC_Functional_Union =
 		{
-			sizeof(tlkusb_cdcFunctionUnion_t),
+			sizeof(tlkusb_cdcFunctionUnion_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_Union, // Subtype
 			0, // MasterInterfaceNumber
@@ -148,7 +148,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_CallManagement =
 		{
-			sizeof(tlkusb_cdcFunctionUnion_t),
+			sizeof(tlkusb_cdcFunctionUnion_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_CallManagement, // Subtype
 			0, // MasterInterfaceNumber
@@ -156,7 +156,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_NotificationEndpoint =
 		{
-			sizeof(tlkusb_stdEndpointDesc_t),
+			sizeof(tlkusb_stdEndpointDesc_t),	//Length
 			TLKUSB_TYPE_ENDPOINT, // Header
 			(TLKUSB_EDP_DIR_IN | TLKUSB_CDC_EDP_NOTY), // EndpointAddress
 			(TLKUSB_EDP_TYPE_INTERRUPT | TLKUSB_EDP_ATTR_NO_SYNC | TLKUSB_EDP_USAGE_DATA), // Attributes
@@ -165,7 +165,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_DCI_Interface =
 		{
-			sizeof(tlkusb_stdInterfaceDesc_t),
+			sizeof(tlkusb_stdInterfaceDesc_t),	//Length
 			TLKUSB_TYPE_INTERFACE, // Header
 			TLKUSB_CDC_INF_DCI, // InterfaceNumber
 			0, // AlternateSetting
@@ -177,7 +177,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_DataOutEndpoint =
 		{
-			sizeof(tlkusb_stdEndpointDesc_t),
+			sizeof(tlkusb_stdEndpointDesc_t),	//Length
 			TLKUSB_TYPE_ENDPOINT, // Header
 			(TLKUSB_EDP_DIR_OUT | TLKUSB_CDC_EDP_RX), // EndpointAddress
 			(TLKUSB_EDP_TYPE_BULK | TLKUSB_EDP_ATTR_NO_SYNC | TLKUSB_EDP_USAGE_DATA), // Attributes
@@ -186,7 +186,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_DataInEndpoint =
 		{
-			sizeof(tlkusb_stdEndpointDesc_t),
+			sizeof(tlkusb_stdEndpointDesc_t),	//Length
 			TLKUSB_TYPE_ENDPOINT, // Header
 			(TLKUSB_EDP_DIR_IN | TLKUSB_CDC_EDP_TX), // EndpointAddress
 			(TLKUSB_EDP_TYPE_BULK | TLKUSB_EDP_ATTR_NO_SYNC | TLKUSB_EDP_USAGE_DATA), // Attributes
@@ -198,7 +198,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 #if (TLKUSB_CDC_SECOND_ENABLE)
 	{
 		// iad0
-		sizeof(tlkusb_stdAssociateDesc_t),
+		sizeof(tlkusb_stdAssociateDesc_t),	//Length
 		TLKUSB_TYPE_ASSOCIATE, // Header
 		TLKUSB_CDC2_INF_CCI, // FirstInterfaceIndex
 		2, // TotalInterface
@@ -209,7 +209,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 	},
 	{
 		// cdc_interface
-		sizeof(tlkusb_stdInterfaceDesc_t),
+		sizeof(tlkusb_stdInterfaceDesc_t),	//Length
 		TLKUSB_TYPE_INTERFACE, // Header
 		TLKUSB_CDC2_INF_CCI, // InterfaceNumber
 		0, // AlternateSetting
@@ -223,21 +223,21 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		// cdc_descriptor
 		//CDC_Functional_Header
 		{
-			sizeof(tlkusb_cdcFunctionHead_t),
+			sizeof(tlkusb_cdcFunctionHead_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_Header, // Subtype
 			0x0110 // CDCSpecification
 		},
 		// CDC_Functional_ACM =
 		{
-			sizeof(tlkusb_cdcFunctionAcm_t),
+			sizeof(tlkusb_cdcFunctionAcm_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_ACM, // Subtype
 			0x02 // Capabilities
 		},
 		// CDC_Functional_Union =
 		{
-			sizeof(tlkusb_cdcFunctionUnion_t),
+			sizeof(tlkusb_cdcFunctionUnion_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_Union, // Subtype
 			0, // MasterInterfaceNumber
@@ -245,7 +245,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_CallManagement =
 		{
-			sizeof(tlkusb_cdcFunctionUnion_t),
+			sizeof(tlkusb_cdcFunctionUnion_t),	//Length
 			TLKUSB_TYPE_CS_INTERFACE, // Header
 			TLKUSB_CDC_TYPE_CSInterface_CallManagement, // Subtype
 			0, // MasterInterfaceNumber
@@ -253,7 +253,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_NotificationEndpoint =
 		{
-			sizeof(tlkusb_stdEndpointDesc_t),
+			sizeof(tlkusb_stdEndpointDesc_t),	//Length
 			TLKUSB_TYPE_ENDPOINT, // Header
 			(TLKUSB_EDP_DIR_IN | TLKUSB_CDC2_EDP_NOTY), // EndpointAddress
 			(TLKUSB_EDP_TYPE_INTERRUPT | TLKUSB_EDP_ATTR_NO_SYNC | TLKUSB_EDP_USAGE_DATA), // Attributes
@@ -262,7 +262,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_DCI_Interface =
 		{
-			sizeof(tlkusb_stdInterfaceDesc_t),
+			sizeof(tlkusb_stdInterfaceDesc_t),	//Length
 			TLKUSB_TYPE_INTERFACE, // Header
 			TLKUSB_CDC2_INF_DCI, // InterfaceNumber
 			0, // AlternateSetting
@@ -274,7 +274,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_DataOutEndpoint =
 		{
-			sizeof(tlkusb_stdEndpointDesc_t),
+			sizeof(tlkusb_stdEndpointDesc_t),	//Length
 			TLKUSB_TYPE_ENDPOINT, // Header
 			(TLKUSB_EDP_DIR_OUT | TLKUSB_CDC2_EDP_RX), // EndpointAddress
 			(TLKUSB_EDP_TYPE_BULK | TLKUSB_EDP_ATTR_NO_SYNC | TLKUSB_EDP_USAGE_DATA), // Attributes
@@ -283,7 +283,7 @@ static const tlkusb_cdcConfigDesc_t sMmiUsbCdcConfigDesc = {
 		},
 		// CDC_DataInEndpoint =
 		{
-			sizeof(tlkusb_stdEndpointDesc_t),
+			sizeof(tlkusb_stdEndpointDesc_t),//Length
 			TLKUSB_TYPE_ENDPOINT, // Header
 			(TLKUSB_EDP_DIR_IN | TLKUSB_CDC2_EDP_TX), // EndpointAddress
 			(TLKUSB_EDP_TYPE_BULK | TLKUSB_EDP_ATTR_NO_SYNC | TLKUSB_EDP_USAGE_DATA), // Attributes

@@ -120,6 +120,7 @@ typedef struct{
 	uint08 hfChannel;
 	uint08 agChannel;
 	uint08 sppChannel;
+	uint08 iapChannel;
 	uint08 pbapChannel;
 	uint08 btaddr[6];
 	tlkapi_timer_t timer;

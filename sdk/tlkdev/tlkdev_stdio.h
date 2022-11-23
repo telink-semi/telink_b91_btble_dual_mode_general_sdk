@@ -35,11 +35,7 @@
 #include "tlkdev/sys/tlkdev_codec.h"
 
 
-
-
 extern int  tlkdev_init(void);
-extern void tlkdev_process(void);
-extern bool tlkdev_pmIsBusy(void);
 
 
 #endif //TLKDEV_STDIO_H

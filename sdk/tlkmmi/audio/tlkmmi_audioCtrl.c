@@ -97,7 +97,9 @@ int tlkmmi_audio_ctrlInit(void)
 //	btp_avrcp_setSpkVolume(volume);
 	tlkmdi_audio_infoGetVolume(TLKPRT_COMM_VOLUME_TYPE_VOICE, &volume);
 	tlkmdi_audio_setVoiceVolume(volume);
+#if (TLK_STK_BTP_ENABLE)
 	btp_hfphf_setSpkVolume(volume);
+#endif
 	tlkmdi_audio_infoGetVolume(TLKPRT_COMM_VOLUME_TYPE_HEADSET, &volume);
 	tlkmdi_audio_setHeadsetVolume(volume);
 	
@@ -113,12 +115,13 @@ int tlkmmi_audio_ctrlInit(void)
 
 void tlkmmi_audio_validOptype(uint08 *pOptype, uint16 *pHandle)
 {
-	uint16 srcHandle;
-	uint16 snkHandle;
-	
+#if (TLK_STK_BTP_ENABLE)
+	uint16 srcHandle = 0;
+	uint16 snkHandle = 0;
+	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	srcHandle = btp_a2dp_getSrcHandle();
 	snkHandle = btp_a2dp_getSnkHandle();
-//	snkHandle = 0;
+	#endif
 	if(srcHandle == 0 && snkHandle == 0){
 		if(pOptype != nullptr) *pOptype = TLKMMI_AUDIO_OPTYPE_PLAY;
 		if(pHandle != nullptr) *pHandle = TLK_INVALID_HANDLE;
@@ -131,6 +134,10 @@ void tlkmmi_audio_validOptype(uint08 *pOptype, uint16 *pHandle)
 			if(pHandle != nullptr) *pHandle = snkHandle;
 		}
 	}
+#else
+	*pOptype = 0;
+	*pHandle = 0;
+#endif
 }
 /******************************************************************************
  * Function: tlkmmi_audio_startPlay
@@ -369,12 +376,16 @@ void tlkmmi_audio_volumeInc(uint08 voltype)
 		tlkmdi_audio_toneVolumeInc(TLKMMI_AUDIO_VOLUME_TONE_STEP);
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_VOICE){
 		tlkmdi_audio_voiceVolumeInc(TLKMMI_AUDIO_VOLUME_VOICE_STEP);
+		#if (TLK_STK_BTP_ENABLE)
 		btp_hfphf_setSpkVolume(tlkmdi_audio_getVoiceVolume(true));
+		#endif
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		tlkmdi_audio_headsetVolumeInc(TLKMMI_AUDIO_VOLUME_HEADSET_STEP);
 	}else{
 		tlkmdi_audio_musicVolumeInc(TLKMMI_AUDIO_VOLUME_MUSIC_STEP);
+		#if (TLK_STK_BTP_ENABLE)
 		btp_avrcp_notyVolume(tlkmdi_audio_getMusicVolume(true));
+		#endif
 	}
 }
 /******************************************************************************
@@ -393,12 +404,16 @@ void tlkmmi_audio_volumeDec(uint08 voltype)
 		tlkmdi_audio_toneVolumeDec(TLKMMI_AUDIO_VOLUME_TONE_STEP);
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_VOICE){
 		tlkmdi_audio_voiceVolumeDec(TLKMMI_AUDIO_VOLUME_VOICE_STEP);
+		#if (TLK_STK_BTP_ENABLE)
 		btp_hfphf_setSpkVolume(tlkmdi_audio_getVoiceVolume(true));
+		#endif
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		tlkmdi_audio_headsetVolumeDec(TLKMMI_AUDIO_VOLUME_HEADSET_STEP);
 	}else{
 		tlkmdi_audio_musicVolumeDec(TLKMMI_AUDIO_VOLUME_MUSIC_STEP);
+		#if (TLK_STK_BTP_ENABLE)
 		btp_avrcp_notyVolume(tlkmdi_audio_getMusicVolume(true));
+		#endif 
 	}
 }
 /******************************************************************************
@@ -419,12 +434,16 @@ void tlkmmi_audio_setVolume(uint08 voltype, uint08 volume)
 		tlkmdi_audio_setToneVolume(volume);
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_VOICE){
 		tlkmdi_audio_setVoiceVolume(volume);
+		#if (TLK_STK_BTP_ENABLE)
 		btp_hfphf_setSpkVolume(tlkmdi_audio_getVoiceVolume(true));
+		#endif
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		tlkmdi_audio_setHeadsetVolume(volume);
 	}else{
 		tlkmdi_audio_setMusicVolume(volume);
+		#if (TLK_STK_BTP_ENABLE)
 		btp_avrcp_notyVolume(tlkmdi_audio_getMusicVolume(true));
+		#endif
 	}
 }
 
@@ -484,6 +503,8 @@ int tlkmmi_audio_channelToOptype(uint08 channel, uint08 *pOptype)
 		optype = TLKMMI_AUDIO_OPTYPE_SRC;
 	}else if(channel == TLKPRT_COMM_AUDIO_CHN_A2DP_SNK){
 		optype = TLKMMI_AUDIO_OPTYPE_SNK;
+	}else if(channel == TLKPRT_COMM_AUDIO_CHN_UAC){
+		optype = TLKMMI_AUDIO_OPTYPE_UAC;
 	}else{
 		optype = TLKMMI_AUDIO_OPTYPE_NONE;
 	}
@@ -519,6 +540,8 @@ int tlkmmi_audio_optypeToChannel(uint08 optype, uint08 *pChannel)
 		channel = TLKPRT_COMM_AUDIO_CHN_HFP_AG;
 	}else if(optype == TLKMMI_AUDIO_OPTYPE_SCO){
 		channel = TLKPRT_COMM_AUDIO_CHN_SCO;
+	}else if(optype == TLKMMI_AUDIO_OPTYPE_UAC){
+		channel = TLKPRT_COMM_AUDIO_CHN_UAC;
 	}else{
 		channel = TLKPRT_COMM_AUDIO_CHN_NONE;
 	}
@@ -542,7 +565,7 @@ void tlkmmi_audio_optypeChanged(uint08 newOptype, uint16 newHandle, uint08 oldOp
 {
 	gTlkMmiAudioCurHandle = newHandle;
 	gTlkMmiAudioCurOptype = newOptype;
-	tlkmmi_adapt_insertTimer(&gTlkMmiAudioCurTimer);
+	tlkmmi_audio_start();
 	tlkmmi_adapt_insertTimer(&gTlkMmiAudioCtrl.timer);
 	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_optypeChanged: gTlkMmiAudioCurOptype -%d", gTlkMmiAudioCurOptype);
 

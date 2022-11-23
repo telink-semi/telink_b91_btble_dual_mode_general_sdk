@@ -37,7 +37,7 @@
 #include "tlkstk/bt/btc/btc_stdio.h"
 #include "tlkstk/btble/btble.h"
 #include "tlkstk/btble/btble_pm.h"
-
+#include "tlkstk/tlkstk.h"
 
 extern bool tlkstk_pmIsBusy(void);
 extern bool tlkmdi_pmIsbusy(void);
@@ -48,13 +48,13 @@ extern void btc_set_sniff_req_enable(uint8_t enable);// 1 : enable, 0 :disable
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
 extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
-extern void tlkdev_xtsd01g_shutDown(void);
+extern void tlkdrv_xtsd01g_shutDown(void);
 extern uint bth_getAclCount(void);
 
 
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
-static bool tlkapp_pm_enterDeepSleepEnable(void);
+
 
 
 extern unsigned long  DEBUG_BTREG_INIT[];
@@ -86,6 +86,7 @@ int tlkapp_pm_init(void)
 
 	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_LOW, 1);
 	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLUP_1M);
+	gpio_set_input(TLKAPP_WAKEUP_PIN, 1);
 	
 	btc_set_sniff_req_enable(1);//enable
 	btc_ll_set_sniff_lp_mode(BT_SNIFF_LP_MODE_SUSPEND);
@@ -113,29 +114,30 @@ void tlkapp_pm_handler(void)
 	
 	if(gTlkAppSystemBusyTimer != 0 || !gpio_read(TLKAPP_WAKEUP_PIN)){
 		isBusy = true;
-	}else{
-		isBusy = tlkapi_pmIsBusy() || tlkdev_pmIsBusy() || tlkmdi_pmIsbusy()
-			  || tlkmmi_pmIsbusy() || tlkstk_pmIsBusy() || tlkapp_pmIsBusy();
+	}else if(tlkmdi_pmIsbusy() || tlkmmi_pmIsbusy() || tlkstk_pmIsBusy() || tlkapp_pmIsBusy()){
+		isBusy = true;
 	}
 
 	if(sTlkAppPmTraceTimer == 0 || clock_time_exceed(sTlkAppPmTraceTimer, 1000000)){
 		sTlkAppPmTraceTimer = clock_time()|1;
-		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d %d %d %d", 
-			tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), tlkapi_pmIsBusy(), tlkdev_pmIsBusy(), 
-			tlkmdi_pmIsbusy(), tlkmmi_pmIsbusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
+		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d %d", 
+			tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), tlkmdi_pmIsbusy(), 
+			tlkmmi_pmIsbusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
 	}
 	
 	if(isBusy){
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
 		btc_set_sniff_req_enable(0);//disable
 		bth_sendLeaveSleepCmd();
-		gTlkAppPmSysIdleTimer =  clock_time()|1;
+		gTlkAppPmSysIdleTimer = clock_time()|1;
 	}else{		
 		//enter deepsleep when system is idle
+		if(!tlkstk_state() && (gTlkAppPmSysIdleTimer == 0 || clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000))){
+			cpu_sleep_wakeup_32k_rc(DEEPSLEEP_MODE, PM_WAKEUP_PAD, 0);
+			gTlkAppPmSysIdleTimer = clock_time()|1;
+		}
 		if(gTlkAppPmSysIdleTimer != 0 && clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000)){
-			if(tlkapp_pm_enterDeepSleepEnable()){
-				cpu_sleep_wakeup_32k_rc(DEEPSLEEP_MODE, PM_WAKEUP_PAD, 0);
-			}
+			gTlkAppPmSysIdleTimer =  0;
 		}else{
 			btc_set_sniff_req_enable(1);//enable
 			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);
@@ -165,11 +167,8 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 		usb_set_pin_dis();
 	#endif
 	
-	#if (TLK_DEV_XTSD01G_ENABLE)
-	tlkdev_xtsd01g_shutDown();
-	#endif
-	#if (TLK_DEV_XT26G0X_ENABLE)
-	tlkdev_xt26g0x_shutDown();
+	#if (TLK_DEV_STORE_ENABLE)
+	tlkdrv_xtsd01g_shutDown();
 	#endif
 	
 	sTlkAppPmState = TLKAPP_PM_STATE_SLEEP;
@@ -193,31 +192,7 @@ static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 	gTlkAppPmSysIdleTimer = clock_time();
 	gTlkAppPmSchIdleCount = 0;
 }
-static bool tlkapp_pm_enterDeepSleepEnable(void)
-{
-	uint16 curNextId = bt_ll_shedule_cur_next_id_get();
 
-	if(curNextId != 0x8080){
-		gTlkAppPmSysIdleTimer = clock_time();
-		gTlkAppPmSchIdleCount = 0;
-		return false;
-	}
-	
-	if(bth_getAclCount() != 0){
-		gTlkAppPmSchIdleCount = 0;
-		return false;
-	}
-	if(curNextId == 0x8080){
-		gTlkAppPmSchIdleCount++;
-		if(gTlkAppPmSchIdleCount == 20){
-			return true;//enter deepsleep
-		}else{
-			gTlkAppPmSysIdleTimer = clock_time();
-			return false;
-		}
-	}
-	return false;
-}
 
 #endif
 

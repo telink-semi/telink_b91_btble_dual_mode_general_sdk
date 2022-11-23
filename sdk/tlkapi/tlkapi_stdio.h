@@ -47,10 +47,6 @@
 #include "tlkapi/tlkapi_timer.h"
 
 
-extern int  tlkapi_init(void);
-extern bool tlkapi_isBusy(void);
-extern void tlkapi_process(void);
-extern bool tlkapi_pmIsBusy(void);
 
 
 #endif //TLKAPI_STDIO_H

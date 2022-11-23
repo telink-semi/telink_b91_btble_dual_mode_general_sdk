@@ -29,14 +29,14 @@
 #if (TLK_USB_UDB_ENABLE)
 #include "tlklib/usb/udb/tlkusb_udb.h"
 #endif
-#if (TLK_USB_AUD_ENABLE)
-#include "tlklib/usb/aud/tlkusb_aud.h"
+#if (TLK_USB_UAC_ENABLE)
+#include "tlklib/usb/uac/tlkusb_uac.h"
 #endif
 #if (TLK_USB_CDC_ENABLE)
 #include "tlklib/usb/cdc/tlkusb_cdc.h"
 #endif
 #if (TLK_USB_HID_ENABLE)
-#include "tlklib/usb/aud/tlkusb_hid.h"
+#include "tlklib/usb/hid/tlkusb_hid.h"
 #endif
 #if (TLK_USB_MSC_ENABLE)
 #include "tlklib/usb/msc/tlkusb_msc.h"
@@ -48,7 +48,14 @@
 
 extern uint08 gTlkUsbCurModType;
 
-
+/******************************************************************************
+ * Function: tlkusb_init
+ * Descript: This function use to init usb device.
+ * Params: 
+ *		@usbID[IN]--USBID
+ * Return: TLK_ENONE is SUCCESS.
+ * Others: None.
+*******************************************************************************/
 int tlkusb_init(uint16 usbID)
 {
 	//set USB ID
@@ -65,8 +72,8 @@ int tlkusb_init(uint16 usbID)
 	#if (TLK_USB_UDB_ENABLE)
 	tlkusb_udb_init();
 	#endif
-	#if (TLK_USB_AUD_ENABLE)
-	tlkusb_aud_init();
+	#if (TLK_USB_UAC_ENABLE)
+	tlkusb_uac_init();
 	#endif
 	#if (TLK_USB_CDC_ENABLE)
 	tlkusb_cdc_init();
@@ -84,12 +91,26 @@ int tlkusb_init(uint16 usbID)
 	return TLK_ENONE;
 }
 
-
+/******************************************************************************
+ * Function: tlkusb_process
+ * Descript: This function use to loop through usb devices.
+ * Params: None
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlkusb_process(void)
 {
 	tlkusb_core_handler();
 }
 
+/******************************************************************************
+ * Function: tlkusb_setModule
+ * Descript: This function use to set usb module type.
+ * Params: 
+ *		@modType[IN]--USB Module Type.
+ * Return: true is SUCCESS.
+ * Others: None.
+*******************************************************************************/
 bool tlkusb_setModule(uint08 modtype) //TLKUSB_MODTYPE_ENUM
 {
 	if(gTlkUsbCurModType == modtype) return true;
@@ -105,6 +126,10 @@ bool tlkusb_setModule(uint08 modtype) //TLKUSB_MODTYPE_ENUM
 	return true;
 }
 
+bool tlkusb_mount(uint08 modtype)
+{
+	return tlkusb_setModule(modtype);
+}
 
 
 

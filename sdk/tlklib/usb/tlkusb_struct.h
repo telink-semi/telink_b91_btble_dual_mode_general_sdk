@@ -209,125 +209,125 @@ typedef struct
 
 typedef struct
 {
-	uint08 Size;
-    uint08 Type;
-	uint16 HIDSpec;
-	uint08 CountryCode;
-	uint08 TotalReportDescriptors;
-	uint08 HIDReportType;
-	uint16 HIDReportLength;
+	uint08 Size; /**< Size of the descriptor, in bytes. */
+    uint08 Type; /**< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint16 HIDSpec; /*BCD of the supported HID specification.*/
+	uint08 CountryCode; /*The country code of the country where the hardware device is located*/
+	uint08 TotalReportDescriptors;	/*The number of the accessory descriptor*/
+	uint08 HIDReportType;	/*The type of the accessory descriptor*/
+	uint16 HIDReportLength;	/*The length of the accessory descriptor*/
 }tlkusb_HidEndpointDesc_t;
 
 
 typedef struct
 {
-	uint08 bLength; 
-	uint08 bDescriptorType;
-	uint08 Subtype;
-	uint08 ACSpecification[2];
-	uint08 TotalLength[2];
-	uint08 InCollection;
-	uint08 InterfaceNumber;
-}__attribute__((packed)) tlkusb_audInterfaceAcDesc_t;
+	uint08 bLength; /* Size of the descriptor, in bytes. */
+	uint08 bDescriptorType; /**< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 Subtype; /*Subtype of the descriptors.*/
+	uint08 ACSpecification[2]; /*Revision of class specification*/
+	uint08 TotalLength[2];	/*Total size of class specific descriptors.*/
+	uint08 InCollection; /*Number of streaming interfaces.*/
+	uint08 InterfaceNumber;	/*AudioStreaming interface belongs to AudioControl interface.Multiple connections follow in turn*/
+}__attribute__((packed)) tlkusb_uacInterfaceAcDesc_t;
 typedef struct
 {
-	uint08 bLength; 
-	uint08 bDescriptorType;
-	uint08 Subtype;
-	uint08 ACSpecification[2];
-	uint08 TotalLength[2];
-	uint08 InCollection;
-	uint08 InterfaceNumber_spk;
-	uint08 InterfaceNumber_mic;
-}__attribute__((packed)) tlkusb_audInterfaceAcTLDesc_t;
+	uint08 bLength; /* Size of the descriptor, in bytes. */
+	uint08 bDescriptorType; /*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 Subtype;	/*Subtype of the descriptor.*/
+	uint08 ACSpecification[2]; /*Revision of class specification - 1.0*/
+	uint08 TotalLength[2];	/*Total size of class specific descriptors.*/
+	uint08 InCollection;	/*Number of streaming interfaces.*/
+	uint08 InterfaceNumber_spk;	/*AudioStreaming interface belongs to AudioControl interface.Multiple connections follow in turn*/
+	uint08 InterfaceNumber_mic;	/*AudioStreaming interface belongs to AudioControl interface.Multiple connections follow in turn*/
+}__attribute__((packed)) tlkusb_uacInterfaceAcTLDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 TerminalLink;
-	uint08 Delay;
-	uint08 AudioFormat[2];//uint16 FormatTag;
-}__attribute__((packed)) tlkusb_audInterfaceAsDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype; /*Subtype of the descriptor.*/
+	uint08 TerminalLink; /*The Terminal ID of the Terminal to which the endpoint of this interface is connected.*/
+	uint08 Delay; /*Delay introduced by the data path. Expressed in number of frames.*/
+	uint08 AudioFormat[2]; /*The Audio Data Format that has to be used to communicate with this interface.*/
+}__attribute__((packed)) tlkusb_uacInterfaceAsDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 TerminalID;
-	uint16 TerminalType;
-	uint08 AssocTerminal;
-	uint08 TotalChannels;
-	uint16 ChannelConfig;
-	uint08 ChannelStrIndex;
-	uint08 TerminalStrIndex;
-}__attribute__((packed)) tlkusb_audInputDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype;	/*Subtype of the descriptor.*/
+	uint08 TerminalID;	/*Terminal ID,either a value in \ref TLKUSB_AUDID_ENUM,	Constant uniquely identifying theTerminal within the audio function. */
+	uint16 TerminalType; /*Constant characterizing the type of Terminal. */
+	uint08 AssocTerminal; /*ID of the Output Terminal to which this Input Terminal is associated.*/
+	uint08 TotalChannels; /*Number of logical output channels in the Terminals output audio channel cluster.*/
+	uint16 ChannelConfig; /*Describes the spatial location of the logical channels.*/
+	uint08 ChannelStrIndex; /*Index of a string descriptor, describing the name of the first logical channel.*/
+	uint08 TerminalStrIndex; /*Index of a string descriptor, describing the Input Terminal.*/
+}__attribute__((packed)) tlkusb_uacInputDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 TerminalID;
-	uint16 TerminalType;
-	uint08 AssocTerminal;
-	uint08 SourceID;
-	uint08 Terminal;
-}__attribute__((packed)) tlkusb_audOutputDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype;	/*Subtype of the descriptor.*/
+	uint08 TerminalID; /*Terminal ID,either a value in \ref TLKUSB_AUDID_ENUM,	Constant uniquely identifying theTerminal within the audio function. */
+	uint16 TerminalType; /*Constant characterizing the type of Terminal. */
+	uint08 AssocTerminal; /*ID of the Iutput Terminal to which this Output Terminal is associated.*/
+	uint08 SourceID; /*ID of the Unit or Terminal to which this Terminal is connected.*/
+	uint08 Terminal; /*Index of a string descriptor, describing the Output Terminal.*/
+}__attribute__((packed)) tlkusb_uacOutputDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 UnitID;
-	uint08 SourceID;
-	uint08 ControlSize;
-	uint08 MAControls[2];
-	uint08 FeatureUnitStrIndex;
-}__attribute__((packed)) tlkusb_audSingleFeatureDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype;	/*Subtype of the descriptor.*/
+	uint08 UnitID; /*Constant uniquely identifying the Unit within the audio function. This value is used in all requests to address this Unit.*/
+	uint08 SourceID;/*ID of the Unit or Terminal to which this Feature Unit is connected.*/
+	uint08 ControlSize; /*Size in bytes of an element of the MAControls */
+	uint08 MAControls[2]; /*An array of bit-maps, each indicating the availability of certain audio Controls for a specific logical channel or for the master channel 0*/
+	uint08 FeatureUnitStrIndex; /*Index of a string descriptor, describing this Feature Unit.*/
+}__attribute__((packed)) tlkusb_uacSingleFeatureDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 UnitID;
-	uint08 SourceID;
-	uint08 ControlSize;
-	uint08 MAControls[3];
-	uint08 FeatureUnitStrIndex;
-}__attribute__((packed)) tlkusb_audDoubleFeatureDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype;	/*Subtype of the descriptor.*/
+	uint08 UnitID; /*Constant uniquely identifying the Unit within the audio function. This value is used in all requests to address this Unit.*/
+	uint08 SourceID; /*ID of the Unit or Terminal to which this Feature Unit is connected.*/
+	uint08 ControlSize; /*Size in bytes of an element of the MAControls */
+	uint08 MAControls[3];/*An array of bit-maps, each indicating the availability of certain audio Controls for a specific logical channel or for the master channel 0*/
+	uint08 FeatureUnitStrIndex; /*Index of a string descriptor, describing this Feature Unit.*/
+}__attribute__((packed)) tlkusb_uacDoubleFeatureDesc_t;
 
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 FormatType;
-	uint08 NrChannels;
-	uint08 SubFrameSize;
-	uint08 BitResolution;
-	uint08 SampleFrequencyType;
-	uint08 tSamFreq[3];
-}__attribute__((packed)) tlkusb_audFormatDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype;	/*Subtype of the descriptor.*/
+	uint08 FormatType; /*Audio format type.*/
+	uint08 NrChannels; /*Number of physical channels supported by the interface*/
+	uint08 SubFrameSize; /*Bytes of data per channel.*/
+	uint08 BitResolution; /*The number of significant bits in SubFrameSize.*/
+	uint08 SampleFrequencyType; /*Sample type. 0:Continuous sampling rate, other:The number of supported discrete sampling frequencies*/
+	uint08 tSamFreq[3]; /*Sample rate*/
+}__attribute__((packed)) tlkusb_uacFormatDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 EndpointAddress;
-	uint08 MAttributes;
-	uint16 MaxPacketSize;
-	uint08 Interval;
-	uint08 Refresh;
-	uint08 SynchAddress;
-}__attribute__((packed)) tlkusb_audStdEndpointDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 EndpointAddress; /*The address of the endpoint. bit[7]: Direction,bit[3-0]: The endpoint number,bit[6-4]: Reserved.*/
+	uint08 MAttributes; /*Synchronization type.bit[1-0]:Transfer type. bit[3-2]:Synchronisation Type,bit[5-4]:Usage type.*/
+	uint16 MaxPacketSize; /*The maximum packet length of the endpoint's data transfer*/
+	uint08 Interval; /*Interval for polling endpoint for data transfers expressed in ms.Must be set to 1.*/
+	uint08 Refresh; /*Reset to 0.*/
+	uint08 SynchAddress; /*The address of the endpoint used to communicate synchronization information if required by this endpoint. Reset to zero if no synchronization pipe is used*/
+}__attribute__((packed)) tlkusb_uacStdEndpointDesc_t;
 typedef struct
 {
-	uint08 Length;
-	uint08 DescriptorType;
-	uint08 DescriptorSubtype;
-	uint08 MAttributes;
-	uint08 LockDelayUnits;
-	uint08 LockDelay[2]; //uint16 LockDelay;
-}__attribute__((packed)) tlkusb_audSpcEndpointDesc_t;
+	uint08 Length;	/* Size of the descriptor, in bytes. */
+	uint08 DescriptorType;	/*< Type of the descriptor, either a value in \ref TLKUSB_TYPE_ENUM or a value given by the specific class. */
+	uint08 DescriptorSubtype;	/*Subtype of the descriptor.*/
+	uint08 MAttributes;/*A bit in the range bit[6-0] set to 1 indicates that the mentioned Control is supported by this endpoint.bit[0]: Sampling Frequency bit[1]: Pitch bit[6-2]: Reserved bit[7] MaxPacketsOnly.*/
+	uint08 LockDelayUnits;/*Indicates the units used for the LockDelay field:0: Undefined  1: Milliseconds 2: Decoded PCM samples 3..255: Reserved*/
+	uint08 LockDelay[2]; /*Indicates the time it takes this endpoint to reliably lock its internal clock recovery circuitry. Units used depend on the value of the bLockDelayUnits field.*/
+}__attribute__((packed)) tlkusb_uacSpcEndpointDesc_t;
 
 
 

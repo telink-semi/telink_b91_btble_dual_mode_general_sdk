@@ -32,23 +32,23 @@
 
 
 typedef struct{
-	uint08 bFunctionLength;
-	uint08 bDescriptorType;
-	uint08 bDescriptorSubType;
-	uint16 bcdCDC;
+	uint08 bFunctionLength;	//Length
+	uint08 bDescriptorType;	//Type
+	uint08 bDescriptorSubType;	//Subtype
+	uint16 bcdCDC;	//CDC Specification
 }tlkusb_cdcFunctionHead_t;
 typedef struct{
-	uint08 bFunctionLength;
-	uint08 bDescriptorType;
-	uint08 bDescriptorSubType;
-	uint08 bmCapabilities;
+	uint08 bFunctionLength;//Length
+	uint08 bDescriptorType;//Type
+	uint08 bDescriptorSubType;//Subtype
+	uint08 bmCapabilities;//Capabilities
 }tlkusb_cdcFunctionAcm_t;
 typedef struct{
-	uint08 bFunctionLength;
-	uint08 bDescriptorType;
-	uint08 bDescriptorSubType;
-	uint08 bMasterInterface;
-	uint08 bSlaveInterface0;
+	uint08 bFunctionLength;		//Length
+	uint08 bDescriptorType;		//Type
+	uint08 bDescriptorSubType;	//Subtype
+	uint08 bMasterInterface;	//MasterInterfaceNumber
+	uint08 bSlaveInterface0;	//SlaveInterfaceNumber
 }tlkusb_cdcFunctionUnion_t;
 
 

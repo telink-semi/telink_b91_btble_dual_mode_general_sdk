@@ -31,9 +31,8 @@
 
 
 #define BTP_ATT_TIMEOUT              200000 //100ms
-#define BTP_ATT_CONN_TIMEOUT         (7000000/BTP_A2DP_TIMEOUT)
-#define BTP_ATT_DISC_TIMEOUT         (5000000/BTP_A2DP_TIMEOUT)
-#define BTP_ATT_CONN_TIMEOUT2        (5000000/BTP_A2DP_TIMEOUT)
+#define BTP_ATT_CONN_TIMEOUT         (5000000/BTP_ATT_TIMEOUT)
+#define BTP_ATT_DISC_TIMEOUT         (5000000/BTP_ATT_TIMEOUT)
 
 
 
@@ -47,6 +46,9 @@ typedef struct{
 	uint16 flags;
 	uint16 handle;
 	uint16 mtuSize;
+	uint08 timeout;
+	uint08 reserve0;
+	uint16 reserve1;
 	union{
 		struct{
 			uint08 opcode;

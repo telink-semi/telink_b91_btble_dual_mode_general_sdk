@@ -48,6 +48,11 @@ const tlkusb_modDesc_t sTlkUsbMscModDesc = {
 };
 
 
+static const tlkusb_stdStringDesc_t sMmiUsbMscVendorDesc = {
+	2+sizeof(TLKUSB_MSC_STRING_VENDOR)-2, //-2 is the end of the string
+	TLKUSB_TYPE_STRING, // Header
+	TLKUSB_MSC_STRING_VENDOR 
+};
 
 static const tlkusb_stdStringDesc_t sMmiUsbMscProductDesc = {
 	2+sizeof(TLKUSB_MSC_STRING_PRODUCT)-2, //-2 is the end of the string
@@ -58,23 +63,15 @@ static const tlkusb_stdStringDesc_t sMmiUsbMscProductDesc = {
 /** Serial number string. This is a Unicode string containing the device's unique serial number, expressed as a
  *  series of uppercase hexadecimal digits.
  */
-#if (TLK_DEV_XTSD01G_ENABLE)
-static const tlkusb_stdStringDesc_t sMmiUsbMscSerial0Desc = {
-	2+sizeof(TLKUSB_MSC_STRING_SERIAL0)-2,
+static const tlkusb_stdStringDesc_t sMmiUsbMscSerialDesc = {
+	2+sizeof(TLKUSB_MSC_STRING_SERIAL)-2,
 	TLKUSB_TYPE_STRING,
-	TLKUSB_MSC_STRING_SERIAL0
+	TLKUSB_MSC_STRING_SERIAL
 };
-#else
-static const tlkusb_stdStringDesc_t sMmiUsbMscSerial1Desc = {
-	2+sizeof(TLKUSB_MSC_STRING_SERIAL1)-2,
-	TLKUSB_TYPE_STRING,
-	TLKUSB_MSC_STRING_SERIAL1
-};
-#endif
 
 #if (TLK_USB_MSC_ENABLE)
 static const tlkusb_stdDeviceDesc_t sMmiUsbMscDeviceDesc = { 
-	sizeof(tlkusb_stdDeviceDesc_t), //
+	sizeof(tlkusb_stdDeviceDesc_t), //Length
 	TLKUSB_TYPE_DEVICE , // Header
 	0x0110,
 	USB_CSCP_NoDeviceClass, // Class
@@ -94,8 +91,8 @@ static const tlkusb_stdDeviceDesc_t sMmiUsbMscDeviceDesc = {
 };
 static const tlkusb_mscConfigDesc_t sMmiUsbMscConfigDesc = {
 	{
-		sizeof(tlkusb_stdConfigureDesc_t),
-		TLKUSB_TYPE_CONFIGURE, // Length, type
+		sizeof(tlkusb_stdConfigureDesc_t),//Length
+		TLKUSB_TYPE_CONFIGURE, // Type
 		sizeof(tlkusb_mscConfigDesc_t), // TotalLength: variable
 		TLKUSB_MSC_INF_MAX, // NumInterfaces
 		1, // Configuration index
@@ -116,8 +113,8 @@ static const tlkusb_mscConfigDesc_t sMmiUsbMscConfigDesc = {
 //	},
 	// MSC Interface
 	{ 
-		sizeof(tlkusb_stdInterfaceDesc_t),
-		TLKUSB_TYPE_INTERFACE,
+		sizeof(tlkusb_stdInterfaceDesc_t),//Length
+		TLKUSB_TYPE_INTERFACE,//Type
 		TLKUSB_MSC_INF_MSC, // bInterfaceNumber
 		0, // AlternateSetting
 		2, // bNumEndpoints
@@ -128,8 +125,8 @@ static const tlkusb_mscConfigDesc_t sMmiUsbMscConfigDesc = {
 	},
 	// MSC IN Endpoint
 	{
-		sizeof(tlkusb_stdEndpointDesc_t),
-		TLKUSB_TYPE_ENDPOINT, // length, bDescriptorType
+		sizeof(tlkusb_stdEndpointDesc_t),//Length
+		TLKUSB_TYPE_ENDPOINT, // bDescriptorType
 		TLKUSB_EDP_DIR_IN | TLKUSB_MSC_EDP_IN, // endpoint id
 		TLKUSB_EDP_TYPE_BULK, // endpoint type
 		0x0040, // wMaxPacketSize
@@ -137,8 +134,8 @@ static const tlkusb_mscConfigDesc_t sMmiUsbMscConfigDesc = {
 	},
 	// MSC OUT Endpoint
 	{
-		sizeof(tlkusb_stdEndpointDesc_t),
-		TLKUSB_TYPE_ENDPOINT, // length, bDescriptorType
+		sizeof(tlkusb_stdEndpointDesc_t), //Length
+		TLKUSB_TYPE_ENDPOINT, // bDescriptorType
 		TLKUSB_MSC_EDP_OUT, // endpoint id
 		TLKUSB_EDP_TYPE_BULK, // endpoint type
 		0x0040, // wMaxPacketSize
@@ -159,14 +156,12 @@ static uint16 tlkusb_mscdesc_getConfigLens(void)
 }
 static uint16 tlkusb_mscdesc_getStringLens(uint08 index)
 {
-	if(index == TLKUSB_STRING_INDEX_PRODUCT){
+	if(index == TLKUSB_STRING_INDEX_VENDOR){
+		return sizeof(TLKUSB_MSC_STRING_VENDOR);
+	}else if(index == TLKUSB_STRING_INDEX_PRODUCT){
 		return sizeof(TLKUSB_MSC_STRING_PRODUCT);
 	}else if(index == TLKUSB_STRING_INDEX_SERIAL){
-		#if (TLK_DEV_XTSD01G_ENABLE)
-		return sizeof(TLKUSB_MSC_STRING_SERIAL0);
-		#else
-		return sizeof(TLKUSB_MSC_STRING_SERIAL0);
-		#endif
+		return sizeof(TLKUSB_MSC_STRING_SERIAL);
 	}else{
 		return 0;
 	}
@@ -182,14 +177,12 @@ static uint08 *tlkusb_mscdesc_getConfigDesc(void)
 }
 static uint08 *tlkusb_mscdesc_getStringDesc(uint08 index)
 {
-	if(index == TLKUSB_STRING_INDEX_PRODUCT){
+	if(index == TLKUSB_STRING_INDEX_VENDOR){
+		return (uint08*)(&sMmiUsbMscVendorDesc);
+	}else if(index == TLKUSB_STRING_INDEX_PRODUCT){
 		return (uint08*)(&sMmiUsbMscProductDesc);
 	}else if(index == TLKUSB_STRING_INDEX_SERIAL){
-		#if (TLK_DEV_XTSD01G_ENABLE)
-		return (uint08*)(&sMmiUsbMscSerial0Desc);
-		#else
-		return (uint08*)(&sMmiUsbMscSerial1Desc);
-		#endif
+		return (uint08*)(&sMmiUsbMscSerialDesc);
 	}else{
 		return 0;
 	}

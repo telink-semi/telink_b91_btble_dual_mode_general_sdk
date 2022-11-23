@@ -39,10 +39,10 @@ int tlkmmi_init(void)
 	tlkmmi_adapt_init();
 	#if (TLKMMI_AUDIO_ENABLE)
 	tlkmmi_audio_init();
-	#endif //TLKMMI_AUDIO_ENABLE
+	#endif
 	#if (TLKMMI_BTMGR_ENABLE)
 	tlkmmi_btmgr_init();
-	#endif //TLKMMI_BTMGR_ENABLE
+	#endif
 	#if (TLKMMI_LEMGR_ENABLE)
 	tlkmmi_lemgr_init();
 	#endif

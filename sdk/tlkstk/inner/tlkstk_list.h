@@ -34,8 +34,8 @@
  ****************************************************************************************
  */
 
-#ifndef _CO_LIST_H_
-#define _CO_LIST_H_
+#ifndef TLKSTK_LIST_H
+#define TLKSTK_LIST_H
 
 /**
  *****************************************************************************************
@@ -322,4 +322,4 @@ __INLINE struct co_list_hdr *co_list_next(const struct co_list_hdr *const list_h
 }
 
 /// @} CO_LIST
-#endif // _CO_LIST_H_
+#endif // TLKSTK_LIST_H

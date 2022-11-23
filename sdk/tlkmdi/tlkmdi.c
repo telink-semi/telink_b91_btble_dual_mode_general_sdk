@@ -50,6 +50,9 @@
 #if (TLK_MDI_LED_ENABLE)
 #include "tlkmdi/tlkmdi_led.h"
 #endif
+#if (TLK_CFG_DBG_ENABLE)
+#include "tlkmdi/tlkmdi_debug.h"
+#endif
 
 #include "tlkmdi/tlkmdi.h"
 
@@ -65,9 +68,15 @@
 *******************************************************************************/
 int tlkmdi_init(void)
 {
-	tlkmdi_comm_init();
+	#if (TLKAPI_TIMER_ENABLE)
+	tlkapi_timer_init();
+	#endif
 	tlkmdi_adapt_init();
 	tlkmdi_event_init();
+
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_init();
+	#endif
 	
 	#if (TLK_MDI_FS_ENABLE)
 	tlkmdi_fs_init();
@@ -95,7 +104,10 @@ int tlkmdi_init(void)
 	#if (TLK_MDI_AUDIO_ENABLE)
 	tlkmdi_audio_init();
 	#endif
-	
+
+	#if (TLK_MDI_DEBUG_ENABLE)
+	tlkmdi_debug_init();
+	#endif
 	#if (TLK_MDI_KEY_ENABLE)
 	tlkmdi_key_init();
 	#endif
@@ -129,6 +141,9 @@ int tlkmdi_init(void)
 	#if (TLKMDI_CFG_AUDSNK_ENABLE)
 	tlkmdi_audsnk_init();
 	#endif
+	#if (TLKMDI_CFG_AUDUAC_ENABLE)
+	tlkmdi_auduac_init();
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -145,7 +160,13 @@ void tlkmdi_process(void)
 	tlkmdi_adapt_handler();
 	tlkmdi_event_handler();
 	#if (TLK_MDI_USB_ENABLE)
-	tlkmdi_usb_process();
+	tlkmdi_usb_handler();
+	#endif
+	#if (TLK_MDI_DEBUG_ENABLE)
+	tlkmdi_debug_handler();
+	#endif
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_handler();
 	#endif
 }
 
@@ -158,7 +179,16 @@ void tlkmdi_process(void)
 *******************************************************************************/
 bool tlkmdi_pmIsbusy(void)
 {
-	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()) return true;
+	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()
+		#if (TLK_MDI_DEBUG_ENABLE)
+		|| tlkmdi_debug_pmIsBusy()
+		#endif
+		#if (TLK_CFG_COMM_ENABLE)
+		|| tlkmdi_comm_pmIsBusy()
+		#endif
+	){
+		return true;
+	}
 	return false;
 }
 

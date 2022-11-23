@@ -24,7 +24,7 @@
 #ifndef BTP_DEFINE_H
 #define BTP_DEFINE_H
 
-
+#if (TLK_STK_BTP_ENABLE)
 
 
 
@@ -84,7 +84,7 @@ typedef enum{
 
 
 
-
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //BTP_DEFINE_H
 

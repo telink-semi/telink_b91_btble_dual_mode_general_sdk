@@ -136,5 +136,12 @@ ble_sts_t	blc_controller_check_appBufferInitialization(void);
 ble_sts_t 	blc_ll_setHostChannel(u8 * chnMap);
 
 
+/**
+ * @brief      this function is used by the Host to judge whether BLE is idle state.
+ * @param[in]  none
+ * @return     status, 0x01:  idle state
+ * 			           0x00:  other state
+ */
+u8	blc_ll_isBLEidle(void);
 
 #endif /* LL_H_ */

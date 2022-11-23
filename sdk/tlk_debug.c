@@ -63,6 +63,7 @@ static const tlk_debug_info_t scTlkDebugSysInfo = {
 		{TLK_MINOR_DBGID_SYS,     false, false, TLK_DEBUG_DBG_FLAG_ALL, "[SYS]"},
 		{TLK_MINOR_DBGID_SYS_API, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[API]"},
 		{TLK_MINOR_DBGID_SYS_ALG, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[ALG]"},
+		{TLK_MINOR_DBGID_SYS_SCH, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[SCH]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugBtcInfo = {
@@ -71,26 +72,26 @@ static const tlk_debug_info_t scTlkDebugBtcInfo = {
 	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
 	TLK_MINOR_DBGID_BTC_MAX, //unitCnt
 	{
-		{TLK_MINOR_DBGID_BTC,        true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_LMP,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_ACL,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC,        false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_LMP,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_ACL,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_SCO,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_HCI,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_EVT,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_EVT,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_ENC,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_RSW,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_QOS,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_AFH,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_CHN,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_CHN,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_AUTH,   false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_PAIR,   false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_TASK,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_NAME,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_PAGE,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_TASK,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_NAME,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_PAGE,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_SNIFF,  false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_TIMER,  true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_TIMER,  false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_RESET,  false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_DETACH, true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_DETACH, false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugBthInfo = {
@@ -201,6 +202,7 @@ static const tlk_debug_info_t scTlkDebugMdiAudInfo = {
 		{TLK_MINOR_DBGID_MDI_AUD_SCO,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SCO]"},
 		{TLK_MINOR_DBGID_MDI_AUD_SNK,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SNK]"},
 		{TLK_MINOR_DBGID_MDI_AUD_SRC,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SRC]"},
+		{TLK_MINOR_DBGID_MDI_AUD_UAC,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[UAC]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugMdiBtInfo = {
@@ -289,7 +291,9 @@ static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
 };
 
 static unsigned long sTlkDebugDbgMask[TLK_MAJOR_DBGID_MAX];
-
+#if (TLK_CFG_VCD_ENABLE)
+static unsigned long sTlkDebugVcdMask[TLK_MAJOR_DBGID_MAX];
+#endif
 
 void tlk_debug_init(void)
 {
@@ -304,6 +308,17 @@ void tlk_debug_init(void)
 			}
 		}
 	}
+	#if (TLK_CFG_VCD_ENABLE)
+	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
+		sTlkDebugVcdMask[idxI] = 0;
+		for(idxJ=0; idxJ<32; idxJ++){
+			if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
+				&& scTlkDebugInfo[idxI]->vcdIsEn && scTlkDebugInfo[idxI]->unit[idxJ].vcdIsEn){
+				sTlkDebugVcdMask[idxI] |= (1 << idxJ);
+			}
+		}
+	}
+	#endif
 }
 
 
@@ -314,6 +329,7 @@ bool tlk_debug_dbgIsEnable(unsigned int flags, unsigned int dbgFlag)
 	unsigned char minorID = (flags >> 16) & 0xFF;
 	if((flags & dbgFlag) == 0 || majorID >= TLK_MAJOR_DBGID_MAX || minorID >= 32
 		|| (sTlkDebugDbgMask[majorID] & (1 << minorID)) == 0
+		|| (scTlkDebugInfo[majorID]->dbgFlag & dbgFlag) == 0
 		|| (scTlkDebugInfo[majorID]->unit[minorID].dbgFlag & dbgFlag) == 0){
 		return false;
 	}
@@ -331,9 +347,19 @@ bool tlk_debug_dbgIsEnable1(unsigned int flags)
 }
 
 _attribute_ram_code_sec_noinline_
-bool tlk_debug_vcdIsEnable(unsigned int flags, unsigned int vcdFlag)
+bool tlk_debug_vcdIsEnable(unsigned int flags)
 {
+	#if (TLK_CFG_VCD_ENABLE)
+	unsigned char majorID = (flags >> 24);
+	unsigned char minorID = (flags >> 16) & 0xFF;
+	if(/*(flags & 0x01) == 0 || */majorID >= TLK_MAJOR_DBGID_MAX || minorID >= 32
+		|| (sTlkDebugVcdMask[majorID] & (1 << minorID)) == 0){
+		return false;
+	}
+	return true;
+	#else
 	return false;
+	#endif
 }
 
 _attribute_ram_code_sec_noinline_

@@ -29,9 +29,10 @@
 
 #define TLKMMI_AUDIO_TIMEOUT          100000 //200ms
 #define TLKMMI_AUDIO_TIMEOUT_MS       100
-#define TLKMMI_AUDIO_TIMER_TIMEOUT    (3000000/TLKMMI_AUDIO_TIMEOUT) //Prevent timer termination, which may cause problems
+#define TLKMMI_AUDIO_TIMER_TIMEOUT    (500000/TLKMMI_AUDIO_TIMEOUT) //Prevent timer termination, which may cause problems
 
 #define TLKMMI_AUDIO_INFO_TIMEOUT     (5000000/TLKMMI_AUDIO_TIMEOUT) //5s
+#define TLKMMI_AUDIO_CODEC_IDLE_TIMEOUT    (300000/TLKMMI_AUDIO_TIMEOUT) //If codec is not used for more than this time, codec will automatically shut down
 
 
 #define TLKMMI_AUDIO_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_AUDIO << 24) | (TLK_MINOR_DBGID_MMI_AUDIO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
@@ -48,6 +49,7 @@ typedef enum{
 	TLKMMI_AUDIO_OPTYPE_SCO, //Status control of SCO link establishment. SCO is commonly used in phone calls or speech recognition.
 	TLKMMI_AUDIO_OPTYPE_SRC, //Connect the headset and play music to the headset
 	TLKMMI_AUDIO_OPTYPE_SNK, //Connect a mobile phone and listen to music on the mobile phone.
+	TLKMMI_AUDIO_OPTYPE_UAC,
 	TLKMMI_AUDIO_OPTYPE_MAX,
 }TLKMMI_AUDIO_OPTYPE_ENUM;
 
@@ -122,6 +124,11 @@ extern bool tlkmmi_audio_isLocalPlay(void);
 extern void tlkmmi_audio_stopLocalPlay(void);
 
 extern bool tlkmmi_audio_startTone(uint16 fileIndex, uint16 playCount);
+
+
+void tlkmmi_audio_start(void);
+void tlkmmi_audio_close(void);
+
 
 
 #endif //#if (TLKMMI_AUDIO_ENABLE)

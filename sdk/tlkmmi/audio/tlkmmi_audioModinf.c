@@ -243,6 +243,19 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioSnkModinf = {
 	tlkmdi_audsnk_irqProc, //IrqProc
 };
 #endif //#if (TLKMDI_CFG_AUDSNK_ENABLE)
+#if (TLKMDI_CFG_AUDUAC_ENABLE)
+static const tlkmmi_audio_modinf_t sTlkMMidAudioUacModinf = {
+	tlkmdi_auduac_start, //Start
+	tlkmdi_auduac_close, //Close
+	tlkmdi_auduac_timer, //Timer
+	nullptr, //ToNext
+	nullptr, //ToNext
+	tlkmdi_auduac_switch, //Switch
+	tlkmdi_auduac_isBusy, //IsBusy
+	tlkmdi_auduac_intval, //Intval
+	tlkmdi_auduac_irqProc, //IrqProc
+};
+#endif //#if (TLKMDI_CFG_AUDUAC_ENABLE)
 static const tlkmmi_audio_modinf_t *spTlkMmiAudioModinfs[TLKMMI_AUDIO_OPTYPE_MAX] = {
 	nullptr,
 #if TLKMDI_CFG_AUDTONE_ENABLE
@@ -274,6 +287,11 @@ static const tlkmmi_audio_modinf_t *spTlkMmiAudioModinfs[TLKMMI_AUDIO_OPTYPE_MAX
 #endif
 #if TLKMDI_CFG_AUDSNK_ENABLE
 	&sTlkMMidAudioSnkModinf,
+#else
+	nullptr,
+#endif
+#if TLKMDI_CFG_AUDUAC_ENABLE
+	&sTlkMMidAudioUacModinf,
 #else
 	nullptr,
 #endif

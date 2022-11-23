@@ -43,14 +43,14 @@
 
 extern void tlk_debug_init(void);
 extern bool tlk_debug_dbgIsEnable(unsigned int flags, unsigned int printFlag);
-extern bool tlk_debug_vcdIsEnable(unsigned int flags, unsigned int vcdFlag);
+extern bool tlk_debug_vcdIsEnable(unsigned int flags);
 extern bool tlk_debug_dbgIsEnable1(unsigned int flags);
 extern char *tlk_debug_getDbgSign(unsigned int flags);
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 extern int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen);
 #endif
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 static void tlkapi_debug_putchar(uint08 byte);
 #endif
 static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char *format, va_list args);
@@ -60,17 +60,19 @@ static uint16 sTlkApiDebugSerial;
 static uint08 sTlkApiDebugBuffer[(TLKAPI_DEBUG_ITEM_SIZE+2)*TLKAPI_DEBUG_ITEM_NUMB];
 static tlkapi_qfifo_t sTlkApiDebugFifo;
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 static uint16 sTlkApiDebugOffset;
 #endif
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 static uint32 sTlkApiDebugGpioPin;
 static uint32 sTlkApiDebugBitIntv;
 #endif
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 static uint08 sTlkApiUartSendIsBusy = false;
 #endif
-
+#if (TLK_CFG_VCD_ENABLE)
+static void tlkapi_vcd_process(void);
+#endif
 
 
 int tlkapi_debug_init(void)
@@ -79,7 +81,7 @@ int tlkapi_debug_init(void)
 	tlkapi_qfifo_init(&sTlkApiDebugFifo, TLKAPI_DEBUG_ITEM_NUMB, (TLKAPI_DEBUG_ITEM_SIZE+2),
 		sTlkApiDebugBuffer, (TLKAPI_DEBUG_ITEM_SIZE+2)*TLKAPI_DEBUG_ITEM_NUMB);
 
-	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+	#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 		sTlkApiDebugGpioPin = TLKAPI_DEBUG_GPIO_PIN;
 		sTlkApiDebugBitIntv = 16000000/TLKAPI_DEBUG_BAUD_RATE;
 		gpio_function_en(sTlkApiDebugGpioPin);
@@ -87,7 +89,7 @@ int tlkapi_debug_init(void)
 		gpio_output_en(sTlkApiDebugGpioPin);
 		gpio_set_high_level(sTlkApiDebugGpioPin);
 	#endif
-	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+	#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 		unsigned short div;
 		unsigned char bwpc;
 
@@ -97,7 +99,6 @@ int tlkapi_debug_init(void)
 		
 		gpio_set_up_down_res(TLKAPI_DEBUG_UART_TX_PIN, GPIO_PIN_PULLUP_10K);
 		gpio_input_en(TLKAPI_DEBUG_UART_TX_PIN);
-		//uart_set_fuc_pin
 		#if (TLKAPI_DEBUG_UART_TX_PIN == UART0_TX_PD2)
 		unsigned char mask = (unsigned char)~(BIT(5)|BIT(4));
 		reg_gpio_func_mux(TLKAPI_DEBUG_UART_TX_PIN)=(reg_gpio_func_mux(TLKAPI_DEBUG_UART_TX_PIN) & mask);
@@ -226,7 +227,7 @@ void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *for
 
 bool tlkapi_debug_isBusy(void)
 {
-	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+	#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 	if(sTlkApiUartSendIsBusy) return true;
 	#endif
 	if(sTlkApiDebugFifo.wptr == sTlkApiDebugFifo.rptr) return false;
@@ -248,9 +249,12 @@ void tlkapi_debug_reset(void)
 #if (TLK_USB_UDB_ENABLE)
 _attribute_ram_code_sec_noinline_ 
 #endif
-void tlkapi_debug_process(void)
+void tlkapi_debug_handler(void)
 {
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+#if (TLK_CFG_VCD_ENABLE)
+	tlkapi_vcd_process();
+#endif
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 	int ret;
 	uint08 *pData;
 	uint16 offset;
@@ -282,7 +286,7 @@ void tlkapi_debug_process(void)
 		sTlkApiDebugOffset = 0;
 		tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
 	}
-#elif(TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+#elif(TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 	int index;
 	uint08 *pData;
 	uint16 dataLen;
@@ -298,7 +302,7 @@ void tlkapi_debug_process(void)
 	pData[0] = 0x00;
 	pData[1] = 0x00;
 	tlkapi_qfifo_dropData(&sTlkApiDebugFifo);
-#elif(TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+#elif(TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 	if(!sTlkApiUartSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkApiDebugFifo)){
 		uint08 * pData = tlkapi_qfifo_getData(&sTlkApiDebugFifo);
 		if(pData == nullptr || (pData[0] == 0 && pData[1] == 0) || pData[2] != 0 || pData[3] != 0){
@@ -346,13 +350,13 @@ void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen
 	buffLen = 0;
 	pBuff[buffLen++] = 0x00; //(5+extLen+strLen+dataLen) & 0xFF;
 	pBuff[buffLen++] = 0x00; //((5+extLen+strLen+dataLen) & 0xFF00) >> 8;
-	#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+	#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 	pBuff[buffLen++] = 0x82;
 	pBuff[buffLen++] = 0x08;
 	pBuff[buffLen++] = 0x22;
 	pBuff[buffLen++] = 0x00;
 	pBuff[buffLen++] = 0x00;
-	#elif (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+	#elif (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 	pBuff[buffLen++] = 0x00; //(5+extLen+strLen+dataLen) & 0xFF;
 	pBuff[buffLen++] = 0x00; //((5+extLen+strLen+dataLen) & 0xFF00) >> 8;
 	#endif
@@ -392,7 +396,7 @@ void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen
 		tempVar = tlkapi_arrayToStr(pData, dataLen, (char*)(pBuff+buffLen), TLKAPI_DEBUG_ITEM_SIZE-2-buffLen, ' ');
 		buffLen += tempVar;
 	}
-	#if (TLKAPI_DEBUG_METHOD != TLKAPI_DEBUG_METHOD_UDB)
+	#if (TLKAPI_DEBUG_CHANNEL != TLKAPI_DEBUG_CHANNEL_UDB)
 	pBuff[buffLen++] = '\r';
 	pBuff[buffLen++] = '\n';
 	#endif
@@ -400,7 +404,7 @@ void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen
 	pBuff[1] = ((buffLen-2) & 0xFF00) >> 8;
 }
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 _attribute_retention_code_ 
 void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen)
 {
@@ -469,7 +473,7 @@ void tlkapi_debug_delayForPrint(uint32 us)
 		extern void tlkusb_process(void);
 		tlkusb_process();
 		#endif
-		tlkapi_debug_process();
+		tlkapi_debug_handler();
 		if(clock_time_exceed(timer, us)) break;
 	}
 }
@@ -488,7 +492,7 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 	if(pSign != nullptr) printf(pSign);
 	if(pHead != nullptr) printf(pHead);
 	vprintf(format, args);
-	#if (TLKAPI_DEBUG_METHOD != TLKAPI_DEBUG_METHOD_UDB)
+	#if (TLKAPI_DEBUG_CHANNEL != TLKAPI_DEBUG_CHANNEL_UDB)
 	printf("\r\n");
 	#endif
 	
@@ -498,7 +502,7 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 
 
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 static void tlkapi_debug_putchar(uint08 byte)
 {
 	uint08 index = 0;
@@ -532,7 +536,7 @@ static void tlkapi_debug_putchar(uint08 byte)
 }
 #endif
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 _attribute_ram_code_sec_ 
 void uart0_irq_handler(void)
 {
@@ -583,21 +587,21 @@ __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
 	
 	dataLen = ((uint16)pBuff[1] << 8) | pBuff[0];
 	if(dataLen != 0){
-		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+		#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 		dataLen += 4;
 		#else
 		dataLen += 2;
 		#endif
-		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+		#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 		if(dataLen < 7) return size;
 		#endif
 	}else{
-		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+		#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 		headLen = 4;
 		#else
 		headLen = 2;
 		#endif
-		#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UDB)
+		#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UDB)
 		pBuff[headLen++] = 0x82;
 		pBuff[headLen++] = 0x08;
 		pBuff[headLen++] = 0x22;
@@ -619,19 +623,124 @@ __attribute__((used)) int _write(int fd, const unsigned char *buf, int size)
     return size;
 }
 
+#if (TLK_CFG_VCD_ENABLE)
+
+#if (TLK_USB_VCD_ENABLE)
+#define tlkapi_vcd_rcd(d)   reg_usb_ep8_dat=d   //VCD Record
+#else
+#define tlkapi_vcd_rcd
+#endif
+
+static uint32 sTlkApiVcdTicks;
+
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_ref(void)
+{
+	uint32 r = core_disable_interrupt();
+	tlkapi_vcd_rcd(0x20);
+	int t=clock_time();
+	tlkapi_vcd_rcd(t);
+	tlkapi_vcd_rcd(t>>8);
+	tlkapi_vcd_rcd(t>>16);
+	core_restore_interrupt(r);
+}
+// 4-byte sync word: 00 00 00 00
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_sync(bool enable)
+{
+	if(enable){
+		uint32 r = core_disable_interrupt();
+		tlkapi_vcd_rcd(0);
+		tlkapi_vcd_rcd(0);
+		tlkapi_vcd_rcd(0);
+		tlkapi_vcd_rcd(0);
+		core_restore_interrupt(r);
+	}
+}      
+//4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_tick(uint flags, uint08 id)
+{
+	if(tlk_debug_vcdIsEnable(flags)){
+		uint32 r = core_disable_interrupt();
+		tlkapi_vcd_rcd(0x20|(id&31));
+		int t=clock_time();
+		tlkapi_vcd_rcd(t);
+		tlkapi_vcd_rcd(t>>8);
+		tlkapi_vcd_rcd(t>>16);
+		core_restore_interrupt(r);
+	}
+}
+//1-byte (01x_id-5bits) 1-bit data: b=0 or 1.
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_level(uint flags, uint08 id, uint08 level)
+{
+	if(tlk_debug_vcdIsEnable(flags)){
+		uint32 r = core_disable_interrupt();
+		tlkapi_vcd_rcd(((level)?0x60:0x40)|(id&31));
+		int t=clock_time();
+		tlkapi_vcd_rcd(t);
+		tlkapi_vcd_rcd(t>>8);
+		tlkapi_vcd_rcd(t>>16);
+		core_restore_interrupt(r);
+	}
+}
+//1-byte (000_id-5bits)
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_event(uint flags, uint08 id)
+{
+	if(tlk_debug_vcdIsEnable(flags)){
+		uint32 r = core_disable_interrupt();
+		tlkapi_vcd_rcd(0x00|(id&31));
+		core_restore_interrupt(r);
+	}
+}
+//2-byte (10-id-6bits) 8-bit data
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_byte(uint flags, uint08 id, uint08 value)
+{
+	if(tlk_debug_vcdIsEnable(flags)){
+		uint32 r = core_disable_interrupt();
+		tlkapi_vcd_rcd(0x80|(id&63));
+		tlkapi_vcd_rcd(value);
+		core_restore_interrupt(r);
+	}
+}
+//3-byte (11-id-6bits) 16-bit data
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_word(uint flags, uint08 id, uint16 value)
+{
+	if(tlk_debug_vcdIsEnable(flags)){
+		uint32 r = core_disable_interrupt();
+		tlkapi_vcd_rcd(0xc0|(id&63));
+		tlkapi_vcd_rcd(value);
+		tlkapi_vcd_rcd((value)>>8);
+		core_restore_interrupt(r);
+	}
+}
+static void tlkapi_vcd_process(void)
+{
+	if(sTlkApiVcdTicks == 0 || clock_time_exceed(sTlkApiVcdTicks, 10000)){
+		sTlkApiVcdTicks = clock_time() | 1;
+		tlkapi_vcd_ref();
+		tlkapi_vcd_sync(true); //SL_STACK_VCD_EN
+	}
+}
+
+#endif
+
 
 #if !(TLK_CFG_DBG_ENABLE)
-void tlkapi_debug_process(void)
+
+void tlkapi_debug_handler(void)
 {
 
 }
-
 _attribute_ram_code_sec_noinline_
 void tlkapi_debug_default(void)
 {
 	
 }
-
 void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
@@ -648,6 +757,24 @@ void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uin
 
 void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
 void tlkapi_debug_delayForPrint(uint32 us) __attribute__((weak, alias("tlkapi_debug_default")));
+
+#endif
+
+
+#if !(TLK_CFG_VCD_ENABLE)
+
+_attribute_ram_code_sec_noinline_
+void tlkapi_vcd_default(void)
+{
+	
+}
+void tlkapi_vcd_ref(void) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_sync(bool enable) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_tick(uint flags, uint08 id) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_level(uint flags, uint08 id, uint08 level) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_event(uint flags, uint08 id) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_byte(uint flags, uint08 id, uint08 value) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_word(uint flags, uint08 id, uint16 value) __attribute__((weak, alias("tlkapi_vcd_default")));
 
 
 #endif

@@ -24,6 +24,16 @@
 #ifndef TLKDEV_CODEC_H
 #define TLKDEV_CODEC_H
 
+#if (TLK_DEV_CODEC_ENABLE)
+
+
+#ifndef TLK_DEV_MIC_BUFF_SIZE
+#define TLK_DEV_MIC_BUFF_SIZE        (1024*2)
+#endif
+#ifndef TLK_DEV_SPK_BUFF_SIZE
+#define TLK_DEV_SPK_BUFF_SIZE        (1024*4) //If SRC is enabled, the value must be greater than or equal to 4K
+#endif
+
 
 typedef enum{
 	TLKDEV_CODEC_SUBDEV_DEF  = 0x00,
@@ -55,6 +65,11 @@ int tlkdev_codec_init(void);
 
 int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bitDepth, uint32 sampleRate);
 int tlkdev_codec_close(void);
+int tlkdev_codec_extOpen(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 spkChannel, uint08 spkBitDepth,
+	uint32 spkSampleRate, uint08 micChannel, uint08 micBitDepth, uint32 micSampleRate);
+
+uint tlkdev_codec_getSampleRate(void);
+uint tlkdev_codec_getChannel(void);
 
 void tlkdev_codec_muteSpk(void);
 
@@ -66,10 +81,13 @@ void tlkdev_codec_setMicOffset(uint16 offset);
 void tlkdev_codec_setSpkBuffer(uint08 *pBuffer, uint16 buffLen);
 void tlkdev_codec_setMicBuffer(uint08 *pBuffer, uint16 buffLen);
 
+uint tlkdev_codec_getSpkBuffLen(void);
+uint tlkdev_codec_getMicBuffLen(void);
 uint tlkdev_codec_getSpkIdleLen(void);
 uint tlkdev_codec_getSpkDataLen(void);
 uint tlkdev_codec_getMicDataLen(void);
 
+bool tlkdev_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset);
 bool tlkdev_codec_readMicData(uint08 *pBuff, uint16 buffLen, uint16 *pOffset);
 
 void tlkdev_codec_zeroSpkBuff(uint16 zeroLen, bool isInc);
@@ -77,6 +95,7 @@ bool tlkdev_codec_fillSpkBuff(uint08 *pData, uint16 dataLen);
 bool tlkdev_codec_backReadSpkData(uint08 *pBuff, uint16 buffLen, uint16 offset, bool isBack);
 
 
+#endif //#if (TLK_DEV_CODEC_ENABLE)
 
 #endif //TLKDEV_CODEC_H
 

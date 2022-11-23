@@ -88,8 +88,8 @@ static const tlkusb_stdDeviceDesc_t sMmiUsbHidDeviceDesc = {
 };
 static const tlkusb_hidConfigDesc_t sMmiUsbHidConfigDesc = {
 	{
-		sizeof(tlkusb_stdConfigureDesc_t),
-		TLKUSB_TYPE_CONFIGURE, // Length, type
+		sizeof(tlkusb_stdConfigureDesc_t),//Length
+		TLKUSB_TYPE_CONFIGURE, // type
 		sizeof(tlkusb_hidConfigDesc_t), // TotalLength: variable
 		TLKUSB_HID_INF_MAX, // NumInterfaces
 		1, // Configuration index
@@ -100,31 +100,31 @@ static const tlkusb_hidConfigDesc_t sMmiUsbHidConfigDesc = {
 #if (TLKUSB_HID_MOUSE_ENABLE)
 	// mouse_interface
 	{
-		sizeof(tlkusb_stdInterfaceDesc_t),
-		TLKUSB_TYPE_INTERFACE,
-		TLKUSB_HID_INF_MOUSE,
+		sizeof(tlkusb_stdInterfaceDesc_t),//Length
+		TLKUSB_TYPE_INTERFACE,	//type
+		TLKUSB_HID_INF_MOUSE,	//Interface number
 		0, // AlternateSetting
 		1, // bNumEndpoints
-		TLKUSB_HID_CSCP_HIDClass,
-		TLKUSB_HID_CSCP_BootSubclass,
-		TLKUSB_HID_CSCP_MouseBootProtocol,
+		TLKUSB_HID_CSCP_HIDClass,	//class
+		TLKUSB_HID_CSCP_BootSubclass,	//subclass
+		TLKUSB_HID_CSCP_MouseBootProtocol,	//protocol
 		TLKUSB_NO_DESCRIPTOR
 	},
 	// mouse_hid
-	{	sizeof(tlkusb_HidEndpointDesc_t),
-		TLKUSB_HID_DESC_HID,
+	{	sizeof(tlkusb_HidEndpointDesc_t),	//Length
+		TLKUSB_HID_DESC_HID,	//type:HID
 		0x0111, // HIDSpec
 		TLKUSB_HID_COUNTRY_US, // CountryCode
 		1, // TotalReportDescriptors
-		TLKUSB_HID_DESC_REPORT, 
+		TLKUSB_HID_DESC_REPORT, 	//HIDReportType
 		sizeof(cTlkUsbHidMouseDesc), // HIDReportLength
 	},
 	// mouse_in_endpoint
 	{
-		sizeof(tlkusb_stdEndpointDesc_t),
-		TLKUSB_TYPE_ENDPOINT,
-		TLKUSB_EDP_DIR_IN | TLKUSB_HID_EDP_MOUSE_IN,
-		TLKUSB_EDP_TYPE_INTERRUPT,
+		sizeof(tlkusb_stdEndpointDesc_t),//length
+		TLKUSB_TYPE_ENDPOINT,	//type
+		TLKUSB_EDP_DIR_IN | TLKUSB_HID_EDP_MOUSE_IN,	//endppoint
+		TLKUSB_EDP_TYPE_INTERRUPT,	//bmAttributes
 		0x0008, // EndpointSize
 		TLKUSB_HID_MOUSE_POLL_INTERVAL // PollingIntervalMS
 	},
@@ -132,32 +132,32 @@ static const tlkusb_hidConfigDesc_t sMmiUsbHidConfigDesc = {
 #if (TLKUSB_HID_KEYBOARD_ENABLE)
 	// keyboardInterface
 	{
-		sizeof(tlkusb_stdInterfaceDesc_t),
-		TLKUSB_TYPE_INTERFACE,
-		TLKUSB_HID_INF_KEYBOARD,
+		sizeof(tlkusb_stdInterfaceDesc_t),//length
+		TLKUSB_TYPE_INTERFACE,	//type
+		TLKUSB_HID_INF_KEYBOARD,	//interface number
 		0, // AlternateSetting
 		1, // bNumEndpoints
-		TLKUSB_HID_CSCP_HIDClass,
-		TLKUSB_HID_CSCP_BootSubclass,
-		TLKUSB_HID_CSCP_KeyboardBootProtocol,
-		TLKUSB_NO_DESCRIPTOR
+		TLKUSB_HID_CSCP_HIDClass,//class
+		TLKUSB_HID_CSCP_BootSubclass,//subclass
+		TLKUSB_HID_CSCP_KeyboardBootProtocol,//protocal
+		TLKUSB_NO_DESCRIPTOR	//string descriptor
 	}, 
 	// keyboard_hid
 	{	
-		sizeof(tlkusb_HidEndpointDesc_t),
-		TLKUSB_HID_DESC_HID,
+		sizeof(tlkusb_HidEndpointDesc_t),//length
+		TLKUSB_HID_DESC_HID,//type:HID
 		0x0111, // HIDSpec
 		TLKUSB_HID_COUNTRY_US, // CountryCode
 		1, // TotalReportDescriptors
-		TLKUSB_HID_DESC_REPORT, 
+		TLKUSB_HID_DESC_REPORT, //HIDReportType
 		sizeof(cTlkUsbHidKeyboardDesc), // HIDReportLength
 	},
 	// keyboard_in_endpoint
 	{	
-		sizeof(tlkusb_stdEndpointDesc_t),
-		TLKUSB_TYPE_ENDPOINT,
-		TLKUSB_EDP_DIR_IN | TLKUSB_HID_EDP_KEYBOARD_IN,
-		TLKUSB_EDP_TYPE_INTERRUPT,
+		sizeof(tlkusb_stdEndpointDesc_t),//length
+		TLKUSB_TYPE_ENDPOINT,//type
+		TLKUSB_EDP_DIR_IN | TLKUSB_HID_EDP_KEYBOARD_IN,//endpoint
+		TLKUSB_EDP_TYPE_INTERRUPT,//bmAttributes
 		0x0008, // EndpointSize
 		TLKUSB_HID_KEYBOARD_POLL_INTERVAL // PollingIntervalMS
 	},

@@ -24,6 +24,9 @@
 #ifndef BTP_HFP_H
 #define BTP_HFP_H
 
+#if (TLK_STK_BTP_ENABLE)
+
+
 
 typedef enum{
 	BTP_HFP_CALL_DIR_NONE = 0,
@@ -377,6 +380,7 @@ extern int btp_hfpag_hungupCall(void);
 
 
 
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif /* BTP_HFP_H */
 

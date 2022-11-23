@@ -65,9 +65,6 @@ int tlkmmi_btmgr_init(void)
 	#endif
 	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTMGR_DEVICE_CLASS);
-	#if TLK_CFG_PTS_ENABLE
-	bth_hci_sendWriteScanEnableCmd(0x03);//(INQUIRY_SCAN_ENABLE | PAGE_SCAN_ENABLE);
-	#endif
     bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
 
 	#if !TLK_CFG_PTS_ENABLE

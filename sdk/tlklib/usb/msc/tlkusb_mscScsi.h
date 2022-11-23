@@ -57,7 +57,7 @@
 #define TLKUSB_MSC_CSW_STATUS_LENGTH                  1
 
 
-
+//SCSI command
 //#define TLKUSB_MSC_SCSI_FORMAT_UNIT                   0x04 //Not Deal
 #define TLKUSB_MSC_SCSI_TEST_UNIT_READY               0x00
 #define TLKUSB_MSC_SCSI_REQUEST_SENSE                 0x03
@@ -83,14 +83,14 @@
 #define TLKUSB_MSC_CBW_LENGTH                         31
 #define TLKUSB_MSC_CSW_LENGTH                         13
 
-
+//SCSI Flag
 typedef enum{
 	TLKUSB_MSC_SCSI_FLAG_NONE  = 0x00,
 	TLKUSB_MSC_SCSI_FLAG_SEND_DATA = 0x01,
 	TLKUSB_MSC_SCSI_FLAG_READ_DATA = 0x02,
 	TLKUSB_MSC_SCSI_FLAG_RECV_DATA = 0x04,
 }TLKUSB_MSC_SCSI_FLAG_ENUM;
-
+//SCSI Stage
 typedef enum{
 	TLKUSB_MSC_SCSI_STAGE_IDLE = 0,
 	TLKUSB_MSC_SCSI_STAGE_DATA,
@@ -100,36 +100,36 @@ typedef enum{
 
 
 typedef struct{
-	uint32 dSignature;
-	uint32 dTag;
-	uint32 dDataLength;
-	uint08 bmFlags;
-	uint08 bLUN;
-	uint08 bCBLength;
-	uint08 CB[16];
+	uint32 dSignature; 	/*CBW_SIGNATURE*/
+	uint32 dTag;		/*A command block identifier sent by the Host. The device needs the original dTag (part of CSW) and then sends it to the host.*/
+	uint32 dDataLength;	/*The CBW command requires the number of bytes transferred between the command and the response. If the value is 0, no data is transmitted*/
+	uint08 bmFlags;		/*Data transmission direction.0x00:Host->Device 0x80:Device->Host*/
+	uint08 bLUN;		/*For a device with multiple LUN logical units, select a target. If there are no multiple LUN, write 0.*/
+	uint08 bCBLength;	/*Length of command,0~16.*/
+	uint08 CB[16];		/*Command*/
 }tlkusb_mscScsiCBW_t;
 
 
 typedef struct{
-  uint32 dSignature;
-  uint32 dTag;
-  uint32 dDataResidue;
-  uint08 bStatus;
+  uint32 dSignature;	/*CSW_SIGNATURE*/
+  uint32 dTag;			/*The same to dTag in CBW.*/
+  uint32 dDataResidue;	/*Data to be transferred.*/
+  uint08 bStatus;		/*Indicates the execution status of a command*/
 }tlkusb_mscScsiCSW_t;
 
 typedef struct{
-	uint08 stage;
-	uint08 flags;
+	uint08 stage;	//SCSI stage
+	uint08 flags;	//Recv or Send data mask
 	uint08 enable;
 	uint08 resv00;
-	uint08 curLun;
-	uint08 rcvLen;
+	uint08 curLun;	//current LUN
+	uint08 rcvLen;	//Recv length
 	uint16 resv01;
-	uint16 optLen; //optLen in buffer
-	uint16 datLen; //dataLen in buffer
-	uint32 blkOff; //Block Offset
-	uint16 blkCnt; //Block Count
-	uint16 blkNum; //Block Number
+	uint16 optLen;  //optLen in buffer
+	uint16 datLen;  //dataLen in buffer
+	uint32 blkOff;  //Block Offset
+	uint16 blkCnt;  //Block Count
+	uint16 blkNum;  //Block Number
 	uint08 rcvBuff[64];
 	uint08 cswBuff[16];
 	uint08 buffer[TLKUSB_MSC_BLOCK_SIZE];

@@ -32,8 +32,6 @@
 #include "tlkmdi/tlkmdi_audplay.h"
 #include "tlkapi/tlkapi_file.h"
 
-
-
 #include "tlkalg/audio/mixer/tlkalg_2chmix.h"
 
 
@@ -315,7 +313,7 @@ static void tlkmdi_play_mp3Handler(void)
 		}
 		if(tlkmdi_mp3_isOver()){
 			tlkmdi_mp3_reset();
-//			my_dump_str_data(TLKMDI_PLAY_DBG_ENABLE, "tlkmdi_play_mp3Handler: over", 0, 0);
+			tlkapi_trace(TLKMDI_AUDPLAY_DBG_FLAG, TLKMDI_AUDPLAY_DBG_SIGN, "tlkmdi_play_mp3Handler: over");
 			if(tlkmdi_mp3_indexIsOver()){
 				tlkmdi_mp3_setPlayIndex(0);
 				sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_DONE;

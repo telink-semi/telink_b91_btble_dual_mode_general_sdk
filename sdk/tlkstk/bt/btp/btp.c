@@ -20,9 +20,9 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
+#if (TLK_STK_BTP_ENABLE)
+#include "drivers.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/btp_adapt.h"
 #include "tlkstk/bt/bth/bth.h"
@@ -120,4 +120,7 @@ void btp_destroy(uint16 aclHandle)
 	btp_hid_destroy(aclHandle);
 	#endif
 }
+
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 

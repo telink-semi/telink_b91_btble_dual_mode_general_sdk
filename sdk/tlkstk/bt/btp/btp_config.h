@@ -24,6 +24,8 @@
 #ifndef BTP_CONFIG_H
 #define BTP_CONFIG_H
 
+#if (TLK_STK_BTP_ENABLE)
+
 
 
 #define BTP_MAP_L2CAP_ENABLE            0
@@ -38,9 +40,9 @@
 #define TLK_BT_ATT_MAX_NUMB                (1)
 #define TLK_BT_A2DP_MAX_NUMB               (TLK_STK_BTACl_NUMB)
 #define TLK_BT_AVRCP_MAX_NUMB              (TLK_STK_BTACl_NUMB)
-#define TLK_BT_RFCOMM_SERVICE_MAX_NUMB     4 //spp, pbap, hfp-ag, hfp-hf
+#define TLK_BT_RFCOMM_SERVICE_MAX_NUMB     6 //spp, pbap, hfp-ag, hfp-hf
 #define TLK_BT_RFCOMM_SESSION_MAX_NUMB     (TLK_STK_BTACl_NUMB)
-#define TLK_BT_RFCOMM_CHANNEL_MAX_NUMB     (TLK_STK_BTACl_NUMB*3)
+#define TLK_BT_RFCOMM_CHANNEL_MAX_NUMB     (TLK_STK_BTACl_NUMB*6)
 #define TLK_BT_RFCOMM_CHNDICT_MAX_NUMB     (TLK_BT_RFCOMM_CHANNEL_MAX_NUMB+4)
 #define TLK_BT_MAP_MAX_NUMB                (1+TLK_STK_BTACl_NUMB)
 #define TLK_BT_PBAP_MAX_NUMB               (1+TLK_STK_BTACl_NUMB)
@@ -80,6 +82,7 @@
 #define TLKBTP_CFG_HIDH_ENABLE           (0 && TLKBTP_CFG_HID_ENABLE)
 
 
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //BTP_CONFIG_H
 

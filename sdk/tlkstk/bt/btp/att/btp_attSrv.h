@@ -48,12 +48,15 @@ typedef enum{
 
 int btp_attsrv_init(void);
 
+int btp_attsrv_connect(uint16 aclHandle);
+int btp_attsrv_disconn(uint16 aclHandle);
+
 void btp_attsrv_connectEvt(btp_att_node_t *pAtt);
 void btp_attsrv_disconnEvt(btp_att_node_t *pAtt);
 
 void btp_attsrv_recvHandler(btp_att_node_t *pAtt, uint08 *pData, uint16 dataLen);
 
-int btp_attsrv_setTable(const btp_attItem_t *pTable, uint16 count);
+int  btp_attsrv_setTable(const btp_attItem_t *pTable, uint16 count);
 uint btp_attsrv_getChnID(uint16 aclHandle);
 
 

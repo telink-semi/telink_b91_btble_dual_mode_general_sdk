@@ -24,6 +24,7 @@
 #ifndef BTP_IAP_H
 #define BTP_IAP_H
 
+#if (TLK_STK_BTP_ENABLE)
 
 
 typedef void (*BtpIapRecvDataCB)(uint16 aclHandle, uint08 rfcHandle, uint08 *pData, uint16 dataLen);
@@ -140,6 +141,8 @@ btp_iap_item_t *btp_iap_getUsedItem(uint16 aclHandle);
 btp_iap_item_t *btp_iap_getConnItem(uint16 aclHandle);
 
 
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif /* BTP_IAP_H */
 

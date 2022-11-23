@@ -179,8 +179,6 @@ void tlkmmi_phone_setHfManualCode(uint16 aclHandle, uint08 hfOpcode)
 #if (TLKMMI_PHONE_SCO_MANAGE)
 static void tlkmmi_phone_scoConnCB(uint16 aclHandle, uint16 scoHandle, bool isConn)
 {
-	tlkapi_debug_delayForPrint(30000);
-
 	tlkapi_trace(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_scoConnCB");
 	if((sTlkMmiPhoneCtrl.aclHandle != 0 && sTlkMmiPhoneCtrl.aclHandle != aclHandle)
 		|| (sTlkMmiPhoneCtrl.scoHandle != 0 && sTlkMmiPhoneCtrl.scoHandle != scoHandle)){

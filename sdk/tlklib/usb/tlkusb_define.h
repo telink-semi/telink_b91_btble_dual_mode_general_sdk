@@ -46,10 +46,11 @@ typedef enum{
 }TLKUSB_STRING_INDEX_ENUM;
 
 
-
+//Endpoint IN/OUT
 #define TLKUSB_EDP_DIR_OUT               0
 #define TLKUSB_EDP_DIR_IN                0x80
 
+//Transfer type
 #define TLKUSB_EDP_TYPE_CONTROL          0
 #define TLKUSB_EDP_TYPE_ISOCHRONOUS      1
 #define TLKUSB_EDP_TYPE_BULK             2

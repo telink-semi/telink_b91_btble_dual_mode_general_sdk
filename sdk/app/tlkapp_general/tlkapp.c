@@ -67,8 +67,7 @@ int tlkapp_init(void)
 	tlkapi_setSysMemBuffer(false, sTlkAppMemBuffer, TLKAPP_MEM_TOTAL_SIZE);
 	
 	tlkapp_irq_init();
-		
-	tlkapi_init();
+	
 	tlkdev_init();
 	tlkstk_init();
 	tlkmdi_init();
@@ -128,7 +127,6 @@ bool tlkapp_pmIsBusy(void)
 }
 
 
-
 /******************************************************************************
  * Function: tlkapp_process
  * Descript: BTBLE SDK main loop.
@@ -138,14 +136,11 @@ bool tlkapp_pmIsBusy(void)
 *******************************************************************************/
 void tlkapp_process(void)
 {
-	tlkapi_process();
-	tlkdev_process();
 	tlkstk_process();
 	tlkmdi_process();
 	tlkmmi_process();
 	tlkapp_adapt_handler();
 	tlkapp_system_handler();
-	
 	/*PM entry*/
 	#if(TLK_CFG_PM_ENABLE)
 	tlkapp_pm_handler();

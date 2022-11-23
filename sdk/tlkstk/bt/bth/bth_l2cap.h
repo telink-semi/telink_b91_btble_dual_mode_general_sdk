@@ -326,6 +326,10 @@ bool bth_l2cap_isBusy(void);
  * Reutrn: None.
 *******************************************************************************/
 void bth_l2cap_setMtuSize(uint16 size);
+uint bth_l2cap_getMtuSize(void);
+
+uint bth_l2cap_getValidCID(void);
+
 
 /******************************************************************************
  * Function: bth_l2cap_regServiceCB

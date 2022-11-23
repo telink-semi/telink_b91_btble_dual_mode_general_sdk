@@ -47,7 +47,7 @@
 #define TLK_EILLEGAL    0x13 //"illegal operate"
 #define TLK_EOPERATE    0x14 //"operate error"
 #define TLK_EOVERFLOW   0x15 //"buffer overflow"
-#define TLK_EUNKNOWN    0x1F //"unkown error"
+#define TLK_EUNKNOWN    0x1F //"unknown error"
 #define TLK_EDENY       0x25 //"access denied"
 #define TLK_EROLE       0x26 //"Role Error"
 #define TLK_ETYPE       0x27 //"file type or other type error"

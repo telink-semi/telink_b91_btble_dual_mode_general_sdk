@@ -263,7 +263,6 @@ int tlkmmi_phone_bookGetName(uint08 *pNumber, uint08 numbLen, uint08 *pName, uin
 		tlkapi_flash_read(saddr, buffer, TLKMMI_PHONE_BOOK_ITEM_LENGTH);
 		offset = BTP_PBAP_CALL_NAME_LENGTH*2;
 //		tlkapi_array(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_bookGetName: phone - ", &buffer[offset], 11);
-//		tlkapi_debug_delayForPrint(5000);
 		for(jIndex=0; jIndex<BTP_PBAP_CELL_NUMB_COUNT; jIndex++){
 			if(tmemcmp(&buffer[offset], pNumber, numbLen) == 0) break;
 			offset += BTP_PBAP_CELL_NUMB_LENGTH;

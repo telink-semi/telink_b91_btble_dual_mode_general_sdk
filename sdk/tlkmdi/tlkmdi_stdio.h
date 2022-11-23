@@ -37,6 +37,7 @@
 #include "tlkmdi/tlkmdi_audsrc.h"
 #include "tlkmdi/tlkmdi_audsco.h"
 #include "tlkmdi/tlkmdi_audmp3.h"
+#include "tlkmdi/tlkmdi_auduac.h"
 #include "tlkmdi/tlkmdi_audplay.h"
 #include "tlkmdi/tlkmdi_audtone.h"
 

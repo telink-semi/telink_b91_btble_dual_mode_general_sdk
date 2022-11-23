@@ -49,8 +49,9 @@ int btp_hidd_init(void);
  * Params: [IN]callback--callback function
  * Return: Returning TLK_ENONE is success.
  *******************************************************************************/
-void btp_hidd_regCB(BtpHidSetReportCallback setReport, BtpHidGetReportCallback getReport,
-	BtpHidSetProtocolCallback setProtocol, BtpHidGetProtocolCallback getProtocol);
+void btp_hidd_regCB(BtpHidSetReportCallback setReportCB, BtpHidGetReportCallback getReportCB,
+	BtpHidSetProtocolCallback setProtocolCB, BtpHidGetProtocolCallback getProtocolCB,
+	BtpHiddRecvDataCallback ctrDataCB, BtpHiddRecvDataCallback irqDataCB);
 
 /******************************************************************************
  * Function: HID connect interface.

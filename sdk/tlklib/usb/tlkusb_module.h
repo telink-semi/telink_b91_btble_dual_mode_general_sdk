@@ -29,10 +29,10 @@
 #define TLKUSB_MODULE_UINT08_PTR    uint08*
 
 
-
+//Module type
 typedef enum{
 	TLKUSB_MODTYPE_UDB = 0,
-	TLKUSB_MODTYPE_AUD,
+	TLKUSB_MODTYPE_UAC,
 	TLKUSB_MODTYPE_MSC,
 	TLKUSB_MODTYPE_CDC,
 	TLKUSB_MODTYPE_HID,
@@ -41,27 +41,27 @@ typedef enum{
 }TLKUSB_MODTYPE_ENUM;
 
 typedef struct{
-	int(*Init)(void);
-	void(*Reset)(void);
-	void(*Deinit)(void);
-	void(*Handler)(void);
-	int(*GetClassInf)(tlkusb_setup_req_t *pSetup, uint08 infNumb);
-	int(*SetClassInf)(tlkusb_setup_req_t *pSetup, uint08 infNumb);
-	int(*GetClassEdp)(tlkusb_setup_req_t *pSetup, uint08 edpNumb);
-	int(*SetClassEdp)(tlkusb_setup_req_t *pSetup, uint08 edpNumb);
-	int(*GetInterface)(tlkusb_setup_req_t *pSetup, uint08 infNumb);
-	int(*SetInterface)(tlkusb_setup_req_t *pSetup, uint08 infNumb);
+	int(*Init)(void);//Init
+	void(*Reset)(void);//Reset
+	void(*Deinit)(void);//Deinit
+	void(*Handler)(void);//Hander
+	int(*GetClassInf)(tlkusb_setup_req_t *pSetup, uint08 infNumb);//GetClassInf
+	int(*SetClassInf)(tlkusb_setup_req_t *pSetup, uint08 infNumb);//SetClassInf
+	int(*GetClassEdp)(tlkusb_setup_req_t *pSetup, uint08 edpNumb);//GetClassEdp
+	int(*SetClassEdp)(tlkusb_setup_req_t *pSetup, uint08 edpNumb);//SetClassEdp
+	int(*GetInterface)(tlkusb_setup_req_t *pSetup, uint08 infNumb);//GetInterface
+	int(*SetInterface)(tlkusb_setup_req_t *pSetup, uint08 infNumb);//SetInterface
 }tlkusb_modCtrl_t;
 
 typedef struct{
-	uint16(*GetDeviceLens)(void);
-	uint16(*GetConfigLens)(void);
-	uint16(*GetStringLens)(uint08 index);
-	uint16(*GetInfDesLens)(tlkusb_setup_req_t *pSetup);
-	TLKUSB_MODULE_UINT08_PTR(*GetDeviceDesc)(void);
-	TLKUSB_MODULE_UINT08_PTR(*GetConfigDesc)(void);
-	TLKUSB_MODULE_UINT08_PTR(*GetStringDesc)(uint08 index); //Serial String Desc
-	TLKUSB_MODULE_UINT08_PTR(*GetInfDesDesc)(tlkusb_setup_req_t *pSetup); //
+	uint16(*GetDeviceLens)(void);//GetDeviceLens
+	uint16(*GetConfigLens)(void);//GetConfigLens
+	uint16(*GetStringLens)(uint08 index);//GetStringLens
+	uint16(*GetInfDesLens)(tlkusb_setup_req_t *pSetup);//GetInterfaceLens
+	TLKUSB_MODULE_UINT08_PTR(*GetDeviceDesc)(void);//Get device descriptor
+	TLKUSB_MODULE_UINT08_PTR(*GetConfigDesc)(void);//Get config descriptor
+	TLKUSB_MODULE_UINT08_PTR(*GetStringDesc)(uint08 index); //Get Serial String Descriptor
+	TLKUSB_MODULE_UINT08_PTR(*GetInfDesDesc)(tlkusb_setup_req_t *pSetup); //Get interface descriptor
 }tlkusb_modDesc_t;
 
 typedef struct{

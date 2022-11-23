@@ -45,6 +45,8 @@ typedef struct{
 extern int btp_att_init(void);
 
 
+int btp_att_connect(uint16 handle, uint08 usrID);
+int btp_att_disconn(uint16 handle, uint08 usrID);
 void btp_att_destroy(uint16 handle);
 
 

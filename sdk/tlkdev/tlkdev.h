@@ -26,12 +26,7 @@
 
 
 
-
-
-int  tlkdev_init(void);
-void tlkdev_process(void);
-
-bool tlkdev_pmIsBusy(void);
+int tlkdev_init(void);
 
 
 

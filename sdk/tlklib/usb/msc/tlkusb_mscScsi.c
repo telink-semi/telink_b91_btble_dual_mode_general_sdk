@@ -32,7 +32,7 @@
 
 static int tlkusb_msc_scsiSendData(uint08 *pData, uint08 dataLen);
 
-static void tlkusb_msc_scsiSetStatus(uint32 residue, uint08 status);
+static void tlkusb_msc_scsiSetStatus(uint08 *pTag, uint32 residue, uint08 status);
 static void tlkusb_msc_scsiRecvData(void);
 
 static void tlkusb_msc_scsiStageIdleDeal(void);
@@ -111,8 +111,14 @@ void tlkusb_msc_scsiHandler(void)
 	}
 }
 
-static void tlkusb_msc_scsiSetStatus(uint32 residue, uint08 status)
+static void tlkusb_msc_scsiSetStatus(uint08 *pTag, uint32 residue, uint08 status)
 {
+	if(pTag != nullptr){
+		sTlkUsbMscScsi.cswBuff[4] = pTag[0];
+		sTlkUsbMscScsi.cswBuff[5] = pTag[1];
+		sTlkUsbMscScsi.cswBuff[6] = pTag[2];
+		sTlkUsbMscScsi.cswBuff[7] = pTag[3];
+	}
 	sTlkUsbMscScsi.cswBuff[8] = residue & 0xFF;
 	sTlkUsbMscScsi.cswBuff[9] = (residue>>8) & 0xFF;
 	sTlkUsbMscScsi.cswBuff[10] = (residue>>16) & 0xFF;
@@ -163,13 +169,13 @@ static void tlkusb_msc_scsiStageIdleDeal(void)
 	cmdLen = pCmd[TLKUSB_MSC_CBW_BLEN_OFFSET] & 0x1F;
 	pUnit = tlkusb_msc_getDisk(logNum);
 	if(pUnit == nullptr){
-		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+		tlkusb_msc_scsiSetStatus(sTlkUsbMscScsi.rcvBuff+4, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 		return;
 	}
 	
 	sTlkUsbMscScsi.curLun = logNum;
-	tlkusb_msc_scsiSetStatus(0, 0);
+	tlkusb_msc_scsiSetStatus(sTlkUsbMscScsi.rcvBuff+4, 0, 0);
 
 	switch(opcode){
 		case TLKUSB_MSC_SCSI_TEST_UNIT_READY:
@@ -209,7 +215,7 @@ static void tlkusb_msc_scsiStageIdleDeal(void)
 			tlkusb_msc_scsiRecvVerify10Deal(pUnit, pCmd, cmdLen);
 			break;
 		default:
-			tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+			tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 			sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 			break;
 	}
@@ -240,9 +246,6 @@ static void tlkusb_msc_scsiStageStatusDeal(void)
 }
 static void tlkusb_msc_scsiStageCompleteDeal(void)
 {
-//	uint irq = usbhw_get_eps_irq();
-//	if((irq & BIT(TLKUSB_MSC_EDP_IN)) == 0) return;
-//	usbhw_clr_eps_irq(BIT(TLKUSB_MSC_EDP_IN));
 	if(usbhw_is_ep_busy(TLKUSB_MSC_EDP_IN)) return;
 	
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_IDLE;
@@ -293,14 +296,14 @@ static void tlkusb_msc_scsiStageDataReadDeal(void)
 	
 	pUnit = tlkusb_msc_getDisk(sTlkUsbMscScsi.curLun);
 	if(pUnit == nullptr || pUnit->Read == nullptr || pUnit->blkSize > TLKUSB_MSC_BLOCK_SIZE){
-		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+		tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 		return;
 	}
 	
 	ret = pUnit->Read(sTlkUsbMscScsi.buffer, sTlkUsbMscScsi.blkOff+sTlkUsbMscScsi.blkNum, 1);
 	if(ret < 0){
-		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+		tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 		return;
 	}
@@ -324,7 +327,7 @@ static void tlkusb_msc_scsiStageDataRecvDeal(void)
 	pUnit = tlkusb_msc_getDisk(sTlkUsbMscScsi.curLun);
 	if(pUnit == nullptr || pUnit->Write == nullptr || pUnit->blkSize > TLKUSB_MSC_BLOCK_SIZE
 		|| sTlkUsbMscScsi.optLen+sTlkUsbMscScsi.rcvLen > pUnit->blkSize){
-		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+		tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 		sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 		return;
 	}
@@ -336,7 +339,7 @@ static void tlkusb_msc_scsiStageDataRecvDeal(void)
 		int ret;
 		ret = pUnit->Write(sTlkUsbMscScsi.buffer, sTlkUsbMscScsi.blkOff+sTlkUsbMscScsi.blkNum, 1);
 		if(ret < 0){
-			tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+			tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 			sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 		}else{
 			sTlkUsbMscScsi.optLen = 0;
@@ -350,7 +353,7 @@ static void tlkusb_msc_scsiStageDataRecvDeal(void)
 static void tlkusb_msc_scsiRecvTestUnitDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	if(!sTlkUsbMscScsi.enable){
-		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+		tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 	}
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 }
@@ -381,55 +384,47 @@ static void tlkusb_msc_scsiRecvRequestSenseDeal(tlkusb_msc_disk_t *pUnit, uint08
 }
 static void tlkusb_msc_scsiRecvInquiryDeal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
+	char *pStr;
+	uint08 tmpLen = 0;
 	uint08 datLen = 0;
-	if((pCmd[1] & 0x01) != 0){ //Evpd is set
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x03;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x80;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x83;
-	}else{
-		char *pStr;
-		uint08 tmpLen = 0;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Disk device
-		if(pUnit->hotPlug) sTlkUsbMscScsi.buffer[datLen++] = 0x80; //The most significant D7 is RMB.  RMB=0, which means the device cannot be removed.  If RMB=1, it is a removable device.
-		else sTlkUsbMscScsi.buffer[datLen++] = 0x00;
-		sTlkUsbMscScsi.buffer[datLen++] = 0x02; //Various version numbers 0
-		sTlkUsbMscScsi.buffer[datLen++] = 0x02; //Data response format
-		sTlkUsbMscScsi.buffer[datLen++] = 0x1F; //Additional data length, 31 bytes
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
-		sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
-		tmemset(sTlkUsbMscScsi.buffer+datLen, 0x20, 8); //Manufacturer: 8 bytes
-		if(pUnit->pVendorStr == nullptr) pStr = TLKUSB_MSC_VENDOR_STRING_DEF;
-		else pStr = pUnit->pVendorStr;
-		tmpLen = tstrlen(pStr);
-		if(tmpLen > 8) tmpLen = 8;
-		if(tmpLen != 0){
-			tmemcpy(sTlkUsbMscScsi.buffer+datLen, pStr, tmpLen);
-		}
-		datLen += 8;
-		tmemset(sTlkUsbMscScsi.buffer+datLen, 0x20, 16); //Product: 16 Bytes
-		if(pUnit->pProductStr == nullptr) pStr = TLKUSB_MSC_PRODUCE_STRING_DEF;
-		else pStr = pUnit->pProductStr;
-		tmpLen = tstrlen(pStr);
-		if(tmpLen > 16) tmpLen = 16;
-		if(tmpLen != 0){
-			tmemcpy(sTlkUsbMscScsi.buffer+datLen, pStr, tmpLen);
-		}
-		datLen += 16;
-		tmemset(sTlkUsbMscScsi.buffer+datLen, 0x20, 4); //Version: 4 Bytes
-		if(pUnit->pVersionStr == nullptr) pStr = TLKUSB_MSC_VERSION_STRING_DEF;
-		else pStr = pUnit->pVersionStr;
-		tmpLen = tstrlen(pStr);
-		if(tmpLen > 4) tmpLen = 4;
-		if(tmpLen != 0){
-			tmemcpy(sTlkUsbMscScsi.buffer+datLen, pStr, tmpLen);
-		}
-		datLen += 4;
+		
+	sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Disk device
+	if(pUnit->hotPlug) sTlkUsbMscScsi.buffer[datLen++] = 0x80; //The most significant D7 is RMB.  RMB=0, which means the device cannot be removed.  If RMB=1, it is a removable device.
+	else sTlkUsbMscScsi.buffer[datLen++] = 0x00; //The most significant D7 is RMB.  RMB=0, which means the device cannot be removed.  If RMB=1, it is a removable device.
+	sTlkUsbMscScsi.buffer[datLen++] = 0x02; //ISOVersion[7~6], ECMA Version[5~3], ANSI Version[2~1]-0x02 new version usb
+	sTlkUsbMscScsi.buffer[datLen++] = 0x02; //Data response format
+	sTlkUsbMscScsi.buffer[datLen++] = 0x1F; //Additional data length, 31 bytes
+	sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
+	sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
+	sTlkUsbMscScsi.buffer[datLen++] = 0x00; //Reserved
+	tmemset(sTlkUsbMscScsi.buffer+datLen, 0x20, 8); //Manufacturer: 8 bytes
+	if(pUnit->pVendorStr == nullptr) pStr = TLKUSB_MSC_VENDOR_STRING_DEF;
+	else pStr = pUnit->pVendorStr;
+	tmpLen = tstrlen(pStr);
+	if(tmpLen > 8) tmpLen = 8;
+	if(tmpLen != 0){
+		tmemcpy(sTlkUsbMscScsi.buffer+datLen, pStr, tmpLen);
 	}
+	datLen += 8;
+	tmemset(sTlkUsbMscScsi.buffer+datLen, 0x20, 16); //Product: 16 Bytes
+	if(pUnit->pProductStr == nullptr) pStr = TLKUSB_MSC_PRODUCE_STRING_DEF;
+	else pStr = pUnit->pProductStr;
+	tmpLen = tstrlen(pStr);
+	if(tmpLen > 16) tmpLen = 16;
+	if(tmpLen != 0){
+		tmemcpy(sTlkUsbMscScsi.buffer+datLen, pStr, tmpLen);
+	}
+	datLen += 16;
+	tmemset(sTlkUsbMscScsi.buffer+datLen, 0x20, 4); //Version: 4 Bytes
+	if(pUnit->pVersionStr == nullptr) pStr = TLKUSB_MSC_VERSION_STRING_DEF;
+	else pStr = pUnit->pVersionStr;
+	tmpLen = tstrlen(pStr);
+	if(tmpLen > 4) tmpLen = 4;
+	if(tmpLen != 0){
+		tmemcpy(sTlkUsbMscScsi.buffer+datLen, pStr, tmpLen);
+	}
+	datLen += 4;
+	
 	sTlkUsbMscScsi.datLen = datLen;
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_DATA;
 	sTlkUsbMscScsi.flags |= TLKUSB_MSC_SCSI_FLAG_SEND_DATA;
@@ -525,7 +520,7 @@ static void tlkusb_msc_scsiRecvWrite10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCm
 static void tlkusb_msc_scsiRecvVerify10Deal(tlkusb_msc_disk_t *pUnit, uint08 *pCmd, uint08 cmdLen)
 {
 	if((pCmd[1] & 0x01) != 0){ //Evpd is set
-		tlkusb_msc_scsiSetStatus(0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
+		tlkusb_msc_scsiSetStatus(nullptr, 0, TLKUSB_MSC_CSW_STATUS_CMD_FAILED);
 	}
 	sTlkUsbMscScsi.stage = TLKUSB_MSC_SCSI_STAGE_STATUS;
 }

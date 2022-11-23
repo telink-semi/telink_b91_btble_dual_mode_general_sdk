@@ -23,10 +23,10 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlklib/usb/tlkusb_stdio.h"
 #if (TLK_USB_USR_ENABLE)
-#include "tlklib/usb/aud/tlkusb_usrDefine.h"
-#include "tlklib/usb/aud/tlkusb_usr.h"
-#include "tlklib/usb/aud/tlkusb_usrCtrl.h"
-#include "tlklib/usb/aud/tlkusb_usrDesc.h"
+#include "tlklib/usb/usr/tlkusb_usrDefine.h"
+#include "tlklib/usb/usr/tlkusb_usr.h"
+#include "tlklib/usb/usr/tlkusb_usrCtrl.h"
+#include "tlklib/usb/usr/tlkusb_usrDesc.h"
 
 
 

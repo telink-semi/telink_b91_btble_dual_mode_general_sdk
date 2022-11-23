@@ -44,6 +44,8 @@ static uint tlkmdi_bthid_getProtocolCB(uint16 aclHandle, uint08 *pProtoMode);
 static uint tlkmdi_bthid_setReportCB(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pData, uint16 dataLen);
 static uint tlkmdi_bthid_getReportCB(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pBuff, uint16 *pBuffLen);
 
+static int tlkmdi_bthid_irqRecvDataCB(uint16 handle, uint08 *pData, uint16 dataLen);
+
 tlkmdi_bthid_report_t *tlkmdi_bthid_getReportCtrl(uint08 rtype, uint08 rptID);
 tlkmdi_bthid_report_t *tlkmdi_bthid_getReportCtrlByRptID(uint08 rptID);
 
@@ -55,7 +57,8 @@ int tlkmdi_bthid_init(void)
 {
 	sTlkMdiBtHidProtocolMode = BTP_HID_PROTO_BOOT;
     btp_hidd_regCB(tlkmdi_bthid_setReportCB, tlkmdi_bthid_getReportCB,
-    		tlkmdi_bthid_setProtocolCB, tlkmdi_bthid_getProtocolCB);
+    	tlkmdi_bthid_setProtocolCB, tlkmdi_bthid_getProtocolCB,
+		nullptr, tlkmdi_bthid_irqRecvDataCB);
 	
 	return TLK_ENONE;
 }
@@ -186,31 +189,53 @@ static uint tlkmdi_bthid_getReportCB(uint16 aclHandle, uint08 reportType, uint08
 		
 	return BTP_HID_HSHK_SUCCESS;
 }
-
+static int tlkmdi_bthid_irqRecvDataCB(uint16 handle, uint08 *pData, uint16 dataLen)
+{
+	return TLK_ENONE;
+}
 
 
 static const uint08 scTlkMdiBtHidKeyboardReportData[] = {
+	//keyboard report in
 	0x05, 0x01,     // Usage Pg (Generic Desktop)
 	0x09, 0x06,     // Usage (Keyboard)
-	// Collection: (Application)
-	0xA1, 0x01,     
-	0x85, TLKMDI_BTHID_REPORT_ID_KEYBOARD_INPUT,     // Report Id (keyboard)
-	//keyboard report in
+	0xA1, 0x01,     // Collection: (Application)
+	0x85, TLKMDI_BTHID_REPORT_ID_KEYBOARD_INPUT, // Report Id (keyboard)
 	0x05, 0x07,     // Usage Pg (Key Codes)
 	0x19, 0xE0,     // Usage Min (224)  VK_CTRL:0xe0
 	0x29, 0xE7,     // Usage Max (231)  VK_RWIN:0xe7
 	0x15, 0x00,     // Log Min (0)
 	0x25, 0x01,     // Log Max (1)
+	//Modifier byte
 	0x75, 0x01,     // Report Size (1)   1 bit * 8
 	0x95, 0x08,     // Report Count (8)
 	0x81, 0x02,     // Input: (Data, Variable, Absolute)
+	//Reserved byte
 	0x95, 0x01,     // Report Count (1)
 	0x75, 0x08,     // Report Size (8)
 	0x81, 0x01,     // Input: (static constant)
 	//keyboard output
 	//5 bit led ctrl: NumLock CapsLock ScrollLock Compose kana
-	// End Collection
-	0xC0,
+	0x95, 0x05,    //Report Count (5)
+	0x75, 0x01,    //Report Size (1)
+	0x05, 0x08,    //Usage Pg (LEDs )
+	0x19, 0x01,    //Usage Min
+	0x29, 0x05,    //Usage Max
+	0x91, 0x02,    //Output (Data, Variable, Absolute)
+	//3 bit reserved
+	0x95, 0x01,    //Report Count (1)
+	0x75, 0x03,    //Report Size (3)
+	0x91, 0x01,    //Output (static constant)
+	//Key arrays (6 bytes)
+	0x95, 0x06,     // Report Count (6)
+	0x75, 0x08,     // Report Size (8)
+	0x15, 0x00,     // Log Min (0)
+	0x25, 0xF1,     // Log Max (241)
+	0x05, 0x07,     // Usage Pg (Key Codes)
+	0x19, 0x00,     // Usage Min (0)
+	0x29, 0xf1,     // Usage Max (241)
+	0x81, 0x00,     // Input: (Data, Array)
+	0xC0,            // End Collection
 };
 static tlkmdi_bthid_report_t sTlkMdiBtHidKeyboardReportCtrl = {
 	false, //.enChg

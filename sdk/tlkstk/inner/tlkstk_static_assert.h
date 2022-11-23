@@ -21,8 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef COMMON_STATIC_ASSERT_H_
-#define COMMON_STATIC_ASSERT_H_
+#ifndef TLKSTK_STATIC_ASSERT_H
+#define TLKSTK_STATIC_ASSERT_H
 
 #pragma once
 
@@ -45,4 +45,4 @@
 
 
 
-#endif /* COMMON_STATIC_ASSERT_H_ */
+#endif /* TLKSTK_STATIC_ASSERT_H */

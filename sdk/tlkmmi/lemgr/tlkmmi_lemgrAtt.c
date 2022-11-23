@@ -375,11 +375,11 @@ int spp_onReceiveData(uint16 connHandle, rf_packet_att_write_t *p)
 }
 
 static uint08 my_devNameLen = 8;
-static uint08 my_devName[20] = { 'T','L','K','W','A','T','C','H'};
+static uint08 my_devName[18] = { 'T','L','K','W','A','T','C','H'};
 int tlkmmi_lemgr_attSetDevName(uint08 *pName, uint08 nameLen)
 {
 	if(pName == nullptr || nameLen == 0) return -TLK_EPARAM;
-	if(nameLen > 20) nameLen = 20;
+	if(nameLen > 18) nameLen = 18;
 	my_devNameLen = nameLen;
 	tmemcpy(my_devName, pName, nameLen);
 	return TLK_ENONE;
@@ -387,7 +387,7 @@ int tlkmmi_lemgr_attSetDevName(uint08 *pName, uint08 nameLen)
 static int tlkmmi_lemgr_attReadDevNameDeal(u16 connHandle, void* p)
 {
 	blc_gatt_pushReadResponse(connHandle, my_devName, my_devNameLen);
-	return 0;
+	return 1;
 }
 
 

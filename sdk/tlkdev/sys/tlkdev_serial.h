@@ -27,19 +27,11 @@
 #if (TLK_DEV_SERIAL_ENABLE)
 
 
-typedef enum{
-	TLKDEV_SERIAL_MSTATE_HEAD = 0,
-	TLKDEV_SERIAL_MSTATE_ATTR,
-	TLKDEV_SERIAL_MSTATE_BODY,
-	TLKDEV_SERIAL_MSTATE_CHECK,
-	TLKDEV_SERIAL_MSTATE_TAIL,
-	TLKDEV_SERIAL_MSTATE_READY,
-}TLKDEV_SERIAL_MSTATE_ENUM;
-
-
 #define TLKDEV_SERIAL_PORT               UART1
 #define TLKDEV_SERIAL_TX_PIN             UART1_TX_PD6
 #define TLKDEV_SERIAL_RX_PIN             UART1_RX_PD7
+#define TLKDEV_SERIAL_BAUDRATE           2000000//921600//115200
+
 #define TLKDEV_SERIAL_DMA_ENABLE         1
 
 #define TLKDEV_SERIAL_DMA_TX             DMA4
@@ -58,7 +50,7 @@ void tlkdev_serial_wakeup(void);
 
 void tlkdev_serial_handler(void);
 
-int  tlkdev_serial_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
+int  tlkdev_serial_send(uint08 *pData, uint16 dataLen);
 void tlkdev_serial_setBaudrate(uint32 baudrate);
 
 

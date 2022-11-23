@@ -57,6 +57,7 @@ typedef struct{
 	uint08 playNumb;
 	uint08 playCount;
 	uint16 playIndex;
+	uint32 sampleRate;
 }tlkmdi_tone_ctrl_t;
 static tlkmdi_tone_ctrl_t sTlkMdiToneCtrl;
 
@@ -116,7 +117,8 @@ bool tlkmdi_audtone_switch(uint16 handle, uint08 status)
 		return false;
 	}
 	if(enable){
-		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, tlkmdi_mp3_getSampleRate());
+		sTlkMdiToneCtrl.sampleRate = tlkmdi_mp3_getSampleRate();
+		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sTlkMdiToneCtrl.sampleRate);
 		tlkdev_codec_setSpkOffset(640);
 	}else{
 		tlkdev_codec_close();
@@ -248,6 +250,12 @@ static void tlkmdi_tone_mp3Handler(void)
 	if(sTlkMdiToneCtrl.curState == TLKMDI_MP3_STATUS_IDLE){
 		tlkmdi_tone_start(sTlkMdiToneCtrl.playIndex);
 		if(!sTlkMdiToneCtrl.runing) return;
+		if(tlkmdi_mp3_getSampleRate() != sTlkMdiToneCtrl.sampleRate){
+			sTlkMdiToneCtrl.sampleRate = tlkmdi_mp3_getSampleRate();
+			tlkdev_codec_close();
+			tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sTlkMdiToneCtrl.sampleRate);
+			tlkdev_codec_setSpkOffset(640);
+		}
 		sTlkMdiToneCtrl.playNumb ++;
 		sTlkMdiToneCtrl.curState = TLKMDI_MP3_STATUS_PLAY;
 	}

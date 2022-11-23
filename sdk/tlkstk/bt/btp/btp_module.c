@@ -22,6 +22,7 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
+#if (TLK_STK_BTP_ENABLE)
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/btp_adapt.h"
 #include "tlkstk/bt/btp/btp.h"
@@ -35,6 +36,7 @@
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
 #include "tlkstk/bt/btp/hid/btp_hid.h"
+#include "tlkstk/bt/btp/att/btp_att.h"
 
 
 int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 channel)
@@ -56,7 +58,9 @@ int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 chan
 			ret = btp_spp_connect(aclHandle, channel);
 			break;
 		case BTP_PTYPE_A2DP:
+			#if (TLKBTP_CFG_A2DP_ENABLE)
 			ret = btp_a2dp_connect(aclHandle, usrID);
+			#endif
 			break;
 		case BTP_PTYPE_AVRCP:
 			ret = btp_avrcp_connect(aclHandle, usrID);
@@ -66,6 +70,9 @@ int btp_module_connect(uint16 aclHandle, uint08 ptype, uint08 usrID, uint08 chan
 			break;
 		case BTP_PTYPE_HID:
             ret = btp_hid_connect(aclHandle, usrID);
+		    break;
+		case BTP_PTYPE_ATT:
+            ret = btp_att_connect(aclHandle, usrID);
 		    break;
 	}
 	return ret;
@@ -89,7 +96,9 @@ int btp_module_disconn(uint16 aclHandle, uint08 ptype, uint08 usrID)
 			ret = btp_spp_disconn(aclHandle);
 			break;
 		case BTP_PTYPE_A2DP:
+			#if (TLKBTP_CFG_A2DP_ENABLE)
 			ret = btp_a2dp_disconn(aclHandle);
+			#endif
 			break;
 		case BTP_PTYPE_AVRCP:
 			ret = btp_avrcp_disconn(aclHandle, usrID);
@@ -100,9 +109,13 @@ int btp_module_disconn(uint16 aclHandle, uint08 ptype, uint08 usrID)
 		case BTP_PTYPE_HID:
 			ret = btp_hid_disconn(aclHandle, usrID);
 			break;
+		case BTP_PTYPE_ATT:
+			ret = btp_att_disconn(aclHandle, usrID);
+			break;
 	}
 	return ret;
 }
 
 
+#endif //#if (TLK_STK_BTP_ENABLE)
 

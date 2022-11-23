@@ -497,7 +497,7 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 			}
 		}
 		#if (TLKMMI_PHONE_BOOK_ENABLE)
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: pbap - %d %d %d %d", 
+		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: pbap - %d %d %d 0x%x", 
 			aclHandle, dtype, tlkmdi_btacl_isFindPbap(aclHandle), pItem->devClass);
 		if(dtype != BTH_REMOTE_DTYPE_HEADSET && tlkmdi_btacl_isFindPbap(aclHandle)){
 			ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_PBAP, BTP_USRID_CLIENT, delayMs+500);

@@ -30,11 +30,13 @@
 #include "tlkstk/bt/btp/sdp/btp_sdp.h"
 #include "tlkstk/bt/btp/hfp/btp_hfp.h"
 #include "tlkstk/bt/btp/spp/btp_spp.h"
+#include "tlkstk/bt/btp/spp/btp_iap.h"
 #include "tlkstk/bt/btp/rfcomm/btp_rfcomm.h"
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
 #include "tlkstk/bt/btp/hid/btp_hid.h"
+#include "tlkstk/bt/btp/att/btp_att.h"
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkmdi/tlkmdi_comm.h"
 #include "tlkmdi/tlkmdi_adapt.h"
@@ -703,6 +705,8 @@ static int tlkmdi_btacl_profileChannelEvt(uint08 *pData, uint16 dataLen)
 		pItem->sppChannel = pEvt->channel;
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_PBAP_PSE){
 		pItem->pbapChannel = pEvt->channel;
+	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_IAP2_TEMP){
+		pItem->iapChannel = pEvt->channel;
 	}
 	
 	return TLK_ENONE;
@@ -747,7 +751,6 @@ static int tlkmdi_btacl_profileConnectEvt(uint08 *pData, uint16 dataLen)
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnectEvt: fail - ptype-%d,usrID-%d,handle-0x%x,status-%d ", 
 			pEvt->ptype, pEvt->usrID, pEvt->handle, pEvt->status);
 		if(pEvt->ptype == BTP_PTYPE_SDP || pEvt->ptype == BTP_PTYPE_RFC){
-			//
 			if(btp_hfphf_isIosDev(pEvt->handle)){
 				tlkmdi_btacl_set_peer_devType(pEvt->handle, TLKMDI_BTACL_PEER_IOS_DEV);
 			} else {
@@ -926,7 +929,11 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 	if(pProf->ptype == BTP_PTYPE_RFC){
 		ret = btp_rfcomm_connect(pItem->handle);
 	}else if(pProf->ptype == BTP_PTYPE_A2DP){
+		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 		ret = btp_a2dp_connect(pItem->handle, pProf->usrID);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_HFP){
 //		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnDeal: hfp Channel-%d connFlag-%d usrId-%d handle-%d",
 //				pItem->hfpChannel, pItem->connFlag, pProf->usrID, pItem->handle);
@@ -934,14 +941,15 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 		if(pItem->agChannel != 0) ret = btp_hfp_connect(pItem->handle, BTP_USRID_CLIENT, pItem->agChannel);
 		else if(pItem->hfChannel != 0) ret = btp_hfp_connect(pItem->handle, BTP_USRID_SERVER, pItem->hfChannel);
 	}else if(pProf->ptype == BTP_PTYPE_IAP){
-		
+		if(pItem->iapChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
+		ret = btp_iap_connect(pItem->handle, pItem->iapChannel);
 	}else if(pProf->ptype == BTP_PTYPE_SPP){
 		if(pItem->sppChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		ret = btp_spp_connect(pItem->handle, pItem->sppChannel);
 	}else if(pProf->ptype == BTP_PTYPE_HID && (pItem->devClass != BTH_REMOTE_DTYPE_HEADSET)){
 		ret = btp_hid_connect(pItem->handle, pProf->usrID);
 	}else if(pProf->ptype == BTP_PTYPE_ATT){
-		
+		ret = btp_att_connect(pItem->handle, pProf->usrID);
 	}else if(pProf->ptype == BTP_PTYPE_PBAP){
 		if(pItem->pbapChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		ret = btp_pbap_connect(pItem->handle, pProf->usrID, pItem->pbapChannel, false);

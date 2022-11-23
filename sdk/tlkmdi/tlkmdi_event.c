@@ -129,9 +129,16 @@ void tlkmdi_event_handler(void)
  * Return: Return TLK_ENONE is success, others failure.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_sendAudioEvent(uint08 minorID, void *pData, uint08 dataLen)
+int tlkmdi_sendAudioEvent(uint08 minorID, void *pData, uint08 dataLen, bool isRealDeal)
 {
-	return tlkmdi_event_push(TLKMDI_EVENT_MAJOR_AUDIO, minorID, (uint08*)pData, dataLen);
+	if(!isRealDeal){
+		return tlkmdi_event_push(TLKMDI_EVENT_MAJOR_AUDIO, minorID, (uint08*)pData, dataLen);
+	}else{
+		if(sTlkMdiEventCB[TLKMDI_EVENT_MAJOR_AUDIO] != nullptr){
+			sTlkMdiEventCB[TLKMDI_EVENT_MAJOR_AUDIO](TLKMDI_EVENT_MAJOR_AUDIO, minorID, pData, dataLen);
+		}
+		return TLK_ENONE;
+	}
 }
 
 /******************************************************************************

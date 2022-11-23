@@ -21,8 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef _TIMER_EVENT_H_
-#define _TIMER_EVENT_H_
+#ifndef TLKSTK_TIMER_H
+#define TLKSTK_TIMER_H
 
 typedef int (*ev_timer_callback_t)(uint32_t data);
 
@@ -45,4 +45,4 @@ extern void ev_unon_timer(ev_timer_event_t *e, ev_timer_list_t *event_pend_list)
 extern void ev_process_timer(ev_timer_list_t *event_pend_list);
 
 
-#endif /* _TIMER_EVENT_H_ */
+#endif /* TLKSTK_TIMER_H */

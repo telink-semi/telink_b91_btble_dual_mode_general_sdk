@@ -50,7 +50,14 @@ int tlkusb_msc_init(void)
 	return TLK_ENONE;
 }
 
-
+/******************************************************************************
+ * Function: tlkusb_msc_appendDisk
+ * Descript: This function use to append disk for MSC device.
+ * Params:
+ * 		@pUnit[IN]--msc disk structure.
+ * Return: TLK_ENONE is SUCCESS.
+ * Others: None.
+*******************************************************************************/
 int tlkusb_msc_appendDisk(tlkusb_msc_disk_t *pUnit)
 {
 	if(pUnit == nullptr || pUnit->blkSize == 0 || (pUnit->blkSize & 0x3F) != 0
@@ -61,11 +68,25 @@ int tlkusb_msc_appendDisk(tlkusb_msc_disk_t *pUnit)
 	return TLK_ENONE;
 }
 
-
+/******************************************************************************
+ * Function: tlkusb_msc_getDiskCount
+ * Descript: This function use to get disk count.
+ * Params: None.
+ * Return: Number of disk count.
+ * Others: None.
+*******************************************************************************/
 uint08 tlkusb_msc_getDiskCount(void)
 {
 	return sTlkUsbMscUnitCount;
 }
+/******************************************************************************
+ * Function: tlkusb_msc_getDisk
+ * Descript: This function use to get disk.
+ * Params:
+ * 		@volNum[IN]--index.
+ * Return: Msc disk .
+ * Others: None.
+*******************************************************************************/
 tlkusb_msc_disk_t *tlkusb_msc_getDisk(uint08 volNum)
 {
 	if(volNum >= sTlkUsbMscUnitCount) return nullptr;

@@ -28,8 +28,6 @@
 #include "tlkmdi/tlkmdi_audio.h"
 #include "tlkalg/audio/sbc/tlkalg_sbc.h"
 #include "tlkmdi/tlkmdi_audsnk.h"
-
-
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
@@ -37,6 +35,9 @@
 
 #include "tlkprt/tlkprt_stdio.h"
 
+#if (TLK_ALG_EQ_ENABLE)
+#include "tlkalg/audio/eq/tlkalg_eq.h"
+#endif
 
 
 #define TLKMDI_SNK_VOLUME_STEP           3
@@ -47,8 +48,9 @@
 
 static int tlkmdi_audsnk_statusChangedEvt(uint08 *pData, uint16 dataLen);
 
+#if (TLKBTP_CFG_A2DPSNK_ENABLE)
 static bool tlkmdi_snk_initBuffer(bool enable);
-
+#endif
 static void tlkmdi_snk_spkHandler(void);
 
 static int tlkmdi_snk_parseSbcParam(uint08 *data);
@@ -75,8 +77,10 @@ static uint08 *spTlkMdiSnkBuffer;
 static tlkapi_qfifo_t spTlkMdiSnkFifo;
 static tlkmdi_audsnk_ctrl_t sTlkMdiSnkCtrl = {0};
 
+#if (TLKBTP_CFG_A2DPSNK_ENABLE)
 static uint08 *spTlkMdiSnkSBCDecBuff = nullptr;
 static uint08 *spTlkMdiSnkRawRcvBuff = nullptr;
+#endif
 static uint08 *spTlkMdiSnkTmpBuff = nullptr;
 
 
@@ -97,7 +101,9 @@ int tlkmdi_audsnk_init(void)
 	sTlkMdiSnkCtrl.encParma = 0;
 	sTlkMdiSnkCtrl.firstInit = true;
 
+	#if (TLKBTP_CFG_A2DPSNK_ENABLE)
 	btp_a2dpsnk_regRecvDataCB(tlkmdi_snk_addEncFrame);
+	#endif
 	btp_event_regCB(BTP_EVTID_A2DPSNK_STATUS_CHANGED, tlkmdi_audsnk_statusChangedEvt);
 	
 	return TLK_ENONE;
@@ -168,6 +174,7 @@ bool tlkmdi_audsnk_toPrev(void)
 *******************************************************************************/
 bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 {
+#if (TLKBTP_CFG_A2DPSNK_ENABLE)
 	bool isSucc;
 	bool enable;
 	uint sampleRate = 0;
@@ -216,6 +223,9 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_switch: %d %d %d", handle, status, isSucc);
 	
 	return isSucc;
+#else
+	return false;
+#endif
 }
 
 /******************************************************************************
@@ -249,7 +259,7 @@ uint tlkmdi_audsnk_intval(void)
 *******************************************************************************/
 bool tlkmdi_audsnk_irqProc(void)
 {
-//	my_dump_str_data(TLKMDI_SNK_DBG_ENABLE, "tlkmdi_audsnk_irqProc:", 0, 0);
+//	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_irqProc:");
 	if(!sTlkMdiSnkCtrl.enable) return false;
 	tlkmdi_snk_spkHandler();
 	if(sTlkMdiSnkCtrl.enable) return true;
@@ -297,6 +307,7 @@ int	tlkmdi_snk_setBuffer(uint08 *pBuffer, uint32 buffLen)
 	return TLK_ENONE;
 }
 
+#if (TLKBTP_CFG_A2DPSNK_ENABLE)
 static bool tlkmdi_snk_initBuffer(bool enable)
 {
 	bool isSucc = true;
@@ -329,7 +340,7 @@ static bool tlkmdi_snk_initBuffer(bool enable)
 	
 	return isSucc;
 }
-
+#endif
 
 uint tlkmdi_snk_getTimer(void)
 {
@@ -353,7 +364,11 @@ static void tlkmdi_snk_spkHandler(void)
 			length = tlkmdi_snk_getPlaybackData((uint08*)spTlkMdiSnkTmpBuff); //length=256
 		}
 		if(length == 0) break;
-				
+		
+		#if (TLK_ALG_EQ_ENABLE)
+		tlkalg_eq_procss(TLKALG_EQ_TYPE_MUSIC, TLKALG_EQ_CHANNEL_STEREO, sTlkMdiSnkCtrl.sampleRate, (sint16*)spTlkMdiSnkTmpBuff, 64);
+		#endif
+		
 		volume = tlkmdi_audio_getMusicVolume(false);
 		pData = (sint16*)spTlkMdiSnkTmpBuff;
 		for(index=0; index<length/2; index++){

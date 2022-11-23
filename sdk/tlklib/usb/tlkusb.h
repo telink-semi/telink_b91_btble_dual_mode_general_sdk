@@ -37,6 +37,8 @@ void tlkusb_irq_handler(void);
 #endif
 bool tlkusb_setModule(uint08 modtype);
 
+bool tlkusb_mount(uint08 modtype);
+
 
 #endif //#if (TLK_CFG_USB_ENABLE)
 

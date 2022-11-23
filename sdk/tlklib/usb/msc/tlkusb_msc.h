@@ -29,12 +29,12 @@
 
 typedef struct{
 	uint08 isReady;
-	uint08 hotPlug; //1-Enable, 0-Disable
-	uint16 blkSize;
-	uint32 blkCount;
-	char *pVendorStr; //<=8
-	char *pProductStr; //<=16
-	char *pVersionStr; //<=4
+	uint08 hotPlug; 	//1-Enable, 0-Disable
+	uint16 blkSize;		//Block size
+	uint32 blkCount;	//Block count
+	char *pVendorStr; 	//VENDOR_STRING Length<=8
+	char *pProductStr;  //PRODUCT_STRING Length<=16
+	char *pVersionStr;  //VERSION_STRING Length<=4
 	int(*Init)(void);
 	int(*Read)(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb);
 	int(*Write)(uint08 *pData, uint32 blkOffs, uint16 blkNumb);
@@ -47,6 +47,7 @@ typedef struct{
 int tlkusb_msc_init(void);
 
 int tlkusb_msc_appendDisk(tlkusb_msc_disk_t *pUnit);
+int tlkusb_msc_removeDisk(tlkusb_msc_disk_t *pUnit);
 
 
 uint08 tlkusb_msc_getDiskCount(void);

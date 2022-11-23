@@ -31,9 +31,19 @@
 #include "tlkdrv/B91/reg_include/usb_reg.h"
 
 
+#define GLOBAL_INT_DISABLE()		u32 rie = core_disable_interrupt ()
+#define GLOBAL_INT_RESTORE()		core_restore_interrupt(rie)
 
-#define TLKSTK_MYUDB_DEBUG_ENABLE             (1 && TLK_CFG_DBG_ENABLE)
-#define TLKSTK_MYUDB_CTRL_DEBUG_ENABLE        (1 && TLKSTK_MYUDB_DEBUG_ENABLE)
+extern void tlkapi_debug_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
+extern void tlkapi_debug_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
+
+extern void tlkapi_vcd_ref(void);
+extern void tlkapi_vcd_sync(bool enable);
+extern void tlkapi_vcd_tick(uint32 flags, uint08 id);
+extern void tlkapi_vcd_level(uint32 flags, uint08 id, uint08 level);
+extern void tlkapi_vcd_event(uint32 flags, uint08 id);
+extern void tlkapi_vcd_byte(uint32 flags, uint08 id, uint08 value);
+extern void tlkapi_vcd_word(uint32 flags, uint08 id, uint16 value);
 
 
 #define my_dump_str_data(flags,s,p,n)           tlkapi_debug_sendData(flags,s,(uint08*)(p),n)
@@ -41,135 +51,81 @@
 
 
 
-#ifndef			VCD_EN
-#define			VCD_EN						(1 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
-#endif
 
 #ifndef			VCD_BLE_EN
-#define			VCD_BLE_EN					(0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
+#define			VCD_BLE_EN					(0)
 #endif
 
 
 
-#define			SL_STACK_VCD_EN				1
+#define SL_STACK_VCD_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
 /* Timing VCD id enable */
-#define			SL_STACK_TIMING_EN			1
-#define			SL_STACK_RESET_EN			0
+#define SL_STACK_TIMING_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_RESET_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_RESET << 16))
 /* schedule VCD id enable */
-#define			SL_STACK_SCH01_EN			1
-#define			SL_STACK_SCH02_EN			0
+#define SL_STACK_SCH01_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_SCH02_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
 /* frame VCD id enable */
-#define			SL_STACK_FRAME_EN			1
-#define			SL_STACK_FRAME_ST_EN		1
-#define			SL_STACK_RADIO_EN			0
-#define			SL_STACK_FLOW_EN			1
+#define SL_STACK_FRAME_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_FRAME_ST_EN		((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_RADIO_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_FLOW_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
 /* access link VCD id enable */
-#define			SL_STACK_INQ_EN				1
-#define			SL_STACK_INQSCAN_EN			1
-#define			SL_STACK_PAGE_EN			1
-#define			SL_STACK_PAGESCAN_EN		1
+#define SL_STACK_INQ_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_INQSCAN_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_PAGE_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_PAGE << 16))
+#define SL_STACK_PAGESCAN_EN		((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_PAGE << 16))
 
 /* acl-c link VCD id enable */
-#define			SL_STACK_ACL_EN				1
-#define			SL_STACK_LMP_EN				1
-#define			SL_STACK_CON_EN				0
-#define			SL_STACK_RSW_EN				0
-#define			SL_STACK_SNIFF_EN			0
-#define			SL_STACK_AFH_EN             0
-#define			SL_STACK_AFH_CLS_EN         0
-#define			SL_STACK_DETACH_EN			0
+#define SL_STACK_ACL_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_ACL << 16))
+#define SL_STACK_LMP_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_LMP << 16))
+#define SL_STACK_CON_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_ACL << 16))
+#define SL_STACK_RSW_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_RSW << 16))
+#define SL_STACK_SNIFF_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_SNIFF << 16))
+#define SL_STACK_AFH_EN             ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_AFH << 16))
+#define SL_STACK_AFH_CLS_EN         ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_CHN << 16))
+#define SL_STACK_DETACH_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_DETACH << 16))
 
 /* sco/e-sco link VCD id enable */
-#define			SL_STACK_SCO_EN				0
+#define SL_STACK_SCO_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_SCO << 16))
 /* authen/pair/encrypt VCD id enable */
-#define			SL_STACK_AUTH_EN			0
-#define			SL_STACK_PAIR_EN			0
-#define			SL_STACK_ENCRYPT_EN			0
+#define SL_STACK_AUTH_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_AUTH << 16))
+#define SL_STACK_PAIR_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_PAIR << 16))
+#define SL_STACK_ENCRYPT_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_ENC << 16))
 /* PA VCD id enable */
-#define			SL_STACK_PA_EN				0
-#define			SL_STACK_TEST_EN			0
-#define			SL_STACK_HCI_EN			    0
-/* application VCD id enable */
-#define			SL_APP_MUSIC_EN				0
-#define			SL_APP_MUSIC_02_EN			0
-#define			SL_APP_AUDIO_EN				0
-#define			SL_APP_EC_EN				0
-#define			SL_APP_SP_EN				0
+#define SL_STACK_PA_EN				((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_TEST_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_HCI_EN			    ((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_HCI << 16))
 
 
 
-
-
-
-extern void tlkapi_debug_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
-extern void tlkapi_debug_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////
-#define			GLOBAL_INT_DISABLE()		u32 rie = core_disable_interrupt ()
-#define			GLOBAL_INT_RESTORE()		core_restore_interrupt(rie)
-#define			LOG_EVENT_TIMESTAMP		0
-#define			LOG_DATA_B1_0			0
-#define			LOG_DATA_B1_1			1
-
-#define			get_systemtick()  	    stimer_get_tick()
-
-
-#if(VCD_MODE)
-#define			log_uart(d)				uart_send_byte_dma(1,d)
-#define         DEBUG_PORT				GPIO_PE2
-#define			log_ref_gpio_h()		gpio_set_high_level(DEBUG_PORT)
-#define			log_ref_gpio_l()		gpio_set_low_level(DEBUG_PORT)
-#else
-#define			log_uart(d)				reg_usb_ep8_dat=d
-#define			log_ref_gpio_h()
-#define			log_ref_gpio_l()
-#endif
-
-
-
-
-#define	log_hw_ref()	if(VCD_EN){GLOBAL_INT_DISABLE();log_ref_gpio_h();log_uart(0x20);int t=stimer_get_tick();log_uart(t);log_uart(t>>8);log_uart(t>>16);log_ref_gpio_l();GLOBAL_INT_RESTORE();}
-
+#define	log_hw_ref()	tlkapi_vcd_ref()
 // 4-byte sync word: 00 00 00 00
-#define	log_sync(en)	if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0);log_uart(0);log_uart(0);log_uart(0);GLOBAL_INT_RESTORE();}
+#define	log_sync(en)	tlkapi_vcd_sync(en)
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
-#define	log_tick(en,id)	if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0x20|(id&31));int t=stimer_get_tick();log_uart(t);log_uart(t>>8);log_uart(t>>16);GLOBAL_INT_RESTORE();}
-
+#define	log_tick(en,id)	tlkapi_vcd_tick(en,id)
 //1-byte (000_id-5bits)
-#define	log_event(en,id) if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0x00|(id&31));GLOBAL_INT_RESTORE();}
-
+#define	log_event(en,id) tlkapi_vcd_event(en,id)
 //1-byte (01x_id-5bits) 1-bit data: id0 & id1 reserved for hardware
-#define	log_task(en,id,b)	if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(((b)?0x60:0x40)|(id&31));int t=stimer_get_tick();log_uart(t);log_uart(t>>8);log_uart(t>>16);GLOBAL_INT_RESTORE();}
-
+#define	log_task(en,id,b)	tlkapi_vcd_level(en,id,b)
 //2-byte (10-id-6bits) 8-bit data
-#define	log_b8(en,id,d)	if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0x80|(id&63));log_uart(d);GLOBAL_INT_RESTORE();}
-
+#define	log_b8(en,id,d)	tlkapi_vcd_byte(en,id,d)
 //3-byte (11-id-6bits) 16-bit data
-#define	log_b16(en,id,d) if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0xc0|(id&63));log_uart(d);log_uart((d)>>8);GLOBAL_INT_RESTORE();}
+#define	log_b16(en,id,d) tlkapi_vcd_word(en,id,d)
 
 
 //BLE used only //
-#define	log_sync_mainloop(en)	if(VCD_BLE_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0);log_uart(0);log_uart(0);log_uart(0);GLOBAL_INT_RESTORE();}
-
-#define	log_tick_mainloop(en,id) if(VCD_EN&&en) {GLOBAL_INT_DISABLE();log_uart(0x20|(id&31));int t=stimer_get_tick();log_uart(t);log_uart(t>>8);log_uart(t>>16);GLOBAL_INT_RESTORE();}
-
-#define	log_tick_irq(en,id)		if(VCD_BLE_EN&&en) {log_uart(0x20|(id&31));int t=stimer_get_tick();log_uart(t);log_uart(t>>8);log_uart(t>>16);}
-
-#define	log_event_irq(en,id) 	if(VCD_BLE_EN&&en) {log_uart(0x00|(id&31));}
-
-#define	log_task_irq(en,id,b)	if(VCD_BLE_EN&&en) {log_uart(((b)?0x60:0x40)|(id&31));int t=stimer_get_tick();log_uart(t);log_uart(t>>8);log_uart(t>>16);}
-
-#define	log_b8_irq(en,id,d)		if(VCD_BLE_EN&&en) {log_uart(0x80|(id&63));log_uart(d);}
-
-#define	log_b16_irq(en,id,d)	if(VCD_BLE_EN&&en) {log_uart(0xc0|(id&63));log_uart(d);log_uart((d)>>8);}
+#define	log_sync_mainloop(en)	tlkapi_vcd_sync(en)
+#define	log_tick_mainloop(en,id) tlkapi_vcd_tick(en,id)
+#define	log_tick_irq(en,id)		tlkapi_vcd_tick(en,id)
+#define	log_event_irq(en,id) 	tlkapi_vcd_event(en,id)
+#define	log_task_irq(en,id,b)	tlkapi_vcd_level(en,id,b)
+#define	log_b8_irq(en,id,d)		tlkapi_vcd_byte(en,id,d)
+#define	log_b16_irq(en,id,d)	tlkapi_vcd_word(en,id,d)
 
 
 #ifndef	DUMP_BLE_MSG
-#define DUMP_BLE_MSG      (0 && TLKSTK_MYUDB_CTRL_DEBUG_ENABLE)
+#define DUMP_BLE_MSG      (0)
 #endif
 
 

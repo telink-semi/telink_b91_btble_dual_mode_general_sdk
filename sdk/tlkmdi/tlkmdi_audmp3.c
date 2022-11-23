@@ -98,7 +98,7 @@ int tlkmdi_mp3_init(void)
 		|| mp3dec_Query_ScratchSize() > TLKMDI_MP3_DEC_CACHE0_SIZE){
 		while(true){
 			tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "MP3 Buffer Error");
-			tlkapi_debug_process();
+			tlkapi_debug_handler();
 		}
 	}
 	
@@ -429,7 +429,7 @@ void tlkmdi_mp3_addPcmData(uint08 *pData, uint16 dataLen)
 {
 	tlkapi_fifo_write(&sTlkMdiMp3Fifo, pData, dataLen);
 }
-int tlkmdi_mp3_getPcmData(uint08 *pBuffer, uint16 buffLen)
+uint tlkmdi_mp3_getPcmData(uint08 *pBuffer, uint16 buffLen)
 {
 	uint16 readLen;
 	uint16 dataLen;
@@ -437,7 +437,7 @@ int tlkmdi_mp3_getPcmData(uint08 *pBuffer, uint16 buffLen)
 	dataLen = tlkapi_fifo_dataLen(&sTlkMdiMp3Fifo);
 	if(dataLen > buffLen) readLen = buffLen;
 	else readLen = dataLen;
-	if(readLen != 0) tlkapi_fifo_read(&sTlkMdiMp3Fifo, pBuffer, buffLen);
+	if(readLen != 0) tlkapi_fifo_read(&sTlkMdiMp3Fifo, pBuffer, readLen);
 	return readLen;
 }
 
@@ -517,12 +517,12 @@ bool tlkmdi_mp3_play(uint16 index)
 }
 bool tlkmdi_mp3_start(uint08 *pFilePath, uint32 fileOffset)
 {
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_start 001");
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_start 001");
 	if(spTlkMdiMp3Decode == nullptr || spTlkMdiMp3FileInfoTempBuff == nullptr
 		|| spTlkMdiMp3DurationTempBuff == nullptr){
 		return false;
 	}
-
+			
 	spTlkMdiMp3Decode = mp3dec_init(spTlkMdiMp3ParamBuff, spTlkMdiMp3CacheBuff);
 	if(spTlkMdiMp3Decode == nullptr) return false;
 
@@ -531,7 +531,7 @@ bool tlkmdi_mp3_start(uint08 *pFilePath, uint32 fileOffset)
 		return false;
 	}
 	
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_start 002");
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_start 002");
 	if(!tlkmdi_mp3_getPlayInfo()){
 		tlkapi_file_close(&sTlkMdiMp3File);
 		return false;
@@ -544,8 +544,8 @@ bool tlkmdi_mp3_start(uint08 *pFilePath, uint32 fileOffset)
 	}
 	sTlkMdiMp3Ctrl.fplay.playLens = fileOffset;
 	
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_start 003: %d %d %d", 
-//		sTlkMdiMp3Ctrl.fplay.curIndex, sTlkMdiMp3Ctrl.finfo.fileSize, sTlkMdiMp3Ctrl.fplay.playLens);
+//	tlkapi_info(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "MP3 Play Info: %d %d %d", 
+//		sTlkMdiMp3Ctrl.fplay.curIndex, sTlkMdiMp3Ctrl.finfo.sampleRate, sTlkMdiMp3Ctrl.fplay.sa, sTlkMdiMp3Ctrl.fplay.playLens);
 	
 	tlkmdi_mp3_clearPcmData();
 	sTlkMdiMp3Ctrl.fplay.cacheLens = 0;
@@ -582,27 +582,27 @@ int tlkmdi_mp3_decode(void)
 	int freeLen;
     mp3dec_frame_info_t frame_info;
 	
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 001");
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 001");
 	if(spTlkMdiMp3Decode == NULL || spTlkMdiMp3DecodeTempBuff == NULL) return -TLK_EPARAM;
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 002");
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 002");
 	if(tlkmdi_mp3_getPcmIdleLen() < (sTlkMdiMp3Ctrl.finfo.channels == 2 ? TLKMDI_MP3_PCM_SIZE : TLKMDI_MP3_PCM_SIZE/2)){
 		return TLK_ENONE;
 	}
 	
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 003");
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 003");
 	if(sTlkMdiMp3Ctrl.fplay.cacheOffs == sTlkMdiMp3Ctrl.fplay.cacheLens){
 		sTlkMdiMp3Ctrl.fplay.cacheOffs = 0;
 		sTlkMdiMp3Ctrl.fplay.cacheLens = 0;
-//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 001 1");
+//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 004");
 	}else if(sTlkMdiMp3Ctrl.fplay.cacheOffs > TLKMDI_MP3_FILE_CACHE_THIRD){
-//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 001 2");
+//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 005");
 		tempLen = sTlkMdiMp3Ctrl.fplay.cacheLens-sTlkMdiMp3Ctrl.fplay.cacheOffs;
 		tmemcpy(sTlkMdiMp3FileCache, sTlkMdiMp3FileCache+sTlkMdiMp3Ctrl.fplay.cacheOffs, tempLen);
 		sTlkMdiMp3Ctrl.fplay.cacheLens = tempLen;
 		sTlkMdiMp3Ctrl.fplay.cacheOffs = 0;
 	}
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 002: %d %d %d %d", sTlkMdiMp3Ctrl.play.playLens, sTlkMdiMp3Ctrl.info.fileSize,
-//		sTlkMdiMp3Ctrl.play.cacheLens, sTlkMdiMp3Ctrl.play.cacheOffs);
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 006: %d %d %d %d", sTlkMdiMp3Ctrl.fplay.playLens, sTlkMdiMp3Ctrl.finfo.fileSize,
+//		sTlkMdiMp3Ctrl.fplay.cacheLens, sTlkMdiMp3Ctrl.fplay.cacheOffs);
 	if(sTlkMdiMp3Ctrl.fplay.cacheLens+TLKMDI_MP3_FILE_CACHE_THIRD < TLKMDI_MP3_FILE_CACHE_SIZE 
 		&& sTlkMdiMp3Ctrl.fplay.playLens < sTlkMdiMp3Ctrl.finfo.fileSize){
 		uint16 readLen;
@@ -610,21 +610,21 @@ int tlkmdi_mp3_decode(void)
 		readLen = TLKMDI_MP3_FILE_CACHE_SIZE-sTlkMdiMp3Ctrl.fplay.cacheLens;
 		ret = tlkapi_file_read(&sTlkMdiMp3File, sTlkMdiMp3FileCache+sTlkMdiMp3Ctrl.fplay.cacheLens, readLen, &tempLen);
 		if(ret == FR_OK && tempLen <= readLen) sTlkMdiMp3Ctrl.fplay.cacheLens += tempLen;
-//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 002 1: %d %d %d %d", readLen, tempLen, sTlkMdiMp3Ctrl.play.cacheLens, sTlkMdiMp3Ctrl.play.cacheOffs);
+//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 007: %d %d %d %d", readLen, tempLen, sTlkMdiMp3Ctrl.fplay.cacheLens, sTlkMdiMp3Ctrl.fplay.cacheOffs);
 	}
 	if(sTlkMdiMp3Ctrl.fplay.cacheLens == 0 || sTlkMdiMp3Ctrl.fplay.cacheLens == sTlkMdiMp3Ctrl.fplay.cacheOffs){
-//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 003: %d %d %d %d", sTlkMdiMp3Ctrl.play.cacheLens, sTlkMdiMp3Ctrl.play.cacheOffs,
-//			sTlkMdiMp3Ctrl.play.playLens, sTlkMdiMp3Ctrl.info.fileSize);		
+		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 008: %d %d %d %d", sTlkMdiMp3Ctrl.fplay.cacheLens, sTlkMdiMp3Ctrl.fplay.cacheOffs,
+			sTlkMdiMp3Ctrl.fplay.playLens, sTlkMdiMp3Ctrl.finfo.fileSize);
 		sTlkMdiMp3Ctrl.fplay.playLens = sTlkMdiMp3Ctrl.finfo.fileSize; //Cache error, force stop playback
 		return -TLK_ENODATA;
 	}
 	
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 004");
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 009");
 	/* sync to a mp3 frame */
 	fLength = 0;
 	tempLen = sTlkMdiMp3Ctrl.fplay.cacheLens-sTlkMdiMp3Ctrl.fplay.cacheOffs;
 	tOffset = mp3d_find_frame(sTlkMdiMp3FileCache+sTlkMdiMp3Ctrl.fplay.cacheOffs, tempLen, &freeLen, &fLength);
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 004: %d %d %d %d",  tOffset, tempLen, fLength, freeLen);
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 010: %d %d %d %d",  tOffset, tempLen, fLength, freeLen);
 	if(tOffset >= tempLen) fOffset = tempLen;
 	else fOffset = tOffset;
 	if(fOffset != 0){
@@ -640,19 +640,19 @@ int tlkmdi_mp3_decode(void)
 			tlkmdi_mp3_addPcmData((uint08*)spTlkMdiMp3DecodeTempBuff, sTlkMdiMp3Ctrl.finfo.channels == 2 ? 1152*4 : 1152*2);
 			ret = 0;
 		}else{
+			tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 011: error %d", ret);
 			ret = -TLK_EDECODE;
-//			tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode: error");
 		}
 		if(fLength != 0){
 			sTlkMdiMp3Ctrl.fplay.playLens  += fLength;
 			sTlkMdiMp3Ctrl.fplay.cacheOffs += fLength;
 			tlkmdi_mp3_updatePlayLens(sTlkMdiMp3Ctrl.fplay.playLens, false);
 		}
-//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 004: %d %d %d %d", ret, fLength, sTlkMdiMp3Ctrl.play.cacheOffs, sTlkMdiMp3Ctrl.play.cacheLens);
+//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 012: %d %d %d %d", ret, fLength, sTlkMdiMp3Ctrl.fplay.cacheOffs, sTlkMdiMp3Ctrl.fplay.cacheLens);
 	}
-		
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "=== tlkmdi_mp3_decode 005: %d", ret);
 	
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_decode 013: %d", ret);
+		
     return ret;
 }
 
@@ -890,7 +890,6 @@ void tlkmdi_mp3_updatePlayLens(uint32 playLen, bool isForce)
 }
 
 
-
 static bool tlkmdi_mp3_getPlayInfo(void)
 {
 	FRESULT ret;
@@ -914,22 +913,23 @@ static bool tlkmdi_mp3_getPlayInfo(void)
 
 	sTlkMdiMp3Ctrl.finfo.fileSize = tlkapi_file_size(&sTlkMdiMp3File);
 	if(sTlkMdiMp3Ctrl.finfo.fileSize == 0) return false;
-	
+
 	tlkapi_file_seek(&sTlkMdiMp3File, 0);
 	ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3FileInfoTempBuff, TLKMDI_MP3_INFO_CACHE_SIZE, &readLen);
 	if(ret != FR_OK || readLen == 0) return false;
 	
  	if(readLen != TLKMDI_MP3_INFO_CACHE_SIZE){
-//		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-01[Not enough data]: %d %d", readLen, TLKMDI_MP3_INFO_CACHE_SIZE);
+		tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-01[Not enough data]: %d %d", readLen, TLKMDI_MP3_INFO_CACHE_SIZE);
 	}
 	
 	id3HLen = mp3dec_skip_id3v2(spTlkMdiMp3FileInfoTempBuff, readLen);
 	if(sTlkMdiMp3Ctrl.finfo.fileSize <= id3HLen){
-//		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-02[Length Error]: %d %d", sTlkMdiMp3Ctrl.info.fileSize, id3HLen);
+		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-02[Length Error]: %d %d", sTlkMdiMp3Ctrl.finfo.fileSize, id3HLen);
 		return false;
 	}
 	sTlkMdiMp3Ctrl.finfo.headLens = id3HLen;
-//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-03[mp3 id3_len]: %d %d", id3HLen, sTlkMdiMp3Ctrl.info.fileSize);
+//	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-03[mp3 id3_len]: %d %d", id3HLen, sTlkMdiMp3Ctrl.finfo.fileSize);
+//	tlkapi_array(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-04: ", spTlkMdiMp3FileInfoTempBuff, readLen);
 
 	#if 0
 	privateOffs = 0;
@@ -953,7 +953,7 @@ static bool tlkmdi_mp3_getPlayInfo(void)
 		tlkapi_file_seek(&sTlkMdiMp3File, id3HLen);
 		ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3FileInfoTempBuff, tempLen, &readLen);
 		if(ret != FR_OK || readLen != tempLen){
-//			my_dump_str_u32s(TLKMDI_MP3_DBG_ENABLE, "tlkmdi_mp3_getPlayInfo-04[Read Error]:", sTlkMdiMp3Ctrl.info.fileSize, id3HLen, tempLen, readLen);
+			tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-04[Read Error]: %d %d %d %d %d", ret, sTlkMdiMp3Ctrl.finfo.fileSize, id3HLen, tempLen, readLen);
 			return false;
 		}
 	}
@@ -970,13 +970,13 @@ static bool tlkmdi_mp3_getPlayInfo(void)
 	
 	fOffset = mp3d_find_frame(spTlkMdiMp3FileInfoTempBuff, readLen , &freeLens, &fLength);
 	if(fOffset+fLength >= readLen){
-//		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-05[Frame Error]: %d %d %d %d", readLen, fOffset, fLength, freeLens);
+		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-05[Frame Error]: %d %d %d %d", readLen, fOffset, fLength, freeLens);
 		return false;
 	}
 	
 	mp3dec_decode_frame(spTlkMdiMp3Decode, spTlkMdiMp3FileInfoTempBuff+fOffset, fLength, NULL, (mp3dec_frame_info_t*)&fileInfo);
 	if(fileInfo.hz == 0 || fLength == 0){
-//		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-06[Param Error]: %d %d", fLength, fileInfo.hz);
+		tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_mp3_getPlayInfo-06[Param Error]: %d %d", fLength, fileInfo.hz);
 		return false;
 	}
 	

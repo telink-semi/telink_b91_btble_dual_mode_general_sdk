@@ -24,9 +24,19 @@
 #ifndef TLKMDI_COMM_H
 #define TLKMDI_COMM_H
 
+#if (TLK_CFG_COMM_ENABLE)
+
 
 #define TLKMDI_COMM_DATA_CHANNEL_MAX       8
 
+typedef enum{
+	TLKMDI_COMM_MSTATE_HEAD = 0,
+	TLKMDI_COMM_MSTATE_ATTR,
+	TLKMDI_COMM_MSTATE_BODY,
+	TLKMDI_COMM_MSTATE_CHECK,
+	TLKMDI_COMM_MSTATE_TAIL,
+	TLKMDI_COMM_MSTATE_READY,
+}TLKMDI_COMM_MSTATE_ENUM;
 
 typedef void(*tlkmdi_comm_cmdCB)(uint08 msgID, uint08 *pData, uint08 dataLen);
 typedef void(*tlkmdi_comm_datCB)(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen);
@@ -41,6 +51,11 @@ typedef void(*tlkmdi_comm_datCB)(uint08 datID, uint16 number, uint08 *pData, uin
 *******************************************************************************/
 int tlkmdi_comm_init(void);
 
+void tlkmdi_comm_input(uint08 *pData, uint16 dataLen);
+
+void tlkmdi_comm_handler(void);
+
+bool tlkmdi_comm_pmIsBusy(void);
 
 int tlkmdi_comm_getValidDatID(uint08 *pDatID);
 
@@ -247,6 +262,9 @@ int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen
 
 int tlkmdi_comm_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 
+
+
+#endif //#if (TLK_CFG_COMM_ENABLE)
 
 #endif //TLKMDI_COMM_H
 

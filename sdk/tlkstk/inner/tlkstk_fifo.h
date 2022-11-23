@@ -21,8 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef FIFO_H_
-#define FIFO_H_
+#ifndef TLKSTK_FIFO_H
+#define TLKSTK_FIFO_H
 
 #include "types.h"
 #include "tlkdrv/B91/compiler.h"
@@ -82,4 +82,4 @@ typedef	struct {
 #define		MULTI_CONN_FIFO_INIT(name,fifo_size,fifo_num,conn_num)		u8 name##_b[fifo_size*fifo_num*conn_num]={0}; multi_conn_fifo_t name = {fifo_size,fifo_num,conn_num, name##_b}
 
 
-#endif /* FIFO_H_ */
+#endif /* TLKSTK_FIFO_H */

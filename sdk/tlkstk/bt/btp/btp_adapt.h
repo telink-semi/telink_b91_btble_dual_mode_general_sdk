@@ -24,6 +24,8 @@
 #ifndef BTP_ADAPT_H
 #define BTP_ADAPT_H
 
+#if (TLK_STK_BTP_ENABLE)
+
 
 int  btp_adapt_init(void);
 void btp_adapt_handler(void);
@@ -46,6 +48,8 @@ int  btp_adapt_removeTimer(tlkapi_timer_t *pTimer);
 
 void btp_adapt_printfTimer(void);
 
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //BTP_ADAPT_H
 

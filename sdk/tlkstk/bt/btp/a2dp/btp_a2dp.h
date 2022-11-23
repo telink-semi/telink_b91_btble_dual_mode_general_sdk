@@ -24,6 +24,9 @@
 #ifndef BTP_A2DP_H
 #define BTP_A2DP_H
 
+#if (TLK_STK_BTP_ENABLE)
+
+
 
 typedef	void(*BtpA2dpRecvDataCallback)(uint08 *pData, uint16 dataLen);
 
@@ -109,6 +112,10 @@ extern void btp_a2dp_destroy(uint16 aclHandle);
 extern bool btp_a2dp_isSnk(uint16 aclHandle);
 extern bool btp_a2dp_isSrc(uint16 aclHandle);
 
+extern void btp_a2dp_srcEnable(bool enable);
+extern void btp_a2dp_snkEnable(bool enable);
+
+
 extern bool btp_a2dp_isStart(uint16 aclHandle);
 
 extern uint16 btp_a2dp_getSrcHandle(void);
@@ -119,6 +126,7 @@ extern uint16 btp_a2dp_getSnkHandle(void);
  * The a2dp source interface
  ******************************************************************************/
 
+#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 /******************************************************************************
  * Function: A2DP source send media data interface
  * Descript: Defines the format of the A2dp source send media data to sink device.
@@ -194,7 +202,6 @@ extern int btp_a2dpsrc_reconfig(uint16 aclHandle, uint32 sampleRate);
  * 		If others value is returned means the get process fail.
  *******************************************************************************/
 extern int btp_a2dpsrc_getStatus(uint16 aclHandle);
-extern int btp_a2dpsnk_getStatus(uint16 aclHandle);
 
 /******************************************************************************
  * Function: A2DP source verify a2dp stream status
@@ -219,6 +226,24 @@ extern bool btp_a2dpsrc_isInStream(uint16 aclHandle);
 extern int btp_a2dpsrc_setSampleRate(uint16 aclHandle, uint32 sampleRate);
 
 /******************************************************************************
+ * Function: btp_a2dpsnk_getSampleRate
+ * Descript: Get Sample Rate for Codec.
+ * Params:
+ * 	    @pA2dp[IN]--The A2dp control bolck which convey the paramter.
+ * Return: SampleRate.
+ *******************************************************************************/
+extern uint btp_a2dpsrc_getSampleRate(uint16 aclHandle);
+#if TLK_CFG_PTS_ENABLE
+extern uint btp_a2dpsrc_getbitpool(uint16 aclHandle);
+extern uint btp_a2dpsrc_getblock(uint16 aclHandle);
+extern int  btp_a2dpsrc_sendDiscoveryCmd(uint16 aclHandle);
+#endif
+
+#endif //#if (TLKBTP_CFG_A2DPSRC_ENABLE)
+
+#if (TLKBTP_CFG_A2DPSNK_ENABLE)
+
+/******************************************************************************
  * Function: A2DP sink suspend interface
  * Descript: Defines the format of the A2dp sink trigger suspend the connection.
  * Params:
@@ -237,20 +262,6 @@ extern int btp_a2dpsnk_suspend(uint16 aclHandle);
  * 		If others value is returned means the start process fail.
  *******************************************************************************/
 extern int btp_a2dpsnk_start(uint16 aclHandle);
-
-/******************************************************************************
- * Function: btp_a2dpsnk_getSampleRate
- * Descript: Get Sample Rate for Codec.
- * Params:
- * 	    @pA2dp[IN]--The A2dp control bolck which convey the paramter.
- * Return: SampleRate.
- *******************************************************************************/
-extern uint btp_a2dpsrc_getSampleRate(uint16 aclHandle);
-#if TLK_CFG_PTS_ENABLE
-extern uint btp_a2dpsrc_getbitpool(uint16 aclHandle);
-extern uint btp_a2dpsrc_getblock(uint16 aclHandle);
-extern int  btp_a2dpsrc_sendDiscoveryCmd(uint16 aclHandle);
-#endif
 
 /********************************************************************************************
  * The a2dp Sink Interface 
@@ -301,6 +312,21 @@ extern void btp_a2dpsnk_regRecvDataCB(BtpA2dpRecvDataCallback datCallback);
  *******************************************************************************/
 extern int btp_a2dpsnk_delayreport(uint16 aclHandle, uint16 delay);
 
+/******************************************************************************
+ * Function: A2DP source get A2DP connection status
+ * Descript: Defines the format of the A2dp source trigger get status
+ *           of the connection.
+ * Params:
+ * 	    @aclHandle[IN]--The ACL link's handle.
+ * Return: Returning TLK_ENONE(0x00) means the get process success.
+ * 		If others value is returned means the get process fail.
+ *******************************************************************************/
+extern int btp_a2dpsnk_getStatus(uint16 aclHandle);
+
+#endif //#if (TLKBTP_CFG_A2DPSNK_ENABLE)
+
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif /* BTP_A2DP_H */
 

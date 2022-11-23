@@ -62,7 +62,9 @@ static uint08* tlkmdi_audio_getAudioParamter(uint16 audioType,  uint16* pStep);
 static bool tlkmdi_audio_calAudio(uint16 type, uint08* pSrcVolume, uint08* pCalVolume, uint08 *pTempVol, int index, int step);
 static uint08* tlkmdi_audio_getAudioUsrTable(uint16 type, uint16 vendor);
 #endif
+#if (TLK_STK_BTP_ENABLE)
 static void tlkmdi_audio_volumeChangeEvt(uint16 aclHandle, uint08 volume);
+#endif
 static uint08 sTlkMdiAudioToneVolume = TLKMDI_AUDIO_VOLUME_DEF;
 static uint08 sTlkMdiAudioMusicVolume = TLKMDI_AUDIO_VOLUME_DEF;
 static uint08 sTlkMdiAudioVoiceVolume = TLKMDI_AUDIO_VOLUME_DEF;
@@ -74,7 +76,9 @@ extern uint16 gTlkMmiAudioCurHandle;
 
 int tlkmdi_audio_init(void)
 {
+	#if (TLK_STK_BTP_ENABLE)
     btp_avrcp_regVolumeChangeCB(tlkmdi_audio_volumeChangeEvt);
+	#endif
     return TLK_ENONE;
 }
 
@@ -86,7 +90,7 @@ int tlkmdi_audio_sendStartEvt(uint08 audChn, uint16 handle)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (handle & 0x00FF);
 	buffer[buffLen++] = (handle & 0xFF00) >> 8;
-	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_START, buffer, buffLen);
+	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_START, buffer, buffLen, true);
 }
 int tlkmdi_audio_sendCloseEvt(uint08 audChn, uint16 handle)
 {
@@ -96,7 +100,7 @@ int tlkmdi_audio_sendCloseEvt(uint08 audChn, uint16 handle)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (handle & 0x00FF);
 	buffer[buffLen++] = (handle & 0xFF00) >> 8;
-	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_CLOSE, buffer, buffLen);
+	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_CLOSE, buffer, buffLen, true);
 }
 
 int tlkmdi_audio_sendPlayStartEvt(uint08 audChn, uint16 playIndex)
@@ -107,7 +111,7 @@ int tlkmdi_audio_sendPlayStartEvt(uint08 audChn, uint16 playIndex)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (playIndex & 0x00FF);
 	buffer[buffLen++] = (playIndex & 0xFF00) >> 8;
-	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_PLAY_START, buffer, buffLen);
+	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_PLAY_START, buffer, buffLen, true);
 }
 int tlkmdi_audio_sendPlayOverEvt(uint08 audChn, uint16 playIndex)
 {
@@ -117,7 +121,7 @@ int tlkmdi_audio_sendPlayOverEvt(uint08 audChn, uint16 playIndex)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (playIndex & 0x00FF);
 	buffer[buffLen++] = (playIndex & 0xFF00) >> 8;
-	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_PLAY_OVER, buffer, buffLen);
+	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_PLAY_OVER, buffer, buffLen, true);
 }
 
 int tlkmdi_audio_sendVolumeChangeEvt(uint08 audChn, uint08 volume)
@@ -127,7 +131,7 @@ int tlkmdi_audio_sendVolumeChangeEvt(uint08 audChn, uint08 volume)
 	buffLen = 0;
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = volume;
-	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_VOLUME_CHANGE, buffer, buffLen);
+	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_VOLUME_CHANGE, buffer, buffLen, false);
 }
 int tlkmdi_audio_sendStatusChangeEvt(uint08 audChn, uint08 status)
 {
@@ -136,7 +140,7 @@ int tlkmdi_audio_sendStatusChangeEvt(uint08 audChn, uint08 status)
 	buffLen = 0;
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = status;
-	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_STATUS_CHANGE, buffer, buffLen);
+	return tlkmdi_sendAudioEvent(TLKMDI_AUDIO_EVTID_STATUS_CHANGE, buffer, buffLen, false);
 }
 
 
@@ -618,11 +622,12 @@ static uint08* tlkmdi_audio_getAudioUsrTable(uint16 type, uint16 vendor)
 }
 
 #endif
-
+#if (TLK_STK_BTP_ENABLE)
 static void tlkmdi_audio_volumeChangeEvt(uint16 aclHandle, uint08 volume)
 {
     sTlkMdiAudioMusicVolume = volume;
 }
+#endif
 
 #if TLKMDI_AUDIO_VOLUME_NEWCAL_ENABLE
 static uint08 sBtToneRealVolTable[TLKMDI_AUDIO_TONE_TOTAL_VOLUME_STEP] =

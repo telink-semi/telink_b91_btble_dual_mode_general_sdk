@@ -296,7 +296,7 @@ static int tlkdrv_icodec_enable(uint08 bitDepth, uint08 channel, uint32 sampleRa
 
 	while(!(reg_audio_codec_stat_ctr & FLD_AUDIO_CODEC_PON_ACK));//wait codec can be configed
 	audio_codec_dac_config(I2S_M_CODEC_S, rateIndex, audio_i2s_codec_config.codec_data_select, MCU_WREG);
-	audio_codec_adc_config(I2S_M_CODEC_S, AMIC_IN_TO_BUF, rateIndex, audio_i2s_codec_config.codec_data_select,MCU_WREG);
+	audio_codec_adc_config(I2S_M_CODEC_S, AMIC_IN_TO_BUF, rateIndex, audio_i2s_codec_config.codec_data_select, MCU_WREG);
 
 	audio_data_fifo0_path_sel(I2S_DATA_IN_FIFO, I2S_OUT);
 

@@ -21,25 +21,35 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
+#if (TLK_CFG_COMM_ENABLE)
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkprt/tlkprt_comm.h"
 #include "tlkmdi/tlkmdi_comm.h"
+#include "tlkalg/digest/crc/tlkalg_crc.h"
 
 
 #define TLKMDI_COMM_DBG_FLAG       ((TLK_MINOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_COMM << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_COMM_DBG_SIGN       "[MDI]"
 
 
-#if (TLK_DEV_SERIAL_ENABLE)
-static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen);
-#endif
 
-static uint08 sTlkMdiCommSendNumb = 0x00;
-#if (TLK_DEV_SERIAL_ENABLE)
-static uint08 sTlkMdiCommRecvNumb = 0xFF;
-#endif
+static void tlkmdi_comm_makeRecvFrame(uint08 rbyte);
+static int  tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
+
+
+typedef struct{
+	uint08 sendNumb;
+	uint08 recvNumb;
+	uint08 makeState;
+	uint16 makeLength;
+	uint16 recvFrameLen;
+	uint16 sendFrameLen;
+	uint08 recvFrame[TLKPRT_COMM_FRM_MAXLEN];
+	uint08 sendFrame[TLKPRT_COMM_FRM_MAXLEN];
+}tlkmdi_comm_ctrl_t;
+static tlkmdi_comm_ctrl_t sTlkMdiCommCtrl;
 static tlkmdi_comm_cmdCB sTlkMdiCommCmdCB[TLKPRT_COMM_MTYPE_MAX] = {0};
 static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX] = {0};
 
@@ -52,13 +62,29 @@ static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX] = {0};
 *******************************************************************************/
 int tlkmdi_comm_init(void)
 {
+	tmemset(&sTlkMdiCommCtrl, 0, sizeof(tlkmdi_comm_ctrl_t));
 	#if (TLK_DEV_SERIAL_ENABLE)
-	tlkdev_serial_regCB(tlkmdi_comm_recvHandler);
+	tlkdev_serial_regCB(tlkmdi_comm_input);
 	#endif
 	
 	return TLK_ENONE;
 }
 
+void tlkmdi_comm_handler(void)
+{
+	#if (TLK_DEV_SERIAL_ENABLE)
+	tlkdev_serial_handler();
+	#endif
+}
+
+bool tlkmdi_comm_pmIsBusy(void)
+{
+	#if (TLK_DEV_SERIAL_ENABLE)
+	return tlkdev_serial_isBusy();
+	#else
+	return false;
+	#endif
+}
 
 int tlkmdi_comm_getValidDatID(uint08 *pDatID)
 {
@@ -73,15 +99,15 @@ int tlkmdi_comm_getValidDatID(uint08 *pDatID)
 
 void tlkmdi_comm_incSendNumb(void)
 {
-	sTlkMdiCommSendNumb ++;
+	sTlkMdiCommCtrl.sendNumb ++;
 }
 void tlkmdi_comm_setSendNumb(uint08 value)
 {
-	sTlkMdiCommSendNumb = value;
+	sTlkMdiCommCtrl.sendNumb = value;
 }
 void tlkmdi_comm_getSendNumb(uint08 *pValue)
 {
-	if(pValue != nullptr) *pValue = sTlkMdiCommSendNumb;
+	if(pValue != nullptr) *pValue = sTlkMdiCommCtrl.sendNumb;
 }
 
 
@@ -365,134 +391,263 @@ int tlkmdi_comm_sendAudioEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 *******************************************************************************/
 int tlkmdi_comm_sendCmd(uint08 mType, uint08 cmdID, uint08 *pData, uint08 dataLen)
 {
-	#if (TLK_DEV_SERIAL_ENABLE)
 	int ret;
 	uint08 head[4];
 	head[0] = mType; //Mtype
 	head[1] = cmdID; //MsgID
-	head[2] = sTlkMdiCommSendNumb; //Numb
+	head[2] = sTlkMdiCommCtrl.sendNumb; //Numb
 	head[3] = dataLen; //Lens
-	ret = tlkdev_serial_send(TLKPRT_COMM_PTYPE_CMD, head, 4, pData, dataLen);
-	if(ret == TLK_ENONE) sTlkMdiCommSendNumb++;
+	ret = tlkmdi_comm_makeSendFrame(TLKPRT_COMM_PTYPE_CMD, head, 4, pData, dataLen);
+	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
+		ret = tlkdev_serial_send(sTlkMdiCommCtrl.sendFrame, sTlkMdiCommCtrl.sendFrameLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
+	}
+	if(ret == TLK_ENONE) sTlkMdiCommCtrl.sendNumb++;
 	return ret;
-	#else
-	return -TLK_ENOSUPPORT;
-	#endif
 }
 int tlkmdi_comm_sendRsp(uint08 mType, uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen)
 {
-	#if (TLK_DEV_SERIAL_ENABLE)
 	int ret;
 	uint08 head[6];
 	head[0] = mType; //Mtype
 	head[1] = cmdID; //MsgID
-	head[2] = sTlkMdiCommSendNumb; //Numb
+	head[2] = sTlkMdiCommCtrl.sendNumb; //Numb
 	head[3] = 2+dataLen; //Lens
 	head[4] = status;
 	head[5] = reason;
-	ret = tlkdev_serial_send(TLKPRT_COMM_PTYPE_RSP, head, 6, pData, dataLen);
-	if(ret == TLK_ENONE) sTlkMdiCommSendNumb++;
+	ret = tlkmdi_comm_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, 6, pData, dataLen);
+	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
+		ret = tlkdev_serial_send(sTlkMdiCommCtrl.sendFrame, sTlkMdiCommCtrl.sendFrameLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
+	}
+	if(ret == TLK_ENONE) sTlkMdiCommCtrl.sendNumb++;
 	return ret;
-	#else
-	return -TLK_ENOSUPPORT;
-	#endif
 }
 int tlkmdi_comm_sendEvt(uint08 mType, uint08 evtID, uint08 *pData, uint08 dataLen)
 {
-	#if (TLK_DEV_SERIAL_ENABLE)
 	int ret;
 	uint08 head[4];
 	head[0] = mType; //Mtype
 	head[1] = evtID; //MsgID
-	head[2] = sTlkMdiCommSendNumb; //Numb
+	head[2] = sTlkMdiCommCtrl.sendNumb; //Numb
 	head[3] = dataLen; //Lens
-	ret = tlkdev_serial_send(TLKPRT_COMM_PTYPE_EVT, head, 4, pData, dataLen);
-	if(ret == TLK_ENONE) sTlkMdiCommSendNumb++;
+	ret = tlkmdi_comm_makeSendFrame(TLKPRT_COMM_PTYPE_EVT, head, 4, pData, dataLen);
+	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
+		ret = tlkdev_serial_send(sTlkMdiCommCtrl.sendFrame, sTlkMdiCommCtrl.sendFrameLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
+	}
+	if(ret == TLK_ENONE) sTlkMdiCommCtrl.sendNumb++;
 	return ret;
-	#else
-	return -TLK_ENOSUPPORT;
-	#endif
 }
 
 int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen)
 {
-	#if (TLK_DEV_SERIAL_ENABLE)
+	int ret;
 	uint08 head[4];
+	
 	if(pData == nullptr || dataLen == 0 || dataLen > 256) return -TLK_EPARAM;
 	head[0] = (numb & 0x00FF); //Num
 	head[1] = (numb & 0xFF00) >> 8;
 	head[2] = datID; //DID
 	head[3] = dataLen-1; //Lens
-	return tlkdev_serial_send(TLKPRT_COMM_PTYPE_DAT, head, 4, pData, dataLen);
-	#else
-	return -TLK_ENOSUPPORT;
-	#endif
+	ret = tlkmdi_comm_makeSendFrame(TLKPRT_COMM_PTYPE_DAT, head, 4, pData, dataLen);
+	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
+		ret = tlkdev_serial_send(sTlkMdiCommCtrl.sendFrame, sTlkMdiCommCtrl.sendFrameLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
+	}
+	return ret;
 }
 
 int tlkmdi_comm_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen)
 {
-	#if (TLK_DEV_SERIAL_ENABLE)
-	return tlkdev_serial_send(pktType, pHead, headLen, pBody, bodyLen);
-	#else
-	return -TLK_ENOSUPPORT;
-	#endif
+	int ret;
+	ret = tlkmdi_comm_makeSendFrame(pktType, pHead, headLen, pBody, bodyLen);
+	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
+		ret = tlkdev_serial_send(sTlkMdiCommCtrl.sendFrame, sTlkMdiCommCtrl.sendFrameLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
+	}
+	return ret;
 }
 
 
-#if (TLK_DEV_SERIAL_ENABLE)
-static void tlkmdi_comm_recvHandler(uint08 *pFrame, uint16 frmLen)
+void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 {
 	uint08 mtype;
 	uint08 ptype;
-
-	ptype = (pFrame[3] & 0xF0) >> 4;
-
-	//tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_comm_recvHandler: %d 0x%x 0x%x 0x%x", ptype, pFrame[4], pFrame[5], pFrame[6]);
+	uint16 index;
+	uint16 rawCrc;
+	uint16 calCrc;
 	
-	if(ptype == TLKPRT_COMM_PTYPE_CMD){
-		uint08 numb;
-		uint08 lens;
-		uint08 msgID;
-		mtype = pFrame[4];
-		msgID = pFrame[5];
-		numb  = pFrame[6];
-		lens  = pFrame[7];
-		if(frmLen < 4+TLKPRT_COMM_FRM_EXTLEN || frmLen < 4+lens+TLKPRT_COMM_FRM_EXTLEN){
-			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv CmdOrRspOrEvtPkt Length Error: frmLen-%d lens-%d", frmLen, lens);
-			return;
+	for(index=0; index<dataLen; index++){
+		tlkmdi_comm_makeRecvFrame(pData[index]);
+		if(sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_READY) continue;
+		rawCrc = ((uint16)(sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen-3])<<8)
+			| (sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen-4]);
+		calCrc = tlkalg_crc16_calc(sTlkMdiCommCtrl.recvFrame+2, sTlkMdiCommCtrl.recvFrameLen-6);
+		if(rawCrc != calCrc){
+			tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial CRC Error: rawCrc[%x] - calCrc[%x]", rawCrc, calCrc);
+			continue;
 		}
-		if(mtype >= TLKPRT_COMM_MTYPE_MAX){
-			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error MsgType: mtype-%d", mtype);
-			return;
+		ptype = (sTlkMdiCommCtrl.recvFrame[3] & 0xF0) >> 4;
+
+		//tlkapi_error(TLKMDI_CFG_DBG_ENABLE|TLKMDI_DBG_FLAG, TLKMDI_DBG_SIGN, "tlkmdi_comm_input: %d 0x%x 0x%x 0x%x", ptype, pFrame[4], pFrame[5], pFrame[6]);
+		
+		if(ptype == TLKPRT_COMM_PTYPE_CMD){
+			uint08 numb;
+			uint08 lens;
+			uint08 msgID;
+			mtype = sTlkMdiCommCtrl.recvFrame[4];
+			msgID = sTlkMdiCommCtrl.recvFrame[5];
+			numb  = sTlkMdiCommCtrl.recvFrame[6];
+			lens  = sTlkMdiCommCtrl.recvFrame[7];
+			if(sTlkMdiCommCtrl.recvFrameLen < 4+TLKPRT_COMM_FRM_EXTLEN || sTlkMdiCommCtrl.recvFrameLen < 4+lens+TLKPRT_COMM_FRM_EXTLEN){
+				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv CmdOrRspOrEvtPkt Length Error: frmLen-%d lens-%d", sTlkMdiCommCtrl.recvFrameLen, lens);
+				return;
+			}
+			if(mtype >= TLKPRT_COMM_MTYPE_MAX){
+				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error MsgType: mtype-%d", mtype);
+				return;
+			}
+			if((uint08)(sTlkMdiCommCtrl.recvNumb+1) != numb){
+				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Stall Packet: %d %d", sTlkMdiCommCtrl.recvNumb, numb);
+			}
+			sTlkMdiCommCtrl.recvNumb = numb;
+			if(sTlkMdiCommCmdCB[mtype] != nullptr){
+				sTlkMdiCommCmdCB[mtype](msgID, sTlkMdiCommCtrl.recvFrame+8, lens);
+			}
 		}
-		if((uint08)(sTlkMdiCommRecvNumb+1) != numb){
-			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Stall Packet: %d %d", sTlkMdiCommRecvNumb, numb);
+		else if(ptype == TLKPRT_COMM_PTYPE_DAT){
+			uint16 numb;
+			uint16 lens;
+			uint08 datID;
+			datID = sTlkMdiCommCtrl.recvFrame[4];
+			numb  = (((uint16)sTlkMdiCommCtrl.recvFrame[6]) << 8) | sTlkMdiCommCtrl.recvFrame[5];
+			lens  = (((uint16)sTlkMdiCommCtrl.recvFrame[8]) << 8) | sTlkMdiCommCtrl.recvFrame[7];
+			if(sTlkMdiCommCtrl.recvFrameLen < 4+TLKPRT_COMM_FRM_EXTLEN || sTlkMdiCommCtrl.recvFrameLen < 4+lens+TLKPRT_COMM_FRM_EXTLEN){
+				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Length Error: frmLen-%d lens-%d", sTlkMdiCommCtrl.recvFrameLen, lens);
+				return;
+			}
+			if(datID != 0 && datID <= TLKMDI_COMM_DATA_CHANNEL_MAX && sTlkMdiCommDatCB[datID-1] != nullptr){
+				sTlkMdiCommDatCB[datID-1](datID, numb, sTlkMdiCommCtrl.recvFrame+9, lens);
+			}else{
+				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Unexpect: not used - datID[%d]", datID);
+			}
 		}
-		sTlkMdiCommRecvNumb = numb;
-		if(sTlkMdiCommCmdCB[mtype] != nullptr){
-			sTlkMdiCommCmdCB[mtype](msgID, pFrame+8, lens);
+		else{
+			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error PktType: ptype-%d", ptype);
 		}
-	}
-	else if(ptype == TLKPRT_COMM_PTYPE_DAT){
-		uint16 numb;
-		uint16 lens;
-		uint08 datID;
-		datID = pFrame[4];
-		numb  = (((uint16)pFrame[6]) << 8) | pFrame[5];
-		lens  = (((uint16)pFrame[8]) << 8) | pFrame[7];
-		if(frmLen < 4+TLKPRT_COMM_FRM_EXTLEN || frmLen < 4+lens+TLKPRT_COMM_FRM_EXTLEN){
-			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Length Error: frmLen-%d lens-%d", frmLen, lens);
-			return;
-		}
-		if(datID != 0 && datID <= TLKMDI_COMM_DATA_CHANNEL_MAX && sTlkMdiCommDatCB[datID-1] != nullptr){
-			sTlkMdiCommDatCB[datID-1](datID, numb, pFrame+9, lens);
+		sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_HEAD;
+		sTlkMdiCommCtrl.makeLength = 0;
+	}	
+}
+
+static void tlkmdi_comm_makeRecvFrame(uint08 rbyte)
+{
+	if(sTlkMdiCommCtrl.makeState == TLKMDI_COMM_MSTATE_HEAD){
+		if(sTlkMdiCommCtrl.makeLength == 0 && rbyte == TLKPRT_COMM_HEAD_SIGN0){
+			sTlkMdiCommCtrl.makeLength ++;
+		}else if(sTlkMdiCommCtrl.makeLength == 1 && rbyte == TLKPRT_COMM_HEAD_SIGN1){
+			sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_ATTR;
+			sTlkMdiCommCtrl.makeLength = 0;
+			sTlkMdiCommCtrl.recvFrameLen = 0;
+			sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = TLKPRT_COMM_HEAD_SIGN0;
+			sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = TLKPRT_COMM_HEAD_SIGN1;
 		}else{
-			tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Unexpect: not used - datID[%d]", datID);
+			sTlkMdiCommCtrl.makeLength = 0;
 		}
-	}
-	else{
-		tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error PktType: ptype-%d", ptype);
+	}else if(sTlkMdiCommCtrl.makeState == TLKMDI_COMM_MSTATE_ATTR){
+		sTlkMdiCommCtrl.makeLength ++;
+		sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = rbyte;
+		if(sTlkMdiCommCtrl.makeLength < 2) return;
+		sTlkMdiCommCtrl.makeLength = (((uint16)(sTlkMdiCommCtrl.recvFrame[3] & 0x0F))<<8)|sTlkMdiCommCtrl.recvFrame[2];
+		if(sTlkMdiCommCtrl.makeLength+4 > TLKPRT_COMM_FRM_MAXLEN || sTlkMdiCommCtrl.makeLength < 4){
+			sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_HEAD;
+			sTlkMdiCommCtrl.makeLength = 0;
+		}else if(sTlkMdiCommCtrl.makeLength == 4){
+			sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_CHECK;
+			sTlkMdiCommCtrl.makeLength = 2;
+		}else{
+			sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_BODY;
+			sTlkMdiCommCtrl.makeLength -= 4;
+		}
+	}else if(sTlkMdiCommCtrl.makeState == TLKMDI_COMM_MSTATE_BODY){
+		sTlkMdiCommCtrl.makeLength --;
+		sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = rbyte;
+		if(sTlkMdiCommCtrl.makeLength != 0) return;
+		sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_CHECK;
+		sTlkMdiCommCtrl.makeLength = 0;
+	}else if(sTlkMdiCommCtrl.makeState == TLKMDI_COMM_MSTATE_CHECK){
+		sTlkMdiCommCtrl.makeLength ++;
+		sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = rbyte;
+		if(sTlkMdiCommCtrl.makeLength < 2) return;
+		sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_TAIL;
+		sTlkMdiCommCtrl.makeLength = 0;
+	}else if(sTlkMdiCommCtrl.makeState == TLKMDI_COMM_MSTATE_TAIL){
+		if(sTlkMdiCommCtrl.makeLength == 0 && rbyte == TLKPRT_COMM_TAIL_SIGN0){
+			sTlkMdiCommCtrl.makeLength ++;
+		}else if(sTlkMdiCommCtrl.makeLength == 1 && rbyte == TLKPRT_COMM_TAIL_SIGN1){
+			sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = TLKPRT_COMM_TAIL_SIGN0;
+			sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen++] = TLKPRT_COMM_TAIL_SIGN1;
+			sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_READY;
+			sTlkMdiCommCtrl.makeLength = 0;
+		}else{
+			sTlkMdiCommCtrl.makeState = TLKMDI_COMM_MSTATE_HEAD;
+			sTlkMdiCommCtrl.makeLength = 0;
+		}
 	}
 }
-#endif
+static int tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen)
+{
+	uint16 tempVar;
+	
+//	my_dump_str_data(1, "send 01:", &sTlkDevSerialSendIsBusy, 1);
+	if(headLen == 0 && pHead != nullptr) pHead = nullptr;
+	if(bodyLen == 0 && pBody != nullptr) pBody = nullptr;
+	if((headLen+bodyLen) == 0) return -TLK_EPARAM;
+	if(headLen+bodyLen+TLKPRT_COMM_FRM_EXTLEN > TLKPRT_COMM_FRM_MAXLEN){
+		return -TLK_ELENGTH;
+	}
+	
+	sTlkMdiCommCtrl.sendFrameLen = 0;
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_HEAD_SIGN0;
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_HEAD_SIGN1;
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = 0x00; //Length[0~7]
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = (pktType & 0x0F) << 4; //Length[8~11]+pktType[0~4]
+	if(headLen != 0){
+		tmemcpy(sTlkMdiCommCtrl.sendFrame+sTlkMdiCommCtrl.sendFrameLen, pHead, headLen);
+		sTlkMdiCommCtrl.sendFrameLen += headLen;
+	}
+	if(bodyLen != 0){
+		tmemcpy(sTlkMdiCommCtrl.sendFrame+sTlkMdiCommCtrl.sendFrameLen, pBody, bodyLen);
+		sTlkMdiCommCtrl.sendFrameLen += bodyLen;
+	}
+	sTlkMdiCommCtrl.sendFrame[2] |= (sTlkMdiCommCtrl.sendFrameLen & 0x00FF);
+	sTlkMdiCommCtrl.sendFrame[3] |= (sTlkMdiCommCtrl.sendFrameLen & 0x0F00) >> 8;
+	tempVar = tlkalg_crc16_calc(sTlkMdiCommCtrl.sendFrame+2, sTlkMdiCommCtrl.sendFrameLen-2);
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = (tempVar & 0x00FF);
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = (tempVar & 0xFF00) >> 8;
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_TAIL_SIGN0;
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_TAIL_SIGN1;
+	
+	return TLK_ENONE;
+}
+
+
+
+#endif //#if (TLK_CFG_COMM_ENABLE)
 

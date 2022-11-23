@@ -24,7 +24,9 @@
 #define TLKDRV_CODEC_H
 
 
-#define TLKDRV_CODEC_DEBUG_ENABLE           0
+#define TLKDRV_CODEC_DBG_FLAG               0//((TLK_MAJOR_DBGID_DRV << 24) | (TLK_MINOR_DBGID_DRV_EXT << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKDRV_CODEC_DBG_SIGN               "[CODEC]"
+
 
 #define TLKDRV_CODEC_ICODEC_ENABLE          1 
 #define TLKDRV_CODEC_RTL2108_ENABLE         0
@@ -117,6 +119,8 @@ int tlkdrv_codec_setSampleRate(uint32 sampleRate);
 int tlkdrv_codec_setMicSampleRate(uint32 sampleRate);
 int tlkdrv_codec_setSpkSampleRate(uint32 sampleRate);
 
+uint32 tlkdrv_codec_getSampleRate(void);
+uint08 tlkdrv_codec_getChannel(void);
 
 
 void tlkdrv_codec_muteSpk(void);
@@ -129,10 +133,14 @@ void tlkdrv_codec_setMicOffset(uint16 offset);
 void tlkdrv_codec_setSpkBuffer(uint08 *pBuffer, uint16 buffLen);
 void tlkdrv_codec_setMicBuffer(uint08 *pBuffer, uint16 buffLen);
 
+uint tlkdrv_codec_getSpkBuffLen(void);
+uint tlkdrv_codec_getMicBuffLen(void);
+
 uint tlkdrv_codec_getSpkIdleLen(void);
 uint tlkdrv_codec_getSpkDataLen(void);
 uint tlkdrv_codec_getMicDataLen(void);
 
+bool tlkdrv_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset);
 bool tlkdrv_codec_readMicData(uint08 *pBuffer, uint16 buffLen, uint16 *pOffset);
 
 void tlkdrv_codec_zeroSpkBuff(uint16 zeroLen, bool isInc);

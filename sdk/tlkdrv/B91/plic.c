@@ -168,7 +168,7 @@ _attribute_retention_code_ void irq_stack_check(uint32_t sp)
 	}
 }
 
-extern void tlkapi_debug_process(void);
+extern void tlkapi_debug_handler(void);
 /**
  * @brief  exception handler.this defines an exception handler to handle all the platform pre-defined exceptions.
  * @return none

@@ -25,13 +25,16 @@
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk.h"
+#include "tlkstk/hci/bt_hci.h"
 
 
-extern int  btble_init(void);;
+extern int  btble_init(void);
+extern uint16 btc_state(void);
 extern void btble_sdk_main_loop(void);
 
 extern bool bth_isBusy(void);
 
+extern	volatile	u8	blt_state;
 
 int tlkstk_init(void)
 {
@@ -63,8 +66,15 @@ void tlkstk_process(void)
 
 bool tlkstk_pmIsBusy(void)
 {
-	return bth_pmIsBusy();
+	return bth_pmIsBusy()||(!hci_txfifo_is_empty());
 }
 
+
+uint32 tlkstk_state(void)
+{
+	uint32 stk_state  =  blt_state|(btc_state()<<16);
+
+ 	return stk_state;
+}
 
 

@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010103 //Application, 5.1.1.3
+#define TLK_APP_VERSION              0x05010105 //Application, 5.1.1.5
 #endif
 #define TLK_LIB_VERSION              0x05010000 //Libary, 5.1.0.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -57,7 +57,7 @@
 #define TLK_CFG_OS_ENABLE            0
 #endif
 #ifndef TLK_CFG_PM_ENABLE
-#define TLK_CFG_PM_ENABLE            0
+#define TLK_CFG_PM_ENABLE            1
 #endif
 #ifndef TLK_CFG_WDG_ENABLE
 #define TLK_CFG_WDG_ENABLE           0 //WatchDog
@@ -86,6 +86,12 @@
 #ifndef TLK_CFG_PTS_ENABLE
 #define TLK_CFG_PTS_ENABLE           0
 #endif
+#ifndef TLK_CFG_COMM_ENABLE
+#define TLK_CFG_COMM_ENABLE          1
+#endif
+#ifndef TLK_CFG_VCD_ENABLE
+#define TLK_CFG_VCD_ENABLE           (0 && TLK_CFG_DBG_ENABLE)
+#endif
 
 /******************************************************************************
  * Macro: TLK_OS_xxx_ENABLE
@@ -106,14 +112,11 @@
  *     @TLKDEV_CFG_DBG_ENABLE--Enable or disable the function of DEBUG.
  *     @TLKDEV_CFG_VCD_ENABLE--Enable or disable the function of VCD_LOG.
 *******************************************************************************/
-#ifndef TLK_USB_VCD_ENABLE
-#define TLK_USB_VCD_ENABLE           (0 && TLK_CFG_USB_ENABLE)
-#endif
 #ifndef TLK_USB_MSC_ENABLE
 #define TLK_USB_MSC_ENABLE           (1 && TLK_CFG_USB_ENABLE)
 #endif
-#ifndef TLK_USB_AUD_ENABLE
-#define TLK_USB_AUD_ENABLE           (0 && TLK_CFG_USB_ENABLE)
+#ifndef TLK_USB_UAC_ENABLE
+#define TLK_USB_UAC_ENABLE           (0 && TLK_CFG_USB_ENABLE)
 #endif
 #ifndef TLK_USB_UDB_ENABLE
 #define TLK_USB_UDB_ENABLE           (1 && TLK_CFG_USB_ENABLE)
@@ -127,13 +130,16 @@
 #ifndef TLK_USB_USR_ENABLE
 #define TLK_USB_USR_ENABLE           (0 && TLK_CFG_USB_ENABLE)
 #endif
+#ifndef TLK_USB_VCD_ENABLE
+#define TLK_USB_VCD_ENABLE           (1 && TLK_USB_UDB_ENABLE)
+#endif
 
 /******************************************************************************
  * Macro: TLK_ALG_xxx_ENABLE
  * Descr: STK.
 *******************************************************************************/
 #ifndef TLK_ALG_EQ_ENABLE
-#define TLK_ALG_EQ_ENABLE            (0 && TLK_CFG_ALG_ENABLE) //not support
+#define TLK_ALG_EQ_ENABLE            (0 && TLK_CFG_ALG_ENABLE)
 #endif
 #ifndef TLK_ALG_EC_ENABLE
 #define TLK_ALG_EC_ENABLE            (1 && TLK_CFG_ALG_ENABLE)
@@ -196,12 +202,14 @@
 #ifndef TLK_MDI_BTHID_ENABLE
 #define TLK_MDI_BTHID_ENABLE         (1 && TLK_STK_BTP_ENABLE)
 #endif
-
 #ifndef TLK_MDI_BTHFP_ENABLE
-#define TLK_MDI_BTHFP_ENABLE         (1)
+#define TLK_MDI_BTHFP_ENABLE         (1 && TLK_STK_BTP_ENABLE)
 #endif
 #ifndef TLK_MDI_AUDIO_ENABLE
 #define TLK_MDI_AUDIO_ENABLE         (1)
+#endif
+#ifndef TLK_MDI_DEBUG_ENABLE
+#define TLK_MDI_DEBUG_ENABLE         (1 && TLK_CFG_DBG_ENABLE)
 #endif
 #ifndef TLK_MDI_FILE_ENABLE
 #define TLK_MDI_FILE_ENABLE          (1)
@@ -225,24 +233,18 @@
  * Macro: TLK_DEV_xxxxx_ENABLE
  * Descr: Enable or disable related devices by configuration.
  * Items:
- *     @TLK_DEV_XTSD01G_ENABLE--Enable or disable NAND Flash (XTSD04G).
- *     @TLK_DEV_XT26G0X_ENABLE--Enable or disable NAND Flash (XT26G02E).
 *******************************************************************************/
-#ifndef TLK_DEV_XTSD01G_ENABLE
-#define TLK_DEV_XTSD01G_ENABLE       (1 && TLK_CFG_DEV_ENABLE)
-#endif
 #ifndef TLK_DEV_SERIAL_ENABLE
-#define TLK_DEV_SERIAL_ENABLE        (1)
+#define TLK_DEV_SERIAL_ENABLE        (1 && TLK_CFG_DEV_ENABLE)
 #endif
 #ifndef TLK_DEV_HCIUART_ENABLE
-#define TLK_DEV_HCIUART_ENABLE       (0)
+#define TLK_DEV_HCIUART_ENABLE       (0 && TLK_CFG_DEV_ENABLE)
 #endif
-
-#ifndef TLK_DEV_MIC_BUFF_SIZE
-#define TLK_DEV_MIC_BUFF_SIZE        (1024*2)
+#ifndef TLK_DEV_CODEC_ENABLE
+#define TLK_DEV_CODEC_ENABLE         (1 && TLK_CFG_DEV_ENABLE)
 #endif
-#ifndef TLK_DEV_SPK_BUFF_SIZE
-#define TLK_DEV_SPK_BUFF_SIZE        (1024*4) //If SRC is enabled, the value must be greater than or equal to 4K
+#ifndef TLK_DEV_STORE_ENABLE
+#define TLK_DEV_STORE_ENABLE         (1 && TLK_CFG_DEV_ENABLE)
 #endif
 
 /******************************************************************************

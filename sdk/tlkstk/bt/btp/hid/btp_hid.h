@@ -23,6 +23,7 @@
 #ifndef BTP_HID_H
 #define BTP_HID_H
 
+#if (TLK_STK_BTP_ENABLE)
 
 /* HIDP handshake results */
 #define BTP_HID_HSHK_SUCCESS                    0x00
@@ -53,6 +54,7 @@ typedef uint (*BtpHidGetProtocolCallback)(uint16 aclHandle, uint08 *pProtoMode);
 typedef uint (*BtpHidSetReportCallback)(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pData, uint16 datalen);
 typedef uint (*BtpHidGetReportCallback)(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pBuff, uint16 *pBuffLen);
 
+typedef int(*BtpHiddRecvDataCallback)(uint16 handle, uint08 *pData, uint16 dataLen);
 
 
 int btp_hid_init(void);
@@ -77,8 +79,9 @@ void btp_hid_destroy(uint16 handle);
  * Params: [IN]callback--callback function
  * Return: Returning TLK_ENONE is success.
  *******************************************************************************/
-extern void btp_hidd_regCB(BtpHidSetReportCallback setReport, BtpHidGetReportCallback getReport,
-	BtpHidSetProtocolCallback setProtocol, BtpHidGetProtocolCallback getProtocol);
+extern void btp_hidd_regCB(BtpHidSetReportCallback setReportCB, BtpHidGetReportCallback getReportCB,
+	BtpHidSetProtocolCallback setProtocolCB, BtpHidGetProtocolCallback getProtocolCB,
+	BtpHiddRecvDataCallback ctrDataCB, BtpHiddRecvDataCallback irqDataCB);
 
 /******************************************************************************
  * Function: HID connect interface.
@@ -102,6 +105,8 @@ extern int btp_hidd_sendData(uint16 aclHandle, uint08 reportID, uint08 reportTyp
 extern int btp_hidd_sendDataWithoutReportID(uint16 aclHandle, uint08 reportType, uint08 *pData, uint16 dataLen);
 
 
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //#ifndef BTP_HID_H
 

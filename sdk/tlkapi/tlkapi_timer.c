@@ -36,8 +36,8 @@ extern unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char 
 extern void core_leave_critical(unsigned char preempt_en ,unsigned int r);
 
 //static tlkapi_timer_t *tlkmdi_timer_takeFirst(void);
-static void tlkmdi_timer_start(uint32 intervalUs);
-static void tlkmdi_timer_close(void);
+static void tlkapi_timer_start(uint32 intervalUs);
+static void tlkapi_timer_close(void);
 
 
 static uint08 sTlkMdiTimerIsBusy = false;
@@ -88,7 +88,7 @@ void tlkapi_timer_handler(void)
 {
 	uint32 timeIntval;
 
-	tlkmdi_timer_close();
+	tlkapi_timer_close();
 	
 	uint32 irq = read_csr(NDS_MIE);
 	core_restore_interrupt(irq | BIT(11));
@@ -101,7 +101,7 @@ void tlkapi_timer_handler(void)
 	sTlkMdiTimerIsBusy = false;
 	hci_host_to_controller();
 	if(timeIntval != 0xFFFFFFFF){
-		tlkmdi_timer_start(timeIntval);
+		tlkapi_timer_start(timeIntval);
 	}
 	
 	core_restore_interrupt(irq);
@@ -208,7 +208,7 @@ int tlkapi_timer_updateNode(tlkapi_timer_t *pTimer, uint32 timeout, bool isInser
 	if(!sTlkMdiTimerIsBusy){
 		uint interval = tlkapi_timer_interval();
 		if(interval < 50) interval = 50;
-		if(interval != 0xFFFFFFFF) tlkmdi_timer_start(interval);
+		if(interval != 0xFFFFFFFF) tlkapi_timer_start(interval);
 	}
 	return ret;
 }
@@ -230,7 +230,7 @@ int tlkapi_timer_insertNode(tlkapi_timer_t *pTimer)
 	if(!sTlkMdiTimerIsBusy){
 		uint interval = tlkapi_timer_interval();
 		if(interval < 50) interval = 50;
-		if(interval != 0xFFFFFFFF) tlkmdi_timer_start(interval);
+		if(interval != 0xFFFFFFFF) tlkapi_timer_start(interval);
 	}
 	return ret;
 }
@@ -278,7 +278,7 @@ uint tlkapi_timer_interval(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-static void tlkmdi_timer_start(uint32 intervalUs)
+static void tlkapi_timer_start(uint32 intervalUs)
 {
 	uint32 r = core_disable_interrupt();
 	if(sTlkMdiTimerIsStart && sTlkMdiTimerInterval <= intervalUs){
@@ -311,7 +311,7 @@ static void tlkmdi_timer_start(uint32 intervalUs)
 	#endif
 	core_restore_interrupt(r);
 }
-static void tlkmdi_timer_close(void)
+static void tlkapi_timer_close(void)
 {
 	uint32 r = core_disable_interrupt();
 	

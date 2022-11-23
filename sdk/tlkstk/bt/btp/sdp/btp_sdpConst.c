@@ -21,6 +21,7 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
+#if (TLK_STK_BTP_ENABLE)
 #include "tlkstk/bt/btp/btp_stdio.h"
 #if (TLKBTP_CFG_SDP_ENABLE)
 #include "tlkstk/bt/btp/sdp/btp_sdpConst.h"
@@ -220,47 +221,53 @@ const btp_sdp_serviceItem_t gcBthSdpHfpHfItem[] = {
 };
 
 const btp_sdp_serviceItem_t gcBthSdpHfpAgItem[] = {
+	// Service Record Handle
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,BTP_SDP_ATTR_RECORD_HANDLE, (uint08*)0}, // handle
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_32, BTP_SDP_HFP_AG_HANDLE, (uint08*)0}, // handle
+		{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_32, BTP_SDP_HFP_AG_HANDLE, (uint08*)0}, // handle
 
+	// Service Class ID List
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  (uint08*)0}, //list begin: sv class
-	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, //list begin: 
-	
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_HANDSFREE_AGW,  (uint08*)0},  //list item[0]	
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_GENERIC_AUDIO,  (uint08*)0},  //list item[1]
-	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_SRV_CLASS_ID_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},               // list end 
-	
+		{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, //list begin: 
+			{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_HANDSFREE_AGW,  (uint08*)0},  //list item[0]	
+			{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_GENERIC_AUDIO,  (uint08*)0},  //list item[1]
+		{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_SRV_CLASS_ID_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},               // list end 
+
+	// Protocol Descriptor List	
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_PROTO_DESC_LIST,  (uint08*)0},
-	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0},  //list begin protocol list
-	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, 					//list begin
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_PROTOCOL_L2CAP_UUID,  (uint08*)0}, //list item[0] UUID = L2CAP
-	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},                    //list end
+		{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0},  //list begin protocol list
+			{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, 					//list begin
+				{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_PROTOCOL_L2CAP_UUID,  (uint08*)0}, //list item[0] UUID = L2CAP
+			{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},                    //list end
+			{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, 					//list begin
+				{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_PROTOCOL_RFCOMM_UUID,  (uint08*)0}, //list item[0] UUID = RFCOMM
+				{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8,  TLKBT_CFG_HFPAG_RFC_CHANNEL,  (uint08*)0},                  //list item[1]  rfcomm CHANNEL ID
+			{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},					 //list end
+		{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},               // list end
 
-	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, 					//list begin
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_PROTOCOL_RFCOMM_UUID,  (uint08*)0}, //list item[0] UUID = RFCOMM
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8,  TLKBT_CFG_HFPAG_RFC_CHANNEL,  (uint08*)0},                  //list item[1]  rfcomm CHANNEL ID
-	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},					 //list end
-	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},               // list end
+	//
+//	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SERVICE_AVAILABILITY,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_SERVICE_AVAILABILITY,  (uint08*)0}, //att id = 8
+//		{BTP_SDP_FLAG_ATT|BTP_SDP_FLAG_W, BTP_SDP_ATTR_SERVICE_AVAILABILITY, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8, 0, (uint08*) &gcBthSdpServiceAvalibility}, // time alive(seconds)
 
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SERVICE_AVAILABILITY,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_SERVICE_AVAILABILITY,  (uint08*)0}, //att id = 8
-	{BTP_SDP_FLAG_ATT|BTP_SDP_FLAG_W, BTP_SDP_ATTR_SERVICE_AVAILABILITY, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8, 0, (uint08*) &gcBthSdpServiceAvalibility}, // time alive(seconds)
-
+	// Bluetooth Profile Descriptor List
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_PROFILE_DESC_LIST,  (uint08*)0},
-	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_VAR_16, BTP_SDP_ATTR_PROFILE_DESC_LIST,  (uint08*)0}, //list begin protocol list
-	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, 					//list begin
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_HANDSFREE_AGW,  (uint08*)0}, //list item[0] UUID = HANDSFREE
-	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0105,  (uint08*)0}, 					//list item[1] VERSION 1.5
-	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROFILE_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},                    //list end
-	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROFILE_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},               // list end
+		{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_VAR_16, BTP_SDP_ATTR_PROFILE_DESC_LIST,  (uint08*)0}, //list begin protocol list
+			{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (uint08*)0}, 					//list begin
+				{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_HANDSFREE,  (uint08*)0}, //list item[0] UUID = HANDSFREE
+				{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0105,  (uint08*)0}, 					//list item[1] VERSION 1.5
+			{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROFILE_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},                    //list end
+		{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROFILE_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)0},               // list end
 
+	// Service Name
 	{BTP_SDP_FLAG_ATT, 0x0100,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0100,  (uint08*)0},                          // service name
-	{BTP_SDP_FLAG_STR, 0x0100, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)gcBthSdpHfpAgServiceName},  // service name string
+		{BTP_SDP_FLAG_STR, 0x0100, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)gcBthSdpHfpAgServiceName},  // service name string
 
-	{BTP_SDP_FLAG_ATT, 0x0102,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0102,  (uint08*)0},                          // provider name
-	{BTP_SDP_FLAG_STR, 0x0102, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)gcBthSdpProviderName},  // provider name string
+	// Provider Name
+//	{BTP_SDP_FLAG_ATT, 0x0102,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0102,  (uint08*)0},                          // provider name
+//		{BTP_SDP_FLAG_STR, 0x0102, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)gcBthSdpProviderName},  // provider name string
 
+	//SupportedFeatures
 	{BTP_SDP_FLAG_ATT, 0x0311,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0311,  (uint08*)0},                          // provider name
-	{BTP_SDP_FLAG_ATT|BTP_SDP_FLAG_W, 0x0311, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0,  (uint08*)&gcBthSdpHfpAgFeature},  // provider name string
+		{BTP_SDP_FLAG_ATT|BTP_SDP_FLAG_W, 0x0311, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0,  (uint08*)&gcBthSdpHfpAgFeature},  // provider name string
 };
 
 const btp_sdp_serviceItem_t gcBthSdpA2dpSrcItem[] = {
@@ -436,27 +443,46 @@ const btp_sdp_serviceItem_t gcBthSdpAvrcpCtItem[] = {
 
 const uint08 gcBtpSdpHidDescList[] =
 {
-    0x05, 0x01,     // Usage Pg (Generic Desktop)
+    //keyboard report in
+	0x05, 0x01,     // Usage Pg (Generic Desktop)
 	0x09, 0x06,     // Usage (Keyboard)
-	// Collection: (Application)
-	0xA1, 0x01,     
-	0x85, 0x01,     // Report Id (keyboard)
-	//keyboard report in
+	0xA1, 0x01,     // Collection: (Application)
+	0x85, 0x01, // Report Id (keyboard)
 	0x05, 0x07,     // Usage Pg (Key Codes)
 	0x19, 0xE0,     // Usage Min (224)  VK_CTRL:0xe0
 	0x29, 0xE7,     // Usage Max (231)  VK_RWIN:0xe7
 	0x15, 0x00,     // Log Min (0)
 	0x25, 0x01,     // Log Max (1)
+	//Modifier byte
 	0x75, 0x01,     // Report Size (1)   1 bit * 8
 	0x95, 0x08,     // Report Count (8)
 	0x81, 0x02,     // Input: (Data, Variable, Absolute)
+	//Reserved byte
 	0x95, 0x01,     // Report Count (1)
 	0x75, 0x08,     // Report Size (8)
 	0x81, 0x01,     // Input: (static constant)
 	//keyboard output
 	//5 bit led ctrl: NumLock CapsLock ScrollLock Compose kana
-	// End Collection
-	0xC0,
+	0x95, 0x05,    //Report Count (5)
+	0x75, 0x01,    //Report Size (1)
+	0x05, 0x08,    //Usage Pg (LEDs )
+	0x19, 0x01,    //Usage Min
+	0x29, 0x05,    //Usage Max
+	0x91, 0x02,    //Output (Data, Variable, Absolute)
+	//3 bit reserved
+	0x95, 0x01,    //Report Count (1)
+	0x75, 0x03,    //Report Size (3)
+	0x91, 0x01,    //Output (static constant)
+	//Key arrays (6 bytes)
+	0x95, 0x06,     // Report Count (6)
+	0x75, 0x08,     // Report Size (8)
+	0x15, 0x00,     // Log Min (0)
+	0x25, 0xF1,     // Log Max (241)
+	0x05, 0x07,     // Usage Pg (Key Codes)
+	0x19, 0x00,     // Usage Min (0)
+	0x29, 0xf1,     // Usage Max (241)
+	0x81, 0x00,     // Input: (Data, Array)
+	0xC0,            // End Collection
 
 	//consumer report in
 	0x05, 0x0C,   // Usage Page (Consumer)
@@ -481,7 +507,7 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE , BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,BTP_SDP_ATTR_RECORD_HANDLE, (unsigned char *) 0 }, // handle
 	    {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE , BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_32, BTP_SDP_HID_DEV_HANDLE, (unsigned char *) 0 }, // handle
 
-    // Service Class ID List	
+    // Service Class ID List
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  (unsigned char *) 0 }, //list begin: sv class
     	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (unsigned char *) 0 }, //list begin: 
     	    {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_HID,  (unsigned char *) 0 },  //list item[0]	
@@ -499,7 +525,7 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
             {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },					 //list end
         {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },               // list end
 
-    // Language Base Attribute ID List	
+    // Language Base Attribute ID List
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  (unsigned char *) 0 }, //att id =5
     	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_VAR_16, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  (unsigned char *) 0 }, //list begin: sv class
         	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x656e,  (unsigned char *) 0 }, //language ID 'e' 'en'
@@ -872,4 +898,6 @@ void btp_sdp_constInit(void)
 
 
 #endif
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 

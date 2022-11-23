@@ -21,8 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef COMMON_UTILITY_H_
-#define COMMON_UTILITY_H_
+#ifndef TLKTK_UTILITY_H
+#define TLKTK_UTILITY_H
 
 #pragma once
 #include "types.h"
@@ -178,4 +178,4 @@ static inline int abs_ram(signed int i)
 #define		ATT_ALLIGN4_DMA_BUFF(n)				((((n) + 10) + 3) / 4 * 4)
 
 
-#endif /* COMMON_UTILITY_H_ */
+#endif /* TLKTK_UTILITY_H */

@@ -64,31 +64,41 @@ void tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uin
 void tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
 void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
 
-void tlkapi_debug_process(void);
+void tlkapi_debug_handler(void);
 
 void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
 void tlkapi_debug_delayForPrint(uint32 us);
 
 
+void tlkapi_vcd_ref(void);
+void tlkapi_vcd_sync(bool enable);
+void tlkapi_vcd_tick(uint flags, uint08 id);
+void tlkapi_vcd_level(uint flags, uint08 id, uint08 level);
+void tlkapi_vcd_event(uint flags, uint08 id);
+void tlkapi_vcd_byte(uint flags, uint08 id, uint08 value);
+void tlkapi_vcd_word(uint flags, uint08 id, uint16 value);
+
+
+
 #if (TLK_CFG_DBG_ENABLE)
 
 
-#define TLKAPI_DEBUG_METHOD_UDB      1
-#define TLKAPI_DEBUG_METHOD_GPIO     2
-#define TLKAPI_DEBUG_METHOD_UART     3
+#define TLKAPI_DEBUG_CHANNEL_UDB      1
+#define TLKAPI_DEBUG_CHANNEL_GSUART   2 //GPIO simulate UART
+#define TLKAPI_DEBUG_CHANNEL_UART     3
 #if (TLK_USB_UDB_ENABLE)
-#define TLKAPI_DEBUG_METHOD          TLKAPI_DEBUG_METHOD_UDB
+#define TLKAPI_DEBUG_CHANNEL          TLKAPI_DEBUG_CHANNEL_UDB
 #else
-#define TLKAPI_DEBUG_METHOD          TLKAPI_DEBUG_METHOD_GPIO
-//#define TLKAPI_DEBUG_METHOD          TLKAPI_DEBUG_METHOD_UART
+#define TLKAPI_DEBUG_CHANNEL          TLKAPI_DEBUG_CHANNEL_GSUART
+//#define TLKAPI_DEBUG_CHANNEL          TLKAPI_DEBUG_CHANNEL_UART
 #endif
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_GPIO)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 #define TLKAPI_DEBUG_GPIO_PIN        GPIO_PD5
 #define TLKAPI_DEBUG_BAUD_RATE       1000000
 #endif
 
-#if (TLKAPI_DEBUG_METHOD == TLKAPI_DEBUG_METHOD_UART)
+#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
 #define TLKAPI_DEBUG_UART_PORT       UART0
 #define TLKAPI_DEBUG_UART_TX_DMA     DMA7
 #define TLKAPI_DEBUG_UART_TX_PIN     UART0_TX_PD2

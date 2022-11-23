@@ -20,12 +20,12 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
+#if (TLK_DEV_CODEC_ENABLE)
 #include "tlkdrv/ext/codec/tlkdrv_codec.h"
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkdev/sys/tlkdev_codec.h"
+#include "drivers.h"
 
 
 __attribute__((aligned(4))) uint16 gTlkDevCodecSpkBuffer[TLK_DEV_SPK_BUFF_SIZE/2];
@@ -51,6 +51,7 @@ int tlkdev_codec_init(void)
 	return TLK_ENONE;
 }
 
+
 int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bitDepth, uint32 sampleRate)
 {
 	int ret = TLK_ENONE;
@@ -63,6 +64,56 @@ int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bi
 int tlkdev_codec_close(void)
 {
 	return tlkdrv_codec_close();
+}
+int tlkdev_codec_extOpen(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 spkChannel, uint08 spkBitDepth,
+	uint32 spkSampleRate, uint08 micChannel, uint08 micBitDepth, uint32 micSampleRate)
+{
+	int ret = TLK_ENONE;
+	if(ret == TLK_ENONE){
+		if(subDev == TLKDEV_CODEC_SUBDEV_SPK){
+			ret = tlkdrv_codec_setSpkChannel(spkChannel);
+		}else if(subDev == TLKDEV_CODEC_SUBDEV_MIC){
+			ret = tlkdrv_codec_setMicChannel(micChannel);
+		}else if(spkChannel == micChannel){
+			ret = tlkdrv_codec_setChannel(spkChannel);
+		}else{
+			return -TLK_EPARAM;
+		}
+	}
+	if(ret == TLK_ENONE){
+		if(subDev == TLKDEV_CODEC_SUBDEV_SPK){
+			ret = tlkdrv_codec_setSpkBitDepth(spkBitDepth);
+		}else if(subDev == TLKDEV_CODEC_SUBDEV_MIC){
+			ret = tlkdrv_codec_setMicBitDepth(micBitDepth);
+		}else if(spkBitDepth == micBitDepth){
+			ret = tlkdrv_codec_setBitDepth(spkBitDepth);
+		}else{
+			return -TLK_EPARAM;
+		}
+	}
+	if(ret == TLK_ENONE){
+		if(subDev == TLKDEV_CODEC_SUBDEV_SPK){
+			ret = tlkdrv_codec_setSpkSampleRate(spkSampleRate);
+		}else if(subDev == TLKDEV_CODEC_SUBDEV_MIC){
+			ret = tlkdrv_codec_setMicSampleRate(micSampleRate);
+		}else if(spkSampleRate == micSampleRate){
+			ret = tlkdrv_codec_setSampleRate(spkSampleRate);
+		}else{
+			return -TLK_EPARAM;
+		}
+	}
+	if(ret == TLK_ENONE) ret = tlkdrv_codec_open(subDev);
+	return ret;
+}
+
+
+uint tlkdev_codec_getSampleRate(void)
+{
+	return tlkdrv_codec_getSampleRate();
+}
+uint tlkdev_codec_getChannel(void)
+{
+	return tlkdrv_codec_getChannel();
 }
 
 
@@ -97,6 +148,14 @@ void tlkdev_codec_setMicBuffer(uint08 *pBuffer, uint16 buffLen)
 	tlkdrv_codec_setMicBuffer(pBuffer, buffLen);
 }
 
+uint tlkdev_codec_getSpkBuffLen(void)
+{
+	return tlkdrv_codec_getSpkBuffLen();
+}
+uint tlkdev_codec_getMicBuffLen(void)
+{
+	return tlkdrv_codec_getMicBuffLen();
+}
 uint tlkdev_codec_getSpkIdleLen(void)
 {
 	return tlkdrv_codec_getSpkIdleLen();
@@ -110,6 +169,10 @@ uint tlkdev_codec_getMicDataLen(void)
 	return tlkdrv_codec_getMicDataLen();
 }
 
+bool tlkdev_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset)
+{
+	return tlkdrv_codec_readSpkData(pBuffer, buffLen, offset);
+}
 bool tlkdev_codec_readMicData(uint08 *pBuff, uint16 buffLen, uint16 *pOffset)
 {
 	return tlkdrv_codec_readMicData(pBuff, buffLen, pOffset);
@@ -127,4 +190,7 @@ bool tlkdev_codec_backReadSpkData(uint08 *pBuff, uint16 buffLen, uint16 offset, 
 {
 	return tlkdrv_codec_backReadSpkData(pBuff, buffLen, offset, isBack);
 }
+
+
+#endif //#if (TLK_DEV_CODEC_ENABLE)
 

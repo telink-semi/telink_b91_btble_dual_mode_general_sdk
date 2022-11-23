@@ -62,6 +62,7 @@ typedef enum{
 	TLKUSB_CDC_CSCP_VendorSpecific_Protocol = 0xFF,
 }TLKUSB_CDC_CSCP_ENUM; //CSCP-ClassSubClass_Protocol
 
+// Communications Class Functional Descriptors
 typedef enum{
 	TLKUSB_CDC_TYPE_CSInterface_Header,
 	TLKUSB_CDC_TYPE_CSInterface_CallManagement,

@@ -85,7 +85,7 @@ typedef enum{
 #define TLKUSB_HID_RPT_DATA_ENTRY(Type, Tag, Data_bits, ...)  \
 												(Type | Tag | TLKUSB_HID_RPT_DATA_BITS(Data_bits)) TLKUSB_HID_RPT_DATA_ENCODE(Data_bits, (__VA_ARGS__))
 
-
+//data item for Input/Ouput/Feature
 #define TLKUSB_HID_IOF_CONSTANT                        BIT(0)
 #define TLKUSB_HID_IOF_DATA                            (0<<0)
 #define TLKUSB_HID_IOF_VARIABLE                        BIT(1)
@@ -105,7 +105,7 @@ typedef enum{
 #define TLKUSB_HID_IOF_BUFFERED_BYTES                  BIT(8)
 #define TLKUSB_HID_IOF_BITFIELD                        (0<<8)
 
-
+//HID report definitions
 #define TLKUSB_HID_RPT_INPUT(Data_bits, ...)             TLKUSB_HID_RPT_DATA_ENTRY(TLKUSB_HID_RPT_TYPE_MAIN  , 0x80, Data_bits, __VA_ARGS__)
 #define TLKUSB_HID_RPT_OUTPUT(Data_bits, ...)            TLKUSB_HID_RPT_DATA_ENTRY(TLKUSB_HID_RPT_TYPE_MAIN  , 0x90, Data_bits, __VA_ARGS__)
 #define TLKUSB_HID_RPT_COLLECTION(Data_bits, ...)        TLKUSB_HID_RPT_DATA_ENTRY(TLKUSB_HID_RPT_TYPE_MAIN  , 0xA0, Data_bits, __VA_ARGS__)
@@ -127,7 +127,7 @@ typedef enum{
 #define TLKUSB_HID_RPT_USAGE_MINIMUM(Data_bits, ...)     TLKUSB_HID_RPT_DATA_ENTRY(TLKUSB_HID_RPT_TYPE_LOCAL , 0x10, Data_bits, __VA_ARGS__)
 #define TLKUSB_HID_RPT_USAGE_MAXIMUM(Data_bits, ...)     TLKUSB_HID_RPT_DATA_ENTRY(TLKUSB_HID_RPT_TYPE_LOCAL , 0x20, Data_bits, __VA_ARGS__)
 
-
+//country code
 typedef enum{
 	TLKUSB_HID_COUNTRY_NONE = 0,
 	TLKUSB_HID_COUNTRY_ARABIC,

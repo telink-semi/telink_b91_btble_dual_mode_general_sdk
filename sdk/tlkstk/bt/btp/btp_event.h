@@ -24,6 +24,9 @@
 #ifndef BTP_EVENT_H
 #define BTP_EVENT_H
 
+#if (TLK_STK_BTP_ENABLE)
+
+
 
 typedef int(*btp_event_func)(uint08 *pData, uint16 dataLen);
 
@@ -162,6 +165,7 @@ int btp_send_a2dpSnkStatusChangedEvt(uint16 aclHandle, uint08 status);
 
 
 
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //BTP_EVENT_H
 

@@ -67,6 +67,11 @@ static const tlkmmi_audio_statusFunc_t sTlkMMidAudioSnkFunc = {
 	TLKMMI_AUDIO_OPTYPE_SNK,  TLKMMI_AUDIO_SNK_PRIORITY,  false, false
 };
 #endif
+#if (TLKMDI_CFG_AUDUAC_ENABLE)
+static const tlkmmi_audio_statusFunc_t sTlkMMidAudioUacFunc = {
+	TLKMMI_AUDIO_OPTYPE_UAC,  TLKMMI_AUDIO_UAC_PRIORITY,  false, false
+};
+#endif
 static const tlkmmi_audio_statusFunc_t *spTlkMMidAudioFuncs[TLKMMI_AUDIO_OPTYPE_MAX] = {
 	nullptr,
 #if (TLKMDI_CFG_AUDTONE_ENABLE)
@@ -101,6 +106,11 @@ static const tlkmmi_audio_statusFunc_t *spTlkMMidAudioFuncs[TLKMMI_AUDIO_OPTYPE_
 #endif
 #if (TLKMDI_CFG_AUDSNK_ENABLE)
 	&sTlkMMidAudioSnkFunc,
+#else
+	nullptr,
+#endif
+#if (TLKMDI_CFG_AUDUAC_ENABLE)
+	&sTlkMMidAudioUacFunc,
 #else
 	nullptr,
 #endif

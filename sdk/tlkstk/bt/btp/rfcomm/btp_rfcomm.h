@@ -41,9 +41,8 @@
 
 
 
-//#define RFCOMM_DEFAULT_MTU	127
-#define RFCOMM_DEFAULT_MTU	  670 //no more than ASCP_MAX_PAYLOAD_LENGTH
-#define RFCOMM_DEFAULT_CREDITS	255
+#define RFCOMM_DEFAULT_CREDITS	0
+#define RFCOMM_RX_CREDITS_MAX	100
 
 #define RFCOMM_MAX_L2CAP_MTU	1013
 #define RFCOMM_MAX_CREDITS	40
@@ -321,9 +320,6 @@ typedef struct{
 
 
 
-/* flow control states */
-#define RFCOMM_CFC_DISABLED 0
-#define RFCOMM_CFC_ENABLED  RFCOMM_DEFAULT_CREDITS
 
 /******************************************************************************
  * Function: Rfcomm init interface

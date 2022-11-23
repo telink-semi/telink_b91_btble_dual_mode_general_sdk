@@ -254,7 +254,7 @@ void tlkmdi_mp3_clearPcmData(void);
 int  tlkmdi_mp3_getPcmIdleLen(void);
 int  tlkmdi_mp3_getPcmDataLen(void);
 void tlkmdi_mp3_addPcmData(uint08 *pData, uint16 dataLen);
-int  tlkmdi_mp3_getPcmData(uint08 *pBuff, uint16 buffLen);
+uint tlkmdi_mp3_getPcmData(uint08 *pBuff, uint16 buffLen);
 
 /******************************************************************************
  * Function: tlkmdi_mp3_getXXXXXX

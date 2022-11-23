@@ -24,6 +24,7 @@
 #ifndef BTP_H
 #define BTP_H
 
+#if (TLK_STK_BTP_ENABLE)
 
 
 
@@ -34,6 +35,8 @@ void btp_handler(void);
 void btp_destroy(uint16 aclHandle);
 
 
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif //BTP_H
 

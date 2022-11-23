@@ -24,6 +24,7 @@
 #ifndef BTP_SPP_H
 #define BTP_SPP_H
 
+#if (TLK_STK_BTP_ENABLE)
 
 
 typedef void (*BtpSppRecvDataCB)(uint16 aclHandle, uint08 rfcHandle, uint08 *pData, uint16 dataLen);
@@ -140,6 +141,8 @@ btp_spp_item_t *btp_spp_getUsedItem(uint16 aclHandle);
 btp_spp_item_t *btp_spp_getConnItem(uint16 aclHandle);
 
 
+
+#endif //#if (TLK_STK_BTP_ENABLE)
 
 #endif /* BTP_SPP_H */
 

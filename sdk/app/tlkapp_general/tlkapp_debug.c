@@ -20,9 +20,6 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "types.h"
-#include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
@@ -39,7 +36,8 @@
 #include "tlklib/usb/tlkusb_stdio.h"
 #include "tlklib/usb/udb/tlkusb_udb.h"
 
-
+#include "types.h"
+#include "drivers.h"
 #include "tlkapp_config.h"
 #include "tlkapp_system.h"
 
@@ -49,9 +47,7 @@ extern bool tlkusb_setModule(uint08 modtype); //TLKUSB_MODTYPE_ENUM
 #endif
 extern int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout);;
 extern int tlkmmi_phone_bookSetParam(uint08 posi, uint08 type, uint08 sort, uint16 offset, uint16 number);
-extern int tlkdev_xtsd01g_diskFormat(void);
-extern int tlkdev_xt26g0x_diskFormat(void);
-
+extern int tlkdev_store_format(void);
 
 #if (TLK_USB_UDB_ENABLE)
 static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen);
@@ -113,10 +109,13 @@ static void tlkapp_debug_cmdStartToneHandler(uint08 *pData, uint08 dataLen)
 	tlkapi_array(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkapp_debug_cmdStartToneHandler: start", pData, dataLen);
 	index = ((uint16)pData[1]<<8)|pData[0];
 	count = pData[2];
+#if TLKMMI_AUDIO_ENABLE
 	tlkmmi_audio_startTone(index, count);
+#endif
 }
 static void tlkapp_debug_cmdGetPhoneBookHandler(uint08 *pData, uint08 dataLen)
 {
+#if (TLK_STK_BT_ENABLE)
 	uint08 posi;
 	uint08 type;
 	uint08 sort;
@@ -151,6 +150,7 @@ static void tlkapp_debug_cmdGetPhoneBookHandler(uint08 *pData, uint08 dataLen)
 	number = ((uint16)pData[6]<<8)|pData[5];
 	tlkmmi_phone_bookSetParam(posi, type, sort, offset, number);
 	tlkmmi_phone_startSyncBook(pHandle->aclHandle, pHandle->btaddr, true);
+#endif
 }
 static void tlkapp_debug_cmdSetUSBModeHandler(uint08 *pData, uint08 dataLen)
 {
@@ -169,7 +169,6 @@ static void tlkapp_debug_cmdSimulateKeyHandler(uint08 *pData, uint08 dataLen)
 }
 
 
-
 #if (TLK_USB_UDB_ENABLE)
 static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen)
 {
@@ -179,8 +178,7 @@ static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen)
 
 	switch(pData[1])
 	{
-		case 0x09:
-			flash_erase_sector(0xBF000);
+		case 0x01:
 			break;
 
 		case 0x10:
@@ -189,16 +187,11 @@ static void tlkapp_debug_usbHandler(uint08 *pData, uint16 dataLen)
 			break;
 		
 		case 0xf2:
-			#if (TLK_DEV_XTSD01G_ENABLE)
-			tlkdev_xtsd01g_diskFormat();
-			tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkdev_xtsd01g_diskFormat");
-			#endif
-			#if (TLK_DEV_XT26G0X_ENABLE)
-			tlkdev_xt26g0x_diskFormat();
-			tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkdev_xt26g0x_diskFormat");
+			#if (TLK_DEV_STORE_ENABLE)
+			tlkdev_store_format();
+			tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "tlkdev_store_format");
 			#endif
 			break;
-		break;
 	    case 0xfe:
 	    {
 	    	tlkapp_debug_cmdGetPhoneBookHandler(pData+2,7);

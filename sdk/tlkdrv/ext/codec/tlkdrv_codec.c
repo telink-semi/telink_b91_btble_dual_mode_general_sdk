@@ -81,12 +81,11 @@ int tlkdrv_codec_open(TLKDRV_CODEC_SUBDEV_ENUM subDev)
 	int ret;
 	const tlkdrv_codec_modinf_t *pModInf;
 
-	tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "=== tlkdrv_codec_open 001", &sTlkDrvCodecMajorDev, 1);
+//	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "=== tlkdrv_codec_open 001: %d", sTlkDrvCodecMajorDev);
 	if(subDev == TLKDRV_CODEC_SUBDEV_DEF) subDev = sTlkDrvCodecMinorDev;
 	pModInf = tlkdrv_codec_getDev(sTlkDrvCodecMajorDev);
 	if(pModInf == nullptr || pModInf->Open == nullptr) return -TLK_ENOSUPPORT;
 	ret = pModInf->Open(subDev);
-	tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "=== tlkdrv_codec_open 002", 0, 0);
 	if(ret == TLK_ENONE){
 		gTlkDrvCodecSpkOffset = 0;
 		gTlkDrvCodecMicOffset = 0;
@@ -104,7 +103,6 @@ int tlkdrv_codec_pause(void)
 int tlkdrv_codec_close(void)
 {
 	const tlkdrv_codec_modinf_t *pModInf;
-	tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "=== tlkdrv_codec_close 003", 0, 0);
 	pModInf = tlkdrv_codec_getDev(sTlkDrvCodecMajorDev);
 	if(pModInf == nullptr || pModInf->Close == nullptr) return -TLK_ENOSUPPORT;
 	return pModInf->Close(sTlkDrvCodecMinorDev);
@@ -190,6 +188,14 @@ int tlkdrv_codec_setSpkSampleRate(uint32 sampleRate)
 {
 	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_SPK, TLKDRV_CODEC_OPCODE_SET_SAMPLE_RATE, sampleRate, 0);
 }
+uint32 tlkdrv_codec_getSampleRate(void)
+{
+	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_DEF, TLKDRV_CODEC_OPCODE_GET_SAMPLE_RATE, 0, 0);
+}
+uint08 tlkdrv_codec_getChannel(void)
+{
+	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_DEF, TLKDRV_CODEC_OPCODE_GET_CHANNEL, 0, 0);
+}
 
 
 void tlkdrv_codec_muteSpk(void)
@@ -246,6 +252,15 @@ void tlkdrv_codec_setMicOffset(uint16 offset)
 	gTlkDrvCodecMicOffset = offset;
 }
 
+uint tlkdrv_codec_getSpkBuffLen(void)
+{
+	return gTlkDrvCodecSpkBuffLen;
+}
+uint tlkdrv_codec_getMicBuffLen(void)
+{
+	return gTlkDrvCodecMicBuffLen;
+}
+
 
 uint tlkdrv_codec_getSpkIdleLen(void)
 {
@@ -267,7 +282,7 @@ uint tlkdrv_codec_getSpkIdleLen(void)
 		if(gTlkDrvCodecSpkOffset >= gTlkDrvCodecSpkBuffLen){
 			gTlkDrvCodecSpkOffset -= gTlkDrvCodecSpkBuffLen;
 		}
-		tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "tlkdrv_codec_getSpkIdleLen: seek 180B", 0, 0);
+//		tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "tlkdrv_codec_getSpkIdleLen: seek 180B");
 	}
 	
 	return unUsed;
@@ -305,6 +320,23 @@ uint tlkdrv_codec_getMicDataLen(void)
 	return used;
 }
 
+bool tlkdrv_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset)
+{
+	uint16 copyLen;
+
+	if(gTlkDrvCodecSpkBuffLen == 0 || !tlkdrv_codec_isOpen(TLKDRV_CODEC_SUBDEV_SPK)
+		|| offset >= gTlkDrvCodecSpkBuffLen || buffLen > gTlkDrvCodecSpkBuffLen){
+		return false;
+	}
+	if(offset+buffLen <= gTlkDrvCodecSpkBuffLen){
+		tmemcpy(pBuffer, ((uint08*)gpTlkDrvCodecSpkBuffer)+offset, buffLen);
+	}else{
+		copyLen = gTlkDrvCodecSpkBuffLen-offset;
+		tmemcpy(pBuffer, ((uint08*)gpTlkDrvCodecSpkBuffer)+offset, copyLen);
+		tmemcpy(pBuffer+copyLen, ((uint08*)gpTlkDrvCodecSpkBuffer), buffLen-copyLen);
+	}
+	return true;
+}
 bool tlkdrv_codec_readMicData(uint08 *pBuffer, uint16 buffLen, uint16 *pOffset)
 {
 	uint32 wptr;
@@ -398,7 +430,7 @@ bool tlkdrv_codec_fillSpkBuff(uint08 *pData, uint16 dataLen)
 
 	if(sTlkDrvCodecSpkIsMute) sTlkDrvCodecSpkIsMute = false;
 
-	tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "=== spkFillBuff 03", 0, 0);
+	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "=== spkFillBuff");
 	wptr = gTlkDrvCodecSpkOffset;
 	rptr = (audio_get_tx_dma_rptr(TLKDRV_CODEC_SPK_DMA))-((uint32)gpTlkDrvCodecSpkBuffer);
 	
@@ -406,15 +438,14 @@ bool tlkdrv_codec_fillSpkBuff(uint08 *pData, uint16 dataLen)
 	if(rptr > wptr) unUsed = rptr-wptr;
 	else unUsed = gTlkDrvCodecSpkBuffLen+rptr-wptr;
 
-	tlkapi_sendU32s(TLKDRV_CODEC_DEBUG_ENABLE, "fill1:", rptr, wptr, unUsed, dataLen);
+	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "fill1: %d %d %d %d", rptr, wptr, unUsed, dataLen);
 
 	if(unUsed <= dataLen){
-		tlkapi_sendU32s(TLKDRV_CODEC_DEBUG_ENABLE, "fill1:", rptr, wptr, unUsed, dataLen);
+		tlkapi_warn(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "fill2: %d %d %d %d", rptr, wptr, unUsed, dataLen);
 		return false;
 	}
 	
-	tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "=== spkFillBuff", 0, 0);
-	tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "fill data: ok", 0, 0);
+	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "fill data: ok");
 
 	if(unUsed == gTlkDrvCodecSpkBuffLen){
 		wptr = rptr+32;
@@ -423,7 +454,7 @@ bool tlkdrv_codec_fillSpkBuff(uint08 *pData, uint16 dataLen)
 		wptr = 0;
 	}
 
-	if(wptr+dataLen >  gTlkDrvCodecSpkBuffLen){
+	if(wptr+dataLen > gTlkDrvCodecSpkBuffLen){
 		offset = gTlkDrvCodecSpkBuffLen-wptr;
 	}else{
 		offset = dataLen;
@@ -449,7 +480,7 @@ bool tlkdrv_codec_backReadSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset
 
 	if(gTlkDrvCodecSpkBuffLen == 0 || !tlkdrv_codec_isOpen(TLKDRV_CODEC_SUBDEV_SPK)) return false;
 	if(buffLen == 0 || buffLen > gTlkDrvCodecSpkBuffLen || offset >= gTlkDrvCodecSpkBuffLen){
-		tlkapi_sendData(TLKDRV_CODEC_DEBUG_ENABLE, "tlkdrv_codec_backReadSpkData: fault", 0, 0);
+		tlkapi_error(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "tlkdrv_codec_backReadSpkData: fault", 0, 0);
 		return false;
 	}
 	rptr = (uint32)((audio_get_tx_dma_rptr(TLKDRV_CODEC_SPK_DMA))-((uint32)gpTlkDrvCodecSpkBuffer));
@@ -463,15 +494,13 @@ bool tlkdrv_codec_backReadSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset
 		}
 	}
 	if(rptr >= gTlkDrvCodecSpkBuffLen) rptr = 0;
-//	if(rptr >= buffLen) rptr -= buffLen;
-//	else rptr = gTlkDrvCodecSpkBuffLen+rptr-buffLen;
-		
+			
 	if(rptr+buffLen <= gTlkDrvCodecSpkBuffLen) tempLen = buffLen;
 	else tempLen = gTlkDrvCodecSpkBuffLen-rptr;
 	if(tempLen != 0) tmemcpy(pBuffer, ((uint08*)(gpTlkDrvCodecSpkBuffer))+rptr, tempLen);
 	if(tempLen < buffLen) tmemcpy(pBuffer+tempLen, (uint08*)gpTlkDrvCodecSpkBuffer, buffLen-tempLen);
 
-//	tlkapi_sendU32s(TLKDRV_CODEC_DEBUG_ENABLE, "backRead:", offset, rptr, gTlkDrvCodecSpkOffset, tempLen);
+//	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "backRead: %d %d %d %d", offset, rptr, gTlkDrvCodecSpkOffset, tempLen);
 
 	return true;
 }

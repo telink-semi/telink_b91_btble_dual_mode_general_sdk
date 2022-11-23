@@ -32,6 +32,7 @@ void tlkstk_process(void);
 
 bool tlkstk_pmIsBusy(void);
 
+uint32 tlkstk_state(void);
 
 
 #endif //TLKSTK_H
