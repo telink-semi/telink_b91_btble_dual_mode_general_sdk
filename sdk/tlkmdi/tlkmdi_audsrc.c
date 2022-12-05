@@ -504,13 +504,16 @@ static void tlkmdi_src_fillHandler(void)
 	}
 	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	if(sTlkMdiSrcCtrl.sndFrame >= TLKMDI_SRC_FRAME_NUMB && !hci_rxfifo_half_full()){// retry send last send fail pkt;
+		int ret;
 		uint16 pktLen;
 		pktLen = 1+frameSize*TLKMDI_SRC_FRAME_NUMB;
 		spTlkMdiSrcPktBuff[0] = TLKMDI_SRC_FRAME_NUMB;
-		btp_a2dpsrc_sendMediaData(sTlkMdiSrcCtrl.handle, sTlkMdiSrcCtrl.seqNumber, sTlkMdiSrcCtrl.timeStamp, spTlkMdiSrcPktBuff, pktLen);
-		sTlkMdiSrcCtrl.sndFrame = 0;
-		sTlkMdiSrcCtrl.seqNumber ++;
-		sTlkMdiSrcCtrl.timeStamp += 8;
+		ret = btp_a2dpsrc_sendMediaData(sTlkMdiSrcCtrl.handle, sTlkMdiSrcCtrl.seqNumber, sTlkMdiSrcCtrl.timeStamp, spTlkMdiSrcPktBuff, pktLen);
+		if (ret == TLK_ENONE) {
+			sTlkMdiSrcCtrl.sndFrame = 0;
+			sTlkMdiSrcCtrl.seqNumber ++;
+			sTlkMdiSrcCtrl.timeStamp += 8;
+		}
 	}
 	#endif
 }
