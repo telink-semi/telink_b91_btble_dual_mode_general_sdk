@@ -124,12 +124,12 @@ void blc_initMacAddress(int flash_addr, u8 *mac_public, u8 *mac_random_static)
 		memcpy(mac_public, mac_read, 6);  //copy public address from flash
 	}
 	else{  //no public address on flash
-		mac_public[0] = 0xA4;
-		mac_public[1] = 0xC1;
-		mac_public[2] = 0x38;
-		mac_public[3] = value_rand[2];
-		mac_public[4] = value_rand[1];
-		mac_public[5] = value_rand[0];
+		mac_public[0] = value_rand[0];
+		mac_public[1] = value_rand[1];
+		mac_public[2] = value_rand[2];
+		mac_public[3] = 0x38;             //company id: 0xA4C138
+		mac_public[4] = 0xC1;
+		mac_public[5] = 0xA4;
 		flash_write_page (flash_addr, 6, mac_public);
 	}
 

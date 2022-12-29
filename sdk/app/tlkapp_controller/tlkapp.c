@@ -53,7 +53,6 @@ int tlkapp_init(void)
 	trng_init();
 	tlksdk_mode_select(0,1);
 	tlkapp_irq_init();
-	tlkapi_init();
 	tlkdev_init();
 	tlkstk_init();
 	tlkapp_debug_init();
@@ -70,7 +69,6 @@ int tlkapp_init(void)
 *******************************************************************************/
 void tlkapp_process(void)
 {
-	tlkapi_process();
 	#if (TLK_DEV_HCIUART_ENABLE)
 	tlkdev_hciuart_handler();
 	#endif

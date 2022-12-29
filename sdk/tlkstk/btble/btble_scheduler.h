@@ -231,6 +231,10 @@ void	bt_ll_schedule_set_enable (uint8_t id, uint8_t priority, uint8_t type, uint
 
 void 	bt_ll_schedule_set_duration_interval (uint8_t id, uint8_t duration, uint8_t interval);
 
+void 	bt_ll_schedule_acl_bandwith_policy_enter (uint16_t con_handle);
+
+void 	bt_ll_schedule_acl_bandwith_policy_exit (void);
+
 void 	bt_ll_schedule_set_inquiry_page_mode (uint8_t priority, uint8_t priority_scan, uint8_t duration, uint8_t interval);
 
 int	    bt_ll_schedule_set_current_priority (uint8_t id, uint8_t priority);

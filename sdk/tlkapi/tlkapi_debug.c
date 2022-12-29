@@ -345,7 +345,7 @@ void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen
 	strLen = tstrlen(pStr);	
 	pDbgSign = tlk_debug_getDbgSign(flags);
 	if(pDbgSign == nullptr) signLen = 0;
-	else signLen = strlen(pDbgSign);
+	else signLen = tstrlen(pDbgSign);
 
 	buffLen = 0;
 	pBuff[buffLen++] = 0x00; //(5+extLen+strLen+dataLen) & 0xFF;

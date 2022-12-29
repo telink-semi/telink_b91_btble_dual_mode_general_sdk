@@ -434,6 +434,9 @@ static void tlkmdi_sco_micHandler(void)
 	sTlkMdiScoCtrl.enc_func((uint08*)pMicPtr, 240, (uint08*)pBuffer);
 	#endif
 	
+	if(sTlkMdiScoCtrl.dropMicNumb != 0) sTlkMdiScoCtrl.dropMicNumb --;
+	if(sTlkMdiScoCtrl.dropMicNumb != 0) return;
+	
 	tlkapi_qfifo_dropBuff(&sTlkMdiScoMicFifo);
 }
 static void tlkmdi_sco_spkHandler(void)
@@ -493,10 +496,11 @@ static int tlkmdi_sco_getPcmData(sint16 *pBuffer)
 		tlkalg_sbc_plcBadFrame(&gTlkalgSbcPlcState, pBuffer, pBuffer);			
         #endif
 	}
-
-	if(sTlkMdiScoCtrl.dropMicNumb != 0) sTlkMdiScoCtrl.dropMicNumb --;
-	if(sTlkMdiScoCtrl.dropMicNumb != 0) return 0;
+	
 	tlkapi_qfifo_dropData(&sTlkMdiScoSpkFifo);
+
+	if(sTlkMdiScoCtrl.dropSpkNumb != 0) sTlkMdiScoCtrl.dropSpkNumb --;
+	if(sTlkMdiScoCtrl.dropSpkNumb != 0) return 0;
 	
 //	log_task (SL_APP_MUSIC_EN, SL01_task_music_dec, 0);
 	return 120 * 2;
