@@ -235,10 +235,10 @@ static void tlkusb_ctrlTranSetupReqProc(bool isSetupReq)
 			if(isSetupReq) tlkusb_classD2HEdpDeal(&sMmiUsbCtrlReq);
 			break;
 		case (TLKUSB_REQTYPE_DIR_HOST2DEV | TLKUSB_REQTYPE_MAJ_CLASS | TLKUSB_REQTYPE_REC_INTERFACE):
-			if(isSetupReq) tlkusb_classH2DInfDeal(&sMmiUsbCtrlReq);
+			if(!isSetupReq) tlkusb_classH2DInfDeal(&sMmiUsbCtrlReq);
 			break;
 		case (TLKUSB_REQTYPE_DIR_HOST2DEV | TLKUSB_REQTYPE_MAJ_CLASS | TLKUSB_REQTYPE_REC_ENDPOINT):
-			if(isSetupReq) tlkusb_classH2DEdpDeal(&sMmiUsbCtrlReq);
+			if(!isSetupReq) tlkusb_classH2DEdpDeal(&sMmiUsbCtrlReq);
 			break;
 		case (TLKUSB_REQTYPE_DIR_DEV2HOST | TLKUSB_REQTYPE_MAJ_VENDOR | TLKUSB_REQTYPE_REC_INTERFACE):
 			if(!isSetupReq) return;

@@ -30,10 +30,10 @@
 #define TLKMMI_LEMGR_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_LEMGR << 24) | (TLK_MINOR_DBGID_MMI_LEMGR << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMMI_LEMGR_DBG_SIGN       "[MMI]"
 
+#define TLKMMI_LEMGR_PROCID         TLKTSK_PROCID_STACK
+
 
 int tlkmmi_lemgr_init(void);
-
-
 
 
 

@@ -20,25 +20,24 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
+#include "tlkmmi_btmgr.h"
 #if (TLKMMI_BTMGR_BTINQ_ENABLE)
-#include "tlkmdi/tlkmdi_btacl.h"
-#include "tlkmdi/tlkmdi_btinq.h"
-#include "tlkprt/tlkprt_comm.h"
+#include "tlkmmi_btmgrCtrl.h"
+#include "tlkmmi_btmgrAcl.h"
+#include "tlkmmi_btmgrInq.h"
+#include "tlkmmi_btmgrRec.h"
+#include "tlkmmi_btmgrMsgOuter.h"
+#include "tlkmmi_btmgrMsgInner.h"
+
+#include "tlksys/prt/tlkpto_stdio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
+#include "tlkmdi/bt/tlkmdi_btacl.h"
+#include "tlkmdi/bt/tlkmdi_btinq.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgr.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrCtrl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrAcl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
-
 
 
 
@@ -78,7 +77,7 @@ int tlkmmi_btmgr_startInquiry(uint08 inqType, uint08 rssiThd, uint08 maxNumb, ui
 	if(tlkmmi_btmgr_aclIsBusy()) return -TLK_EBUSY;
 	#endif
 	
-	ret = tlkmdi_btinq_start(inqType, rssiThd, maxNumb, inqWind, inqNumb, true);
+	ret = tlkmdi_btinq_start(inqType, rssiThd, maxNumb, inqWind, inqNumb, true, true);
 	if(ret != TLK_ENONE) return ret;
 	
 	tlkmdi_btinq_regCallback(tlkmmi_btmgr_inquiryReportCB, tlkmmi_btmgr_inquiryCompleteCB);
@@ -117,12 +116,12 @@ static int tlkmmi_btmgr_inquiryReportCB(uint32 devClass, uint08 rssi, uint08 nam
 		tmemcpy(buffer+buffLen, pBtName, nameLen);
 		buffLen += nameLen;
 	}
-	return tlkmdi_comm_sendBtEvt(TLKPRT_COMM_EVTID_BT_INQUIRY, buffer, buffLen);
+	return tlkmmi_btmgr_sendCommEvt(TLKPRT_COMM_EVTID_BT_INQUIRY, buffer, buffLen);
 }
 static void tlkmmi_btmgr_inquiryCompleteCB(void)
 {
 	tlkmdi_btinq_regCallback(nullptr, nullptr);
-	tlkmdi_comm_sendBtEvt(TLKPRT_COMM_EVTID_BT_INQUIRY_COMPLETE, nullptr, 0);
+	tlkmmi_btmgr_sendCommEvt(TLKPRT_COMM_EVTID_BT_INQUIRY_COMPLETE, nullptr, 0);
 }
 
 

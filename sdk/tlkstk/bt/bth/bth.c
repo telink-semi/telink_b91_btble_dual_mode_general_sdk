@@ -23,13 +23,13 @@
 
 #include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkstk/bt/bth/bth_stdio.h"
-#include "tlkstk/bt/bth/bth_adapt.h"
-#include "tlkstk/bt/bth/bth_l2cap.h"
-#include "tlkstk/bt/bth/bth_handle.h"
-#include "tlkstk/bt/bth/bth_hcievt.h"
-#include "tlkstk/bt/bth/bth.h"
-#include "tlkstk/bt/bth/bth_acl.h"
+#include "bth_stdio.h"
+#include "bth_adapt.h"
+#include "bth_l2cap.h"
+#include "bth_handle.h"
+#include "bth_hcievt.h"
+#include "bth.h"
+#include "bth_acl.h"
 
 
 /******************************************************************************

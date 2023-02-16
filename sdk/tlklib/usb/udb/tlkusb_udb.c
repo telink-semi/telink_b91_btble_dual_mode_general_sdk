@@ -216,12 +216,9 @@ static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 			if(temp > 1) nbyte += pData[7] << 8;
 			if(temp > 2) nbyte += pData[8] << 16;
 			if(temp > 3) nbyte += pData[9] << 24;
-			if(nbyte == 0){
-				flash_erase_chip();
-			}else{
-				for(index=0; index<nbyte; index+=4096){
-					flash_erase_sector(addr+index);
-				}
+			if(nbyte == 0) nbyte = 0x100000;
+			for(index=0; index<nbyte; index+=4096){
+				flash_erase_sector(addr+index);
 			}
 		}else if(type == 0xFE){ //FW_DOWNLOAD
 			core_disable_interrupt();

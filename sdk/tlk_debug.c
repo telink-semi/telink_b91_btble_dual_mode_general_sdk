@@ -64,6 +64,7 @@ static const tlk_debug_info_t scTlkDebugSysInfo = {
 		{TLK_MINOR_DBGID_SYS_API, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[API]"},
 		{TLK_MINOR_DBGID_SYS_ALG, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[ALG]"},
 		{TLK_MINOR_DBGID_SYS_SCH, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[SCH]"},
+		{TLK_MINOR_DBGID_SYS_TSK, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[TSK]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugBtcInfo = {
@@ -72,26 +73,26 @@ static const tlk_debug_info_t scTlkDebugBtcInfo = {
 	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
 	TLK_MINOR_DBGID_BTC_MAX, //unitCnt
 	{
-		{TLK_MINOR_DBGID_BTC,        false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_LMP,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_ACL,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC,        true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_LMP,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_ACL,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_SCO,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_HCI,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_EVT,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_EVT,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_ENC,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_RSW,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_QOS,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_AFH,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_CHN,    false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_CHN,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_AUTH,   false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_PAIR,   false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_TASK,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_NAME,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_PAGE,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_TASK,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_NAME,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_PAGE,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_SNIFF,  false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_TIMER,  false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_TIMER,  true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_RESET,  false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_DETACH, false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_DETACH, true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugBthInfo = {
@@ -136,6 +137,36 @@ static const tlk_debug_info_t scTlkDebugBtpInfo = {
 		{TLK_MINOR_DBGID_BTP_AVRCP,  true,  false, TLK_DEBUG_DBG_FLAG_ALL, "[AVRCP]"},
 		{TLK_MINOR_DBGID_BTP_OBEX,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[OBEX]"},
 		{TLK_MINOR_DBGID_BTP_PBAP,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[PBAP]"},
+	}
+};
+
+static const tlk_debug_info_t scTlkDebugLeCInfo = {
+	false, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
+	TLK_MAJOR_DBGID_LEC_MAX, //unitCnt
+	{
+		{TLK_MAJOR_DBGID_LEC_ADV,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_ADV]"},
+		{TLK_MAJOR_DBGID_LEC_CON, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_CON]"},
+		{TLK_MAJOR_DBGID_LEC_INIT,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_INIT]"},
+		{TLK_MAJOR_DBGID_LEC_S, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SLAVE]"},
+		{TLK_MAJOR_DBGID_LEC_M, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_MASTER]"},
+		{TLK_MAJOR_DBGID_LEC_SCAN,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SCAN]"},
+		{TLK_MAJOR_DBGID_LEC_SCH,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SCH]"},
+		{TLK_MAJOR_DBGID_LEC_HCI,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_HCI]"},
+	}
+};
+
+static const tlk_debug_info_t scTlkDebugLeHInfo = {
+	true, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
+	TLK_MAJOR_DBGID_LEH_MAX, //unitCnt
+	{
+		{TLK_MAJOR_DBGID_LEH_L2CAP, true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_L2CAP]"},
+		{TLK_MAJOR_DBGID_LEH_SMP,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SMP]"},
+		{TLK_MAJOR_DBGID_LEH_GAP, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_GAP]"},
+		{TLK_MAJOR_DBGID_LEH_GATT, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_GATT]"},
 	}
 };
 
@@ -218,6 +249,8 @@ static const tlk_debug_info_t scTlkDebugMdiBtInfo = {
 		{TLK_MINOR_DBGID_MDI_BT_HID,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MHID]"},
 		{TLK_MINOR_DBGID_MDI_BT_INQ,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MINQ]"},
 		{TLK_MINOR_DBGID_MDI_BT_REC,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MREC]"},
+		{TLK_MINOR_DBGID_MDI_BT_IAP,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MIAP]"},
+		{TLK_MINOR_DBGID_MDI_BT_A2DP, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MA2DP]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugMmiAudioInfo = {
@@ -265,6 +298,33 @@ static const tlk_debug_info_t scTlkDebugMmiFileInfo = {
 		{TLK_MINOR_DBGID_MMI_FILE, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
 	}
 };
+static const tlk_debug_info_t scTlkDebugMmiViewInfo = {
+	true, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL,
+	TLK_MINOR_DBGID_MMI_VIEW_MAX,
+	{
+		{TLK_MINOR_DBGID_MMI_VIEW, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
+	}
+};
+static const tlk_debug_info_t scTlkDebugMmiTestInfo = {
+	true, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL,
+	TLK_MINOR_DBGID_MMI_TEST_MAX,
+	{
+		{TLK_MINOR_DBGID_MMI_TEST, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
+	}
+};
+static const tlk_debug_info_t scTlkDebugMmiSystemInfo = {
+	true, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL,
+	TLK_MINOR_DBGID_MMI_SYSTEM_MAX,
+	{
+		{TLK_MINOR_DBGID_MMI_SYSTEM, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
+	}
+};
 
 //static
 static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
@@ -273,8 +333,8 @@ static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
 	&scTlkDebugBtcInfo, //TLK_MAJOR_DBGID_BTC
 	&scTlkDebugBthInfo, //TLK_MAJOR_DBGID_BTH
 	&scTlkDebugBtpInfo, //TLK_MAJOR_DBGID_BTP
-	nullptr, //TLK_MAJOR_DBGID_LEC
-	nullptr, //TLK_MAJOR_DBGID_LEH
+	&scTlkDebugLeCInfo, //TLK_MAJOR_DBGID_LEC
+	&scTlkDebugLeHInfo, //TLK_MAJOR_DBGID_LEH
 	nullptr, //TLK_MAJOR_DBGID_LEP
 	&scTlkDebugDrvInfo, //TLK_MAJOR_DBGID_DRV
 	&scTlkDebugDevInfo, //TLK_MAJOR_DBGID_DEV
@@ -288,6 +348,9 @@ static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
 	&scTlkDebugMmiLemgrInfo, //TLK_MAJOR_DBGID_MMI_LEMGR
 	&scTlkDebugMmiPhoneInfo, //TLK_MAJOR_DBGID_MMI_PHONE
 	&scTlkDebugMmiFileInfo, //TLK_MAJOR_DBGID_MMI_FILE
+	&scTlkDebugMmiViewInfo, //TLK_MAJOR_DBGID_MMI_VIEW
+	&scTlkDebugMmiTestInfo, //TLK_MAJOR_DBGID_MMI_TEST
+	&scTlkDebugMmiSystemInfo, //TLK_MAJOR_DBGID_MMI_SYSTEM
 };
 
 static unsigned long sTlkDebugDbgMask[TLK_MAJOR_DBGID_MAX];
@@ -295,20 +358,15 @@ static unsigned long sTlkDebugDbgMask[TLK_MAJOR_DBGID_MAX];
 static unsigned long sTlkDebugVcdMask[TLK_MAJOR_DBGID_MAX];
 #endif
 
+void tlk_debug_dbgLoad(void);
+
+
 void tlk_debug_init(void)
 {
+	tlk_debug_dbgLoad();
+	#if (TLK_CFG_VCD_ENABLE)
 	unsigned int idxI;
 	unsigned int idxJ;
-	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
-		sTlkDebugDbgMask[idxI] = 0;
-		for(idxJ=0; idxJ<32; idxJ++){
-			if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
-				&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
-				sTlkDebugDbgMask[idxI] |= (1 << idxJ);
-			}
-		}
-	}
-	#if (TLK_CFG_VCD_ENABLE)
 	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
 		sTlkDebugVcdMask[idxI] = 0;
 		for(idxJ=0; idxJ<32; idxJ++){
@@ -373,6 +431,87 @@ char *tlk_debug_getDbgSign(unsigned int flags)
 	return (char*)scTlkDebugInfo[majorID]->unit[minorID].pDbgSign;
 }
 
+void tlk_debug_dbgLoad(void)
+{
+	unsigned int idxI;
+	unsigned int idxJ;
+	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
+		sTlkDebugDbgMask[idxI] = 0;
+		for(idxJ=0; idxJ<32; idxJ++){
+			if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
+				&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
+				sTlkDebugDbgMask[idxI] |= (1 << idxJ);
+			}
+		}
+	}
+}
+void tlk_debug_dbgReload(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	unsigned int idxI;
+	unsigned int idxJ;
+	if((majorID >= TLK_MAJOR_DBGID_MAX) || (scTlkDebugInfo[majorID] == nullptr)){
+		return ;
+	}
+	idxI = majorID;
+	for(idxJ=0; idxJ<32; idxJ++){
+		if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
+			&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
+			sTlkDebugDbgMask[idxI] |= (1 << idxJ);
+		}
+	}
+}
+
+bool tlk_debug_dbgEnable(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	if((majorID >= TLK_MAJOR_DBGID_MAX) || (scTlkDebugInfo[majorID] == nullptr)){
+		return false;
+	}
+	sTlkDebugDbgMask[majorID]  = 0xFFFFFFFF;
+	return true;
+}
+
+bool tlk_debug_dbgDisable(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX){
+		return false;
+	}
+	sTlkDebugDbgMask[majorID] = 0;
+	return true;
+}
+
+void tlk_debug_dbgDisableAll(void)
+{
+	unsigned int idxI;
+	for (idxI = 0; idxI < TLK_MAJOR_DBGID_MAX; idxI++) {
+		sTlkDebugDbgMask[idxI] = 0;
+	}
+}
+
+bool tlk_debug_dbgEnableItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+	unsigned int idxI;
+	unsigned int idxJ;
+	 idxI = majorID;
+	 idxJ = minorID;
+	if(majorID >= TLK_MAJOR_DBGID_MAX){
+		return false;
+	}
+	if((scTlkDebugInfo[idxI] != nullptr) && (idxJ < scTlkDebugInfo[idxI]->unitCnt))
+	{
+		sTlkDebugDbgMask[idxI] |= (1 << idxJ);
+	}
+	/*
+	if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
+		&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
+		sTlkDebugDbgMask[idxI] |= (1 << idxJ);
+	}
+	else
+	{
+		return false;
+	}
+	*/
+	return true;
+}
 
 
 #endif //#if (TLK_CFG_DBG_ENABLE)

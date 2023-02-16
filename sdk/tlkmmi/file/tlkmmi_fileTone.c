@@ -20,20 +20,18 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#include "tlk_config.h" 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
-#include "tlkprt/tlkprt_stdio.h"
+#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_adapt.h"
-#include "tlkmdi/tlkmdi_file.h"
-#include "tlkmmi/file/tlkmmi_file.h"
-#include "tlkmmi/file/tlkmmi_fileCtrl.h"
-#include "tlkmmi/file/tlkmmi_fileTone.h"
+#include "tlkmdi/misc/tlkmdi_file.h"
+#include "tlkmmi_file.h"
+#include "tlkmmi_fileAdapt.h"
+#include "tlkmmi_fileCtrl.h"
+#include "tlkmmi_fileTone.h"
 
 
 

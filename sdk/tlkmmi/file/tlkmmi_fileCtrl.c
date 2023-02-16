@@ -22,29 +22,27 @@
  *******************************************************************************************************/
 #include "tlk_config.h" 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
-#include "tlkprt/tlkprt_stdio.h"
+#include "tlksys/tsk/tlktsk_stdio.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_adapt.h"
-#include "tlkmdi/tlkmdi_file.h"
-#include "tlkmmi/file/tlkmmi_fileConfig.h"
-#include "tlkmmi/file/tlkmmi_file.h"
-#include "tlkmmi/file/tlkmmi_fileCtrl.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
+#include "tlkmdi/misc/tlkmdi_file.h"
+#include "tlkmmi_fileConfig.h"
+#include "tlkmmi_file.h"
+#include "tlkmmi_fileAdapt.h"
+#include "tlkmmi_fileCtrl.h"
 //#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/spp/btp_spp.h"
 //#endif
 #if ((TLKMMI_FILE_CHN_BT_ATT_ENABLE) && (TLK_MDI_BTATT_ENABLE))
-#include "tlkmdi/tlkmdi_btatt.h"
+#include "tlkmdi/bt/tlkmdi_btatt.h"
 #endif
 
 
 #if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
-static void tlkmmi_file_serialRecvProc(uint08 msgID, uint08 *pData, uint08 dataLen);
 static int  tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
 #endif
 #if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
@@ -87,9 +85,6 @@ int tlkmmi_file_ctrlInit(void)
 	}
 	tlkmdi_file_setRecvInfs(tlkmmi_file_recvStart, tlkmmi_file_recvClose, tlkmmi_file_recvParam, 
 		tlkmmi_file_recvSave, tlkmmi_file_recvSend);
-	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
-	tlkmdi_comm_regFileCB(tlkmmi_file_serialRecvProc);
-	#endif
 	#if (TLKMMI_FILE_CHN_BT_SPP_ENABLE)
 	btp_spp_regDataCB(tlkmmi_file_btSppRecvProc);
 	#endif
@@ -107,36 +102,13 @@ int tlkmmi_file_ctrlInit(void)
 
 
 #if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
-static void tlkmmi_file_serialRecvProc(uint08 msgID, uint08 *pData, uint08 dataLen)
-{
-	uint08 headLen;
-	uint08 header[8];
-	
-	if(dataLen < 2){
-		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvCmdHandler: error length[%d]", dataLen);
-		return;
-	}
-		
-	headLen = 0;
-	header[headLen++] = 0x00; //Cmd Packet
-	tmemcpy(header+headLen, pData-4, 4);
-	headLen += 4;
-	header[headLen++] = pData[0];
-	header[headLen++] = pData[1];
-	if(header[4] < 2 || header[4] > dataLen){
-		tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvCmdHandler: error length");
-		return;
-	}
-	
-	tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_recvCmdHandler: msgID-%d", msgID);
-	
-	tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_SERIAL, 0xFFFF, header, headLen, pData+2, dataLen-2);
-}
 static int tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen)
 {
 	int ret;
+#if (TLK_CFG_COMM_ENABLE)
 	uint08 value;
-	
+#endif
+
 	if(headLen == 0 || headLen > 64){
 		tlkapi_error(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc: error headLen[%d]", headLen);
 		return -TLK_EFAIL;
@@ -145,11 +117,14 @@ static int tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pDa
 //	tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc[Head]: ", pHead, headLen);
 //	tlkapi_array(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc[Data]: ", pData, dataLen);
 //	tlkapi_trace(TLKMMI_FILE_DBG_FLAG, TLKMMI_FILE_DBG_SIGN, "tlkmmi_file_serialSendProc: headLen[%d], dataLen[%d]", headLen, dataLen);
-	value = 0;
+#if (TLK_CFG_COMM_ENABLE)
 	tlkmdi_comm_getSendNumb(&value);
 	pHead[3] = value;
-	ret = tlkmdi_comm_send(pHead[0], pHead+1, headLen-1, pData, dataLen);
+#endif
+	ret = tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND_FOR_FILE, pHead, headLen, pData, dataLen);
+#if (TLK_CFG_COMM_ENABLE)
 	if(ret == TLK_ENONE) tlkmdi_comm_incSendNumb();
+#endif
 	return ret;
 }
 #endif //#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)

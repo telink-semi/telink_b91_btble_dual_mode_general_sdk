@@ -260,7 +260,36 @@ extern int btp_hfphf_acceptWaitAndHoldActive(uint16 aclHandle);
 *******************************************************************************/
 extern int btp_hfphf_hungUpActiveAndResumeHold(uint16 aclHandle);
 
+/******************************************************************************
+ * Function: btp_hfphf_queryCallList
+ * Descript: Query the call list in the phone.
+ * Params:
+ *        @aclHandle[IN]--The acl handle.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
 extern int btp_hfphf_queryCallList(uint16 aclHandle);
+
+/******************************************************************************
+ * Function: btp_hfphf_queryCallState
+ * Descript: Query the status of the phone in the mobile phone.
+ * Params:
+ *        @aclHandle[IN]--The acl handle.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+extern int btp_hfphf_queryCallState(uint16 aclHandle);
+
+/******************************************************************************
+ * Function: HFP Trigger siri interface
+ * Descript: Defines trigger the siri.
+ * Params:
+ *        @aclHandle[IN]--The acl handle.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+extern int btp_hfphf_siri_ctrl(uint16 aclHandle);
+
 
 /******************************************************************************
  * Function: HFP hf verfy IOS device interface
@@ -270,6 +299,34 @@ extern int btp_hfphf_queryCallList(uint16 aclHandle);
  * Return: true(Yes)/false(No).
 *******************************************************************************/
 extern bool btp_hfphf_isIosDev(uint16 aclHandle);
+
+/******************************************************************************
+ * Function: HFP hf verfy siri interface
+ * Descript: This interface be used by hf to verfy peer device is siri enable.
+ * Params:
+ *         @aclHandle[IN]--The acl link identifier.
+ * Return: true(Yes)/false(No).
+*******************************************************************************/
+extern bool btp_hfphf_isSiriEnable(uint16 aclHandle);
+
+/******************************************************************************
+ * Function: HFP hf verfy support voice recog interface
+ * Descript: This interface be used by hf to verfy peer device is supported Voice Recog.
+ * Params:
+ *         @aclHandle[IN]--The acl link identifier.
+ * Return: true(Yes)/false(No).
+*******************************************************************************/
+extern bool btp_hfphf_isSupportVoiceRecog(uint16 aclHandle);
+
+
+/******************************************************************************
+ * Function: HFP hf reset the record of siri state interface
+ * Descript: This interface be used by hf to reset the record of siri state.
+ * Params:
+ *         @aclHandle[IN]--The acl link identifier.
+ * Return: true(Yes)/false(No).
+*******************************************************************************/
+extern void btp_hfphf_resetSiriRecordState(uint16 aclHandle);
 
 
 

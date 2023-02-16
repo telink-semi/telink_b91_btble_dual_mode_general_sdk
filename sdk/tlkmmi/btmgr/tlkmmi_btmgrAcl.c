@@ -24,21 +24,24 @@
 #include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
+#include "tlkmmi_btmgr.h"
 #if (TLKMMI_BTMGR_BTACL_ENABLE)
-#include "tlkmdi/tlkmdi_btacl.h"
-#include "tlkmdi/tlkmdi_btinq.h"
-#include "tlkmdi/tlkmdi_btrec.h"
-#include "tlkmdi/tlkmdi_bthfp.h"
-#include "tlkmmi/tlkmmi_adapt.h"
+#include "tlkmmi_btmgrAdapt.h"
+#include "tlkmmi_btmgrAcl.h"
+#include "tlkmmi_btmgrInq.h"
+#include "tlkmmi_btmgrRec.h"
+#include "tlkmmi_btmgrMsgOuter.h"
+
+#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlkmdi/bt/tlkmdi_btacl.h"
+#include "tlkmdi/bt/tlkmdi_btinq.h"
+#include "tlkmdi/bt/tlkmdi_btrec.h"
+#include "tlkmdi/bt/tlkmdi_bthfp.h"
+#include "tlkmdi/bt/tlkmdi_btiap.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgr.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrAcl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
+
 
 
 extern int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
@@ -76,7 +79,7 @@ static TlkMmiBtMgrProfileDisconnCallback sTlkMmiBtMgrProfileDiscCB = nullptr;
 int tlkmmi_btmgr_aclInit(void)
 {
 	tmemset(&sTlkMmiBtMgrAcl, 0, sizeof(tlkmmi_btmgr_acl_t));
-	tlkmmi_adapt_initTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, (uint32)&sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
+	tlkmmi_btmgr_adaptInitTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, (uint32)&sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
 	
 	tlkmdi_btacl_regConnectCB(tlkmmi_btmgr_aclConnectCB);
 	tlkmdi_btacl_regEncryptCB(tlkmmi_btmgr_aclEncryptCB);
@@ -95,9 +98,9 @@ int tlkmmi_btmgr_aclInit(void)
 *******************************************************************************/
 static void tlkmmi_btmgr_aclReset(void)
 {
-	tlkmmi_adapt_removeTimer(&sTlkMmiBtMgrAcl.timer);
+	tlkmmi_btmgr_adaptRemoveTimer(&sTlkMmiBtMgrAcl.timer);
 	tmemset(&sTlkMmiBtMgrAcl, 0, sizeof(tlkmmi_btmgr_acl_t));
-	tlkmmi_adapt_initTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, (uint32)&sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
+	tlkmmi_btmgr_adaptInitTimer(&sTlkMmiBtMgrAcl.timer, tlkmmi_btmgr_timer, (uint32)&sTlkMmiBtMgrAcl, TLKMMI_BTMGR_TIMEOUT);
 }
 /******************************************************************************
  * Function: tlkmmi_btmgr_aclIsBusy
@@ -211,7 +214,7 @@ int tlkmmi_btmgr_connect(uint08 btaddr[6], uint32 timeout)
 			if(ret == TLK_ENONE || ret == -TLK_EBUSY){
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: success - start connect");
 				sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_WAIT_CONN;
-				tlkmmi_adapt_insertTimer(&sTlkMmiBtMgrAcl.timer);
+				tlkmmi_btmgr_adaptInsertTimer(&sTlkMmiBtMgrAcl.timer);
 			}else{
 				tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: failure - by mdi-acl");
 			}
@@ -221,7 +224,7 @@ int tlkmmi_btmgr_connect(uint08 btaddr[6], uint32 timeout)
 			sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_WAIT_REC;
 			sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_OPEN_CONN;
 			tlkmmi_btmgr_recClose();
-			tlkmmi_adapt_insertTimer(&sTlkMmiBtMgrAcl.timer);
+			tlkmmi_btmgr_adaptInsertTimer(&sTlkMmiBtMgrAcl.timer);
 		}
 		return ret;
 	}
@@ -242,7 +245,7 @@ int tlkmmi_btmgr_connect(uint08 btaddr[6], uint32 timeout)
 		tmemcpy(sTlkMmiBtMgrAcl.btaddr,pBtInq->btaddr,6);
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: success - exist in inquiry");
 		sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_OPEN_CONN;
-		tlkmmi_adapt_insertTimer(&sTlkMmiBtMgrAcl.timer);
+		tlkmmi_btmgr_adaptInsertTimer(&sTlkMmiBtMgrAcl.timer);
 		return ret;//tlkmdi_btacl_connect(btaddr, pBtInq->devClass, timeout);
 	}
 	if(tlkmdi_btinq_isBusy()){
@@ -252,7 +255,7 @@ int tlkmmi_btmgr_connect(uint08 btaddr[6], uint32 timeout)
 	}
 	sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_OPEN_INQ;
 	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: busy - wait device");	
-	tlkmmi_adapt_insertTimer(&sTlkMmiBtMgrAcl.timer);
+	tlkmmi_btmgr_adaptInsertTimer(&sTlkMmiBtMgrAcl.timer);
 	#endif
 
 	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_connect: timeout-%d, busys-0x%04x", 
@@ -309,13 +312,14 @@ static int tlkmmi_btmgr_reportCB(uint32 devClass, uint08 rssi, uint08 nameLen, u
 			sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_NONE;
 			tlkmdi_btinq_close();
 			tlkmdi_btinq_regCallback(nullptr, nullptr);
+			sTlkMmiBtMgrAcl.timeout  = sTlkMmiBtMgrAcl.connTime/TLKMMI_BTMGR_TIMEOUT_MS+2;
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_reportCB: execute - find device 0x%08x 0x%06x %d", 
 				*(uint32*)(sTlkMmiBtMgrAcl.btaddr), devClass, sTlkMmiBtMgrAcl.connTime);
 			ret = tlkmdi_btacl_connect(sTlkMmiBtMgrAcl.btaddr, devClass, sTlkMmiBtMgrAcl.connTime);
 			if(ret == TLK_ENONE || ret == -TLK_EBUSY){
 				sTlkMmiBtMgrAcl.busys |= TLKMMI_BTMGR_BUSY_WAIT_CONN;
 			}else{
-				tlkmmi_btmgr_sendAclConnectEvt(0, TLK_EFAIL, sTlkMmiBtMgrAcl.btaddr);
+				tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_FAIL, sTlkMmiBtMgrAcl.btaddr);
 			}
 		}
 	}
@@ -328,7 +332,7 @@ static void tlkmmi_btmgr_completeCB(void)
 		sTlkMmiBtMgrAcl.busys &= ~TLKMMI_BTMGR_BUSY_WAIT_DEV;
 		sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_NONE;
 		tlkmdi_btinq_regCallback(nullptr, nullptr);
-		tlkmmi_btmgr_sendAclConnectEvt(0, TLK_ETIMEOUT, sTlkMmiBtMgrAcl.btaddr);
+		tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_TIMEOUT, sTlkMmiBtMgrAcl.btaddr);
 	}
 }
 #endif
@@ -337,7 +341,7 @@ static void tlkmmi_btmgr_aclConnectCB(uint16 handle, uint08 status, uint08 *pBtA
 {
 	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_aclConnectCB: 0x%x %d, 0x%08x", handle, status, *(uint32*)pBtAddr);
 	if(tmemcmp(sTlkMmiBtMgrAcl.btaddr, pBtAddr, 6) == 0){
-		tlkmmi_adapt_removeTimer(&sTlkMmiBtMgrAcl.timer);
+		tlkmmi_btmgr_adaptRemoveTimer(&sTlkMmiBtMgrAcl.timer);
 		if((sTlkMmiBtMgrAcl.busys & TLKMMI_BTMGR_BUSY_WAIT_DEV) != 0){
 			tlkmdi_btinq_close();
 			tlkmdi_btinq_regCallback(nullptr, nullptr);
@@ -345,9 +349,34 @@ static void tlkmmi_btmgr_aclConnectCB(uint16 handle, uint08 status, uint08 *pBtA
 		sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_NONE;
 		tlkmmi_btmgr_aclReset();
 	}
+	
 	tlkmmi_btmgr_sendAclConnectEvt(handle, status, pBtAddr);
 	if(sTlkMmiBtMgrAclConnCB != nullptr){
 		sTlkMmiBtMgrAclConnCB(handle, status, pBtAddr);
+	}else{
+		if(status == BTH_HCI_ERROR_CONN_ALREADY_EXISTS && bth_handle_searchUsedAcl(pBtAddr) == nullptr
+			&& tlkmdi_btacl_getIdleCount() != 0){
+			bth_device_item_t *pItem = bth_device_getItem(pBtAddr, nullptr);
+			if(pItem != nullptr){
+				#if (TLKMMI_BTMGR_BTREC_ENABLE)
+				tlkmmi_btmgr_recStart(pBtAddr, pItem->devClass, true, true);
+				#endif
+				return;
+			}
+		}
+		if(status == BTH_HCI_ERROR_CONN_TIMEOUT && bth_handle_searchUsedAcl(pBtAddr) == nullptr
+			&& tlkmdi_btacl_getIdleCount() != 0){
+			return;
+		}
+		#if (TLKMMI_BTMGR_BTREC_ENABLE)
+		if(tlkmdi_btacl_getIdleCount() == 0){
+			tlkmmi_btmgr_recClose();
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkapp_system_connectCompleteEvt:001");
+		}else if(status != BTH_HCI_ERROR_OPERATION_CANCELED_BY_HOST){
+			tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkapp_system_connectCompleteEvt:002");
+		}
+		#endif
 	}
 }
 static void tlkmmi_btmgr_aclEncryptCB(uint16 handle, uint08 status, uint08 *pBtAddr)
@@ -364,36 +393,100 @@ static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtA
 			sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_NONE;
 		}
 	}
+	#if (TLK_MDI_BTIAP_ENABLE)
+		tlkmdi_btiap_setAclHandle(false, handle);
+	#endif
 	tlkmmi_btmgr_sendAclDisconnEvt(handle, reason, pBtAddr);
 	#if (TLK_MDI_BTHFP_ENABLE)
-	tlkmdi_hfp_destroy(handle);
+	tlkmdi_bthfp_destroy(handle);
 	#endif
+	{
+		uint08 data[4];
+		data[0] = (handle) & 0xFF;
+		data[1] = (handle >> 8) & 0xFF;
+		tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_DISCONN_EVT, data, 2);
+	}
 	if(sTlkMmiBtMgrAclDiscCB != nullptr){
 		sTlkMmiBtMgrAclDiscCB(handle, reason, pBtAddr);
+	}else{
+		#if TLKMMI_BTMGR_BTREC_ENABLE
+		if(tlkmdi_btacl_getIdleCount() == 0){
+			tlkmmi_btmgr_recClose();	
+		}else if(tlkmmi_btmgr_recIsPage() || tlkmmi_btmgr_recIsScan()){
+			uint08 *pPageAddr = tlkmmi_btmgr_recPageAddr();
+			if(pPageAddr != nullptr && tmemcmp(pBtAddr, pPageAddr, 6) == 0){
+				tlkmmi_btmgr_recClose();
+			}
+			tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+		}else{
+			if(reason == BTH_HCI_ERROR_CONN_TIMEOUT && bth_getAclCount() == 0){ //Start Reconnect
+				bth_device_item_t *pItem = bth_device_getItem(pBtAddr, nullptr);
+				if(pItem != nullptr){
+					tlkmmi_btmgr_recStart(pBtAddr, pItem->devClass, true, true);
+				}else{
+					tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+				}
+			}else{
+				tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+			}
+		}
+		#endif
 	}
 }
 static void tlkmmi_btmgr_aclProfConnCB(uint16 handle, uint08 status, uint08 ptype, uint08 usrID, uint08 *pBtAddr)
 {
-	if(sTlkMmiBtMgrProfileConnCB != nullptr){
-		sTlkMmiBtMgrProfileConnCB(handle, status, ptype, usrID);
-	}
+	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_aclProfConnCB:{ptype-%d,usrID-%d,handle-%d,reason-%d} ", 
+		ptype, usrID, handle, status);
 	if(ptype != BTP_PTYPE_SDP && ptype != BTP_PTYPE_RFC){
 		tlkmmi_btmgr_sendProfConnectEvt(handle, status, ptype, usrID, pBtAddr);
 	}
-	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_aclProfConnCB:{ptype-%d,usrID-%d,handle-%d,reason-%d} ", 
-		ptype, usrID, handle, status);
+	if(sTlkMmiBtMgrProfileConnCB != nullptr){
+		sTlkMmiBtMgrProfileConnCB(handle, status, ptype, usrID);
+	}else if(status == TLK_ENONE){	
+		if(ptype == BTP_PTYPE_PBAP && usrID == BTP_USRID_CLIENT){
+			uint08 data[12];
+			tmemcpy(data+0, pBtAddr, 6);
+			data[6] = (handle) & 0xFF;
+			data[7] = (handle >> 8) & 0xFF;
+			data[8] = false; //IsForce
+			tlktsk_sendInnerMsg(TLKTSK_TASKID_PHONE, TLKPTI_PHONE_MSGID_SYNC_BOOK_CMD, data, 9);
+		}
+		uint08 data[4];
+		data[0] = (handle) & 0xFF;
+		data[1] = (handle >> 8) & 0xFF;
+		data[2] = ptype;
+		data[3] = usrID;
+		tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_CONNECT_EVT, data, 4);
+		#if (TLK_MDI_BTIAP_ENABLE)
+		if(ptype == BTP_PTYPE_IAP){
+			tlkmdi_btiap_setAclHandle(true, handle);
+		}
+		#endif
+	}
 }
 static void tlkmmi_btmgr_aclProfDiscCB(uint16 handle, uint08 reason, uint08 ptype, uint08 usrID, uint08 *pBtAddr)
 {
-	if(sTlkMmiBtMgrProfileDiscCB != nullptr){
-		sTlkMmiBtMgrProfileDiscCB(handle, reason, ptype, usrID);
-	}
 	if(ptype != BTP_PTYPE_SDP && ptype != BTP_PTYPE_RFC){
 		tlkmmi_btmgr_sendProfDisconnEvt(handle, reason, ptype, usrID, pBtAddr);
 	}
-	
 	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_aclProfDiscCB:{ptype-%d,usrID-%d,handle-%d,reason-%d} ", 
 		ptype, usrID, handle, reason);
+	if(sTlkMmiBtMgrProfileDiscCB != nullptr){
+		sTlkMmiBtMgrProfileDiscCB(handle, reason, ptype, usrID);
+	}else{
+		if(ptype == BTP_PTYPE_PBAP && usrID == BTP_USRID_CLIENT){
+			uint08 data[4];
+			data[0] = (handle) & 0xFF;
+			data[1] = (handle >> 8) & 0xFF;
+			tlktsk_sendInnerMsg(TLKTSK_TASKID_PHONE, TLKPTI_PHONE_MSGID_CANCEL_SYNC_CMD, data, 2);
+		}
+		#if (TLK_MDI_BTIAP_ENABLE)
+		if(ptype == BTP_PTYPE_IAP){
+			tlkmdi_btiap_setAclHandle(false, handle);
+		}
+		#endif
+	}
+	
 	if(ptype == BTP_PTYPE_SDP && usrID == BTP_USRID_CLIENT){
 		tlkmmi_btmgr_appendProfile(handle);
 	}
@@ -417,7 +510,7 @@ static bool tlkmmi_btmgr_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 			tlkmdi_btinq_regCallback(nullptr, nullptr);
 		}
 		pCtrl->busys = TLKMMI_BTMGR_BUSY_NONE;
-		tlkmmi_btmgr_sendAclConnectEvt(0, TLK_ETIMEOUT, sTlkMmiBtMgrAcl.btaddr);
+		tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_TIMEOUT, sTlkMmiBtMgrAcl.btaddr);
 	}
 //	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_timer 01: %d 0x%x", pCtrl->timeout, pCtrl->busys);
 	if(pCtrl->busys != 0) return true;
@@ -436,8 +529,13 @@ static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl)
 		}
 	}else if((sTlkMmiBtMgrAcl.busys & TLKMMI_BTMGR_BUSY_OPEN_INQ) != 0){
 		uint16 inqTime = pCtrl->connTime/1000;
+		uint08 inqCount = 1;
+		if(inqTime > 20){
+			inqCount = (inqTime+9)/10;
+			inqTime = inqTime/10;
+		} 
 		pCtrl->busys &= ~TLKMMI_BTMGR_BUSY_OPEN_INQ;
-		if(tlkmdi_btinq_start(0, TLKMMI_BTMGR_INQ_RSSI, 0, inqTime, 1, false) == TLK_ENONE){
+		if(tlkmdi_btinq_start(0, TLKMMI_BTMGR_INQ_RSSI, 0, inqTime, inqCount, false, false) == TLK_ENONE){
 			pCtrl->busys |= TLKMMI_BTMGR_BUSY_WAIT_DEV;
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_procs[inq]: success - start inquiry");
 			tlkmdi_btinq_regCallback(tlkmmi_btmgr_reportCB, tlkmmi_btmgr_completeCB);
@@ -445,7 +543,7 @@ static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl)
 			pCtrl->busys = TLKMMI_BTMGR_BUSY_NONE;
 			tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_procs[inq]: failure - start inquiry");
 			tlkmdi_btinq_regCallback(nullptr, nullptr);
-			tlkmmi_btmgr_sendAclConnectEvt(0, TLK_EFAIL, pCtrl->btaddr);
+			tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_FAIL, pCtrl->btaddr);
 		}
 	}else if((pCtrl->busys & TLKMMI_BTMGR_BUSY_OPEN_CONN) != 0){
 		int ret;
@@ -455,7 +553,7 @@ static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl)
 			sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_WAIT_CONN;
 		}else{
 			sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_NONE;
-			tlkmmi_btmgr_sendAclConnectEvt(0, TLK_EFAIL, pCtrl->btaddr);
+			tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_FAIL, pCtrl->btaddr);
 		}
 	}else if((pCtrl->busys & TLKMMI_BTMGR_BUSY_WAIT_DEV) != 0){
 		
@@ -467,7 +565,6 @@ static void tlkmmi_btmgr_procs(tlkmmi_btmgr_acl_t *pCtrl)
 
 static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 {
-	#if !(TLK_CFG_PTS_ENABLE)
 	int ret;
 	uint08 dtype;
 	uint16 delayMs;
@@ -485,6 +582,8 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_RFC, 0, delayMs);
 		if(ret == TLK_ENONE){
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append rfc success");
+		}else if(ret == -TLK_EALREADY){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: rfc already");
 		}else{
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append rfc failure");
 		}
@@ -492,17 +591,21 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 			ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_HFP, BTP_USRID_NONE, delayMs+200);
 			if(ret == TLK_ENONE){
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp success");
-			}else{
+			}else if(ret == -TLK_EALREADY){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: hfp already");
+		}else{
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp failure");
 			}
 		}
-		#if (TLKMMI_PHONE_BOOK_ENABLE)
+		#if (TLKMMI_PHONE_ENABLE)
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: pbap - %d %d %d 0x%x", 
 			aclHandle, dtype, tlkmdi_btacl_isFindPbap(aclHandle), pItem->devClass);
 		if(dtype != BTH_REMOTE_DTYPE_HEADSET && tlkmdi_btacl_isFindPbap(aclHandle)){
 			ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_PBAP, BTP_USRID_CLIENT, delayMs+500);
 			if(ret == TLK_ENONE){
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append pbap success");
+			}else if(ret == -TLK_EALREADY){
+				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: pbap already");
 			}else{
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append pbap failure");
 			}
@@ -515,6 +618,8 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_SERVER, delayMs);
 		if(ret == TLK_ENONE){
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-src success");
+		}else if(ret == -TLK_EALREADY){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: a2dp already");
 		}else{
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-src failure");
 		}
@@ -522,6 +627,8 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_CLIENT, delayMs);
 		if(ret == TLK_ENONE){
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk success");
+		}else if(ret == -TLK_EALREADY){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: a2dp already");
 		}else{
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-snk failure");
 		}
@@ -529,6 +636,8 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 		ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_A2DP, BTP_USRID_NONE, delayMs);
 		if(ret == TLK_ENONE){
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-none success");
+		}else if(ret == -TLK_EALREADY){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: a2dp already");
 		}else{
 			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append a2dp-none failure");
 		}
@@ -537,6 +646,8 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 	ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_AVRCP, BTP_USRID_NONE, delayMs+500);
 	if(ret == TLK_ENONE){
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append avrcp success");
+	}else if(ret == -TLK_EALREADY){
+		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: avrcp already");
 	}else{
 		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append avrcp failure");
 	}
@@ -544,11 +655,12 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 	    ret = tlkmdi_btacl_appendProf(aclHandle, BTP_PTYPE_HID, BTP_USRID_SERVER, delayMs);
 	    if(ret == TLK_ENONE){
 		    tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hid success");
-	    }else{
+	    }else if(ret == -TLK_EALREADY){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: hid already");
+		}else{
 		    tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hid failure");
 	    }
 	}
-	#endif
 }
 
 

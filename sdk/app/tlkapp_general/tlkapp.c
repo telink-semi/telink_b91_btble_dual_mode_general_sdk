@@ -20,21 +20,15 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 #include "tlkstk/tlkstk_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
-#include "tlkprt/tlkprt_comm.h"
+#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkmdi/tlkmdi.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
+#include "tlksys/tsk/tlktsk_stdio.h"
 
 #include "tlkstk/ble/ble.h"
 #include "tlkapp_config.h"
-#include "tlkapp_system.h"
-#include "tlkapp_battery.h"
-#include "tlkapp_adapt.h"
-#include "tlkapp_debug.h"
 #include "tlkapp_irq.h"
 #include "tlkapp_pm.h"
 #include "tlkapp.h"
@@ -43,13 +37,15 @@
 
 extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 extern void trng_init(void);
-extern int tlkmmi_lemgr_startAdv(uint32 timeout, uint08 advType);
 
+
+extern int tlkdev_init(void);
+extern int tlktsk_init(void);
+extern int tlkmmi_init(void);
 
 
 static uint32 sTlkAppTimer; 
 static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
-
 
 /******************************************************************************
  * Function: tlkapp_init
@@ -60,38 +56,28 @@ static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
 *******************************************************************************/  
 int tlkapp_init(void)
 {
-  	g_plic_preempt_en = 1;
+  	g_plic_preempt_en = 1; //Interrupt nesting is mandatory, core_enter_critical/core_leave_critical
 	flash_plic_preempt_config(1, 1);
 	trng_init();
 	tlksdk_mode_select(1,0);
 	tlkapi_setSysMemBuffer(false, sTlkAppMemBuffer, TLKAPP_MEM_TOTAL_SIZE);
-	
+
 	tlkapp_irq_init();
 	
 	tlkdev_init();
+	tlktsk_init();
 	tlkstk_init();
 	tlkmdi_init();
 	tlkmmi_init();
-	tlkmdi_clear_event();
-	tlkmdi_comm_sendSysEvt(TLKPRT_COMM_EVTID_SYS_READY, nullptr, 0);
-
-	tlkapp_adapt_init();
-	tlkapp_debug_init();
-	#if (TLKAPP_CFG_BAT_CHECK_ENABLE)
-	tlkapp_battery_init();
-	#endif
-	
-	tlkapp_system_init();
-	
+		
 #if(TLK_CFG_PM_ENABLE)
 	tlkapp_pm_init();
 #endif
-
+	
 	sTlkAppTimer = clock_time()|1;
-#if (TLKMMI_LEMGR_ENABLE)
-    tlkmmi_lemgr_startAdv(0, 0);
-#endif
-
+	
+	tlktsk_start(0xFF);
+	
 	return TLK_ENONE;
 }
 
@@ -136,11 +122,8 @@ bool tlkapp_pmIsBusy(void)
 *******************************************************************************/
 void tlkapp_process(void)
 {
-	tlkstk_process();
-	tlkmdi_process();
-	tlkmmi_process();
-	tlkapp_adapt_handler();
-	tlkapp_system_handler();
+	tlktsk_run();
+	
 	/*PM entry*/
 	#if(TLK_CFG_PM_ENABLE)
 	tlkapp_pm_handler();

@@ -36,6 +36,10 @@ extern bool bth_isBusy(void);
 
 extern	volatile	u8	blt_state;
 
+
+
+
+
 int tlkstk_init(void)
 {
 	btble_init();

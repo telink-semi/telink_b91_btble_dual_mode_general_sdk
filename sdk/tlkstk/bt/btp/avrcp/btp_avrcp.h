@@ -192,17 +192,7 @@ bool btp_avrcp_isSupportSetVolume(uint16 aclHandle);
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avrcp_setVolume(uint08 volume);
-
-/******************************************************************************
- * Function: AVRCP notify Volume Command interface
- * Descript: Defines trigger the avrcp change the music volume to peer entity.
- * Params:
- *        @volume--The volume value.
- * Return: Returning TLK_ENONE(0x00) means the send process success.
- *         If others value is returned means the send process fail.
-*******************************************************************************/
-int btp_avrcp_notyVolume(uint08 volume);
+int btp_avrcp_setVolume(uint16 aclHandle, uint08 volume, bool isSrc);
 
 /******************************************************************************
  * Function: AVRCP Set music state interface

@@ -28,6 +28,9 @@
 #define TLKDRV_CODEC_DBG_SIGN               "[CODEC]"
 
 
+#define TLKDRV_CODEC_PA_ENABLE              0
+
+
 #define TLKDRV_CODEC_ICODEC_ENABLE          1 
 #define TLKDRV_CODEC_RTL2108_ENABLE         0
 
@@ -88,6 +91,9 @@ typedef struct{
 }tlkdrv_codec_modinf_t;
 
 
+
+
+
 bool tlkdrv_codec_isOpen(TLKDRV_CODEC_SUBDEV_ENUM subDev);
 
 int tlkdrv_codec_mount(TLKDRV_CODEC_DEV_ENUM dev, TLKDRV_CODEC_SUBDEV_ENUM subDev);
@@ -98,14 +104,20 @@ int tlkdrv_codec_close(void);
 int tlkdrv_codec_reset(void);
 int tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_ENUM subDev, uint08 opcode, uint32 param0, uint32 param1);
 
+bool tlkdrv_codec_paIsOpen(void);
+void tlkdrv_codec_paInit(void);
+void tlkdrv_codec_paOpen(void);
+void tlkdrv_codec_paClose(void);
 
-int tlkdrv_codec_setMute(void);
-int tlkdrv_codec_setMicMute(void);
-int tlkdrv_codec_setSpkMute(void);
 
-int tlkdrv_codec_setVolume(uint08 volume);
+int tlkdrv_codec_setMicStatus(bool isMute);
+int tlkdrv_codec_setSpkStatus(bool isMute);
+
 int tlkdrv_codec_setMicVolume(uint08 volume);
 int tlkdrv_codec_setSpkVolume(uint08 volume);
+
+int tlkdrv_codec_getMicVolume(void);
+int tlkdrv_codec_getSpkVolume(void);
 
 int tlkdrv_codec_setChannel(uint08 channel);
 int tlkdrv_codec_setMicChannel(uint08 channel);
@@ -143,6 +155,7 @@ uint tlkdrv_codec_getMicDataLen(void);
 bool tlkdrv_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset);
 bool tlkdrv_codec_readMicData(uint08 *pBuffer, uint16 buffLen, uint16 *pOffset);
 
+void tlkdrv_codec_muteSpkBuff(void);
 void tlkdrv_codec_zeroSpkBuff(uint16 zeroLen, bool isInc);
 bool tlkdrv_codec_fillSpkBuff(uint08 *pData, uint16 dataLen);
 bool tlkdrv_codec_backReadSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset, bool isBack);

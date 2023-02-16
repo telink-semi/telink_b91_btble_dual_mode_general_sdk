@@ -52,7 +52,9 @@ void tlkalg_ec_init(uint08 *pNs, uint08 *pAec ,uint08 *pScratch)
 		aecParas.use_pre_emp = 1;    					/* 1: enable pre-emphasis filter, 0: disable pre-emphasis filter */
 		aecParas.use_dc_notch = 0;     					/* 1: enable DC removal filter, 0: disable DC removal filter */
 		aecParas.sampling_rate = 16000;    				/* sample rate */
-		aec_init(sTlkAlgEcAecCtrl, &aecParas, 120, 120);
+		aecParas.frame_size = 120;
+		aecParas.filter_length = 120;
+		tlka_aec_init(sTlkAlgEcAecCtrl, &aecParas, (void *)sTlkAlgEcScratch);
 	}
 	#endif
 	#if TLK_ALG_EC_ENABLE
@@ -66,9 +68,11 @@ void tlkalg_ec_init(uint08 *pNs, uint08 *pAec ,uint08 *pScratch)
 		nsParas.echo_suppress_active_default = -45,	//eche suppress active
 		nsParas.ns_smoothness = 27853,      			//NS smoothness  QCONST16(0.85f,15)
 		nsParas.ns_threshold_low = 0.0f,				//NS threshold
-		ns_init(sTlkAlgEcNsCtrl, &nsParas, 120, 16000);
+		nsParas.frame_size = 120;
+		nsParas.sampling_rate = 16000;
+		tlka_ns_init(sTlkAlgEcNsCtrl, &nsParas, (void *)sTlkAlgEcScratch);
 		if(sTlkAlgEcAecCtrl != nullptr){
-			ns_set_parameter(sTlkAlgEcNsCtrl, SPEEX_PREPROCESS_SET_ECHO_STATE, sTlkAlgEcAecCtrl);
+			tlka_ns_set_parameter(sTlkAlgEcNsCtrl, SPEEX_PREPROCESS_SET_ECHO_STATE, sTlkAlgEcAecCtrl);
 		}
 	}
 	#endif
@@ -78,7 +82,7 @@ short *tlkalg_ec_frame(uint08 *pMicData, uint08 *pSpkData)
 {
 #if TLK_ALG_AEC_ENABLE
 	if(sTlkAlgEcAecCtrl != nullptr){
-		aec_process_frame(sTlkAlgEcAecCtrl, (const spx_int16_t*)pMicData, (const spx_int16_t*)pSpkData, (spx_int16_t*)sTlkAlgEcOutBuffer,(void *)sTlkAlgEcScratch);
+		tlka_aec_process_frame(sTlkAlgEcAecCtrl, (const spx_int16_t*)pMicData, (const spx_int16_t*)pSpkData, (spx_int16_t*)sTlkAlgEcOutBuffer);
 	}
 #else
 	uint16 *mic_tp = sTlkAlgEcOutBuffer;
@@ -89,7 +93,7 @@ short *tlkalg_ec_frame(uint08 *pMicData, uint08 *pSpkData)
 #endif
 	
 	if(sTlkAlgEcNsCtrl != nullptr){
-		ns_process_frame(sTlkAlgEcNsCtrl, sTlkAlgEcOutBuffer, (void *)sTlkAlgEcScratch);
+		tlka_ns_process_frame(sTlkAlgEcNsCtrl, sTlkAlgEcOutBuffer);
 	}
 	
 	return sTlkAlgEcOutBuffer;

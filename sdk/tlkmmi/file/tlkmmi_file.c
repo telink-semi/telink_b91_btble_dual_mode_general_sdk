@@ -21,11 +21,12 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
-#include "tlkmdi/tlkmdi_file.h"
-#include "tlkmmi/file/tlkmmi_file.h"
-#include "tlkmmi/file/tlkmmi_fileCtrl.h"
+#include "tlkmdi/misc/tlkmdi_file.h"
+#include "tlkmmi_file.h"
+#include "tlkmmi_fileAdapt.h"
+#include "tlkmmi_fileCtrl.h"
+#include "tlkmmi_fileTask.h"
 
 
 
@@ -36,6 +37,8 @@ extern bool tlkmmi_file_dfuIsStart(void);
 
 int tlkmmi_file_init(void)
 {
+	tlkmmi_file_taskInit();
+	tlkmmi_file_adaptInit();
 	tlkmmi_file_ctrlInit();
 	return TLK_ENONE;
 }
@@ -45,7 +48,6 @@ bool tlkmmi_file_isBusy(void)
 {
 	return tlkmmi_file_dfuIsStart();
 }
-
 
 
 

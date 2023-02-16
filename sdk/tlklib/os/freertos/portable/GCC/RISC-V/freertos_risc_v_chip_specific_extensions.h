@@ -84,6 +84,7 @@
 
 #if (TLK_OS_FREERTOS_ENABLE)
 
+#define portasmHANDLE_INTERRUPT xPortIrqHandler
 
 #define portasmHAS_MTIME 	1
 

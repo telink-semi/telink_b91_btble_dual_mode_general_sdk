@@ -20,17 +20,15 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
 #include "tlkstk/inner/tlkstk_inner.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 
 #include "drivers.h"
 #include "tlkstk/ble/ble.h"
 
 #include "tlkapp_config.h"
 #include "tlkapp.h"
-#include "tlkapp_system.h"
+
 
 
 extern void btc_ll_system_tick_isr(void);
@@ -115,7 +113,9 @@ _attribute_retention_code_ void zb_bt_irq_handler(void)
 }
 
 
+#if (TLK_USB_UAC_ENABLE)
 extern void tlkusb_uacirq_handler(void);
+#endif
 /******************************************************************************
  * Function: usb_endpoint_irq_handler
  * Descript: This function for audio interrupt handler 
@@ -134,9 +134,7 @@ void usb_endpoint_irq_handler(void)
 
 void timer0_irq_handler(void)
 {
-	#if (TLKAPI_TIMER_ENABLE)
 	tlkapi_timer_handler();
-	#endif
 }
 
 

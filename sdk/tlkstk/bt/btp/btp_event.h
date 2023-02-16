@@ -49,6 +49,7 @@ typedef enum{
 	BTP_EVTID_HFPHF_CODEC_CHANGED,
 	BTP_EVTID_HFPAG_CODEC_CHANGED,
 	BTP_EVTID_HFPHF_STATUS_CHANGED,
+	BTP_EVTID_HFPHF_STATUS_INQUIRY,
 	BTP_EVTID_HFPHF_NUMBER_INQUIRY,
 	BTP_EVTID_HFPHF_VOLUME_CHANGED,
 	BTP_EVTID_HFPAG_STATUS_CHANGED,
@@ -58,6 +59,9 @@ typedef enum{
 	BTP_EVTID_A2DPSNK_CODEC_CHANGED,
 	BTP_EVTID_A2DPSRC_STATUS_CHANGED,
 	BTP_EVTID_A2DPSNK_STATUS_CHANGED,	
+
+    //AVRCP
+    BTP_EVTID_AVRCP_VOLUME_CHANGED,
 	
 	BTP_EVTID_MAX,
 }BTP_EVTID_ENUM;
@@ -110,6 +114,11 @@ typedef struct{
 	uint08 *pNumber;
 }btp_hfpStatusChangedEvt_t;
 typedef struct{
+	uint16 handle;
+	uint08 callState; //Inquiry State: 0-Start, 1-continue, 2-Stop
+	uint16 callSetup;
+}btp_hfpStatusInquiryEvt_t;
+typedef struct{
 	uint08 state; //Inquiry State: 0-Start, 1-continue, 2-Stop
 	uint16 handle;
 	uint08 status;
@@ -155,6 +164,7 @@ int btp_send_hfphfVolumeChangedEvt(uint16 aclHandle, uint08 type, uint08 volume)
 int btp_send_hfpagVolumeChangedEvt(uint16 aclHandle, uint08 type, uint08 volume);
 int btp_send_hfphfStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 callDir, uint08 *pNumber, uint08 numbLen);
 int btp_send_hfpagStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 callDir, uint08 *pNumber, uint08 numbLen);
+int btp_send_hfphfStatusInquiryEvt(uint16 aclHandle, uint08 state, uint08 setup);
 int btp_send_hfphfNumberInquiryEvt(uint16 aclHandle, uint08 state, uint08 status, uint08 callDir, uint08 *pNumber, uint08 numbLen);
 
 

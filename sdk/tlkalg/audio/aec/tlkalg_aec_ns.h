@@ -29,51 +29,65 @@
 
 /*! Version number to ensure header and binary are matching. */
 #define AEC_NS_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
-#define AEC_NS_VERSION AEC_NS_VERSION_INT(1, 2, 0)
+#define AEC_NS_VERSION AEC_NS_VERSION_INT(1, 5, 0)
 
 #ifndef _SPEEX_TYPES_H
 #define _SPEEX_TYPES_H
 
-#if defined(_WIN32) 
-/* MSVC/Borland */
-typedef __int32 spx_int32_t;
-typedef unsigned __int32 spx_uint32_t;
-typedef __int16 spx_int16_t;
-typedef unsigned __int16 spx_uint16_t;
-#elif __riscv
 typedef short spx_int16_t;
 typedef unsigned short spx_uint16_t;
 typedef int spx_int32_t;
 typedef unsigned int spx_uint32_t;
-#endif
+
 #endif
 
-typedef struct {
-	spx_int16_t use_pre_emp;      /* 1: enable pre-emphasis filter, 0: disable pre-emphasis filter */
-	spx_int16_t use_dc_notch;     /* 1: enable DC removal filter, 0: disable DC removal filter */
-	spx_int32_t sampling_rate;    /* sample rate */
-	int reserved;
+typedef struct
+{
+    spx_int16_t use_pre_emp;   /* 1: enable pre-emphasis filter, 0: disable pre-emphasis filter */
+    spx_int16_t use_dc_notch;  /* 1: enable DC removal filter, 0: disable DC removal filter */
+    spx_int32_t sampling_rate; /* sample rate */
+    spx_int32_t frame_size;    /* frame length, should be less than or equal to MAX_FRAME_SIZE */
+    spx_int32_t filter_length; /* Number of samples of echo to cancel (should generally equal to frame_size) */
 } AEC_CFG_PARAS;
 
-typedef struct {
-	int   low_shelf_enable;          /* 1: enable lowshelf filter, 0: disable lowshelf filter */
-	int   post_gain_enable;          /* 1: enable post gain processing, 0: disable post gain processing */
-	int   hf_cutting_enable;         /* 1: cut frequency above 4kHz, 0: observe frequency above 4kHz */
-	int   noise_suppress_default;    /* noise suppression ratio, set to -15db by default */
-	int   echo_suppress_default;  
-	int   echo_suppress_active_default;
-	short ns_smoothness;             /* gain smoothing factor in Q15 format */
-	float ns_threshold_low;
-	int   reserved;
+typedef struct
+{
+    spx_int32_t sampling_rate;        /* sample rate */
+    spx_int32_t frame_size;           /* frame length, should be less than or equal to MAX_FRAME_SIZE */
+    int low_shelf_enable;             /* 1: enable lowshelf filter, 0: disable lowshelf filter */
+    int post_gain_enable;             /* 1: enable post gain processing, 0: disable post gain processing */
+    int hf_cutting_enable;            /* 1: cut frequency above 4kHz, 0: observe frequency above 4kHz */
+    int noise_suppress_default;       /* noise suppression ratio, set to -15db by default */
+    int echo_suppress_default;        /* echo suppression ratio, only work when AEC is enabled */
+    int echo_suppress_active_default; /* work with echo_suppress_default to control echo suppression floor */
+    short ns_smoothness;              /* gain smoothing factor in Q15 format */
+    float ns_threshold_low;
+    int reserved;
 } NS_CFG_PARAS;
 
-#define SPEEX_SAMPLERATE 16000
-#define SPEEX_FRAME_SIZE 120
-//#define SPEEX_SAMPLERATE 48000
-//#define SPEEX_FRAME_SIZE 96
-#define SPEEX_TAIL_LENGTH SPEEX_FRAME_SIZE
-#define SPEEX_WINDOW_SIZE (SPEEX_FRAME_SIZE<<1)
-#define SPEEX_M ((SPEEX_TAIL_LENGTH+SPEEX_FRAME_SIZE-1)/SPEEX_FRAME_SIZE)
+typedef enum
+{
+    TLKA_AEC_OK = 0,
+    TLKA_AEC_INVALID_FRAMESIZE,
+    TLKA_AEC_INVALID_SAMPLERATE,
+    TLKA_AEC_INVALID_INPUT,
+    TLKA_AEC_PARA_END
+} TLKA_AEC_Error;
+
+typedef enum
+{
+    TLKA_NS_OK = 0,
+    TLKA_NS_INVALID_FRAMESIZE,
+    TLKA_NS_INVALID_SAMPLERATE,
+    TLKA_NS_INVALID_INPUT,
+    TLKA_NS_PARA_END
+} TLKA_NS_Error;
+
+#define SPEEX_SAMPLERATE (16000)
+#define MAX_FRAME_SIZE (120)
+#define SPEEX_TAIL_LENGTH (MAX_FRAME_SIZE)
+#define SPEEX_WINDOW_SIZE (MAX_FRAME_SIZE << 1)
+#define SPEEX_M ((SPEEX_TAIL_LENGTH + MAX_FRAME_SIZE - 1) / MAX_FRAME_SIZE)
 
 /** Set preprocessor denoiser state */
 #define SPEEX_PREPROCESS_SET_DENOISE 0
@@ -159,91 +173,87 @@ typedef struct SpeexEchoState_ SpeexEchoState;
 typedef struct SpeexPreprocessState_ SpeexPreprocessState;
 
 #if GSCON
-	/*! Version number to ensure header and binary are matching. */
-	//#define GSC_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
-	//#define GSC_VERSION GSC_VERSION_INT(1, 0, 0)
+/*! Version number to ensure header and binary are matching. */
+// #define GSC_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
+// #define GSC_VERSION GSC_VERSION_INT(1, 0, 0)
 
-	#define MICNUM (2)
+#define MICNUM (2)
 
-	typedef struct gscState_ gscState;
+typedef struct gscState_ gscState;
 
 //	int gsc_get_version(void);
-	int gsc_get_size();
-	int gsc_state_init(gscState* st, int frame_size, int exchange_mic);
-	int gsc_BeamFormer(short* x_in, short* ref_in, short* x_out, gscState* st, int was_speech);
+int gsc_get_size();
+int gsc_state_init(gscState *st, int frame_size, int exchange_mic);
+int gsc_BeamFormer(short *x_in, short *ref_in, short *x_out, gscState *st, int was_speech);
 #endif
 
-int aec_ns_get_version(void);
+int tlka_aec_ns_get_version(void);
 
 #if AECON
 /** Return persistent memory size required by AEC
  */
-int aec_get_size();
+int tlka_aec_get_size();
 
 /** Return scratch memory size required by AEC
  */
-int aec_get_scratch_size();
+int tlka_aec_get_scratch_size();
 #endif
 
 /** Return persistent memory size required by NS
  */
-int ns_get_size();
+int tlka_ns_get_size();
 
 /** Return scratch memory size required by NS
  */
-int ns_get_scratch_size();
+int tlka_ns_get_scratch_size();
 
 #if AECON
-/** Creates a new echo canceller state
- * @param frame_size Number of samples to process at one time (should correspond to 10-20 ms)
- * @param filter_length Number of samples of echo to cancel (should generally correspond to 100-500 ms)
- * @return Newly-created echo canceller state
+/** Init a new echo canceller state
+ * @param state Echo canceller state
+ * @param param User defined parameters, see AEC_CFG_PARAS for detail
+ * @param pScratch Point to the scratch buffer which was alloced by caller
+ * @return error code defined by TLKA_AEC_Error
  */
-void aec_init(SpeexEchoState* st, AEC_CFG_PARAS* param, int frame_size, int filter_length);
+TLKA_AEC_Error tlka_aec_init(void *state, AEC_CFG_PARAS *param, void *pScratch);
 
 /** Performs echo cancellation a frame, based on the audio sent to the speaker (no delay is added
  * to playback in this form)
  *
  * @param st Echo canceller state
- * @param rec Signal from the microphone (near end + far end echo)
- * @param play Signal played to the speaker (received from far end)
+ * @param in Signal from the microphone (near end + far end echo)
+ * @param far_end Signal played to the speaker (received from far end)
  * @param out Returns near-end signal with echo removed
- * @param pScratch Point to the scratch buffer which was alloced by caller
  */
-void aec_process_frame(SpeexEchoState* st,
-                       const spx_int16_t* in,
-	                   const spx_int16_t* far_end,
-	                   spx_int16_t* out,
-	                   void* pScratch);
+TLKA_AEC_Error tlka_aec_process_frame(void *st,
+                                      const spx_int16_t *in,
+                                      const spx_int16_t *far_end,
+                                      spx_int16_t *out);
 #endif
 
-/** Creates a new preprocessing state. You MUST create one state per channel processed.
- * @param frame_size Number of samples to process at one time (should correspond to 10-20 ms). Must be
- * the same value as that used for the echo canceller for residual echo cancellation to work.
- * @param sampling_rate Sampling rate used for the input.
- * @return Newly created preprocessor state
-*/
-void ns_init(SpeexPreprocessState* st, NS_CFG_PARAS* param, int frame_size, int sampling_rate);
+/** Init noise suppressor state. You MUST create one state per channel processed.
+ * @param param User defined parameters, see NS_CFG_PARAS for detail
+ * @param pScratch Point to the scratch buffer which was alloced by caller
+ * @return error code defined by TLKA_NS_Error
+ */
+TLKA_NS_Error tlka_ns_init(void *state, NS_CFG_PARAS *param, void *pScratch);
 
 /** Preprocess a frame
  * @param st Preprocessor state
- * @param x Audio sample vector (in and out). Must be same size as specified in ns_init().
- * @param pScratch Point to the scratch buffer which was alloced by caller
- * @return Bool value for voice activity (1 for speech, 0 for noise/silence), ONLY if VAD turned on.
-*/
-int ns_process_frame(SpeexPreprocessState* st,
-                     spx_int16_t* x,
-                     void* pScratch);
+ * @param x Audio sample vector (in and out). Must be same size as specified in tlka_ns_init().
+ * @return error code defined by TLKA_NS_Error
+ */
+TLKA_NS_Error tlka_ns_process_frame(void *st,
+                                    spx_int16_t *x);
 
 /** Used like the ioctl function to control the preprocessor parameters
- * @param st Preprocessor state
+ * @param state Preprocessor state
  * @param request ioctl-type request (one of the SPEEX_PREPROCESS_* macros)
  * @param ptr Data exchanged to-from function
  * @return 0 if no error, -1 if request in unknown
-*/
-int ns_set_parameter(SpeexPreprocessState* st, int request, void* ptr);
+ */
+int tlka_ns_set_parameter(void *state, int request, void *ptr);
 
-float ns_get_gain_average(SpeexPreprocessState* st);
+float tlka_ns_get_gain_average(SpeexPreprocessState *st);
 
-void ns_free(SpeexPreprocessState* st);
+void tlka_ns_free(void *state);
 #endif

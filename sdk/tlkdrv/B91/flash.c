@@ -124,7 +124,7 @@ _attribute_ram_code_sec_noinline_ static void flash_wait_done(void)
  */
 _attribute_ram_code_sec_noinline_ void flash_erase_sector_ram(unsigned long addr)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_SECT_ERASE_CMD);
@@ -132,7 +132,7 @@ _attribute_ram_code_sec_noinline_ void flash_erase_sector_ram(unsigned long addr
 	mspi_high();
 	flash_wait_done();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_erase_sector(unsigned long addr)
 {
@@ -150,7 +150,7 @@ _attribute_text_sec_ void flash_erase_sector(unsigned long addr)
  */
 _attribute_ram_code_sec_noinline_ void flash_write_page_ram(unsigned long addr, unsigned long len, unsigned char *buf)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_WRITE_CMD);
@@ -164,7 +164,7 @@ _attribute_ram_code_sec_noinline_ void flash_write_page_ram(unsigned long addr, 
 	mspi_high();
 	flash_wait_done();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_write_page(unsigned long addr, unsigned long len, unsigned char *buf)
 {
@@ -192,7 +192,7 @@ _attribute_text_sec_ void flash_write_page(unsigned long addr, unsigned long len
  */
 _attribute_ram_code_sec_noinline_ void flash_read_page_ram(unsigned long addr, unsigned long len, unsigned char *buf)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_READ_CMD);
 	flash_send_addr(addr);
@@ -209,7 +209,7 @@ _attribute_ram_code_sec_noinline_ void flash_read_page_ram(unsigned long addr, u
 	mspi_fm_rd_trig_dis();			/* off read auto mode */
 	mspi_high();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_read_page(unsigned long addr, unsigned long len, unsigned char *buf)
 {
@@ -224,14 +224,14 @@ _attribute_text_sec_ void flash_read_page(unsigned long addr, unsigned long len,
  */
 _attribute_ram_code_sec_noinline_ void flash_erase_chip_ram(void)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_CHIP_ERASE_CMD);
 	mspi_high();
 	flash_wait_done();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_erase_chip(void)
 {
@@ -247,7 +247,7 @@ _attribute_text_sec_ void flash_erase_chip(void)
  */
 _attribute_ram_code_sec_noinline_ void flash_erase_page_ram(unsigned int addr)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_PAGE_ERASE_CMD);
@@ -255,7 +255,7 @@ _attribute_ram_code_sec_noinline_ void flash_erase_page_ram(unsigned int addr)
 	mspi_high();
 	flash_wait_done();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_erase_page(unsigned int addr)
 {
@@ -271,7 +271,7 @@ _attribute_text_sec_ void flash_erase_page(unsigned int addr)
  */
 _attribute_ram_code_sec_noinline_ void flash_erase_32kblock_ram(unsigned int addr)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_32KBLK_ERASE_CMD);
@@ -279,7 +279,7 @@ _attribute_ram_code_sec_noinline_ void flash_erase_32kblock_ram(unsigned int add
 	mspi_high();
 	flash_wait_done();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_erase_32kblock(unsigned int addr)
 {
@@ -295,7 +295,7 @@ _attribute_text_sec_ void flash_erase_32kblock(unsigned int addr)
  */
 _attribute_ram_code_sec_noinline_ void flash_erase_64kblock_ram(unsigned int addr)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_64KBLK_ERASE_CMD);
@@ -303,7 +303,7 @@ _attribute_ram_code_sec_noinline_ void flash_erase_64kblock_ram(unsigned int add
 	mspi_high();
 	flash_wait_done();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en, r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en, r);
 }
 _attribute_text_sec_ void flash_erase_64kblock(unsigned int addr)
 {
@@ -319,7 +319,7 @@ _attribute_text_sec_ void flash_erase_64kblock(unsigned int addr)
  */
 _attribute_ram_code_sec_noinline_ void flash_write_status_ram(unsigned short data)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en,s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en,s_flash_preempt_config.threshold);
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_WRITE_ENABLE_CMD);
 	flash_send_cmd(FLASH_WRITE_STATUS_CMD);
@@ -331,7 +331,7 @@ _attribute_ram_code_sec_noinline_ void flash_write_status_ram(unsigned short dat
 	flash_wait_done();
 	mspi_high();
 	CLOCK_DLY_5_CYC;
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_write_status(unsigned short data)
 {
@@ -347,7 +347,7 @@ _attribute_text_sec_ void flash_write_status(unsigned short data)
 _attribute_ram_code_sec_noinline_ unsigned short flash_read_status_ram(void)
 {
 	unsigned short status = 0;
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_READ_STATUS_1_CMD);	/* get high 8 bit status */
@@ -358,7 +358,7 @@ _attribute_ram_code_sec_noinline_ unsigned short flash_read_status_ram(void)
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 	return status;
 }
 _attribute_text_sec_  unsigned short flash_read_status(void)
@@ -379,7 +379,7 @@ _attribute_text_sec_  unsigned short flash_read_status(void)
  */
 _attribute_ram_code_sec_noinline_ void flash_deep_powerdown_ram(void)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_POWER_DOWN);
@@ -387,7 +387,7 @@ _attribute_ram_code_sec_noinline_ void flash_deep_powerdown_ram(void)
 	delay_us(1);
 	CLOCK_DLY_5_CYC;
 
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_deep_powerdown(void)
 {
@@ -407,7 +407,7 @@ _attribute_text_sec_ void flash_deep_powerdown(void)
  */
 _attribute_ram_code_sec_noinline_ void flash_release_deep_powerdown_ram(void)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_POWER_DOWN_RELEASE);
@@ -416,7 +416,7 @@ _attribute_ram_code_sec_noinline_ void flash_release_deep_powerdown_ram(void)
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_release_deep_powerdown(void)
 {
@@ -435,7 +435,7 @@ _attribute_ram_code_sec_noinline_ unsigned int flash_read_mid_ram(void){
 
 	unsigned char j = 0;
 	unsigned int flash_mid = 0;
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 
 	mspi_stop_xip();
 	flash_send_cmd(FLASH_GET_JEDEC_ID);
@@ -452,7 +452,7 @@ _attribute_ram_code_sec_noinline_ unsigned int flash_read_mid_ram(void){
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 	return flash_mid;
 }
 _attribute_text_sec_ unsigned int flash_read_mid(void){
@@ -473,7 +473,7 @@ _attribute_text_sec_ unsigned int flash_read_mid(void){
 _attribute_ram_code_sec_noinline_ void flash_read_uid_ram(unsigned char idcmd,unsigned char *buf)
 {
 	unsigned char j = 0;
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 
 	mspi_stop_xip();
 	flash_send_cmd(idcmd);
@@ -503,7 +503,7 @@ _attribute_ram_code_sec_noinline_ void flash_read_uid_ram(unsigned char idcmd,un
 	mspi_high();
 	CLOCK_DLY_5_CYC;
 
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_read_uid(unsigned char idcmd,unsigned char *buf)
 {
@@ -551,13 +551,13 @@ _attribute_text_sec_ void flash_unlock(flash_type_e type)
  */
 _attribute_ram_code_sec_noinline_ void flash_set_xip_config_sram(flash_xip_config_t config)
 {
-	unsigned int r=core_enter_critical(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
+	unsigned int r=plic_enter_critical_sec(s_flash_preempt_config.preempt_en, s_flash_preempt_config.threshold);
 
 	mspi_stop_xip();
 	reg_mspi_xip_config = *((unsigned short*)(&config));
 	CLOCK_DLY_5_CYC;
 
-	core_leave_critical(s_flash_preempt_config.preempt_en,r);
+	plic_exit_critical_sec(s_flash_preempt_config.preempt_en,r);
 }
 _attribute_text_sec_ void flash_set_xip_config(flash_xip_config_t config)
 {

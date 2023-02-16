@@ -21,9 +21,7 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 #include "tlkapi_timer.h"
-#if (TLKAPI_TIMER_ENABLE)
 #include "drivers.h"
 
 
@@ -32,8 +30,6 @@
 
 extern void hci_host_to_controller(void);
 
-extern unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
-extern void core_leave_critical(unsigned char preempt_en ,unsigned int r);
 
 //static tlkapi_timer_t *tlkmdi_timer_takeFirst(void);
 static void tlkapi_timer_start(uint32 intervalUs);
@@ -48,7 +44,7 @@ static tlkapi_adapt_t sTlkMdiTimerAdapt = {
 	true, //uint08 isUpdate;
 	0, //uint08 reserve0;
 	0, //uint16 reserve1;
-	nullptr, //tlkapi_procs_t *pProcsList; //Circulation list
+	nullptr, //tlkapi_queue_t *pQueueList; //Circulation list
 	nullptr, //tlkapi_timer_t *pTimerList; //Singly linked list
 };
 
@@ -160,13 +156,13 @@ bool tlkapi_timer_isout(uint32 timer, uint32 ticks)
 int tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
 	int ret;
-	uint irq = core_enter_critical(1, 1);
+	core_enter_critical();
 	if(tlkapi_adapt_isHaveTimer(&sTlkMdiTimerAdapt, pTimer)){
-		core_leave_critical(1, irq);
+		core_leave_critical();
 		return -TLK_EEXIST;
 	}
 	ret = tlkapi_adapt_initTimer(pTimer, timerCB, userArg, timeout);
-	core_leave_critical(1, irq);
+	core_leave_critical();
 	return ret;
 }
 
@@ -183,9 +179,9 @@ int tlkapi_timer_initNode(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 
 bool tlkapi_timer_isHaveNode(tlkapi_timer_t *pTimer)
 {
 	bool ret;
-	uint irq = core_enter_critical(1, 1);
+	core_enter_critical();
 	ret = tlkapi_adapt_isHaveTimer(&sTlkMdiTimerAdapt, pTimer);
-	core_leave_critical(1, irq);
+	core_leave_critical();
 	return ret;
 }
 
@@ -202,9 +198,9 @@ bool tlkapi_timer_isHaveNode(tlkapi_timer_t *pTimer)
 int tlkapi_timer_updateNode(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)
 {
 	int ret;
-	uint irq = core_enter_critical(1, 1);
+	core_enter_critical();
 	ret = tlkapi_adapt_updateTimer(&sTlkMdiTimerAdapt, pTimer, timeout, isInsert);
-	core_leave_critical(1, irq);
+	core_leave_critical();
 	if(!sTlkMdiTimerIsBusy){
 		uint interval = tlkapi_timer_interval();
 		if(interval < 50) interval = 50;
@@ -224,9 +220,9 @@ int tlkapi_timer_updateNode(tlkapi_timer_t *pTimer, uint32 timeout, bool isInser
 int tlkapi_timer_insertNode(tlkapi_timer_t *pTimer)
 {
 	int ret;
-	uint irq = core_enter_critical(1, 1);
+	core_enter_critical();
 	ret = tlkapi_adapt_insertTimer(&sTlkMdiTimerAdapt, pTimer, true);
-	core_leave_critical(1, irq);
+	core_leave_critical();
 	if(!sTlkMdiTimerIsBusy){
 		uint interval = tlkapi_timer_interval();
 		if(interval < 50) interval = 50;
@@ -246,9 +242,9 @@ int tlkapi_timer_insertNode(tlkapi_timer_t *pTimer)
 int tlkapi_timer_removeNode(tlkapi_timer_t *pTimer)
 {
 	int ret;
-	uint irq = core_enter_critical(1, 1);
+	core_enter_critical();
 	ret = tlkapi_adapt_removeTimer(&sTlkMdiTimerAdapt, pTimer);
-	core_leave_critical(1, irq);
+	core_leave_critical();
 	return ret;
 }
 
@@ -263,9 +259,9 @@ int tlkapi_timer_removeNode(tlkapi_timer_t *pTimer)
 uint tlkapi_timer_interval(void)
 {
 	uint ret;
-	uint irq = core_enter_critical(1, 1);
+	core_enter_critical();
 	ret = tlkapi_adapt_timerInterval(&sTlkMdiTimerAdapt);
-	core_leave_critical(1, irq);
+	core_leave_critical();
 	return ret;
 }
 
@@ -280,9 +276,9 @@ uint tlkapi_timer_interval(void)
 *******************************************************************************/
 static void tlkapi_timer_start(uint32 intervalUs)
 {
-	uint32 r = core_disable_interrupt();
+	core_enter_critical();
 	if(sTlkMdiTimerIsStart && sTlkMdiTimerInterval <= intervalUs){
-		core_restore_interrupt(r);
+		core_leave_critical();
 		return;
 	}
 	if(sTlkMdiTimerIsStart){
@@ -309,12 +305,11 @@ static void tlkapi_timer_start(uint32 intervalUs)
 	reg_tmr_ctrl0 |= (TIMER_MODE_SYSCLK<<4);
 	reg_tmr_ctrl0 |= FLD_TMR1_EN;
 	#endif
-	core_restore_interrupt(r);
+	core_leave_critical();
 }
 static void tlkapi_timer_close(void)
 {
-	uint32 r = core_disable_interrupt();
-	
+	core_enter_critical();
 	sTlkMdiTimerIsStart = false;
 	sTlkMdiTimerInterval = 0xFFFFFFFF;
 	
@@ -325,10 +320,9 @@ static void tlkapi_timer_close(void)
 	reg_tmr_ctrl0 &= (~FLD_TMR1_EN);
 	timer_clr_irq_status(FLD_TMR_STA_TMR1);
 	#endif
-	core_restore_interrupt(r);
+	core_leave_critical();
 }
 
 
 
-#endif //#if (TLKAPI_TIMER_ENABLE)
 

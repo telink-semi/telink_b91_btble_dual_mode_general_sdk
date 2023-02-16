@@ -21,13 +21,13 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
+#include "tlkdev/tlkdev.h"
+#include "tlkmmi/tlkmmi.h"
 #include "tlkmmi/audio/tlkmmi_audio.h"
+#include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkapp_config.h"
 #include "tlkapp_pm.h"
-#include "tlkapp_system.h"
 
 
 #if (TLK_CFG_PM_ENABLE)
@@ -107,12 +107,12 @@ void tlkapp_pm_handler(void)
 {
 	bool isBusy = false;
 	
-	if(gTlkAppSystemBusyTimer != 0 && clock_time_exceed(gTlkAppSystemBusyTimer, 1000000)){
-		//Solve the problem that Android phones are difficult to connect
-		gTlkAppSystemBusyTimer = 0;
-	}
+//	if(gTlkAppSystemBusyTimer != 0 && clock_time_exceed(gTlkAppSystemBusyTimer, 1000000)){
+//		//Solve the problem that Android phones are difficult to connect
+//		gTlkAppSystemBusyTimer = 0;
+//	}
 	
-	if(gTlkAppSystemBusyTimer != 0 || !gpio_read(TLKAPP_WAKEUP_PIN)){
+	if(/*gTlkAppSystemBusyTimer != 0 ||*/ !gpio_read(TLKAPP_WAKEUP_PIN)){
 		isBusy = true;
 	}else if(tlkmdi_pmIsbusy() || tlkmmi_pmIsbusy() || tlkstk_pmIsBusy() || tlkapp_pmIsBusy()){
 		isBusy = true;
@@ -132,7 +132,7 @@ void tlkapp_pm_handler(void)
 		gTlkAppPmSysIdleTimer = clock_time()|1;
 	}else{		
 		//enter deepsleep when system is idle
-		if(!tlkstk_state() && (gTlkAppPmSysIdleTimer == 0 || clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000))){
+		if(!tlkstk_state() && !tlkmmi_btmgr_recIsBusy() && (gTlkAppPmSysIdleTimer == 0 || clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000))){
 			cpu_sleep_wakeup_32k_rc(DEEPSLEEP_MODE, PM_WAKEUP_PAD, 0);
 			gTlkAppPmSysIdleTimer = clock_time()|1;
 		}

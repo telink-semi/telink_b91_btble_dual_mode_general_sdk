@@ -22,11 +22,10 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
 #include "tlkstk/ble/ble.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgr.h"
-#include "tlkmmi/lemgr/tlkmmi_lemgrComm.h"
+//#include "tlkmmi/lemgr/tlkmmi_lemgrComm.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrCtrl.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAcl.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAtt.h"
@@ -213,13 +212,13 @@ static const uint08 reportMap[] =
 // HID External Report Reference Descriptor for report map
 _attribute_ble_data_retention_	static uint16 extServiceUUID;
 
-
+#if  TLKMMI_LEOTA_ENABLE
 //////////////////////// OTA //////////////////////////////////
 static const uint08 my_OtaServiceUUID[16]				= WRAPPING_BRACES(TELINK_OTA_UUID_SERVICE);
 static const uint08 my_OtaUUID[16]						= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
 _attribute_ble_data_retention_	static 		  uint08 my_OtaData 						= 0x00;
 static const uint08 my_OtaName[] = {'O', 'T', 'A'};
-
+#endif
 
 // Include attribute (Battery service)
 static const uint16 include[3] = {BATT_PS_H, BATT_LEVEL_INPUT_CCB_H, SERVICE_UUID_BATTERY};
@@ -347,14 +346,14 @@ static const uint08 TelinkSppDataClient2ServerCharVal[19] = {
 	U16_LO(SPP_CLIENT_TO_SERVER_DP_H), U16_HI(SPP_CLIENT_TO_SERVER_DP_H),
 	TELINK_SPP_DATA_CLIENT2SERVER
 };
-
+#if TLKMMI_LEOTA_ENABLE
 //// OTA attribute values
 static const uint08 my_OtaCharVal[19] = {
 	CHAR_PROP_READ | CHAR_PROP_WRITE_WITHOUT_RSP,
 	U16_LO(OTA_CMD_OUT_DP_H), U16_HI(OTA_CMD_OUT_DP_H),
 	TELINK_SPP_DATA_OTA,
 };
-
+#endif
 #if (APP_BLE_TEST_ENABLE)
 extern u32 gAppBleTestRecvCount;
 extern u32 gAppBleTestRecvLens;
@@ -491,14 +490,14 @@ static const attribute_t my_Attributes[] = {
 	{0,ATT_PERMISSIONS_RDWR,16,sizeof(SppDataClient2ServerData),(uint08*)(&TelinkSppDataClient2ServerUUID), (uint08*)(SppDataClient2ServerData), (att_readwrite_callback_t)&spp_onReceiveData},	//value
 	{0,ATT_PERMISSIONS_READ,2,sizeof(TelinkSPPC2SDescriptor),(uint08*)&userdesc_UUID,(uint08*)(&TelinkSPPC2SDescriptor)},
 
-
+#if  TLK_MDI_LEOTA_ENABLE
 	////////////////////////////////////// OTA /////////////////////////////////////////////////////
 	// 0036 - 0039
 	{4,ATT_PERMISSIONS_READ, 2,16,(uint08*)(&my_primaryServiceUUID), 	(uint08*)(&my_OtaServiceUUID), 0},
 	{0,ATT_PERMISSIONS_READ, 2, sizeof(my_OtaCharVal),(uint08*)(&my_characterUUID), (uint08*)(my_OtaCharVal), 0},				//prop
 	{0,ATT_PERMISSIONS_RDWR,16,sizeof(my_OtaData),(uint08*)(&my_OtaUUID),	(&my_OtaData), &otaWrite, NULL},			//value
 	{0,ATT_PERMISSIONS_READ, 2,sizeof (my_OtaName),(uint08*)(&userdesc_UUID), (uint08*)(my_OtaName), 0},
-
+#endif
 };
 
 

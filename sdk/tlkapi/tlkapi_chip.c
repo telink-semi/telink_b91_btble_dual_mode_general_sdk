@@ -132,3 +132,9 @@ void tlkapi_random(uint08 *pBuff, uint16 buffLen)
 }
 
 
+void core_enter_deep(uint wakeupSrc)
+{
+	cpu_sleep_wakeup(DEEPSLEEP_MODE, wakeupSrc, 0);
+}
+
+

@@ -44,6 +44,15 @@ bool tlkapi_chip_stackOverflow(void);
 
 void tlkapi_random(uint08 *pBuff, uint16 buffLen);
 
+//wakeupSrc refer to "pm_sleep_wakeup_src_e".
+void core_enter_deep(uint wakeupSrc);
+
+extern void core_reboot(void);
+extern void core_enter_critical(void);
+extern void core_leave_critical(void);
+extern unsigned int core_disable_interrupt(void);
+extern void core_restore_interrupt(unsigned int value);
+
 
 #endif 
 

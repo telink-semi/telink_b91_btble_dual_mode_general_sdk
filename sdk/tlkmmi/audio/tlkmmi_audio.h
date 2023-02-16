@@ -35,23 +35,10 @@
 #define TLKMMI_AUDIO_CODEC_IDLE_TIMEOUT    (300000/TLKMMI_AUDIO_TIMEOUT) //If codec is not used for more than this time, codec will automatically shut down
 
 
-#define TLKMMI_AUDIO_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_AUDIO << 24) | (TLK_MINOR_DBGID_MMI_AUDIO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
-#define TLKMMI_AUDIO_DBG_SIGN       "[MMI]"
+#define TLKMMI_AUDIO_DBG_FLAG         ((TLK_MAJOR_DBGID_MMI_AUDIO << 24) | (TLK_MINOR_DBGID_MMI_AUDIO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMMI_AUDIO_DBG_SIGN         "[MMI]"
 
-
-
-typedef enum{
-	TLKMMI_AUDIO_OPTYPE_NONE = 0,
-	TLKMMI_AUDIO_OPTYPE_TONE, //Play the prompt tone locally
-	TLKMMI_AUDIO_OPTYPE_PLAY, //Play the music locally
-	TLKMMI_AUDIO_OPTYPE_HF,
-	TLKMMI_AUDIO_OPTYPE_AG,
-	TLKMMI_AUDIO_OPTYPE_SCO, //Status control of SCO link establishment. SCO is commonly used in phone calls or speech recognition.
-	TLKMMI_AUDIO_OPTYPE_SRC, //Connect the headset and play music to the headset
-	TLKMMI_AUDIO_OPTYPE_SNK, //Connect a mobile phone and listen to music on the mobile phone.
-	TLKMMI_AUDIO_OPTYPE_UAC,
-	TLKMMI_AUDIO_OPTYPE_MAX,
-}TLKMMI_AUDIO_OPTYPE_ENUM;
+#define TLKMMI_AUDIO_PROCID           TLKTSK_PROCID_AUDIO
 
 
 
@@ -62,7 +49,9 @@ typedef enum{
  * Return: Operating results. TLK_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_audio_init(void);
+int  tlkmmi_audio_init(void);
+
+void tlkmmi_audio_handler(void);
 
 /******************************************************************************
  * Function: tlkmmi_audio_isBusy
@@ -73,36 +62,25 @@ int tlkmmi_audio_init(void);
 *******************************************************************************/
 bool tlkmmi_audio_isBusy(void);
 
-void tlkmmi_audio_connect(uint16 handle, uint08 ptype, uint08 usrID);
-
 /******************************************************************************
- * Function: tlkmmi_audio_disconn
- * Descript:
- * Params:
- * Return: None.
- * Others: None.
-*******************************************************************************/
-void tlkmmi_audio_disconn(uint16 handle);
-
-/******************************************************************************
- * Function: tlkmmi_audio_insertStatus
+ * Function: tlkmmi_audio_insertItem
  * Descript: Suspend the current audio task when a new audio task insert 
  *           and start running.
  * Params:
  * Return: Operating results. TLK_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-extern int tlkmmi_audio_insertStatus(uint16 aclHandle, uint08 optype);
+extern int tlkmmi_audio_insertItem(uint16 aclHandle, uint08 optype);
 
 /******************************************************************************
- * Function: tlkmmi_audio_removeStatus
+ * Function: tlkmmi_audio_removeItem
  * Descript: Suspend the current task and delete it.Then resume the task 
  *           which been suspend before.
  * Params:
  * Return: Operating results. TLK_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-extern int tlkmmi_audio_removeStatus(uint16 aclHandle, uint08 optype);
+extern int tlkmmi_audio_removeItem(uint16 aclHandle, uint08 optype);
 
 /******************************************************************************
  * Function: tlkmmi_audio_isLocalPlay

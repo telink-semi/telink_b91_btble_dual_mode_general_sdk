@@ -23,13 +23,10 @@
 
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlkmmi/phone/tlkmmi_phone.h"
 #include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
-#include "tlkmmi/phone/tlkmmi_phoneComm.h"
 #include "tlkmmi/phone/tlkmmi_phoneBook.h"
-#include "tlkmmi/phone/tlkmmi_phoneStatus.h"
 
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"

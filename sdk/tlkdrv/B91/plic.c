@@ -1,24 +1,29 @@
 /********************************************************************************************************
- * @file     plic.c
+ * @file	plic.c
  *
- * @brief    This is the source file for BTBLE SDK
+ * @brief	This is the source file for B92
  *
- * @author	 BTBLE GROUP
- * @date         2,2022
+ * @author	Driver Group
+ * @date	2020
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par		Copyright (c) 2020, Telink Semiconductor (Shanghai) Co., Ltd.
+ *			All rights reserved.
  *
- *          Licensed under the Apache License, Version 2.0 (the "License");
- *          you may not use this file except in compliance with the License.
- *          You may obtain a copy of the License at
+ *          The information contained herein is confidential property of Telink
+ *          Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *          of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *          Co., Ltd. and the licensee or the terms described here-in. This heading
+ *          MUST NOT be removed from this file.
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *          Licensee shall not delete, modify or alter (or permit any third party to delete, modify, or
+ *          alter) any information contained herein in whole or in part except as expressly authorized
+ *          by Telink semiconductor (shanghai) Co., Ltd. Otherwise, licensee shall be solely responsible
+ *          for any claim to the extent arising out of or relating to such deletion(s), modification(s)
+ *          or alteration(s).
  *
- *          Unless required by applicable law or agreed to in writing, software
- *          distributed under the License is distributed on an "AS IS" BASIS,
- *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *          See the License for the specific language governing permissions and
- *          limitations under the License.
+ *          Licensees are granted free, non-transferable use of the information in this
+ *          file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ *
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkapi/tlkapi_debug.h"
@@ -33,17 +38,49 @@ _attribute_data_retention_sec_  volatile EXCEPT_HANDLER_S_T except_handler_b;
 #endif 
 
 _attribute_data_retention_sec_ volatile EXCEPT_HANDLER_S_T except_handler_e;
-_attribute_data_retention_sec_ unsigned char      g_plic_preempt_en = 1;
-/*
- * FUNCTION DEFINITIONS
- ****************************************************************************************
- */
+_attribute_data_retention_sec_ unsigned char g_plic_preempt_en=1;
+/**
+ * @brief    This function serves to config plic when enter some function process such as flash.
+ * @param[in]   preempt_en - 1 can disturb by interrupt, 0 can't disturb by interrupt.
+ * @param[in]   threshold  - interrupt threshold.when the interrupt priority> interrupt threshold,the function process will be disturb by interrupt.
+ * @return  none
+*/
 
 volatile uint32 sCoreCriticalCount0 = 0;
 
+#define TLK_CORE_CRITICAL_THRESHOLD      1
+
+_attribute_ram_code_sec_noinline_
+void core_reboot(void)
+{
+	start_reboot();
+}
+
+_attribute_ram_code_sec_noinline_
+void core_enter_critical(void)
+{
+	unsigned int r_inq = core_disable_interrupt();
+	unsigned char thrd = reg_irq_threshold & 0xFF;
+	sCoreCriticalCount0 ++;
+	if(thrd < TLK_CORE_CRITICAL_THRESHOLD){
+		plic_set_threshold(TLK_CORE_CRITICAL_THRESHOLD);
+	}
+	core_restore_interrupt(r_inq);
+}
+_attribute_ram_code_sec_noinline_
+void core_leave_critical(void)    
+{
+	unsigned int r_inq = core_disable_interrupt();
+	if(sCoreCriticalCount0 == 1){
+		plic_set_threshold(0);
+	}
+	if(sCoreCriticalCount0 != 0) sCoreCriticalCount0--;
+	core_restore_interrupt(r_inq);
+}
+
 
 _attribute_ram_code_sec_noinline_ 
-unsigned int core_enter_critical(unsigned char preempt_en, unsigned char threshold)
+unsigned int plic_enter_critical_sec(unsigned char preempt_en ,unsigned char threshold)
 {
 	unsigned int r = 0;
 	if(g_plic_preempt_en && preempt_en && threshold != 0)
@@ -64,8 +101,14 @@ unsigned int core_enter_critical(unsigned char preempt_en, unsigned char thresho
 	}
 	return r ;
 }
-_attribute_ram_code_sec_noinline_ 
-void core_leave_critical(unsigned char preempt_en, unsigned int r)
+
+/**
+ * @brief    This function serves to config plic when exit some function process such as flash.
+ * @param[in]   preempt_en - 1 can disturb by interrupt, 0 can disturb by interrupt.
+ * @param[in]    r         - the value of mie register to restore.
+ * @return  none
+*/
+_attribute_ram_code_sec_noinline_ void  plic_exit_critical_sec(unsigned char preempt_en ,unsigned int r)
 {
 	if(g_plic_preempt_en && preempt_en)
 	{

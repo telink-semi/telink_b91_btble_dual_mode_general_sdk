@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 #if (TLKDEV_EXT_PUYA_P25Q32H_ENABLE)
 #include "tlkdev/ext/puya/tlkdev_p25q32h.h"
 

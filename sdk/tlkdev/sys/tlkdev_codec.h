@@ -61,6 +61,18 @@ typedef enum{
 }TLKDEV_CODEC_SAMPLERATE_ENUM;
 
 
+typedef struct{
+	uint08 spkIsMute;
+	uint08 micIsMute;
+	uint08 spkVolume;
+	uint08 micVolume;
+	uint08 spkChannel;
+	uint08 micChannel;
+	uint08 selSpkVolume;
+	uint08 selMicVolume;
+}tlkdev_codec_t;
+
+
 int tlkdev_codec_init(void);
 
 int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bitDepth, uint32 sampleRate);
@@ -68,10 +80,22 @@ int tlkdev_codec_close(void);
 int tlkdev_codec_extOpen(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 spkChannel, uint08 spkBitDepth,
 	uint32 spkSampleRate, uint08 micChannel, uint08 micBitDepth, uint32 micSampleRate);
 
-uint tlkdev_codec_getSampleRate(void);
-uint tlkdev_codec_getChannel(void);
+bool tlkdev_codec_paIsOpen(void);
+void tlkdev_codec_paOpen(void);
+void tlkdev_codec_paClose(void);
+
 
 void tlkdev_codec_muteSpk(void);
+
+
+void tlkdev_codec_setSpkStatus(bool isMute);
+void tlkdev_codec_setMicStatus(bool isMute);
+
+void tlkdev_codec_setSpkVolume(uint volume);
+void tlkdev_codec_setMicVolume(uint volume);
+
+uint tlkdev_codec_getSpkVolume(void);
+uint tlkdev_codec_getMicVolume(void);
 
 uint tlkdev_codec_getSpkOffset(void);
 uint tlkdev_codec_getMicOffset(void);
@@ -90,6 +114,7 @@ uint tlkdev_codec_getMicDataLen(void);
 bool tlkdev_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset);
 bool tlkdev_codec_readMicData(uint08 *pBuff, uint16 buffLen, uint16 *pOffset);
 
+void tlkdev_codec_muteSpkBuff(void);
 void tlkdev_codec_zeroSpkBuff(uint16 zeroLen, bool isInc);
 bool tlkdev_codec_fillSpkBuff(uint08 *pData, uint16 dataLen);
 bool tlkdev_codec_backReadSpkData(uint08 *pBuff, uint16 buffLen, uint16 offset, bool isBack);

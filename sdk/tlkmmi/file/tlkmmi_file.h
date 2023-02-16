@@ -26,16 +26,21 @@
 #if (TLKMMI_FILE_ENABLE)
 
 
+
+#define TLKMMI_FILE_DFU_ENABLE        (1 && TLK_MDI_FILE_ENABLE)
+#define TLKMMI_FILE_MP3_ENABLE        (1 && TLK_MDI_FILE_ENABLE)
+#define TLKMMI_FILE_TONE_ENABLE       (1 && TLK_MDI_FILE_ENABLE)
+
 #define TLKMMI_FILE_P2M_ENABLE        1 //Mine To Peer
 #define TLKMMI_FILE_M2P_ENABLE        1 //Peer To Mine
 
 #define TLKMMI_FILE_P2M_COUNT         1
 #define TLKMMI_FILE_M2P_COUNT         0
 
+#define TLKMMI_FILE_DBG_FLAG         ((TLK_MAJOR_DBGID_MMI_FILE << 24) | (TLK_MINOR_DBGID_MMI_FILE << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMMI_FILE_DBG_SIGN         "[MMI]"
 
-#define TLKMMI_FILE_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_FILE << 24) | (TLK_MINOR_DBGID_MMI_FILE << 16) | TLK_DEBUG_DBG_FLAG_ALL)
-#define TLKMMI_FILE_DBG_SIGN       "[MMI]"
-
+#define TLKMMI_FILE_PROCID           TLKTSK_PROCID_FILEM
 
 
 int tlkmmi_file_init(void);

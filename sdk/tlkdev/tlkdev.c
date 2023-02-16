@@ -21,7 +21,7 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
+#include "tlkdev/tlkdev.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #if (TLK_DEV_HCIUART_ENABLE)
 #include "tlkdev/sys/tlkdev_hciuart.h"
@@ -30,8 +30,20 @@
 #if (TLK_DEV_STORE_ENABLE)
 #include "tlkdev/sys/tlkdev_store.h"
 #endif
+#if (TLK_DEV_SRAM_ENABLE)
+#include "tlkdev/sys/tlkdev_sram.h"
+#endif
+#if (TLK_DEV_LCD_ENABLE)
+#include "tlkdev/sys/tlkdev_lcd.h"
+#endif
+#if (TLK_DEV_SENSOR_ENABLE)
+#include "tlkdev/sys/tlkdev_sensor.h"
+#endif 
+#if (TLK_DEV_TOUCH_ENABLE)
+#include "tlkdev/sys/tlkdev_touch.h"
+#endif
 
-extern void tlkusb_process(void);
+
 
 
 int tlkdev_init(void)
@@ -44,6 +56,18 @@ int tlkdev_init(void)
 	#endif
 	#if (TLK_DEV_STORE_ENABLE)
 	tlkdev_store_init();
+	#endif
+	#if (TLK_DEV_SRAM_ENABLE)
+	tlkdev_sram_init();
+	#endif
+	#if (TLK_DEV_LCD_ENABLE)
+	tlkdev_lcd_init();
+	#endif
+	#if (TLK_DEV_SENSOR_ENABLE)
+	tlkdev_sensor_init();
+	#endif
+	#if (TLK_DEV_TOUCH_ENABLE)
+	tlkdev_touch_init();
 	#endif
 	
 	return TLK_ENONE;

@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_STORE_ENABLE)
-#include "tlkdev/tlkdev_stdio.h"
+#include "tlkdev/tlkdev.h"
 #include "tlkdrv/ext/store/tlkdrv_store.h"
 #include "tlkdev/sys/tlkdev_store.h"
 

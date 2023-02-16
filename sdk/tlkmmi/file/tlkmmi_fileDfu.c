@@ -22,19 +22,22 @@
  *******************************************************************************************************/
 #include "tlk_config.h" 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
+#include "tlkmdi/misc/tlkmdi_file.h"
+#include "tlkmmi_fileConfig.h"
+#include "tlkmmi_file.h"
 #if (TLKMMI_FILE_DFU_ENABLE)
-#include "tlkprt/tlkprt_stdio.h"
+#include "tlkmmi_fileAdapt.h"
+#include "tlkmmi_fileCtrl.h"
+#include "tlkmmi_fileDfu.h"
+
+#include "tlksys/prt/tlkpto_stdio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
+#include "tlksys/prt/tlkpto_file.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_adapt.h"
-#include "tlkmdi/tlkmdi_file.h"
-#include "tlkmmi/file/tlkmmi_fileConfig.h"
-#include "tlkmmi/file/tlkmmi_file.h"
-#include "tlkmmi/file/tlkmmi_fileCtrl.h"
-#include "tlkmmi/file/tlkmmi_fileDfu.h"
+
 
 
 #define TLKMMI_FILE_DFU_SAVE_SIGN        0x3A
@@ -49,13 +52,13 @@ static int tlkmmi_file_dfuClose(tlkmdi_file_unit_t *pUnit, uint08 status);
 static int tlkmmi_file_dfuParam(tlkmdi_file_unit_t *pUnit, uint08 paramType, uint08 *pParam, uint08 paramLen);
 static int tlkmmi_file_dfuSave(tlkmdi_file_unit_t *pUnit, uint32 offset, uint08 *pData, uint16 dataLen);
 #if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+#if (TLK_CFG_COMM_ENABLE)
 static void tlkmmi_file_dfuData(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen);
+#endif
 #endif
 
 static void tlkmmi_file_dfuOverHandler(bool isSucc);
 
-extern void start_reboot(void);
-extern void delay_ms(uint32 millisec);
 
 
 const tlkmmi_file_recvIntf_t gcTlkMmiFileDfuIntf = {
@@ -121,14 +124,17 @@ static int tlkmmi_file_dfuInit(void)
 	#endif
 	
 	#if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+		#if (TLK_CFG_COMM_ENABLE)
 		tlkmdi_comm_getValidDatID(&sTlkMdiFileDfuPort);
 		tlkmdi_comm_regDatCB(sTlkMdiFileDfuPort, tlkmmi_file_dfuData, true);
+		#endif
 	#endif
 	
 	return TLK_ENONE;
 }
 
 #if (TLKMMI_FILE_CHN_SERIAL_ENABLE)
+#if (TLK_CFG_COMM_ENABLE)
 static void tlkmmi_file_dfuData(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen)
 {
 	uint08 headLen;
@@ -143,6 +149,7 @@ static void tlkmmi_file_dfuData(uint08 datID, uint16 number, uint08 *pData, uint
 	header[headLen++] = (dataLen & 0xFF00) >> 8;
 	tlkmdi_file_recvHandler(TLKMDI_FILE_OPTCHN_SERIAL, 0xFFFF, header, headLen, pData, dataLen);
 }
+#endif
 #endif
 
 
@@ -395,7 +402,7 @@ static void tlkmmi_file_dfuOverHandler(bool isSucc)
 	delay_ms(100);
 	#endif
 	
-	start_reboot();
+	core_reboot();
 }
 
 

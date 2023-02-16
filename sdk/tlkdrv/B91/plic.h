@@ -242,7 +242,7 @@ static inline void plic_interrupt_complete(irq_source_e  src)
  * @param[in]  src - interrupt source.
  * @return  none
  */
-static inline  unsigned int plic_interrupt_claim(irq_source_e  src)
+static inline  unsigned int plic_interrupt_claim(void)
 {
 	return reg_irq_done;
 }
@@ -255,14 +255,17 @@ static inline  unsigned int plic_interrupt_claim(irq_source_e  src)
  * @param[in]   threshold  - interrupt threshold.when the interrupt priority> interrupt threshold,the function process will be disturb by interrupt.
  * @return  none
 */
-_attribute_ram_code_sec_noinline_ unsigned int core_enter_critical(unsigned char preempt_en ,unsigned char threshold);
+_attribute_ram_code_sec_noinline_ unsigned int plic_enter_critical_sec(unsigned char preempt_en ,unsigned char threshold);
+
+
+
 /**
  * @brief    This function serves to config plic when exit some function process such as flash.
  * @param[in]   preempt_en - 1 can disturb by interrupt, 0 can disturb by interrupt.
  * @param[in]    r         - the value of mie register to restore.
  * @return  none
 */
-_attribute_ram_code_sec_noinline_   void  core_leave_critical(unsigned char preempt_en ,unsigned int r);
+_attribute_ram_code_sec_noinline_   void  plic_exit_critical_sec(unsigned char preempt_en ,unsigned int r);
 
 /*******************************      BLE/BT Use     ******************************/
 typedef enum{//todo

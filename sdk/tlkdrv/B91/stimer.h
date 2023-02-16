@@ -66,6 +66,7 @@ enum{
 	SYSTEM_TIMER_TICK_1250US 	= 20000,  //1250*16
 };
 
+#define TICK_PER_US             16
 
 /**
  * @brief This function servers to set stimer irq mask.

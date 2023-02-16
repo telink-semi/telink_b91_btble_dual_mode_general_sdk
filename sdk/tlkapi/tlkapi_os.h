@@ -30,11 +30,12 @@
 #include "tlklib/os/tlkos_stdio.h"
 
 
-extern uint tlkos_enter_critical(void);
-extern void tlkos_leave_critical(uint irqMsk);
+extern void tlkos_enter_critical(void);
+extern void tlkos_leave_critical(void);
 extern uint tlkos_disable_interrupt(void);
 extern void tlkos_restore_interrupt(uint irqMsk);
 
+extern void tlkos_init(void);
 extern void tlkos_delay(uint value);
 extern void tlkos_start_run(void);
 
@@ -42,6 +43,7 @@ extern void tlkos_start_run(void);
 extern int tlkos_task_create(tlkos_task_t *pTask, char *pName, uint08 priority, uint16 stackSize, 
 	TlkOsTaskEnterCB enter, void *pUsrArg);
 extern int tlkos_task_destory(tlkos_task_t *pTask);
+extern int tlkos_task_delayMs(tlkos_task_t *pTask, uint delayMs);
 extern int tlkos_task_suspend(tlkos_task_t *pTask);
 extern int tlkos_task_resume(tlkos_task_t *pTask);
 extern int tlkos_task_suspendAll(void);
@@ -49,7 +51,7 @@ extern int tlkos_task_resumeAll(void);
 extern uint tlkos_task_getState(tlkos_task_t *pTask);
 extern uint tlkos_task_getPriority(tlkos_task_t *pTask);
 extern void tlkos_task_setPriority(tlkos_task_t *pTask, uint priority);
-
+extern uint tlkos_task_getStackValid(tlkos_task_t *pTask);
 
 extern int tlkos_msgq_create(tlkos_msgq_t *pMsgq, uint numb, uint size);
 extern int tlkos_msgq_destory(tlkos_msgq_t *pMsgq);

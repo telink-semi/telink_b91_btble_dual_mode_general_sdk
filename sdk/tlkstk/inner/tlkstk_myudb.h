@@ -63,8 +63,8 @@ extern void tlkapi_vcd_word(uint32 flags, uint08 id, uint16 value);
 #define SL_STACK_TIMING_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
 #define SL_STACK_RESET_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC_RESET << 16))
 /* schedule VCD id enable */
-#define SL_STACK_SCH01_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
-#define SL_STACK_SCH02_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
+#define SL_STACK_SCH01_EN			((TLK_MAJOR_DBGID_SYS << 24) | (TLK_MINOR_DBGID_SYS_SCH << 16))
+#define SL_STACK_SCH02_EN			((TLK_MAJOR_DBGID_SYS << 24) | (TLK_MINOR_DBGID_SYS_SCH << 16))
 /* frame VCD id enable */
 #define SL_STACK_FRAME_EN			((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))
 #define SL_STACK_FRAME_ST_EN		((TLK_MAJOR_DBGID_BTC << 24) | (TLK_MINOR_DBGID_BTC << 16))

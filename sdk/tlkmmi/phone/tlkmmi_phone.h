@@ -30,7 +30,9 @@
 #define TLKMMI_PHONE_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_PHONE << 24) | (TLK_MINOR_DBGID_MMI_PHONE << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMMI_PHONE_DBG_SIGN       "[MMI]"
 
-#define TLKMMI_PHONE_SCO_MANAGE       (0 && TLKMDI_CFG_AUDSCO_ENABLE)
+#define TLKMMI_PHONE_SCO_MANAGE     (0 && TLK_MDI_AUDSCO_ENABLE)
+
+#define TLKMMI_PHONE_PROCID         TLKTSK_PROCID_STACK
 
 
 /******************************************************************************

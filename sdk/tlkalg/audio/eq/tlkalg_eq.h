@@ -84,8 +84,6 @@ typedef enum{
 
 
 
-
-
 #define TLKALG_EQ_FLASH_BANK_SIZE          0xd0
 #define TLKALG_EQ_FLASH_BANK_NUM_MAX       0x07
 
@@ -111,47 +109,25 @@ typedef enum{
 #define TLKALG_EQ_DEFAULT_TYPE_MAX         20
 #define TLKALG_EQ_DEFAULT_TYPE_MASK	       0x00ff
 
-#define TLKALG_EQ_NSTAGE_MISIC_SPK 9
+#if TLKALG_EQ_CFG_SOUNDBAR_EN
+	#define TLKALG_EQ_NSTAGE_MISIC_SPK  5
+#else
+	#define TLKALG_EQ_NSTAGE_MISIC_SPK 9
+#endif
 
 #if (TLKALG_EQ_NSTAGE_VOICE_MIC_MAX < TLKALG_EQ_NSTAGE_VOICE_MIC) || (TLKALG_EQ_NSTAGE_VOICE_SPK_MAX < TLKALG_EQ_NSTAGE_VOICE_SPK) || (TLKALG_EQ_NSTAGE_MISIC_SPK_MAX < TLKALG_EQ_NSTAGE_MISIC_SPK)
 #error Wrong NSTAGE_EQ MAX
 #endif
 
-typedef struct _eq_para{
-	uint8_t eq_nstage;      	///	EQ number of stage.
-	uint8_t eq_sample_rate;	   	/// 0:48K ;1:44.1K ;2: 16K
-	uint8_t eq_channel;			/// 0:left   1:right
-	uint8_t eq_type;			/// 0:TLKALG_EQ_TYPE_MUSIC  1:TLKALG_EQ_TYPE_VOICE_MIC  2:TLKALG_EQ_TYPE_VOICE_SPK
-}__attribute__ ((__packed__)) eq_para_t;
-
-typedef struct _eq_mode_para{
-	signed short gain;					///Gain range(BBEE/100)		: 	-327.68db ~ +327.67db
-	unsigned short freq_c;				///Center frequency range 	:	20~24000
-	unsigned short filter_q;			///Q value range(HHGG/1000)	:	0~65.535
-	unsigned char filter_type;			///filter type(1~8)			:
-	unsigned char cvsd;					///reserved
-}eq_mode_para_t;
-
-typedef struct _eq_mode_header{
-	unsigned char idx;
-	unsigned char max_gain_num;
-	unsigned char filter_sum;
-	unsigned char all_gain;					///Full-band gain reduction range:0~25.6
-}eq_mode_header_t;
-
-typedef struct _eq_mode{
-	eq_mode_header_t eq_header;						/// 4 bytes
-	eq_mode_para_t eq_para[TLKALG_EQ_FILTER_MAX];	/// 8 + 9 bytes
-	int CRC;										/// 4 bytes
-}eq_mode_t;
-
 
 
 void tlkalg_eq_loadParam(uint32 addr, uint16 index, uint08 flag);
 void tlkalg_eq_saveParam(void);
-int  tlkalg_eq_procss(TLKALG_EQ_TYPE_ENUM type, TLKALG_EQ_CHANNEL_ENUM chn, int sampleRate, sint16 *pData, int samples);
-void tlkalg_eq_dataProcess(TLKALG_EQ_TYPE_ENUM type, TLKALG_EQ_CHANNEL_ENUM chn, sint16* ps, int samples);
-void tlkalg_eq_setSampleRate(int samplerate, TLKALG_EQ_TYPE_ENUM type);
+
+int  tlkalg_eq_procss(int type, int chn, int sampleRate, sint16 *pData, int samples);
+
+void tlkalg_eq_dataProcess(int type, int chn, int sample_rate, sint16* ps, int samples);
+void tlkalg_eq_setSampleRate(int samplerate, int type);
 
 
 #endif //#if (TLK_ALG_EQ_ENABLE)

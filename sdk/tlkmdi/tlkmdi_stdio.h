@@ -26,20 +26,11 @@
 
 
 
-#include "tlkmdi/tlkmdi_config.h"
-#include "tlkmdi/tlkmdi_define.h"
-#include "tlkmdi/tlkmdi_event.h"
-#include "tlkmdi/tlkmdi_comm.h"
 
-#include "tlkmdi/tlkmdi_audio.h"
-#include "tlkmdi/tlkmdi_audhfp.h"
-#include "tlkmdi/tlkmdi_audsnk.h"
-#include "tlkmdi/tlkmdi_audsrc.h"
-#include "tlkmdi/tlkmdi_audsco.h"
-#include "tlkmdi/tlkmdi_audmp3.h"
-#include "tlkmdi/tlkmdi_auduac.h"
-#include "tlkmdi/tlkmdi_audplay.h"
-#include "tlkmdi/tlkmdi_audtone.h"
+//#include "tlkmdi/misc/tlkmdi_comm.h"
+
+
+
 
 
 extern bool tlkmdi_pmIsbusy(void);

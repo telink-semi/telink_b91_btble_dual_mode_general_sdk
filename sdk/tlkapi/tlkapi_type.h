@@ -48,7 +48,9 @@
 #ifndef bool
 #define bool  unsigned char
 #endif
-
+#ifndef BOOL
+#define BOOL  unsigned char
+#endif
 
 #ifndef NULL
 #define NULL  0

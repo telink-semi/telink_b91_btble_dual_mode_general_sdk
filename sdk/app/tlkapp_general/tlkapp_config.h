@@ -35,7 +35,6 @@
 #define TLKAPP_MEM_TOTAL_SIZE            (40*1024) //MP3(36740)+SrcEnc(4048) = 36740+4048=40788  -- Worst scenario: Music playing on the headphone
 
 
-#define TLKAPP_CFG_BAT_CHECK_ENABLE      0
 
 
 

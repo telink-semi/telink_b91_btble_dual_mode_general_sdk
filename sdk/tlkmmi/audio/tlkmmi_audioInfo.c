@@ -20,20 +20,16 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
-#include "tlkprt/tlkprt_stdio.h"
-#include "tlkmmi/audio/tlkmmi_audio.h"
-#include "tlkmmi/audio/tlkmmi_audioComm.h"
-#include "tlkmmi/audio/tlkmmi_audioCtrl.h"
-#include "tlkmmi/audio/tlkmmi_audioInfo.h"
-
-
 #if (TLKMMI_AUDIO_ENABLE)
+#include "tlkmdi/tlkmdi_stdio.h"
+#include "tlksys/prt/tlkpti_stdio.h"
+#include "tlksys/prt/tlkpto_comm.h"
+#include "tlkmdi/aud/tlkmdi_audio.h"
+#include "tlkmmi_audio.h"
+#include "tlkmmi_audioCtrl.h"
+#include "tlkmmi_audioInfo.h"
+
 
 tlkmmi_audio_infoCtrl_t gTlkMmiAudioInfoCtrl;
 
@@ -52,10 +48,10 @@ int tlkmmi_audio_infoInit(void)
 	tlkapi_save2_init(&gTlkMmiAudioInfoCtrl.save, TLKMDI_AUDIO_VOLUME_SAVE_SIGN, TLKMDI_AUDIO_VOLUME_SAVE_VERS,
 		TLKMDI_AUDIO_VOLUME_SAVE_SIZE, TLKMDI_AUDIO_VOLUME_SAVE_ADDR);
 
-	gTlkMmiAudioInfoCtrl.item.tone = TLKMDI_AUDIO_VOLUME_DEF;
-	gTlkMmiAudioInfoCtrl.item.music = TLKMDI_AUDIO_VOLUME_DEF;
-	gTlkMmiAudioInfoCtrl.item.voice = TLKMDI_AUDIO_VOLUME_DEF;
-	gTlkMmiAudioInfoCtrl.item.headset = TLKMDI_AUDIO_VOLUME_DEF;
+	gTlkMmiAudioInfoCtrl.item.tone = 60;
+	gTlkMmiAudioInfoCtrl.item.music = 60;
+	gTlkMmiAudioInfoCtrl.item.voice = 60;
+	gTlkMmiAudioInfoCtrl.item.headset = 60;
 	gTlkMmiAudioInfoCtrl.item.resv001 = 0xFF;
 	gTlkMmiAudioInfoCtrl.item.enReport = false;
 	gTlkMmiAudioInfoCtrl.item.interval = 0;

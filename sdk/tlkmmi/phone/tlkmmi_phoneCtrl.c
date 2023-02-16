@@ -20,16 +20,12 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlkmmi/phone/tlkmmi_phone.h"
 #include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
-#include "tlkmmi/phone/tlkmmi_phoneComm.h"
 #include "tlkmmi/phone/tlkmmi_phoneBook.h"
-#include "tlkmmi/phone/tlkmmi_phoneStatus.h"
 #if (TLKMMI_PHONE_SCO_MANAGE)
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_sco.h"
@@ -59,7 +55,7 @@ int tlkmmi_phone_ctrlInit(void)
 {
 	#if (TLKMMI_PHONE_SCO_MANAGE)
 	tmemset(&sTlkMmiPhoneCtrl, 0, sizeof(tlkmmi_phone_ctrl_t));
-	tlkmmi_adapt_initTimer(&sTlkMmiPhoneCtrl.timer, tlkmmi_phone_timer, (uint32)&sTlkMmiPhoneCtrl, TLKMMI_PHONE_TIMEOUT);
+	tlkmmi_phone_adaptInitTimer(&sTlkMmiPhoneCtrl.timer, tlkmmi_phone_timer, (uint32)&sTlkMmiPhoneCtrl, TLKMMI_PHONE_TIMEOUT);
 	tlkmdi_audsco_regCB(tlkmmi_phone_scoConnCB);
 	#endif
 		
@@ -74,7 +70,7 @@ void tlkmmi_phone_resetHfCtrl(void)
 	
 	sTlkMmiPhoneCtrl.optTimer = 0;
 	sTlkMmiPhoneCtrl.hfOpcode = 0;
-	tlkmmi_adapt_removeTimer(&sTlkMmiPhoneCtrl.timer);
+	tlkmmi_phone_adaptRemoveTimer(&sTlkMmiPhoneCtrl.timer);
 }
 #endif
 void tlkmmi_phone_setHfCallStatus(uint16 aclHandle, uint08 hfStatus)

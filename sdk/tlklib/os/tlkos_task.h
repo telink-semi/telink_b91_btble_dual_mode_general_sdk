@@ -72,6 +72,16 @@ int tlkos_task_create(tlkos_task_t *pTask, char *pName, uint08 priority, uint16 
 int tlkos_task_destory(tlkos_task_t *pTask);
 
 /******************************************************************************
+ * Function: tlkos_task_delayMs
+ * Descript: Implement the delayed action of the task.
+ * Params:
+ *     @pTask[IN]--Task control structure.
+ *     @delayMs[IN]--Time to be delayed. Unit-ms.
+ * Return: Operating results, TLK_ENONE means success and others mean failure.
+*******************************************************************************/
+int tlkos_task_delayMs(tlkos_task_t *pTask, uint delayMs);
+
+/******************************************************************************
  * Function: tlkos_task_suspend
  * Descript: Suspend a Task.
  * Params:
@@ -132,6 +142,15 @@ uint tlkos_task_getPriority(tlkos_task_t *pTask);
  * Return: None.
 *******************************************************************************/
 void tlkos_task_setPriority(tlkos_task_t *pTask, uint priority);
+
+/******************************************************************************
+ * Function: tlkos_task_getStackValid
+ * Descript: Query the size of the remaining stack.
+ * Params:
+ *     @pTask[IN]--Task control structure.
+ * Return: The size of the remaining stack. Unit-Bytes.
+*******************************************************************************/
+uint tlkos_task_getStackValid(tlkos_task_t *pTask);
 
 
 #endif //#if (TLK_CFG_OS_ENABLE)

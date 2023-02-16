@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#ifndef TLKDEV_SERIAL_H
-#define TLKDEV_SERIAL_H
-
+#ifndef TLKDEV_HCIUART_H
+#define TLKDEV_HCIUART_H
 
 #if (TLK_DEV_HCIUART_ENABLE) 
 
@@ -49,5 +48,5 @@ void tlkdev_hciuart_handler(void);
 
 #endif
 
-#endif //TLKDEV_SERIAL_H
+#endif //TLKDEV_HCIUART_H
 

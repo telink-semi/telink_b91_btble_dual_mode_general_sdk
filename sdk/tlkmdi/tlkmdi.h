@@ -47,15 +47,6 @@ int  tlkmdi_init(void);
 *******************************************************************************/
 bool tlkmdi_isbusy(void);
 
-/******************************************************************************
- * Function: tlkmdi_process
- * Descript: Trigger to start the process and event handler.
- * Params:
- * Return: None.
- * Others: None.
-*******************************************************************************/
-void tlkmdi_process(void);
-
 
 bool tlkmdi_pmIsbusy(void);
 

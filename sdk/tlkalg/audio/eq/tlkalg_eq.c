@@ -28,6 +28,35 @@
 #include "tlkalg_eq.h"
 #include "tlkstk/inner/tlkstk_utility.h"
 
+
+typedef struct _eq_para{
+	uint8_t eq_nstage;      	///	EQ number of stage.
+	uint8_t eq_sample_rate;	   	/// 0:48K ;1:44.1K ;2: 16K
+	uint8_t eq_channel;			/// 0:left   1:right
+	uint8_t eq_type;			/// 0:TLKALG_EQ_TYPE_MUSIC  1:TLKALG_EQ_TYPE_VOICE_MIC  2:TLKALG_EQ_TYPE_VOICE_SPK
+}__attribute__ ((__packed__)) eq_para_t;
+
+typedef struct _eq_mode_para{
+	signed short gain;					///Gain range(BBEE/100)		: 	-327.68db ~ +327.67db
+	unsigned short freq_c;				///Center frequency range 	:	20~24000
+	unsigned short filter_q;			///Q value range(HHGG/1000)	:	0~65.535
+	unsigned char filter_type;			///filter type(1~8)			:
+	unsigned char cvsd;					///reserved
+}eq_mode_para_t;
+
+typedef struct _eq_mode_header{
+	unsigned char idx;
+	unsigned char max_gain_num;
+	unsigned char filter_sum;
+	unsigned char all_gain;					///Full-band gain reduction range:0~25.6
+}eq_mode_header_t;
+
+typedef struct _eq_mode{
+	eq_mode_header_t eq_header;					/// 4 bytes
+	eq_mode_para_t eq_para[TLKALG_EQ_FILTER_MAX];		/// 8 + 9 bytes
+	int CRC;									/// 4 bytes
+}eq_mode_t;
+
 void eq_proc_new(nds_bq_df1_f32_t *para, signed short *ps, signed short *pd, unsigned int nsample, unsigned char shift);
 void eq_chg_work(void);
 void set_super_listen_mode(uint08 super_listen);
@@ -37,62 +66,27 @@ void eq_type_get_coef(int sample_rate, TLKALG_EQ_FILTER_TYPE_ENUM type, int freq
 void eq_coef_create(int sample_rate,eq_mode_t *filter, float *coeff);
 
 
-/***************************************************************
-**filter
-****************************************************************/
-static eq_mode_t eq_filter_voice_mic;
-static eq_mode_t eq_filter_voice_spk;
+//static int eq_mode = 0x00;
+static unsigned short eq_run_state = 0x0000;
 static eq_mode_t eq_filter;
 static eq_mode_t eq_run_filter;
-
-/***************************************************************
-**restore parameter to flash
-****************************************************************/
-static unsigned char eq_save_buff[TLKALG_EQ_TYPE_LENTH_MAX] = {0};
-static int eq_flash_addr;
 static int eq_voice_stat = 0;
-
-/***************************************************************
-**EQ calculate
-****************************************************************/
-float32_t state_eq_voice_mic_left[4 * TLKALG_EQ_NSTAGE_VOICE_MIC_MAX] = {0.0};
-float32_t state_eq_voice_mic_right[4 * TLKALG_EQ_NSTAGE_VOICE_MIC_MAX] = {0.0};
-float32_t state_eq_voice_speaker_left[4 * TLKALG_EQ_NSTAGE_VOICE_SPK_MAX] = {0.0};
-float32_t state_eq_voice_speaker_right[4 * TLKALG_EQ_NSTAGE_VOICE_SPK_MAX] = {0.0};
-float32_t state_eq_music_left[4 * TLKALG_EQ_NSTAGE_MISIC_SPK_MAX] = {0.0};
-float32_t state_eq_music_right[4 * TLKALG_EQ_NSTAGE_MISIC_SPK_MAX] = {0.0};
-
-nds_bq_df1_f32_t instance_eq_music_left = {0};
-nds_bq_df1_f32_t instance_eq_music_right = {0};
-nds_bq_df1_f32_t instance_eq_voice_mic_left = {0};
-nds_bq_df1_f32_t instance_eq_voice_mic_right = {0};
-nds_bq_df1_f32_t instance_eq_voice_speaker_left = {0};
-nds_bq_df1_f32_t instance_eq_voice_speaker_right = {0};
-
+static eq_mode_t eq_filter_voice_mic;
+static eq_mode_t eq_filter_voice_spk;
 static float32_t coeff_eq_now[TLKALG_EQ_FILTER_MAX*5];
 static float32_t coeff_Voice_mic_eq_now[TLKALG_EQ_FILTER_VOICE_MAX*5];
 static float32_t coeff_Voice_spk_eq_now[TLKALG_EQ_FILTER_VOICE_MAX*5];
-
-/***************************************************************
-**EQ mode change
-****************************************************************/
-volatile static signed short eq_before_gain[8] = {0};
+static int eq_flash_addr;
+static unsigned char eq_save_buff[TLKALG_EQ_TYPE_LENTH_MAX] = {0};
+//volatile static signed short eq_before_gain[8] = {0};
 volatile static signed short eq_after_gain[9] = {0};
-static unsigned short eq_run_state = 0x0000;
 volatile static int eq_updata_flag = 0;
-int super_listen_chg = 0;
-int super_listen_stat = 0;
-int eq_chg_state = 0;
 
-/***************************************************************
-**EQ coefficient update
-****************************************************************/
 static int EQSampleRate = 16000;
-static TLKALG_EQ_TYPE_ENUM EQType = TLKALG_EQ_TYPE_MUSIC;
 
-/***************************************************************
-**EQ patameter table
-****************************************************************/
+
+unsigned short eq_q_default = 700;
+
 const unsigned char eq_voice_mic_default_tab[] =
 {
 	///ZZ
@@ -111,32 +105,32 @@ const unsigned char eq_voice_spk_default_tab[] =
 
 const unsigned char eq_supper_listening_tab[] =
 {
-	///EQ5D 07-25
-	0x00, 0x00, 0x08, 0x45,
-	0x9c, 0xff, 0x78, 0x00, 0xbc, 0x02, 0x05, 0x00,
-	0x96, 0x00, 0x58, 0x02, 0xf4, 0x01, 0x05, 0x00,
-	0x64, 0x00, 0xa4, 0x06, 0x58, 0x02, 0x00, 0x00,
-	0x38, 0xff, 0xd0, 0x07, 0x88, 0x13, 0x00, 0x00,
-	0xa8, 0xfd, 0xb8, 0x0b, 0xdc, 0x05, 0x00, 0x00,
-	0xbc, 0x02, 0x7c, 0x15, 0xc4, 0x09, 0x00, 0x00,
-	0xce, 0xff, 0x70, 0x17, 0xb8, 0x0b, 0x00, 0x00,
-	0x58, 0x02, 0x40, 0x1f, 0x88, 0x13, 0x00, 0x00,
+		///EQ5D 07-25
+		0x00, 0x00, 0x08, 0x45,
+		0x9c, 0xff, 0x78, 0x00, 0xbc, 0x02, 0x05, 0x00,
+		0x96, 0x00, 0x58, 0x02, 0xf4, 0x01, 0x05, 0x00,
+		0x64, 0x00, 0xa4, 0x06, 0x58, 0x02, 0x00, 0x00,
+		0x38, 0xff, 0xd0, 0x07, 0x88, 0x13, 0x00, 0x00,
+		0xa8, 0xfd, 0xb8, 0x0b, 0xdc, 0x05, 0x00, 0x00,
+		0xbc, 0x02, 0x7c, 0x15, 0xc4, 0x09, 0x00, 0x00,
+		0xce, 0xff, 0x70, 0x17, 0xb8, 0x0b, 0x00, 0x00,
+		0x58, 0x02, 0x40, 0x1f, 0x88, 0x13, 0x00, 0x00,
 };
 
 const unsigned char eq_sys_default_tab[] =
 {
-	///07014 EQ4C
-	0x00, 0x00, 0x09, 0x15,
-	0x38, 0xff, 0x14, 0x00, 0xe8, 0x03, 0x02, 0x00,
-	0xae, 0xfc, 0x96, 0x00, 0xbc, 0x02, 0x00, 0x00,
-	0x70, 0xfe, 0x2c, 0x01, 0xbc, 0x02, 0x00, 0x00,
-	0x3e, 0xfe, 0xe8, 0x03, 0xe8, 0x03, 0x00, 0x00,
-	0xc2, 0x01, 0xc4, 0x09, 0xdc, 0x05, 0x00, 0x00,
-	0xa2, 0xfe, 0xd8, 0x0e, 0xe8, 0x03, 0x00, 0x00,
-	0xa8, 0xfd, 0x88, 0x13, 0xd0, 0x07, 0x00, 0x00,
-	0xb4, 0xfb, 0xf4, 0x1a, 0xd0, 0x07, 0x00, 0x00,
-	0x2c, 0x01, 0xbc, 0x1b, 0xe8, 0x03, 0x00, 0x00,		//Fc = 7.1kHz
-	0x00, 0x00, 0x00, 0x00,								
+		///07014 EQ4C
+		0x00, 0x00, 0x09, 0x15,
+		0x38, 0xff, 0x14, 0x00, 0xe8, 0x03, 0x02, 0x00,
+		0xae, 0xfc, 0x96, 0x00, 0xbc, 0x02, 0x00, 0x00,
+		0x70, 0xfe, 0x2c, 0x01, 0xbc, 0x02, 0x00, 0x00,
+		0x3e, 0xfe, 0xe8, 0x03, 0xe8, 0x03, 0x00, 0x00,
+		0xc2, 0x01, 0xc4, 0x09, 0xdc, 0x05, 0x00, 0x00,
+		0xa2, 0xfe, 0xd8, 0x0e, 0xe8, 0x03, 0x00, 0x00,
+		0xa8, 0xfd, 0x88, 0x13, 0xd0, 0x07, 0x00, 0x00,
+		0xb4, 0xfb, 0xf4, 0x1a, 0xd0, 0x07, 0x00, 0x00,
+		0x2c, 0x01, 0xbc, 0x1b, 0xe8, 0x03, 0x00, 0x00,		//Fc = 7.1kHz
+		0x00, 0x00, 0x00, 0x00,								///CRC
 
 };
 
@@ -164,17 +158,111 @@ const unsigned char eq_index_gain[22] = {
 		28,//20
 		13,//21
 };
+
 const unsigned short FREQ_CENTER_TAB[TLKALG_EQ_FILTER_MAX] = {20,150,300,1000,2500,3800,5000,6900,13000};			///07014 EQ4C
 
 
-void tlkalg_eq_setSampleRate(int samplerate, TLKALG_EQ_TYPE_ENUM type)
+eq_para_t g_eq_para = {0, 0, 0, 0};
+
+float32_t state_eq_voice_mic_left[4 * TLKALG_EQ_NSTAGE_VOICE_MIC_MAX] = {0.0};
+float32_t state_eq_voice_mic_right[4 * TLKALG_EQ_NSTAGE_VOICE_MIC_MAX] = {0.0};
+float32_t state_eq_voice_speaker_left[4 * TLKALG_EQ_NSTAGE_VOICE_SPK_MAX] = {0.0};
+float32_t state_eq_voice_speaker_right[4 * TLKALG_EQ_NSTAGE_VOICE_SPK_MAX] = {0.0};
+
+float32_t state_eq_music_left[4 * TLKALG_EQ_NSTAGE_MISIC_SPK_MAX] = {0.0};
+float32_t state_eq_music_right[4 * TLKALG_EQ_NSTAGE_MISIC_SPK_MAX] = {0.0};
+
+
+float32_t coeff_eq_voice_mic_left[5 * TLKALG_EQ_NSTAGE_VOICE_MIC_MAX]={
+		0.983146317605274,-1.896277815330497,0.925516368712182,1.896277815330497,-0.908662686317456,//800hz
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+
+		1.382406919700922,-0.529089646178078,0.000170953890723,0.529089646178078,-0.382577873591645,//3000hz
+
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+		};
+
+float32_t coeff_eq_voice_mic_right[5 * TLKALG_EQ_NSTAGE_VOICE_MIC_MAX]={
+		0.983146317605274,-1.896277815330497,0.925516368712182,1.896277815330497,-0.908662686317456,//800hz
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+
+		1.382406919700922,-0.529089646178078,0.000170953890723,0.529089646178078,-0.382577873591645,//3000hz
+
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+		};
+float32_t coeff_eq_voice_speaker[5 * TLKALG_EQ_NSTAGE_VOICE_SPK_MAX]={
+		0.983146317605274,-1.896277815330497,0.925516368712182,1.896277815330497,-0.908662686317456,//800hz
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+
+		1.382406919700922,-0.529089646178078,0.000170953890723,0.529089646178078,-0.382577873591645,//3000hz
+
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+		};
+
+#if !TLKALG_EQ_CFG_SOUNDBAR_EN
+float32_t coeff_eq_music[5 * TLKALG_EQ_NSTAGE_MISIC_SPK_MAX]={
+		0.641315507164827,-1.276599943182477,0.635576025971789,1.977219207703750,-0.977670827070627,//150hz
+		0.983146317605274,-1.896277815330497,0.925516368712182,1.896277815330497,-0.908662686317456,//800hz
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+		0.765811941060125,-0.549372341991572,0.549199557503762,0.549372341991572,-0.315011498563887,//8000hz
+		1.003711775896785,-1.985834512331222,0.985352001577454,1.985834512331222,-0.989063777474239,//400hz
+		1.000661190971452,-1.997706663070697,0.997077914287511,1.997706663070697,-0.997739105258963,//40hz
+		1.146341835423319,-1.165202515691840,0.522436558253714,1.165202515691840,-0.668778393677034,//5600hz
+		1.081366997900438,-0.199579955157407,0.290135417898591,0.199579955157407,-0.371502415799029,//10000hz
+		1.173619595324526,0.621475740306107,-0.015334962023055,-0.621475740306107,-0.158284633301471,//15000hz
+};
+		
+float32_t coeff_eq_music_44p1k[5 * TLKALG_EQ_NSTAGE_MISIC_SPK_MAX]={
+		0.641315507164827,-1.276599943182477,0.635576025971789,1.977219207703750,-0.977670827070627,//150hz
+		0.983146317605274,-1.896277815330497,0.925516368712182,1.896277815330497,-0.908662686317456,//800hz
+		1.018304336102112,-1.823726756975888,0.907922907437080,1.823726756975888,-0.926227243539192,//2300hz
+		0.765811941060125,-0.549372341991572,0.549199557503762,0.549372341991572,-0.315011498563887,//8000hz
+		1.003711775896785,-1.985834512331222,0.985352001577454,1.985834512331222,-0.989063777474239,//400hz
+		1.000661190971452,-1.997706663070697,0.997077914287511,1.997706663070697,-0.997739105258963,//40hz
+		1.146341835423319,-1.165202515691840,0.522436558253714,1.165202515691840,-0.668778393677034,//5600hz
+		1.081366997900438,-0.199579955157407,0.290135417898591,0.199579955157407,-0.371502415799029,//10000hz
+		1.173619595324526,0.621475740306107,-0.015334962023055,-0.621475740306107,-0.158284633301471,//15000hz
+ };
+
+#else
+
+float32_t coeff_eq_music[5 * nstage_eq_music]={
+
+		0.4674666667,		-0.8063800000,		0.4670459467,				1.6149000000,		-0.6775000000,
+		0.6000000000,		-0.9928200000,		0.5960400000,				1.3206000000,		-0.4186000000,
+		0.2000000000,		-0.1928000000,		0.1605000000,				1.6741000000,		-0.7791000000,
+		0.0500000000,		0.0235500000,		0.0341800000,				1.7362000000,		-0.8802000000,
+		0.0100000000,		0.0162460000,		0.0066790000,				1.7957000000,		-0.9627000000,
+
+};
+		
+float32_t coeff_eq_music_44p1k[5 * nstage_eq_music]={
+
+		1,-1.9963937997818,0.996444463729858,1.9963937997818,-0.996444463729858,
+		1,-1.70224785804749,0.831227481365204,1.70224785804749,-0.831227481365204,
+		1,-1.25303387641907,0.7093386054039,1.25303387641907,-0.7093386054039,
+		1,-0.713701367378235,0.632847130298615,0.713701367378235,-0.632847130298615,
+		1,-0.131019100546837,0.601073980331421,0.131019100546837,-0.601073980331421,
+
+};
+#endif
+
+nds_bq_df1_f32_t instance_eq_music_left = {TLKALG_EQ_NSTAGE_MISIC_SPK, state_eq_music_left, coeff_eq_music_44p1k};
+nds_bq_df1_f32_t instance_eq_music_right = {TLKALG_EQ_NSTAGE_MISIC_SPK, state_eq_music_right, coeff_eq_music_44p1k};
+
+
+nds_bq_df1_f32_t instance_eq_voice_mic_left = {TLKALG_EQ_NSTAGE_VOICE_MIC, state_eq_voice_mic_left, coeff_eq_voice_mic_left};
+nds_bq_df1_f32_t instance_eq_voice_mic_right = {TLKALG_EQ_NSTAGE_VOICE_MIC, state_eq_voice_mic_right, coeff_eq_voice_mic_right};
+
+nds_bq_df1_f32_t instance_eq_voice_speaker_left = {TLKALG_EQ_NSTAGE_VOICE_SPK, state_eq_voice_speaker_left, coeff_eq_voice_speaker};
+nds_bq_df1_f32_t instance_eq_voice_speaker_right = {TLKALG_EQ_NSTAGE_VOICE_SPK, state_eq_voice_speaker_right, coeff_eq_voice_speaker};
+
+
+////////////////////////////////////////////new EQ mode////////////////////////////////////////////////////////
+void tlkalg_eq_setSampleRate(int samplerate, int type)//should be allocated in switch function
 {
-	if((samplerate == EQSampleRate) && (type == EQType)) return;
-	
 	EQSampleRate = samplerate;
-	EQType = type;
 	eq_state_reset_new_all();
-	
 	switch(type)
 	{
 		case TLKALG_EQ_TYPE_VOICE_SPK: 
@@ -193,6 +281,8 @@ void tlkalg_eq_setSampleRate(int samplerate, TLKALG_EQ_TYPE_ENUM type)
 
 _attribute_ram_code_ void eq_state_reset_new_all(void)
 {
+//	my_dump_str_u32s (1, "eq_state_reset_all", 0, 0, 0, 0);
+
 	tmemset (&state_eq_music_left, 0, sizeof (state_eq_music_left));
 	tmemset (&state_eq_music_right, 0, sizeof (state_eq_music_right));
 
@@ -203,37 +293,44 @@ _attribute_ram_code_ void eq_state_reset_new_all(void)
 	tmemset (&state_eq_voice_speaker_right, 0, sizeof (state_eq_voice_speaker_right));
 }
 
-void tlkalg_eq_dataProcess(TLKALG_EQ_TYPE_ENUM type, TLKALG_EQ_CHANNEL_ENUM chn, sint16* ps, int samples)
+void tlkalg_eq_dataProcess(int type, int chn, int sample_rate, sint16* ps, int samples)
 {
-	
-	if(type == TLKALG_EQ_TYPE_VOICE_SPK)
+//	int nstage;
+//	if(chn == TLKALG_EQ_CHANNEL_LEFT) nstage = instance_eq_music_left.nstage;
+//	else nstage = instance_eq_music_right.nstage;
+
+	if(type == TLKALG_EQ_TYPE_VOICE_MIC||type == TLKALG_EQ_TYPE_VOICE_SPK)
 	{
-		if(chn == TLKALG_EQ_CHANNEL_RIGHT)
+		if(type == TLKALG_EQ_TYPE_VOICE_SPK)
 		{
-			instance_eq_voice_speaker_right.coeff = coeff_Voice_spk_eq_now;
-			instance_eq_voice_speaker_right.nstage = eq_filter_voice_spk.eq_header.filter_sum;
-			instance_eq_voice_speaker_right.state = state_eq_voice_speaker_right;
-			eq_proc_new(&instance_eq_voice_speaker_right, ps, ps, samples, 0);
+			if(chn)
+			{
+				instance_eq_voice_speaker_right.coeff = coeff_Voice_spk_eq_now;
+				instance_eq_voice_speaker_right.nstage = eq_filter_voice_spk.eq_header.filter_sum;
+				instance_eq_voice_speaker_right.state = state_eq_voice_speaker_right;
+				eq_proc_new(&instance_eq_voice_speaker_right, ps, ps, samples, 0);
+			}
+			else
+			{
+				instance_eq_voice_speaker_left.coeff = coeff_Voice_spk_eq_now;
+				instance_eq_voice_speaker_left.nstage = eq_filter_voice_spk.eq_header.filter_sum;
+				instance_eq_voice_speaker_left.state = state_eq_voice_speaker_left;
+				eq_proc_new(&instance_eq_voice_speaker_left, ps, ps, samples, 0);
+			}
 		}
-		else
+
+		if(type == TLKALG_EQ_TYPE_VOICE_MIC)
 		{
-			instance_eq_voice_speaker_left.coeff = coeff_Voice_spk_eq_now;
-			instance_eq_voice_speaker_left.nstage = eq_filter_voice_spk.eq_header.filter_sum;
-			instance_eq_voice_speaker_left.state = state_eq_voice_speaker_left;
-			eq_proc_new(&instance_eq_voice_speaker_left, ps, ps, samples, 0);
+			instance_eq_voice_mic_left.coeff = coeff_Voice_mic_eq_now;
+			instance_eq_voice_mic_left.nstage = eq_filter_voice_mic.eq_header.filter_sum;
+			instance_eq_voice_mic_left.state = state_eq_voice_mic_left;
+			eq_proc_new(&instance_eq_voice_mic_left, ps, ps, samples, 0);
 		}
-	}
-	else if(type == TLKALG_EQ_TYPE_VOICE_MIC)
-	{
-		instance_eq_voice_mic_left.coeff = coeff_Voice_mic_eq_now;
-		instance_eq_voice_mic_left.nstage = eq_filter_voice_mic.eq_header.filter_sum;
-		instance_eq_voice_mic_left.state = state_eq_voice_mic_left;
-		eq_proc_new(&instance_eq_voice_mic_left, ps, ps, samples, 0);
 	}
 	else if( type == TLKALG_EQ_TYPE_MUSIC)
 	{
 		eq_chg_work();
-		if(chn == TLKALG_EQ_CHANNEL_RIGHT)
+		if(chn)
 		{
 			instance_eq_music_right.coeff = coeff_eq_now;
 			instance_eq_music_right.nstage = eq_run_filter.eq_header.filter_sum;
@@ -249,14 +346,16 @@ void tlkalg_eq_dataProcess(TLKALG_EQ_TYPE_ENUM type, TLKALG_EQ_CHANNEL_ENUM chn,
 		}
 	}
 }
-int  tlkalg_eq_procss(TLKALG_EQ_TYPE_ENUM type, TLKALG_EQ_CHANNEL_ENUM chn, int sampleRate, sint16 *pData, int samples)
+int  tlkalg_eq_procss(int type, int chn, int sampleRate, sint16 *pData, int samples)
 {
 	if(samples > 64) return -TLK_EPARAM;
 
-	tlkalg_eq_setSampleRate(sampleRate, type);
+	if(sampleRate != EQSampleRate){
+		tlkalg_eq_setSampleRate(sampleRate, type);
+	}
 	
 	if(chn != TLKALG_EQ_CHANNEL_STEREO){
-		tlkalg_eq_dataProcess(type, chn, pData, samples);
+		tlkalg_eq_dataProcess(type, chn,  sampleRate, pData, samples);
 	}else{
 		uint08 index;
 		sint16 lChnData[64];
@@ -265,8 +364,8 @@ int  tlkalg_eq_procss(TLKALG_EQ_TYPE_ENUM type, TLKALG_EQ_CHANNEL_ENUM chn, int 
 			lChnData[index] = *pData++;
 			rChnData[index] = *pData++;
 		}
-		tlkalg_eq_dataProcess(type, TLKALG_EQ_CHANNEL_LEFT, lChnData, samples);
-		tlkalg_eq_dataProcess(type, TLKALG_EQ_CHANNEL_RIGHT, rChnData, samples);
+		tlkalg_eq_dataProcess(type, TLKALG_EQ_CHANNEL_LEFT,  sampleRate, lChnData, samples);
+		tlkalg_eq_dataProcess(type, TLKALG_EQ_CHANNEL_RIGHT, sampleRate, rChnData, samples);
 		for(index=0; index<samples; index++){
 			*pData++ = lChnData[index];
 			*pData++ = rChnData[index];
@@ -400,6 +499,72 @@ void eq_mode_convert(unsigned char *eq_data,eq_mode_t *eq_filter_data)
 #endif
 }
 
+nds_bq_df1_f32_t *eq_instance_new_get(eq_para_t para)
+{
+	nds_bq_df1_f32_t *eq_tp = NULL;
+
+	switch(para.eq_type)
+	{
+	case TLKALG_EQ_TYPE_MUSIC:
+		if (TLKALG_EQ_CHANNEL_RIGHT == para.eq_channel)
+		{
+			instance_eq_music_right.nstage = eq_filter.eq_header.filter_sum;
+			instance_eq_music_right.state = state_eq_music_right;
+			instance_eq_music_right.coeff = coeff_eq_now;
+			eq_tp = &instance_eq_music_right;
+		}
+		else
+		{
+			instance_eq_music_left.nstage = eq_filter.eq_header.filter_sum;
+			instance_eq_music_left.state = state_eq_music_left;
+			instance_eq_music_left.coeff = coeff_eq_now;
+			eq_tp = &instance_eq_music_left;
+		}
+		break;
+
+	case TLKALG_EQ_TYPE_VOICE_MIC:
+#if (PROJ_DUALMODE_HEADSET || PROJ_CC_HEADSET)
+		if (TLKALG_EQ_CHANNEL_RIGHT == para.eq_channel)
+		{
+			instance_eq_voice_mic_right.nstage = para.eq_nstage;
+			instance_eq_voice_mic_right.state = state_eq_voice_mic_right;
+			instance_eq_voice_mic_right.coeff = coeff_eq_voice_mic_right;
+			eq_tp = &instance_eq_voice_mic_right;
+		}
+		else
+#endif
+		{
+			instance_eq_voice_mic_left.nstage = para.eq_nstage;
+			instance_eq_voice_mic_left.state = state_eq_voice_mic_left;
+			instance_eq_voice_mic_left.coeff = coeff_eq_voice_mic_left;
+			eq_tp = &instance_eq_voice_mic_left;
+		}
+		break;
+
+	case TLKALG_EQ_TYPE_VOICE_SPK:
+		if (TLKALG_EQ_CHANNEL_RIGHT == para.eq_channel)
+		{
+			instance_eq_voice_speaker_right.nstage = para.eq_nstage;
+			instance_eq_voice_speaker_right.state = state_eq_voice_speaker_right;
+			instance_eq_voice_speaker_right.coeff = coeff_eq_voice_speaker;
+			eq_tp = &instance_eq_voice_speaker_right;
+		}
+		else
+		{
+			instance_eq_voice_speaker_left.nstage = para.eq_nstage;
+			instance_eq_voice_speaker_left.state = state_eq_voice_speaker_left;
+			instance_eq_voice_speaker_left.coeff = coeff_eq_voice_speaker;
+			eq_tp = &instance_eq_voice_speaker_left;
+		}
+		break;
+	default:
+		eq_tp = NULL;
+		break;
+	}
+
+	return eq_tp;
+}
+
 void tlkalg_eq_loadParam(uint32 adr, uint16 index, uint08 super_listen_flag)
 {
 	uint32_t eq_index_add;
@@ -417,6 +582,12 @@ void tlkalg_eq_loadParam(uint32 adr, uint16 index, uint08 super_listen_flag)
 //	memcpy(tx_buff, &eq_run_filter, sizeof (eq_run_filter));
 //	while (spi_is_busy(1));
 //	spi_master_write_dma(1, (unsigned char *)&tx_buff, sizeof (eq_run_filter));
+
+//	uint08 tx_buff1[200];
+//	memcpy(tx_buff1, coeff_eq_now, sizeof (coeff_eq_now));
+//	while (spi_is_busy(1));
+//	spi_master_write_dma(1, (unsigned char *)&tx_buff1, sizeof (coeff_eq_now));
+//	#endif
 	//*********************************************************************************
 	tlkapi_sendStr(TLKALG_EQ_DEBUG_ENABLE,"tlkalg_eq_loadParam");
 	if(adr)
@@ -441,7 +612,7 @@ void tlkalg_eq_loadParam(uint32 adr, uint16 index, uint08 super_listen_flag)
 		}
 		else
 		{
-			//save eq 	for test
+#if 1		//save eq 	for test
 			eq_index_add = adr;
 			u32 r = irq_disable ();
 			flash_read_page(eq_index_add, TLKALG_EQ_TYPE_LENTH_MAX, (uint08*)&eq_filter);
@@ -462,6 +633,19 @@ void tlkalg_eq_loadParam(uint32 adr, uint16 index, uint08 super_listen_flag)
 					tlkapi_sendData (TLKALG_EQ_DEBUG_ENABLE, "EQ_STAGE: Err ", &eq_filter.eq_header.filter_sum, 1);
 				}
 			}
+#else
+			eq_index_add = adr + index * TLKALG_EQ_TYPE_LENTH_MAX;
+			u32 r = irq_disable ();
+			flash_read_page(eq_index_add, TLKALG_EQ_TYPE_LENTH_MAX, &eq_filter);
+			irq_restore (r);
+			if(eq_filter.eq_header.filter_sum>9)
+			{
+				index = 0x00;
+				tmemcpy(&eq_filter,eq_sys_default_tab,sizeof(eq_sys_default_tab));
+				eq_filter->eq_header.max_gain_num = 3;
+				tlkapi_sendData (TLKALG_EQ_DEBUG_ENABLE, "EQ filter_sum Err ", 0, 0);
+			}
+#endif
 		}
 		tmemcpy (eq_save_buff, &eq_filter, sizeof (eq_filter));
 		tmemcpy (&eq_run_filter, &eq_filter, sizeof (eq_filter));
@@ -728,7 +912,7 @@ void tlkalg_eq_saveParam(void)
 
 	if(tmemcmp(eq_save_tmp,eq_save_buff,TLKALG_EQ_TYPE_LENTH_MAX))
 	{
-		u32 r = irq_disable ();
+		r = irq_disable ();
 		flash_erase_sector(eq_flash_addr);
 		flash_write_page(eq_flash_addr, (unsigned long)TLKALG_EQ_TYPE_LENTH_MAX, eq_save_buff);
 		irq_restore (r);
@@ -740,7 +924,9 @@ void tlkalg_eq_saveParam(void)
 	}
 }
 
-
+int super_listen_chg = 0;
+int super_listen_stat = 0;
+int eq_chg_state = 0;
 void set_super_listen_mode(uint08 super_listen)
 {
 	tlkapi_sendData(TLKALG_EQ_DEBUG_ENABLE, "CMD_SET_SUPPER_LISTENING_handle", 0, 0);

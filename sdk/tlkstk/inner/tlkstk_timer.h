@@ -35,13 +35,14 @@ typedef struct ev_timer_event {
     uint32_t t;         //!< Used internal
     uint32_t interval;  //!< Used internal
     uint32_t data;             //!< Callback function arguments.
+    uint8_t link_id;
 } ev_timer_event_t;
 
 typedef ev_timer_event_t * ev_timer_list_t;
 
 extern void timer_event_init(void);
-extern ev_timer_event_t *ev_on_timer(ev_timer_callback_t cb, uint32_t data, uint32_t t_us, ev_timer_list_t *event_pend_list);
-extern void ev_unon_timer(ev_timer_event_t *e, ev_timer_list_t *event_pend_list);
+extern ev_timer_event_t *ev_on_timer(uint8_t link_id,ev_timer_callback_t cb, uint32_t data, uint32_t t_us, ev_timer_list_t *event_pend_list);
+extern void ev_unon_timer(uint8_t link_id,ev_timer_callback_t cb, ev_timer_list_t *event_pend_list);
 extern void ev_process_timer(ev_timer_list_t *event_pend_list);
 
 

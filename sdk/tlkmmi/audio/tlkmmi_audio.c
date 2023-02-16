@@ -20,29 +20,28 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
-#include "tlkmmi/tlkmmi_adapt.h"
 #if (TLKMMI_AUDIO_ENABLE)
+#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlkmdi/tlkmdi_stdio.h"
+#include "tlkmdi/aud/tlkmdi_audmp3.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
-#include "tlkmmi/audio/tlkmmi_audio.h"
-#include "tlkmmi/audio/tlkmmi_audioCtrl.h"
-#include "tlkmmi/audio/tlkmmi_audioInfo.h"
-#include "tlkmmi/audio/tlkmmi_audioComm.h"
-#include "tlkmmi/audio/tlkmmi_audioStatus.h"
-#include "tlkmmi/audio/tlkmmi_audioModinf.h"
+#include "tlkmmi_audio.h"
+#include "tlkmmi_audioAdapt.h"
+#include "tlkmmi_audioCtrl.h"
+#include "tlkmmi_audioInfo.h"
+#include "tlkmmi_audioSch.h"
+#include "tlkmmi_audioModinf.h"
+#include "tlkmmi_audioTask.h"
+#include "drivers.h"
+
+#include "tlkdev/sys/tlkdev_codec.h"
 
 
 
 static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg);
-#if (TLKAPI_TIMER_ENABLE)
 static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg);
-#endif //#if (TLKAPI_TIMER_ENABLE)
 #if (TLK_ALG_EQ_ENABLE)
 void tlkalg_eq_loadParam(uint32 addr, uint16 index, uint08 flag);
 #endif
@@ -55,6 +54,7 @@ uint08 gTlkMmiAudioTmrCount = 0;
 tlkapi_timer_t gTlkMmiAudioCurTimer;
 tlkapi_timer_t gTlkMmiAudioIrqTimer;
 static uint08 sTlkMmiAudioCodecIdleTmrCount = 0;
+
 
 /******************************************************************************
  * Function: tlkmmi_audio_init
@@ -69,16 +69,14 @@ int tlkmmi_audio_init(void)
 	tlkalg_eq_loadParam(TLK_CFG_FLASH_EQ_TEST_ADDR, 0xffff, 0);
 	#endif
 	tlkdev_codec_init();
-	
+
+	tlkmmi_audio_taskInit();
 	tlkmmi_audio_infoInit();
-	tlkmmi_audio_commInit();
 	tlkmmi_audio_ctrlInit();
-	tlkmmi_audio_statusInit();
-	tlkmmi_adapt_initTimer(&gTlkMmiAudioCurTimer, tlkmmi_audio_timer, NULL, TLKMMI_AUDIO_TIMEOUT);
-	#if (TLKAPI_TIMER_ENABLE)
+	tlkmmi_audio_schInit();
+	tlkmmi_audio_adaptInitTimer(&gTlkMmiAudioCurTimer, tlkmmi_audio_timer, NULL, TLKMMI_AUDIO_TIMEOUT);
 	tlkapi_timer_initNode(&gTlkMmiAudioIrqTimer, tlkmmi_audio_irqTimer, NULL, TLKMMI_AUDIO_TIMEOUT);
-	#endif
-	gTlkMmiAudioCurOptype = TLKMMI_AUDIO_OPTYPE_NONE;
+	gTlkMmiAudioCurOptype = TLKPTI_AUD_OPTYPE_NONE;
 	
 	return TLK_ENONE;
 }
@@ -96,28 +94,7 @@ bool tlkmmi_audio_isBusy(void)
 	return false;
 }
 
-void tlkmmi_audio_connect(uint16 handle, uint08 ptype, uint08 usrID)
-{
-#if (TLK_STK_BTP_ENABLE)
-	if(ptype == BTP_PTYPE_A2DP){
-		int srcIndex;
-		int snkIndex;
-		int playIndex;
-		int dstOptype;
-		srcIndex = tlkmmi_audio_statusIndexByOptype(TLKMMI_AUDIO_OPTYPE_SRC);
-		snkIndex = tlkmmi_audio_statusIndexByOptype(TLKMMI_AUDIO_OPTYPE_SNK);
-		playIndex = tlkmmi_audio_statusIndex(TLK_INVALID_HANDLE, TLKMMI_AUDIO_OPTYPE_PLAY);
-		if(playIndex >= 0){
-			tlkmmi_audio_removeStatus(TLK_INVALID_HANDLE, TLKMMI_AUDIO_OPTYPE_PLAY);
-		}
-		if(usrID == BTP_USRID_SERVER) dstOptype = TLKMMI_AUDIO_OPTYPE_SRC;
-		else dstOptype = TLKMMI_AUDIO_OPTYPE_SNK;
-		if(playIndex >= 0 && srcIndex < 0 && snkIndex < 0){
-			tlkmmi_audio_modinfStart(dstOptype, handle, 0);
-		}
-	}
-#endif
-}
+
 /******************************************************************************
  * Function: tlkmmi_audio_disconn
  * Descript:
@@ -127,22 +104,20 @@ void tlkmmi_audio_connect(uint16 handle, uint08 ptype, uint08 usrID)
 *******************************************************************************/
 void tlkmmi_audio_disconn(uint16 handle)
 {
-	tlkmmi_audio_removeStatusByHandle(handle);
+	tlkmmi_audio_removeItemByHandle(handle);
 }
 
 void tlkmmi_audio_start(void)
 {
-	#if (TLKAPI_TIMER_ENABLE)
 	tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, 1000, true);
-	#endif
 	gTlkMmiAudioTmrState = 2;
 	gTlkMmiAudioTmrCount = TLKMMI_AUDIO_TIMER_TIMEOUT;
 	sTlkMmiAudioCodecIdleTmrCount = TLKMMI_AUDIO_CODEC_IDLE_TIMEOUT;
 	tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
-	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_SRC){
-		if(gTlkMmiAudioCtrl.report.enable) tlkmmi_adapt_insertTimer(&gTlkMmiAudioCtrl.timer);
+	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC){
+		if(gTlkMmiAudioCtrl.report.enable) tlkmmi_audio_adaptInsertTimer(&gTlkMmiAudioCtrl.timer);
 	}
-	tlkmmi_adapt_insertTimer(&gTlkMmiAudioCurTimer);
+	tlkmmi_audio_adaptInsertTimer(&gTlkMmiAudioCurTimer);
 }
 void tlkmmi_audio_close(void)
 {
@@ -150,15 +125,13 @@ void tlkmmi_audio_close(void)
 	uint16 handle = gTlkMmiAudioCurHandle;
 	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: status over");
 	tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
-	gTlkMmiAudioCurOptype = TLKMMI_AUDIO_OPTYPE_NONE;
+	gTlkMmiAudioCurOptype = TLKPTI_AUD_OPTYPE_NONE;
 	gTlkMmiAudioCurHandle = 0;
 	sTlkMmiAudioCodecIdleTmrCount = 0;
-	#if (TLKAPI_TIMER_ENABLE)
 	tlkapi_timer_removeNode(&gTlkMmiAudioIrqTimer);
-	#endif
 	gTlkMmiAudioTmrState = 0;
-	tlkmmi_audio_removeStatus(handle, optype);
-	tlkmmi_adapt_removeTimer(&gTlkMmiAudioCurTimer);
+	tlkmmi_audio_removeItem(handle, optype);
+	tlkmmi_audio_adaptRemoveTimer(&gTlkMmiAudioCurTimer);
 }
 
 
@@ -166,7 +139,7 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 //	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_timer 01: {optype-%d,handle-%d,count-%d,state-%d}", 
 //		gTlkMmiAudioCurOptype, gTlkMmiAudioCurHandle, gTlkMmiAudioTmrCount, gTlkMmiAudioTmrState);
-	if(gTlkMmiAudioCurOptype != TLKMMI_AUDIO_OPTYPE_NONE){
+	if(gTlkMmiAudioCurOptype != TLKPTI_AUD_OPTYPE_NONE){
 		tlkmmi_audio_modinfTimer(gTlkMmiAudioCurOptype);
 		if(gTlkMmiAudioTmrCount != 0) gTlkMmiAudioTmrCount--;
 		if(!tlkmmi_audio_modinfIsBusy(gTlkMmiAudioCurOptype)){
@@ -181,42 +154,37 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 			tlkmmi_audio_start();
 		}else if(gTlkMmiAudioTmrCount == 0){
 			tlkapi_fatal(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: timer fault");
-			#if (TLKAPI_TIMER_ENABLE)
 			tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, 3000, true);
-			#endif
 			gTlkMmiAudioTmrCount = TLKMMI_AUDIO_TIMER_TIMEOUT;
 		}
 	}
 	else if(gTlkMmiAudioTmrState != 0){
 		tlkapi_info(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: close timer");
 		if(gTlkMmiAudioTmrState == 2){
-			gTlkMmiAudioCurOptype = TLKMMI_AUDIO_OPTYPE_NONE;
+			gTlkMmiAudioCurOptype = TLKPTI_AUD_OPTYPE_NONE;
 			gTlkMmiAudioCurHandle = 0;
-			#if (TLKAPI_TIMER_ENABLE)
 			tlkapi_timer_removeNode(&gTlkMmiAudioIrqTimer);
-			#endif
 		}
 		gTlkMmiAudioTmrState = 0;
 		sTlkMmiAudioCodecIdleTmrCount = 0;
 		tlkdev_codec_muteSpk();
 		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
 	}
-	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_SRC){
+	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC){
 		#if (TLK_MDI_MP3_ENABLE)
 		if(tlkmdi_mp3_isUpdate()) tlkmdi_mp3_startUpdate();
 		#endif
 	}
-		
+	
 	if(gTlkMmiAudioCurOptype != 0 || gTlkMmiAudioTmrState != 0) return true;
 	else return false;
 }
 
-#if (TLKAPI_TIMER_ENABLE)
 static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	uint32 timeIntval;
 	
-	if(gTlkMmiAudioCurOptype == TLKMMI_AUDIO_OPTYPE_NONE) return false;
+	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_NONE) return false;
 	
 	if(!tlkmmi_audio_modinfIrqProc(gTlkMmiAudioCurOptype)){
 		tlkdev_codec_muteSpk();
@@ -228,7 +196,7 @@ static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 		else if(timeIntval > 1000000) timeIntval = 1000000;
 	}
 	
-	if(gTlkMmiAudioCurOptype != TLKMMI_AUDIO_OPTYPE_NONE){
+	if(gTlkMmiAudioCurOptype != TLKPTI_AUD_OPTYPE_NONE){
 		tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, timeIntval, true);
 		gTlkMmiAudioTmrCount = TLKMMI_AUDIO_TIMER_TIMEOUT;
 	}else{
@@ -238,7 +206,7 @@ static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 
 	return false;
 }
-#endif
+
 
 
 #endif //#if (TLKMMI_AUDIO_ENABLE)

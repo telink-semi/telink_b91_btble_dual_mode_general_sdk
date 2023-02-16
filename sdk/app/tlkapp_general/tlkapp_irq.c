@@ -20,7 +20,7 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
+#include "tlkapi/tlkapi_stdio.h"
 #include "types.h"
 #include "drivers.h"
 #include "tlkapp_config.h"
@@ -62,9 +62,7 @@ _attribute_retention_code_ void dma_irq_handler(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-extern void default_irq_entry(void);
 extern void trap_entry(void);
-
 void  entry_null(void) __attribute__ ((interrupt ("machine") , aligned(4)));
 _attribute_retention_code_ void  entry_null(void)
 {

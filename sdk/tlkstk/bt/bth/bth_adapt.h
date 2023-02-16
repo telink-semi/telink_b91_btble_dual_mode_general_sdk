@@ -27,96 +27,87 @@
 
 /******************************************************************************
  * Function: bth_adapt_init
- * Descript: This interface to initial event and timer scheduler.
- * Params:
- * return: Returning TLK_ENONE(0x00) means the send process success.
- *         If others value is returned means the send process fail.
+ * Descript: Initializes the adapter control parameters.
+ * Params: None.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Others: None.
 *******************************************************************************/
 int  bth_adapt_init(void);
 
 /******************************************************************************
- * Function: bth_adapt_run_once
- * Descript: 
- * Params:
- *     @adapt[IN]--The adapt self-manages handle.
+ * Function: bth_adapt_handler
+ * Descript: Implement the function of traversing the scheduled task and work
+ *           queue in the adapter to ensure the timeliness of execution.
+ * Params: None.
  * Return: None.
  * Others: None.
 *******************************************************************************/
 void bth_adapt_handler(void);
 
 /******************************************************************************
- * Function: bth_adapt_initTimer
- * Descript: 
+ * Function: bth_adapt_interval
+ * Descript: Gets the execution time of the next task in the adapter.
+ * Params: None.
+ * Return: The execution time of the next task in the process.
+ * Others: None.
+*******************************************************************************/
+uint bth_adapt_interval(void);
+
+/******************************************************************************
+ * Function: bth_adapt_initTimer, bth_adapt_deinitTimer
+ *           bth_adapt_initQueue, bth_adapt_deinitQueue
+ * Descript: Initializes and deinitializes the timing scheduler and work queue.
  * Params:
- *     @pTimer[IN]--
- *     @userArg[IN]--
- *     @timeout[IN]--Unit: us.
- *     @timerCB[IN]--
- * Return: None.
+ *     @pTimer[IN]--Timer scheduling node.
+ *     @pQueue[IN]--Work queue node.
+ *     @userArg[IN]--Parameters passed in by the user will be returned on the call.
+ *     @timeout[IN]--Scheduling interval set by the user. Unit:us.
+ *     @timerCB[IN]--The callback interface after the time has arrived.
+ *     @queueCB[IN]--The callback interface for the work to be executed.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
 int  bth_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
-int  bth_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg);
+int  bth_adapt_initQueue(tlkapi_queue_t *pQueue, TlkApiQueueCB queueCB, uint32 userArg);
 void bth_adapt_deinitTimer(tlkapi_timer_t *pTimer);
-void bth_adapt_deinitProcs(tlkapi_procs_t *pProcs);
+void bth_adapt_deinitQueue(tlkapi_queue_t *pQueue);
 
 /******************************************************************************
- * Function: bth_adapt_isHaveTimer, bth_adapt_isHaveProcs
- * Descript: 
+ * Function: bth_adapt_isHaveTimer, bth_adapt_isHaveQueue
+ * Descript: Check whether scheduled tasks and cache work exist in the adaptation.
  * Params:
- *     @pAdapt[IN]--
- *     @pTimer[IN]--
- *     @pProcs[IN]--
- * Return: None.
+ *     @pTimer[IN]--Timer scheduling node.
+ *     @pQueue[IN]--Work queue node.
+ * Return: Return TRUE if has, FALSE otherwise.
  * Others: None.
 *******************************************************************************/
 bool bth_adapt_isHaveTimer(tlkapi_timer_t *pTimer);
-bool bth_adapt_isHaveProcs(tlkapi_procs_t *pProcs);
+bool bth_adapt_isHaveQueue(tlkapi_queue_t *pQueue);
 
 /******************************************************************************
- * Function: bth_adapt_appendAgent, bth_adapt_removeAgent
- * Descript: 
+ * Function: bth_adapt_appendQueue, bth_adapt_removeQueue
+ * Descript: Implement the function of adding and deleting work queues.
  * Params:
- *     @pAdapt[IN]--
- *     @pAgent[IN]--
- * Return: None.
+ *     @pQueue[IN]--Work queue node.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int  bth_adapt_appendProcs(tlkapi_procs_t *pProcs);
-int  bth_adapt_removeProcs(tlkapi_procs_t *pProcs);
+int  bth_adapt_appendQueue(tlkapi_queue_t *pQueue);
+int  bth_adapt_removeQueue(tlkapi_queue_t *pQueue);
 
 /******************************************************************************
- * Function: bth_adapt_updateTimer
- * Descript: Insert a timer timer into the Adapter.
+ * Function: bth_adapt_updateTimer, bth_adapt_insertTimer,
+ *           bth_adapt_removeTimer
+ * Descript: Implement the function of adding, deleting and updating timer.
  * Params:
- *     @pAdapt[IN]--The adapt self-manages handle.
- *     @pTimer[IN]--Timer.
- *     @timeout[IN]--Unit: us.
+ *     @pTimer[IN]--Timer scheduling node.
+ *     @isUpdate[IN]--True,Timer recount; False,Depending on the state of the
+ *       other parameters, the timer may continue the previous counting logic.
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
 int  bth_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
-
-/******************************************************************************
- * Function: bth_adapt_insertTimer
- * Descript: Insert a timer timer into the Adapter.
- * Params:
- *     @pAdapt[IN]--The adapt self-manages handle.
- *     @pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
- * Others: None.
-*******************************************************************************/
 int  bth_adapt_insertTimer(tlkapi_timer_t *pTimer);
-
-/******************************************************************************
- * Function: bth_adapt_removeTimer
- * Descript: Remove a timer timer from the Adapter.
- * Params:
- *     @pAdapt[IN]--The adapt self-manages handle.
- *     @pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
- * Others: None.
-*******************************************************************************/
 int  bth_adapt_removeTimer(tlkapi_timer_t *pTimer);
 
 

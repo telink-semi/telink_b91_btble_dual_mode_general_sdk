@@ -67,7 +67,7 @@ typedef struct{
 }tlkmmi_audio_update_t;
 typedef struct{
 	tlkapi_timer_t timer;
-	tlkapi_procs_t procs;
+	tlkapi_queue_t procs;
 	tlkmmi_audio_report_t report;
 }tlkmmi_audio_ctrl_t;
 
@@ -266,6 +266,12 @@ int tlkmmi_audio_optypeToChannel(uint08 optype, uint08 *pChannel);
  * Others: None.
 *******************************************************************************/
 void tlkmmi_audio_optypeChanged(uint08 newOptype, uint16 newHandle, uint08 oldOptype, uint16 oldHandle);
+
+
+int  tlkmmi_audio_sendProgressEvt(uint08 optype, uint16 progress);
+void tlkmmi_audio_sendSongChangeEvt(void);
+void tlkmmi_audio_sendStatusChangeEvt(void);
+void tlkmmi_audio_sendVolumeChangeEvt(void);
 
 
 

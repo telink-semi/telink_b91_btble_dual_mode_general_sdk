@@ -109,6 +109,14 @@ uint08 btp_spp_getIdleCount(void);
 uint08 btp_spp_getUsedCount(void);
 
 /******************************************************************************
+ * Function: SPP get Used count interface
+ * Descript:
+ * Params:
+ * Return:
+*******************************************************************************/
+btp_spp_item_t *btp_spp_getItem(uint08 index);
+
+/******************************************************************************
  * Function: SPP get Connect count interface
  * Descript:
  * Params:

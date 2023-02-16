@@ -257,6 +257,7 @@ _attribute_retention_code_ unsigned int clock_get_32k_tick(void)
 }
 
 _attribute_data_retention_sec_ u32 tick_per_us;
+extern void bt_prefetch_set();
 /**
  * @brief       This function use to select the system clock source.
  * @param[in]   pll - pll clock.
@@ -369,6 +370,7 @@ void clock_init(sys_pll_clk_e pll,
 	}
 
 	REG_ADDR8(0x1401d2) = (REG_ADDR8(0x1401d2) & 0xf0) | zclk;	//baseband clock
+	bt_prefetch_set();
 }
 
 //_attribute_retention_code_

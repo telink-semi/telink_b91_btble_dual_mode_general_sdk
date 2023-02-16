@@ -22,16 +22,15 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
 #include "tlkstk/ble/ble.h"
-#include "blt_common.h"
-#include "ble_device_manage.h"
-#include "ble_simple_sdp.h"
-#include "ble_custom_pair.h"
-#include "tlkmmi/tlkmmi_adapt.h"
+#include "tlkmdi/le/tlkmdi_le_common.h"
+#include "tlkmdi/le/tlkmdi_le_device_manage.h"
+#include "tlkmdi/le/tlkmdi_le_simple_sdp.h"
+#include "tlkmdi/le/tlkmdi_le_custom_pair.h"
+#include "tlkmmi/lemgr/tlkmmi_lemgrAdapt.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgr.h"
-#include "tlkmmi/lemgr/tlkmmi_lemgrComm.h"
+#include "tlkmmi/lemgr/tlkmmi_lemgrMsgOuter.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrCtrl.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAtt.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAcl.h"
@@ -96,7 +95,7 @@ static uint08 sTlkMmiLemgrAdvDataLen = 24;
 static uint08 sTlkMmiLemgrAdvData[31] = {
 	 10, DT_COMPLETE_LOCAL_NAME,   'T','L','K','W','A','T','C','H','0',
 	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
-	 3,  DT_APPEARANCE, 						0x80, 0x01, 			// 384, Generic Remote Control, Generic category
+	 3,  DT_APPEARANCE, 						0xC1, 0x03, 			// Generic Keyboard Generic category
 	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 static uint08 sTlkMmiLemgrScanRspLen = 11;
@@ -195,9 +194,15 @@ int tlkmmi_lemgr_aclInit(void)
 	
 	#if (TLKMMI_LEMGR_SLAVE_SMP_ENABLE)
 	blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
+	#else
+	blc_smp_setSecurityLevel(No_Security);  //LE_Security_Mode_1_Level_2
 	#endif
 	//	blc_smp_setPairingMethods(LE_Secure_Connection); //TLKMMI_LEMGR_ATT_MTU_SLAVE_RX_MAX_SIZE or TLKMMI_LEMGR_ATT_MTU_MASTER_RX_MAX_SIZE >= 64
 	blc_smp_smpParamInit();
+	// Hid device on android7.0/7.1 or later version
+	// New paring: send security_request immediately after connection complete
+	// reConnect:  send security_request 1000mS after connection complete. If master start paring or encryption before 1000mS timeout, slave do not send security_request.
+	blc_smp_configSecurityRequestSending(SecReq_IMM_SEND, SecReq_PEND_SEND, 1000); //if not set, default is:  send "security request" immediately after link layer connection established(regardless of new connection or reconnection)
 	
 	/* Host (GAP/SMP/GATT/ATT) event process: register host event callback and set event mask */
 	blc_gap_registerHostEventHandler(tlkmmi_lemgr_hostEventCB );
@@ -239,14 +244,14 @@ int tlkmmi_lemgr_aclInit(void)
 	blc_ll_setAdvEnable(BLC_ADV_DISABLE);
 	//	blc_ll_setAdvCustomedChannel(37, 37, 37); //debug
 
-	tlkmmi_adapt_initTimer(&sTlkMmiLemgrAcl.timer, tlkmmi_lemgr_timer, (uint32)&sTlkMmiLemgrAcl, TLKMMI_LEMGR_TIMEOUT);
+	tlkmmi_lemgr_adaptInitTimer(&sTlkMmiLemgrAcl.timer, tlkmmi_lemgr_timer, (uint32)&sTlkMmiLemgrAcl, TLKMMI_LEMGR_TIMEOUT);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	tlkmmi_lemgr_setAclName(tlkmmi_lemgr_getName(), tlkmmi_lemgr_getNameLen());
 	tlkmmi_lemgr_setAclAddr(tlkmmi_lemgr_getAddr(), 6);
 	//tlkmmi_lemgr_startAdv(0, 0);
-	extern void rf_set_le_tx_tp_slice (uint08 slice);
-	rf_set_le_tx_tp_slice(RF_POWER_P9p11dBm);
+	extern void btc_rf_set_le_tx_tp_slice (uint08 slice);
+	btc_rf_set_le_tx_tp_slice(RF_POWER_P9p11dBm);
 
 	return TLK_ENONE;
 }
@@ -259,8 +264,8 @@ void tlkmmi_lemgr_aclDeepInit(void)
 	blc_ll_recoverDeepRetention();
 
 	reg_rf_irq_status = 0xFFFF;
-	plic_interrupt_claim(IRQ15_ZB_RT);//claim,clear eip
-	plic_interrupt_complete (IRQ15_ZB_RT);//complete
+	plic_interrupt_claim();//claim,clear eip
+	plic_interrupt_complete(IRQ15_ZB_RT);//complete
 }
 
 
@@ -277,7 +282,7 @@ int tlkmmi_lemgr_startAdv(uint32 timeout, uint08 advType)
 	sTlkMmiLemgrAcl.timeout = timeout/TLKMMI_LEMGR_TIMEOUT_MS;
 	blc_ll_setAdvEnable(BLC_ADV_ENABLE);
 	tlkmmi_lemgr_sendAdvStartEvt();
-	tlkmmi_adapt_insertTimer(&sTlkMmiLemgrAcl.timer);
+	tlkmmi_lemgr_adaptInsertTimer(&sTlkMmiLemgrAcl.timer);
 	return TLK_ENONE;
 }
 int tlkmmi_lemgr_closeAdv(void)
@@ -342,10 +347,10 @@ int tlkmmi_lemgr_setAclName(uint08 *pName, uint08 nameLen)
 	sTlkMmiLemgrAdvData[offset++] = 0x02; //BLE limited discoverable mode and BR/EDR not supported
 	sTlkMmiLemgrAdvData[offset++] = DT_FLAGS;
 	sTlkMmiLemgrAdvData[offset++] = 0x05;
-	sTlkMmiLemgrAdvData[offset++] = 0x03; // 384, Generic Remote Control, Generic category
+	sTlkMmiLemgrAdvData[offset++] = 0x03; // 384,  Keyboard Control, Generic category
 	sTlkMmiLemgrAdvData[offset++] = DT_APPEARANCE;
-	sTlkMmiLemgrAdvData[offset++] = 0x80;
-	sTlkMmiLemgrAdvData[offset++] = 0x01;
+	sTlkMmiLemgrAdvData[offset++] = 0xC1;
+	sTlkMmiLemgrAdvData[offset++] = 0x03;
 	sTlkMmiLemgrAdvData[offset++] = 0x05; // incomplete list of service class UUIDs (0x1812, 0x180F)
 	sTlkMmiLemgrAdvData[offset++] = DT_INCOMPLT_LIST_16BIT_SERVICE_UUID;
 	sTlkMmiLemgrAdvData[offset++] = 0x12;
@@ -415,8 +420,8 @@ static int tlkmmi_lemgr_coreEventCB(uint32 evtID, uint08 *pData, int dataLen)
 			//------hci le event: le connection update complete event-------------------------------
 			else if (subEvt_code == HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE)	// connection update
 			{
-				//hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)p;
-				//aa_interval_temp = pUpt->connInterval;
+				hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)pData;
+				tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "ble connect update: connInterval-0X%02X connLatency-0X%02X Timeout-0X%02X", pUpt->connInterval,pUpt->connLatency,pUpt->supervisionTimeout);
 				//aa_connLatency_temp = pUpt->connLatency;
 			}
 		}
@@ -521,7 +526,7 @@ static int tlkmmi_lemgr_connectCompleteEvt(uint08 *pData, uint16 dataLen)
 
 		dev_char_info_insert_by_conn_event(pConnEvt);
 
-		tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "BLE: conn complete: 0x%x", pConnEvt->connHandle);
+		tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "BLE: conn complete: 0x%x connInterval-0X%02X connLatency-0X%02X Timeout-0X%02X", pConnEvt->connHandle,pConnEvt->connInterval,pConnEvt->slaveLatency,pConnEvt->supervisionTimeout);
 
 
 		if(pConnEvt->role == LL_ROLE_SLAVE){

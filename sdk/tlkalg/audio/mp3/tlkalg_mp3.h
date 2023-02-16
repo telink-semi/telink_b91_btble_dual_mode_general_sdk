@@ -20,9 +20,9 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
+#ifndef TLKALG_MP3_H
+#define TLKALG_MP3_H
 
-#ifndef MP3_DEC_API_H
-#define MP3_DEC_API_H
 
 /*! Version number to ensure header and binary are matching. */
 #define MP3D_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
@@ -56,9 +56,6 @@ typedef  unsigned long long uint64_t;
 typedef  unsigned char uint8_t;
 #endif
 
-#ifndef size_t
-typedef unsigned int     size_t;
-#endif
 #endif
 
 /* return error codes */
@@ -167,4 +164,6 @@ int mp3dec_decode_frame(mp3dec_t* dec, const uint8_t* mp3, int mp3_bytes, mp3d_s
  */
 void mp3dec_close(mp3dec_t* dec);
 
-#endif
+
+#endif //TLKALG_MP3_H
+

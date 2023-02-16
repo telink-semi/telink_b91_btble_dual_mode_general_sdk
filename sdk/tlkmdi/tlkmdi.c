@@ -24,37 +24,34 @@
 #include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmdi/tlkmdi_adapt.h"
-#include "tlkmdi/tlkmdi_comm.h"
-#include "tlkmdi/tlkmdi_event.h"
-#include "tlkmdi/tlkmdi_btacl.h"
-#include "tlkmdi/tlkmdi_btinq.h"
-#include "tlkmdi/tlkmdi_btrec.h"
-#include "tlkmdi/tlkmdi_bthfp.h"
-#include "tlkmdi/tlkmdi_usb.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
+#include "tlkmdi/misc/tlkmdi_usb.h"
+#include "tlkmdi/aud/tlkmdi_audio.h"
+#include "tlkmdi/bt/tlkmdi_bt.h"
 #if (TLK_MDI_FILE_ENABLE)
-#include "tlkmdi/tlkmdi_file.h"
-#endif
-#if (TLK_MDI_BTATT_ENABLE)
-#include "tlkmdi/tlkmdi_btatt.h"
-#endif
-#if (TLK_MDI_BTHID_ENABLE)
-#include "tlkmdi/tlkmdi_bthid.h"
+#include "tlkmdi/misc/tlkmdi_file.h"
 #endif
 #if (TLK_MDI_FS_ENABLE)
-#include "tlkmdi/tlkmdi_fs.h"
+#include "tlkmdi/misc/tlkmdi_fs.h"
 #endif
 #if (TLK_MDI_KEY_ENABLE)
-#include "tlkmdi/tlkmdi_key.h"
+#include "tlkmdi/misc/tlkmdi_key.h"
 #endif
 #if (TLK_MDI_LED_ENABLE)
-#include "tlkmdi/tlkmdi_led.h"
+#include "tlkmdi/misc/tlkmdi_led.h"
 #endif
 #if (TLK_CFG_DBG_ENABLE)
-#include "tlkmdi/tlkmdi_debug.h"
+#include "tlkmdi/misc/tlkmdi_debug.h"
+#endif
+#if (TLK_MDI_BATTERY_ENABLE)
+#include "tlkmdi/misc/tlkmdi_battery.h"
 #endif
 
+
 #include "tlkmdi/tlkmdi.h"
+
+
+extern unsigned char gTlkWorkMode;
 
 
 /******************************************************************************
@@ -68,43 +65,12 @@
 *******************************************************************************/
 int tlkmdi_init(void)
 {
-	#if (TLKAPI_TIMER_ENABLE)
 	tlkapi_timer_init();
-	#endif
-	tlkmdi_adapt_init();
-	tlkmdi_event_init();
 
 	#if (TLK_CFG_COMM_ENABLE)
 	tlkmdi_comm_init();
 	#endif
 	
-	#if (TLK_MDI_FS_ENABLE)
-	tlkmdi_fs_init();
-	#endif
-	
-	#if (TLK_MDI_BTACL_ENABLE)
-	tlkmdi_btacl_init();
-	#endif
-	#if (TLK_MDI_BTINQ_ENABLE)
-	tlkmdi_btinq_init();
-	#endif 
-	#if (TLK_MDI_BTREC_ENABLE)
-	tlkmdi_btrec_init();
-	#endif
-	#if (TLK_MDI_BTATT_ENABLE)
-	tlkmdi_btatt_init();
-	#endif
-	#if (TLK_MDI_BTHID_ENABLE)
-	tlkmdi_bthid_init();
-	#endif
-	#if (TLK_MDI_BTHFP_ENABLE)
-	tlkmdi_hfp_init();
-	#endif
-	
-	#if (TLK_MDI_AUDIO_ENABLE)
-	tlkmdi_audio_init();
-	#endif
-
 	#if (TLK_MDI_DEBUG_ENABLE)
 	tlkmdi_debug_init();
 	#endif
@@ -117,58 +83,31 @@ int tlkmdi_init(void)
 	#if (TLK_MDI_USB_ENABLE)
 	tlkmdi_usb_init();
 	#endif
+	
+	if(gTlkWorkMode != TLK_WORK_MODE_NORMAL) return TLK_ENONE;
+
+	#if (TLK_MDI_FS_ENABLE)
+	tlkmdi_fs_init();
+	#endif
 	#if (TLK_MDI_FILE_ENABLE)
 	tlkmdi_file_init();
 	#endif
-	#if (TLK_MDI_MP3_ENABLE)
-	tlkmdi_mp3_init();
+	#if (TLK_MDI_BATTERY_ENABLE)
+	tlkmdi_battery_init();
 	#endif
-	#if (TLKMDI_CFG_AUDTONE_ENABLE)
-	tlkmdi_audtone_init();
+
+	#if (TLK_STK_BT_ENABLE)
+	tlkmdi_bt_init();
 	#endif
-	#if (TLKMDI_CFG_AUDPLAY_ENABLE)
-	tlkmdi_audplay_init();
-	#endif
-	#if (TLKMDI_CFG_AUDHFP_ENABLE)
-	tlkmdi_audhfp_init();
-	#endif
-	#if (TLKMDI_CFG_AUDSCO_ENABLE)
-	tlkmdi_audsco_init();
-	#endif
-	#if (TLKMDI_CFG_AUDSRC_ENABLE)
-	tlkmdi_audsrc_init();
-	#endif
-	#if (TLKMDI_CFG_AUDSNK_ENABLE)
-	tlkmdi_audsnk_init();
-	#endif
-	#if (TLKMDI_CFG_AUDUAC_ENABLE)
-	tlkmdi_auduac_init();
-	#endif
+		
+	#if (TLK_MDI_AUDIO_ENABLE)
+	tlkmdi_audio_init();
+	#endif	
+	
 	
 	return TLK_ENONE;
 }
 
-/******************************************************************************
- * Function: tlkmdi_process
- * Descript: Trigger to start the process and event handler.
- * Params:
- * Return: None.
- * Others: None.
-*******************************************************************************/
-void tlkmdi_process(void)
-{
-	tlkmdi_adapt_handler();
-	tlkmdi_event_handler();
-	#if (TLK_MDI_USB_ENABLE)
-	tlkmdi_usb_handler();
-	#endif
-	#if (TLK_MDI_DEBUG_ENABLE)
-	tlkmdi_debug_handler();
-	#endif
-	#if (TLK_CFG_COMM_ENABLE)
-	tlkmdi_comm_handler();
-	#endif
-}
 
 /******************************************************************************
  * Function: tlkmdi_isbusy
@@ -179,7 +118,7 @@ void tlkmdi_process(void)
 *******************************************************************************/
 bool tlkmdi_pmIsbusy(void)
 {
-	if(tlkmdi_event_count() != 0 || tlkmdi_adapt_isPmBusy()
+	if(0
 		#if (TLK_MDI_DEBUG_ENABLE)
 		|| tlkmdi_debug_pmIsBusy()
 		#endif

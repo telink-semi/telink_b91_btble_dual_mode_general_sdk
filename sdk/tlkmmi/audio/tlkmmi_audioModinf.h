@@ -41,80 +41,116 @@ typedef struct{
 }tlkmmi_audio_modinf_t;
 
 
-int tlkmmi_audio_modinfStart(TLKMMI_AUDIO_OPTYPE_ENUM optype, uint16 handle, uint32 param);
-int tlkmmi_audio_modinfClose(TLKMMI_AUDIO_OPTYPE_ENUM optype, uint16 handle);
+/******************************************************************************
+ * Function: tlkmmi_audio_modinfStart
+ * Descript: Invoke the opening interface of the corresponding audio module to
+ *     enable audio transmission.
+ * Params:
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ *     @handle[IN]--The connection handle of the current audio initiator.
+ *     @param[IN]--Control parameters of the current audio initiator.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
+int tlkmmi_audio_modinfStart(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle, uint32 param);
 
-void tlkmmi_audio_modinfTimer(TLKMMI_AUDIO_OPTYPE_ENUM optype);
+/******************************************************************************
+ * Function: tlkmmi_audio_modinfClose
+ * Descript: Invoke the closing interface of the corresponding audio module to
+ *     disable audio transmission.
+ * Params:
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ *     @handle[IN]--The connection handle of the current audio initiator.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
+int tlkmmi_audio_modinfClose(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle);
 
+/******************************************************************************
+ * Function: tlkmmi_audio_modinfTimer
+ * Descript: Invoke the timing callback interface of the corresponding audio 
+ *     module to input the timing control source for the audio module.
+ * Params:
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+void tlkmmi_audio_modinfTimer(TLKPTI_AUD_OPTYPE_ENUM optype);
 
 /******************************************************************************
  * Function: tlkmmi_audio_modinfSwitch
- * Descript: Switching audio State.
+ * Descript: Call the switching interface of the corresponding audio module to
+ *     officially start or turn off the audio input or output.
  * Params:
- *        @optype[IN]--The optype of audio.
- *        @handle[IN]--The handle of audio.
- *        @status[IN]--The status of audio.
- * Return: Operating results. true means success, others means failture.
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ *     @handle[IN]--The connection handle of the current audio initiator.
+ *     @status[IN]--The state of the audio control.
+ *                  TLK_STATE_OPENED -- The audio is on.
+ *                  TLK_STATE_CLOSED -- The audio is off.
+ *                  TLK_STATE_PAUSED -- The audio is paused.
+ * Return: Operating results. True means success, others means failture.
  * Others: None.
 *******************************************************************************/
-bool tlkmmi_audio_modinfSwitch(TLKMMI_AUDIO_OPTYPE_ENUM optype, uint16 handle, uint08 status);
+bool tlkmmi_audio_modinfSwitch(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle, uint08 status);
 
 /******************************************************************************
  * Function: tlkmmi_audio_modinfToNext
- * Descript: Process the tlkmdi_audtone_isBusy function which indicate by the optype.
+ * Descript: Invoke the next track interface of the corresponding audio module
+ *     to cause the audio to play the next track.
  * Params: 
- *        @optype[IN]--The optype of audio.
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
  * Return: Operating results. true means success, others means failture.
  * Others: None.
 *******************************************************************************/
-bool tlkmmi_audio_modinfToNext(TLKMMI_AUDIO_OPTYPE_ENUM optype);
+bool tlkmmi_audio_modinfToNext(TLKPTI_AUD_OPTYPE_ENUM optype);
 
 /******************************************************************************
  * Function: tlkmmi_audio_modinfToPrev
- * Descript: .
+ * Descript: Invoke the previous track interface of the corresponding audio 
+ *     module to cause the audio to play the previous track.
  * Params: 
- *        @optype[IN]--The optype of audio.
- * Return: Operating results. true means success, others means failture.
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ * Return: Operating results. True means success, others means failture.
  * Others: None.
 *******************************************************************************/
-bool tlkmmi_audio_modinfToPrev(TLKMMI_AUDIO_OPTYPE_ENUM optype);
+bool tlkmmi_audio_modinfToPrev(TLKPTI_AUD_OPTYPE_ENUM optype);
 
 /******************************************************************************
  * Function: tlkmmi_audio_modinfIsBusy
- * Descript: Process the tlkmdi_audtone_isBusy function which indicate by the optype.
- * Params: @optype[IN]--The optype of audio.
- * Return: Operating results. true means success, others means failture.
+ * Descript: Check the status of the corresponding audio module.
+ * Params: 
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ * Return: Operating results. True means audio is busy, others means audio is
+ *         idle.
  * Others: None.
 *******************************************************************************/
-bool tlkmmi_audio_modinfIsBusy(TLKMMI_AUDIO_OPTYPE_ENUM optype);
+bool tlkmmi_audio_modinfIsBusy(TLKPTI_AUD_OPTYPE_ENUM optype);
 
 /******************************************************************************
- * Function: tlkmmi_audio_modinfIsBusy
- * Descript: Process the tlkmdi_audtone_intval function which indicate by the optype.
- * Params: @optype[IN]--The optype of audio.
- * Return: The interval value.
+ * Function: tlkmmi_audio_modinfIntval
+ * Descript: Gets the interval time at which the next state of the current audio 
+ *     arrives.
+ * Params:
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ * Return: The interval time at which the next state of the current audio 
+ *     arrives.
  * Others: None.
 *******************************************************************************/
-uint tlkmmi_audio_modinfIntval(TLKMMI_AUDIO_OPTYPE_ENUM optype);
+uint tlkmmi_audio_modinfIntval(TLKPTI_AUD_OPTYPE_ENUM optype);
 
 /******************************************************************************
  * Function: tlkmmi_audio_modinfIrqProc
- * Descript: Process the hantlkmdi_tone_handlerdler function which 
- *           indicate by the optype.
- * Params:@optype[IN]--The optype of audio.
- * Return: Operating results. true means success, others means failture.
- * Others: None.
+ * Descript: Invoke the timing callback interface of the corresponding audio 
+ *     module to input the timing control source for the audio module.
+ * Params:
+ *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
+ * Return: Operating results. True means success, others means failture.
+ * Others: 
+ *     tlkmmi_audio_modinfTimer -- Software timer. There's a big time error.
+ *     tlkmmi_audio_modinfIrqProc -- Hardware timer, time accuracy is guaranteed.
 *******************************************************************************/
-bool tlkmmi_audio_modinfIrqProc(TLKMMI_AUDIO_OPTYPE_ENUM optype);
+bool tlkmmi_audio_modinfIrqProc(TLKPTI_AUD_OPTYPE_ENUM optype);
 
-/******************************************************************************
- * Function: tlkmmi_audio_getModinf
- * Descript: Get the interface of Tone module 
- * Params:@optype[IN]--The optype of audio.
- * Return: The interface function means success, others means failture.
- * Others: None.
-*******************************************************************************/
-const tlkmmi_audio_modinf_t *tlkmmi_audio_getModinf(TLKMMI_AUDIO_OPTYPE_ENUM optype);
 
 
 #endif //#if (TLKMMI_AUDIO_ENABLE)

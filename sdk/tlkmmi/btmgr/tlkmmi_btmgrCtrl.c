@@ -24,18 +24,17 @@
 #include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_BTMGR_ENABLE)
-#include "tlkmdi/tlkmdi_btacl.h"
-#include "tlkmdi/tlkmdi_btinq.h"
-#include "tlkmdi/tlkmdi_bthid.h"
-#include "tlkprt/tlkprt_comm.h"
+#include "tlkmdi/bt/tlkmdi_btacl.h"
+#include "tlkmdi/bt/tlkmdi_btinq.h"
+#include "tlkmdi/bt/tlkmdi_bthid.h"
+#include "tlkmdi/bt/tlkmdi_btiap.h"
+#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
 #include "tlkstk/bt/btp/hid/btp_hid.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgr.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrCtrl.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrAcl.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
@@ -43,7 +42,7 @@
 
 #define TLKMMI_BTMGR_NAME_DEF     "TLK DualMode 2.0"
 
-extern void generateRandomNum(int len, unsigned char *data);
+//extern void generateRandomNum(int len, unsigned char *data);
 
 /******************************************************************************
  * Function: bt_ll_set_bd_addr
@@ -53,6 +52,7 @@ extern void generateRandomNum(int len, unsigned char *data);
  * Others: None.
 *******************************************************************************/
 extern int bt_ll_set_bd_addr(uint08 *bdAddr);
+
 /******************************************************************************
  * Function: bt_ll_set_local_name
  * Descript: Set Bt local name.
@@ -111,7 +111,11 @@ int tlkmmi_btmgr_ctrlInit(void)
 
 	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
 	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);
-	
+
+	#if (TLK_MDI_BTIAP_ENABLE)
+	tlkmdi_btiap_setAddr(gTlkMmiBtmgrCtrl.btaddr);
+	tlkmdi_btiap_setName(gTlkMmiBtmgrCtrl.btname, strlen(gTlkMmiBtmgrCtrl.btname));
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -160,6 +164,10 @@ int tlkmmi_btmgr_setName(uint08 *pName, uint08 nameLen)
 	tmemcpy(gTlkMmiBtmgrCtrl.btname, pName, nameLen);
 	gTlkMmiBtmgrCtrl.btname[nameLen] = 0x00;
 	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);
+
+	#if (TLK_MDI_BTIAP_ENABLE)
+	tlkmdi_btiap_setName(gTlkMmiBtmgrCtrl.btname, strlen(gTlkMmiBtmgrCtrl.btname));
+	#endif
 	
 	return TLK_ENONE;
 }
@@ -180,6 +188,10 @@ int tlkmmi_btmgr_setAddr(uint08 *pAddr)
 	
 	tmemcpy(gTlkMmiBtmgrCtrl.btaddr, pAddr, 6);
 	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
+
+	#if (TLK_MDI_BTIAP_ENABLE)
+	tlkmdi_btiap_setAddr(gTlkMmiBtmgrCtrl.btaddr);
+	#endif
 	
 	return TLK_ENONE;
 }

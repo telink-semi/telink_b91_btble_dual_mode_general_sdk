@@ -24,10 +24,6 @@
 #define TLKAPI_TIMER_H
 
 
-#define TLKAPI_TIMER_ENABLE    1
-#if (TLKAPI_TIMER_ENABLE)
-
-
 
 int tlkapi_timer_init(void);
 
@@ -119,7 +115,6 @@ uint tlkapi_timer_interval(void);
 
 
 
-#endif //#if (TLKAPI_TIMER_ENABLE)
 
 #endif //#ifndef TLKAPI_TIMER_H
 

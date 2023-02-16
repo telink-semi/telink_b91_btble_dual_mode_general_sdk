@@ -20,25 +20,21 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
+#include "tlkmmi_btmgr.h"
 #if (TLKMMI_BTMGR_BTREC_ENABLE)
-#include "tlkmdi/tlkmdi_btacl.h"
-#include "tlkmdi/tlkmdi_btrec.h"
-#include "tlkprt/tlkprt_comm.h"
+#include "tlkmmi_btmgrCtrl.h"
+#include "tlkmmi_btmgrAcl.h"
+#include "tlkmmi_btmgrInq.h"
+#include "tlkmmi_btmgrRec.h"
+
+#include "tlkmdi/bt/tlkmdi_btacl.h"
+#include "tlkmdi/bt/tlkmdi_btrec.h"
+#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgr.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrCtrl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrAcl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
-
 
 
 static void tlkmmi_btmgr_recOver(void);

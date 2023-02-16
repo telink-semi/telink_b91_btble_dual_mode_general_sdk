@@ -22,8 +22,8 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_SERIAL_ENABLE)
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlkprt/tlkprt_comm.h"
+#include "tlkdev/tlkdev.h"
+#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 
@@ -178,6 +178,14 @@ int tlkdev_serial_send(uint08 *pData, uint16 dataLen)
 #endif
 	
 	return TLK_ENONE;
+}
+
+void tlkdev_serial_clear(void)
+{
+	#if (TLKDEV_SERIAL_DMA_ENABLE)
+	tlkapi_qfifo_clear(&sTlkDevSerialSendFifo);
+	tlkapi_qfifo_clear(&sTlkDevSerialRecvFifo);
+	#endif
 }
 
 void tlkdev_serial_regCB(tlkdev_serial_recvCB cb)

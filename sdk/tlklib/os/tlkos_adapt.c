@@ -32,9 +32,9 @@ static tlkapi_adapt_t sTlkOsAdapt;
 
 /******************************************************************************
  * Function: tlkos_adapt_init
- * Descript: 
- * Params:
- * Return: None.
+ * Descript: Initializes the adapter control parameters.
+ * Params: None.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
 int tlkos_adapt_init(void)
@@ -42,12 +42,11 @@ int tlkos_adapt_init(void)
 	return tlkapi_adapt_init(&sTlkOsAdapt);
 }
 
-
 /******************************************************************************
- * Function: tlkos_adapt_run_once
- * Descript: 
- * Params:
- *     @adapt[IN]--The adapt self-manages handle.
+ * Function: tlkos_adapt_handler
+ * Descript: Implement the function of traversing the scheduled task and work
+ *           queue in the adapter to ensure the timeliness of execution.
+ * Params: None.
  * Return: None.
  * Others: None.
 *******************************************************************************/
@@ -56,16 +55,18 @@ void tlkos_adapt_handler(void)
 	tlkapi_adapt_handler(&sTlkOsAdapt);
 }
 
-
 /******************************************************************************
- * Function: tlkos_adapt_initTimer
- * Descript: 
+ * Function: tlkos_adapt_initTimer, tlkos_adapt_deinitTimer
+ *           tlkos_adapt_initQueue, tlkos_adapt_deinitQueue
+ * Descript: Initializes and deinitializes the timing scheduler and work queue.
  * Params:
- *     @pTimer[IN]--
- *     @userArg[IN]--
- *     @timeout[IN]--Unit: us.
- *     @timerCB[IN]--
- * Return: None.
+ *     @pTimer[IN]--Timer scheduling node.
+ *     @pQueue[IN]--Work queue node.
+ *     @userArg[IN]--Parameters passed in by the user will be returned on the call.
+ *     @timeout[IN]--Scheduling interval set by the user. Unit:us.
+ *     @timerCB[IN]--The callback interface after the time has arrived.
+ *     @queueCB[IN]--The callback interface for the work to be executed.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
 int tlkos_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
@@ -73,64 +74,63 @@ int tlkos_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 
 	if(tlkos_adapt_isHaveTimer(pTimer)) return -TLK_EEXIST;
 	return tlkapi_adapt_initTimer(pTimer, timerCB, userArg, timeout);
 }
-int tlkos_adapt_initProcs(tlkapi_procs_t *pProcs, TlkApiProcsCB procsCB, uint32 userArg)
+int tlkos_adapt_initQueue(tlkapi_queue_t *pQueue, TlkApiQueueCB queueCB, uint32 userArg)
 {
-	if(tlkos_adapt_isHaveProcs(pProcs)) return -TLK_EEXIST;
-	return tlkapi_adapt_initProcs(pProcs, procsCB, userArg);
+	if(tlkos_adapt_isHaveQueue(pQueue)) return -TLK_EEXIST;
+	return tlkapi_adapt_initQueue(pQueue, queueCB, userArg);
 }
 void tlkos_adapt_deinitTimer(tlkapi_timer_t *pTimer)
 {
 	tlkapi_adapt_deinitTimer(&sTlkOsAdapt, pTimer);
 }
-void tlkos_adapt_deinitProcs(tlkapi_procs_t *pProcs)
+void tlkos_adapt_deinitQueue(tlkapi_queue_t *pQueue)
 {
-	tlkapi_adapt_deinitProcs(&sTlkOsAdapt, pProcs);
+	tlkapi_adapt_deinitQueue(&sTlkOsAdapt, pQueue);
 }
 
 /******************************************************************************
- * Function: tlkos_adapt_isHaveTimer, tlkos_adapt_isHaveProcs
- * Descript: 
+ * Function: tlkos_adapt_isHaveTimer, tlkos_adapt_isHaveQueue
+ * Descript: Check whether scheduled tasks and cache work exist in the adaptation.
  * Params:
- *     @pAdapt[IN]--
- *     @pTimer[IN]--
- *     @pProcs[IN]--
- * Return: None.
+ *     @pTimer[IN]--Timer scheduling node.
+ *     @pQueue[IN]--Work queue node.
+ * Return: Return TRUE if has, FALSE otherwise.
  * Others: None.
 *******************************************************************************/
 bool tlkos_adapt_isHaveTimer(tlkapi_timer_t *pTimer)
 {
 	return tlkapi_adapt_isHaveTimer(&sTlkOsAdapt, pTimer);
 }
-bool tlkos_adapt_isHaveProcs(tlkapi_procs_t *pProcs)
+bool tlkos_adapt_isHaveQueue(tlkapi_queue_t *pQueue)
 {
-	return tlkapi_adapt_isHaveProcs(&sTlkOsAdapt, pProcs);
+	return tlkapi_adapt_isHaveQueue(&sTlkOsAdapt, pQueue);
 }
 
 /******************************************************************************
- * Function: tlkos_adapt_appendAgent, tlkos_adapt_removeAgent
- * Descript: 
+ * Function: tlkos_adapt_appendQueue, tlkos_adapt_removeQueue
+ * Descript: Implement the function of adding and deleting work queues.
  * Params:
- *     @pAdapt[IN]--
- *     @pAgent[IN]--
- * Return: None.
+ *     @pQueue[IN]--Work queue node.
+ * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkos_adapt_appendProcs(tlkapi_procs_t *pProcs)
+int tlkos_adapt_appendQueue(tlkapi_queue_t *pQueue)
 {	
-	return tlkapi_adapt_appendProcs(&sTlkOsAdapt, pProcs);
+	return tlkapi_adapt_appendQueue(&sTlkOsAdapt, pQueue);
 }
-int tlkos_adapt_removeProcs(tlkapi_procs_t *pProcs)
+int tlkos_adapt_removeQueue(tlkapi_queue_t *pQueue)
 {
-	return tlkapi_adapt_removeProcs(&sTlkOsAdapt, pProcs);
+	return tlkapi_adapt_removeQueue(&sTlkOsAdapt, pQueue);
 }
 
 /******************************************************************************
- * Function: tlkos_adapt_updateTimer
- * Descript: Insert a timer timer into the Adapter.
+ * Function: tlkos_adapt_updateTimer, tlkos_adapt_insertTimer,
+ *           tlkos_adapt_removeTimer
+ * Descript: Implement the function of adding, deleting and updating timer.
  * Params:
- *     @pAdapt[IN]--The adapt self-manages handle.
- *     @pTimer[IN]--Timer.
- *     @timeout[IN]--Unit: us.
+ *     @pTimer[IN]--Timer scheduling node.
+ *     @isUpdate[IN]--True,Timer recount; False,Depending on the state of the
+ *       other parameters, the timer may continue the previous counting logic.
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
@@ -138,28 +138,10 @@ int tlkos_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInser
 {
 	return tlkapi_adapt_updateTimer(&sTlkOsAdapt, pTimer, timeout, isInsert);
 }
-/******************************************************************************
- * Function: tlkos_adapt_insertTimer
- * Descript: Insert a timer timer into the Adapter.
- * Params:
- *     @pAdapt[IN]--The adapt self-manages handle.
- *     @pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
- * Others: None.
-*******************************************************************************/
 int tlkos_adapt_insertTimer(tlkapi_timer_t *pTimer)
 {
 	return tlkapi_adapt_insertTimer(&sTlkOsAdapt, pTimer, true);
 }
-/******************************************************************************
- * Function: tlkos_adapt_removeTimer
- * Descript: Remove a timer timer from the Adapter.
- * Params:
- *     @pAdapt[IN]--The adapt self-manages handle.
- *     @pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
- * Others: None.
-*******************************************************************************/
 int tlkos_adapt_removeTimer(tlkapi_timer_t *pTimer)
 {
 	return tlkapi_adapt_removeTimer(&sTlkOsAdapt, pTimer);

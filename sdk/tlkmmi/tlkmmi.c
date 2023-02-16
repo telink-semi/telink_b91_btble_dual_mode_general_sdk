@@ -20,12 +20,22 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
-#include "tlkmmi/tlkmmi_adapt.h"
 #include "tlkmmi/tlkmmi.h"
+#include "tlkmmi/stack/tlkmmi_stack.h"
+#include "tlkmmi/audio/tlkmmi_audio.h"
+#include "tlkmmi/btmgr/tlkmmi_btmgr.h"
+#include "tlkmmi/lemgr/tlkmmi_lemgr.h"
+#include "tlkmmi/lemst/tlkmmi_lemst.h"
+#include "tlkmmi/phone/tlkmmi_phone.h"
+#include "tlkmmi/file/tlkmmi_file.h"
+#include "tlkmmi/test/tlkmmi_test.h"
+#include "tlkmmi/system/tlkmmi_sys.h"
+#include "tlkmmi/view/tlkmmi_view.h"
+#include "tlkmmi/test/tlkmmi_test.h"
 
+
+extern unsigned char gTlkWorkMode;
 
 /******************************************************************************
  * Function: tlkmmi_init
@@ -36,7 +46,19 @@
 *******************************************************************************/
 int tlkmmi_init(void)
 {
-	tlkmmi_adapt_init();
+	#if (TLKMMI_SYSTEM_ENABLE)
+	tlkmmi_sys_init();
+	#endif
+	#if (TLKMMI_STACK_ENABLE)
+	tlkmmi_stack_init();
+	#endif
+	if(gTlkWorkMode != TLK_WORK_MODE_NORMAL){
+		#if (TLKMMI_TEST_ENABLE)
+		tlkmmi_test_init();
+		#endif
+		return TLK_ENONE;
+	}
+	
 	#if (TLKMMI_AUDIO_ENABLE)
 	tlkmmi_audio_init();
 	#endif
@@ -46,26 +68,20 @@ int tlkmmi_init(void)
 	#if (TLKMMI_LEMGR_ENABLE)
 	tlkmmi_lemgr_init();
 	#endif
+	#if (TLKMMI_LEMST_ENABLE)
+	tlkmmi_lemst_init();
+	#endif
 	#if (TLKMMI_PHONE_ENABLE)
 	tlkmmi_phone_init();
 	#endif
 	#if (TLKMMI_FILE_ENABLE)
 	tlkmmi_file_init();
 	#endif
+	#if (TLKMMI_VIEW_ENABLE)
+	tlkmmi_view_init();
+	#endif
 
 	return TLK_ENONE;
-}
-
-/******************************************************************************
- * Function: tlkmmi_process
- * Descript: 
- * Params:
- * Return: None.
- * Others: None.
-*******************************************************************************/
-void tlkmmi_process(void)
-{
-	tlkmmi_adapt_handler();
 }
 
 /******************************************************************************

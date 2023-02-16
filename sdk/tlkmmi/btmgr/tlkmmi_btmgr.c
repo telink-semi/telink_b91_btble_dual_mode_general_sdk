@@ -23,16 +23,16 @@
 
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_BTMGR_ENABLE)
-#include "tlkmmi/btmgr/tlkmmi_btmgr.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrComm.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrCtrl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrAcl.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
+#include "tlkmmi_btmgr.h"
+#include "tlkmmi_btmgrAdapt.h"
+#include "tlkmmi_btmgrCtrl.h"
+#include "tlkmmi_btmgrAcl.h"
+#include "tlkmmi_btmgrInq.h"
+#include "tlkmmi_btmgrRec.h"
+#include "tlkmmi_btmgrTask.h"
 
-
+#include "tlkmdi/bt/tlkmdi_bt.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
 
@@ -48,11 +48,10 @@
 *******************************************************************************/
 int tlkmmi_btmgr_init(void)
 {
-	#if !TLK_CFG_PTS_ENABLE
 	bth_device_item_t *pDevice;
-	#endif
 
-	tlkmmi_btmgr_commInit();
+	tlkmmi_btmgr_taskInit();
+	tlkmmi_btmgr_adaptInit();
 	tlkmmi_btmgr_ctrlInit();
 	#if (TLKMMI_BTMGR_BTACL_ENABLE)
 	tlkmmi_btmgr_aclInit();
@@ -67,23 +66,19 @@ int tlkmmi_btmgr_init(void)
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTMGR_DEVICE_CLASS);
     bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
 
-	#if !TLK_CFG_PTS_ENABLE
 	pDevice = bth_device_getLast();
 	if(pDevice != nullptr){
-		#if TLK_CFG_PTS_ENABLE
-		#else
+		#if TLKMMI_BTMGR_BTREC_ENABLE
 		tlkmmi_btmgr_recStart(pDevice->devAddr, pDevice->devClass, true, true);
 		#endif
 	}else{
+		#if TLKMMI_BTMGR_BTREC_ENABLE
 		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
+		#endif
 	}
-	#else
-	tlkmmi_btmgr_recStart(nullptr, 0, false, false);
-	#endif
 	
 	return TLK_ENONE;
 }
-
 
 
 

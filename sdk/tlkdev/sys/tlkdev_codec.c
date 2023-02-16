@@ -23,34 +23,41 @@
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_CODEC_ENABLE)
 #include "tlkdrv/ext/codec/tlkdrv_codec.h"
-#include "tlkdev/tlkdev_stdio.h"
+#include "tlkdev/tlkdev.h"
 #include "tlkdev/sys/tlkdev_codec.h"
 #include "drivers.h"
 
+static void tlkdrv_codec_micDataZoom(uint08 *pData, uint16 dataLen);
+static void tlkdrv_codec_spkDataZoom(uint08 *pData, uint16 dataLen);
 
 __attribute__((aligned(4))) uint16 gTlkDevCodecSpkBuffer[TLK_DEV_SPK_BUFF_SIZE/2];
 __attribute__((aligned(4))) uint16 gTlkDevCodecMicBuffer[TLK_DEV_MIC_BUFF_SIZE/2];
+static tlkdev_codec_t sTlkDevCodecCtrl;
 
 
 int tlkdev_codec_init(void)
 {
-	audio_set_codec_in_path_a_d_gain(CODEC_IN_D_GAIN_0_DB, CODEC_IN_A_GAIN_8_DB); //mic
-	audio_set_codec_out_path_a_d_gain(CODEC_OUT_D_GAIN_0_DB, CODEC_OUT_A_GAIN_0_DB); //spk
-
+	tmemset(&sTlkDevCodecCtrl, 0, sizeof(tlkdev_codec_t));
+	
+	sTlkDevCodecCtrl.spkChannel = 1;
+	sTlkDevCodecCtrl.micChannel = 1;
+	
 	tlkdrv_codec_setSpkBuffer((uint08*)gTlkDevCodecSpkBuffer, TLK_DEV_SPK_BUFF_SIZE);
 	tlkdrv_codec_setMicBuffer((uint08*)gTlkDevCodecMicBuffer, TLK_DEV_MIC_BUFF_SIZE);
+
+	tlkdrv_codec_paInit();
 	
 	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_INNER, TLKDRV_CODEC_SUBDEV_BOTH);
 //	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_RTL2108, TLKDRV_CODEC_SUBDEV_BOTH);
 	
-	tlkdrv_codec_setVolume(100);
+	tlkdev_codec_setSpkVolume(100);
+	tlkdev_codec_setMicVolume(100);
 	tlkdrv_codec_setChannel(1);
 	tlkdrv_codec_setBitDepth(16);
 	tlkdrv_codec_setSampleRate(48000);
 		
 	return TLK_ENONE;
 }
-
 
 int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bitDepth, uint32 sampleRate)
 {
@@ -59,10 +66,12 @@ int tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 channel, uint08 bi
 	if(ret == TLK_ENONE) ret = tlkdrv_codec_setBitDepth(bitDepth);
 	if(ret == TLK_ENONE) ret = tlkdrv_codec_setSampleRate(sampleRate);	
 	if(ret == TLK_ENONE) ret = tlkdrv_codec_open(subDev);
+	if(ret == TLK_ENONE) tlkdev_codec_paOpen();
 	return ret;
 }
 int tlkdev_codec_close(void)
 {
+	tlkdev_codec_paClose();
 	return tlkdrv_codec_close();
 }
 int tlkdev_codec_extOpen(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 spkChannel, uint08 spkBitDepth,
@@ -103,23 +112,79 @@ int tlkdev_codec_extOpen(TLKDEV_CODEC_SUBDEV_ENUM subDev, uint08 spkChannel, uin
 		}
 	}
 	if(ret == TLK_ENONE) ret = tlkdrv_codec_open(subDev);
+	if(ret == TLK_ENONE) tlkdev_codec_paOpen();
 	return ret;
 }
 
-
-uint tlkdev_codec_getSampleRate(void)
+bool tlkdev_codec_paIsOpen(void)
 {
-	return tlkdrv_codec_getSampleRate();
+	return tlkdrv_codec_paIsOpen();
 }
-uint tlkdev_codec_getChannel(void)
+void tlkdev_codec_paOpen(void)
 {
-	return tlkdrv_codec_getChannel();
+	tlkdrv_codec_paOpen();
 }
-
+void tlkdev_codec_paClose(void)
+{
+	tlkdrv_codec_paClose();
+}
 
 void tlkdev_codec_muteSpk(void)
 {
 	tlkdrv_codec_muteSpk();
+}
+
+void tlkdev_codec_setSpkStatus(bool isMute)
+{
+	if(tlkdrv_codec_setSpkStatus(isMute) != TLK_ENONE){
+		sTlkDevCodecCtrl.spkIsMute = true;
+	}else{
+		sTlkDevCodecCtrl.spkIsMute = false;
+	}
+}
+void tlkdev_codec_setMicStatus(bool isMute)
+{
+	if(tlkdrv_codec_setMicStatus(isMute) != TLK_ENONE){
+		sTlkDevCodecCtrl.micIsMute = true;
+	}else{
+		sTlkDevCodecCtrl.micIsMute = false;
+	}
+}
+
+void tlkdev_codec_setSpkVolume(uint volume)
+{
+	if(volume > 100) volume = 100;
+	if(tlkdrv_codec_setSpkVolume(volume) != TLK_ENONE){
+		sTlkDevCodecCtrl.spkVolume = volume;
+	}else{
+		sTlkDevCodecCtrl.spkVolume = 100;
+	}
+	sTlkDevCodecCtrl.selSpkVolume = (volume<<7)/100;
+	sTlkDevCodecCtrl.spkIsMute = false;
+}
+void tlkdev_codec_setMicVolume(uint volume)
+{
+	if(volume > 100) volume = 100;
+	if(tlkdrv_codec_setMicVolume(volume) != TLK_ENONE){
+		sTlkDevCodecCtrl.micVolume = volume;
+	}else{
+		sTlkDevCodecCtrl.micVolume = 100;
+	}
+	sTlkDevCodecCtrl.selMicVolume = (volume<<7)/100;
+	sTlkDevCodecCtrl.micIsMute = false;
+}
+
+uint tlkdev_codec_getSpkVolume(void)
+{
+	int ret = tlkdrv_codec_getSpkVolume();
+	if(ret >= 0) return (uint)ret;
+	else return sTlkDevCodecCtrl.spkVolume;
+}
+uint tlkdev_codec_getMicVolume(void)
+{
+	int ret = tlkdrv_codec_getMicVolume();
+	if(ret >= 0) return (uint)ret;
+	else return sTlkDevCodecCtrl.micVolume;
 }
 
 uint tlkdev_codec_getSpkOffset(void)
@@ -175,20 +240,55 @@ bool tlkdev_codec_readSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset)
 }
 bool tlkdev_codec_readMicData(uint08 *pBuff, uint16 buffLen, uint16 *pOffset)
 {
-	return tlkdrv_codec_readMicData(pBuff, buffLen, pOffset);
+	bool isSucc = tlkdrv_codec_readMicData(pBuff, buffLen, pOffset);
+	if(isSucc){
+		tlkdrv_codec_micDataZoom(pBuff, buffLen);
+	}
+	return isSucc;
 }
 
+void tlkdev_codec_muteSpkBuff(void)
+{
+	tlkdrv_codec_muteSpkBuff();
+}
 void tlkdev_codec_zeroSpkBuff(uint16 zeroLen, bool isInc)
 {
 	tlkdrv_codec_zeroSpkBuff(zeroLen, isInc);
 }
 bool tlkdev_codec_fillSpkBuff(uint08 *pData, uint16 dataLen)
 {
+	tlkdrv_codec_spkDataZoom(pData, dataLen);
 	return tlkdrv_codec_fillSpkBuff(pData, dataLen);
 }
 bool tlkdev_codec_backReadSpkData(uint08 *pBuff, uint16 buffLen, uint16 offset, bool isBack)
 {
 	return tlkdrv_codec_backReadSpkData(pBuff, buffLen, offset, isBack);
+}
+
+
+static void tlkdrv_codec_micDataZoom(uint08 *pData, uint16 dataLen)
+{
+	if(pData == nullptr || dataLen == 0 || (dataLen & 0x01) != 0) return;
+	if(sTlkDevCodecCtrl.micIsMute){
+		tmemset(pData, 0, dataLen);
+	}else if(sTlkDevCodecCtrl.micVolume != 100){
+		uint16 index;
+		for(index=0; index<(dataLen>>1); index++){
+			pData[index] = ((uint32)pData[index] * sTlkDevCodecCtrl.selMicVolume) >> 7;
+		}
+	}
+}
+static void tlkdrv_codec_spkDataZoom(uint08 *pData, uint16 dataLen)
+{
+	if(pData == nullptr || dataLen == 0 || (dataLen & 0x01) != 0) return;
+	if(sTlkDevCodecCtrl.spkIsMute){
+		tmemset(pData, 0, dataLen);
+	}else if(sTlkDevCodecCtrl.spkVolume != 100){
+		uint16 index;
+		for(index=0; index<(dataLen>>1); index++){
+			pData[index] = ((uint32)pData[index] * sTlkDevCodecCtrl.selSpkVolume) >> 7;
+		}
+	}
 }
 
 

@@ -159,9 +159,9 @@ extern const uint08 cBtpUUID16HidProtocolMode[];
 
 
 typedef enum{
-	BTP_ATT_PERMIT_READ               = 0x02, //!< Attribute is Readable
-	BTP_ATT_PERMIT_WRITE              = 0x04, //!< Attribute is Writable
-	BTP_ATT_PERMIT_WRITE_WITHOUT_RSP  = 0x08,
+	BTP_ATT_PERMIT_READ               = 0x01, //!< Attribute is Readable
+	BTP_ATT_PERMIT_WRITE              = 0x02, //!< Attribute is Writable
+	BTP_ATT_PERMIT_WRITE_WITHOUT_RSP  = 0x04,
 	BTP_ATT_PERMIT_RDWR               = (BTP_ATT_PERMIT_READ | BTP_ATT_PERMIT_WRITE),
 	
 	BTP_ATT_PERMIT_AUTHOR         = 0x10, //Attribute access(Read & Write) requires Authorization

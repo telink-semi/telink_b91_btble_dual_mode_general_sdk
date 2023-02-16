@@ -43,7 +43,9 @@
 
 extern void tlk_debug_init(void);
 extern bool tlk_debug_dbgIsEnable(unsigned int flags, unsigned int printFlag);
+#if (TLK_CFG_VCD_ENABLE)
 extern bool tlk_debug_vcdIsEnable(unsigned int flags);
+#endif
 extern bool tlk_debug_dbgIsEnable1(unsigned int flags);
 extern char *tlk_debug_getDbgSign(unsigned int flags);
 
@@ -83,7 +85,7 @@ int tlkapi_debug_init(void)
 
 	#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
 		sTlkApiDebugGpioPin = TLKAPI_DEBUG_GPIO_PIN;
-		sTlkApiDebugBitIntv = 16000000/TLKAPI_DEBUG_BAUD_RATE;
+		sTlkApiDebugBitIntv = SYSTEM_TIMER_TICK_1S/TLKAPI_DEBUG_BAUD_RATE;
 		gpio_function_en(sTlkApiDebugGpioPin);
 		gpio_set_up_down_res(sTlkApiDebugGpioPin, GPIO_PIN_PULLUP_1M);
 		gpio_output_en(sTlkApiDebugGpioPin);
@@ -99,7 +101,7 @@ int tlkapi_debug_init(void)
 		
 		gpio_set_up_down_res(TLKAPI_DEBUG_UART_TX_PIN, GPIO_PIN_PULLUP_10K);
 		gpio_input_en(TLKAPI_DEBUG_UART_TX_PIN);
-		#if (TLKAPI_DEBUG_UART_TX_PIN == UART0_TX_PD2)
+		#if (TLKAPI_DEBUG_UART_TX_PIN == TLKAPI_DEBUG_UART_TX_PIN)
 		unsigned char mask = (unsigned char)~(BIT(5)|BIT(4));
 		reg_gpio_func_mux(TLKAPI_DEBUG_UART_TX_PIN)=(reg_gpio_func_mux(TLKAPI_DEBUG_UART_TX_PIN) & mask);
 		#else
@@ -484,10 +486,11 @@ static void tlkapi_debug_common(uint flags, char *pSign, char *pHead, const char
 	uint16 serial;
 	uint16 dataLen;
 
+	serial = sTlkApiDebugSerial ++;
+
 	pBuff = tlkapi_qfifo_getBuff(&sTlkApiDebugFifo);
 	if(pBuff == nullptr) return;
 	
-	serial = sTlkApiDebugSerial ++;
 	printf("[%04x]",serial);
 	if(pSign != nullptr) printf(pSign);
 	if(pHead != nullptr) printf(pHead);
@@ -741,22 +744,22 @@ void tlkapi_debug_default(void)
 {
 	
 }
-void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_error(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-int  tlkapi_debug_sprintf(char *pOut, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_info(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_error(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+int  __attribute__((unused))tlkapi_debug_sprintf(char *pOut, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 
-void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3) __attribute__((weak, alias("tlkapi_debug_default")));
 
-void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
-void tlkapi_debug_delayForPrint(uint32 us) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkapi_debug_delayForPrint(uint32 us) __attribute__((weak, alias("tlkapi_debug_default")));
 
 #endif
 
@@ -764,17 +767,14 @@ void tlkapi_debug_delayForPrint(uint32 us) __attribute__((weak, alias("tlkapi_de
 #if !(TLK_CFG_VCD_ENABLE)
 
 _attribute_ram_code_sec_noinline_
-void tlkapi_vcd_default(void)
-{
-	
-}
-void tlkapi_vcd_ref(void) __attribute__((weak, alias("tlkapi_vcd_default")));
-void tlkapi_vcd_sync(bool enable) __attribute__((weak, alias("tlkapi_vcd_default")));
-void tlkapi_vcd_tick(uint flags, uint08 id) __attribute__((weak, alias("tlkapi_vcd_default")));
-void tlkapi_vcd_level(uint flags, uint08 id, uint08 level) __attribute__((weak, alias("tlkapi_vcd_default")));
-void tlkapi_vcd_event(uint flags, uint08 id) __attribute__((weak, alias("tlkapi_vcd_default")));
-void tlkapi_vcd_byte(uint flags, uint08 id, uint08 value) __attribute__((weak, alias("tlkapi_vcd_default")));
-void tlkapi_vcd_word(uint flags, uint08 id, uint16 value) __attribute__((weak, alias("tlkapi_vcd_default")));
+void tlkapi_vcd_default(void){}
+void __attribute__((unused))tlkapi_vcd_ref(void) __attribute__((weak, alias("tlkapi_vcd_default")));
+void __attribute__((unused))tlkapi_vcd_sync(bool enable) __attribute__((weak, alias("tlkapi_vcd_default")));
+void __attribute__((unused))tlkapi_vcd_tick(uint flags, uint08 id) __attribute__((weak, alias("tlkapi_vcd_default")));
+void __attribute__((unused))tlkapi_vcd_level(uint flags, uint08 id, uint08 level) __attribute__((weak, alias("tlkapi_vcd_default")));
+void __attribute__((unused))tlkapi_vcd_event(uint flags, uint08 id) __attribute__((weak, alias("tlkapi_vcd_default")));
+void __attribute__((unused))tlkapi_vcd_byte(uint flags, uint08 id, uint08 value) __attribute__((weak, alias("tlkapi_vcd_default")));
+void __attribute__((unused))tlkapi_vcd_word(uint flags, uint08 id, uint16 value) __attribute__((weak, alias("tlkapi_vcd_default")));
 
 
 #endif

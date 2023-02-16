@@ -26,8 +26,8 @@
 
 
 
-#include "stdbool.h"
-#include "string.h"
+#include <stdbool.h>
+#include <string.h>
 #include "tlk_config.h"
 #include "tlk_define.h"
 #include "tlk_debug.h"

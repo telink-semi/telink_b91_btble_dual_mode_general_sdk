@@ -129,12 +129,13 @@ typedef enum
 	SPP_CLIENT_TO_SERVER_DESC_H,		 //UUID: 2901, 	VALUE: TelinkSPPC2SDescriptor
 
 	//// Ota ////
+#if TLKMMI_LEOTA_ENABLE
 	/**********************************************************************************************/
 	OTA_PS_H, 								//UUID: 2800, 	VALUE: telink ota service uuid
 	OTA_CMD_OUT_CD_H,						//UUID: 2803, 	VALUE:  			Prop: read | write_without_rsp
 	OTA_CMD_OUT_DP_H,						//UUID: telink ota uuid,  VALUE: otaData
 	OTA_CMD_OUT_DESC_H,						//UUID: 2901, 	VALUE: otaName
-
+#endif
 
 	ATT_END_H,
 

@@ -234,22 +234,16 @@ volatile unsigned int status_read_rts_tick ;
 		READ_STATE_WAIT_TICK;
 		status = (reg_uart_state(uart_num)&0xf0);
 		if (status == 0) {
-
 			READ_STATE_WAIT_TICK;
-
 			status = (reg_uart_state(uart_num)&0xf0);
-
 			if (status == 0) {
-
 				UART_MANUAL_FLOW_CTR_RTS_STOP;
 				status_read_rts_tick = reg_system_tick;
 				if(clock_time_exceed(status_read_start_tick,10)){
-
 					return 0;
 				}
 				status = (reg_uart_state(uart_num)&0xf0);
 				if (status == 0){
-
 					return 1;
 				}
 				else {
@@ -275,14 +269,11 @@ volatile unsigned int status_read_rts_tick ;
 	}
 	volatile uint8_t status = 0;
 	status = (reg_uart_state(uart_num)&0xf0);
-
 	if (status == 0) {
-
 		return 1;
 	}
 
 	return 0;
-
 }
 
 uint08  tail_uart_data[3];
@@ -316,8 +307,8 @@ _attribute_ram_code_sec_ uint08 uart_dmabuf_uartbuf_process(uint32 *dma_size,uin
 
 		return 1;
 	}
-	else {
-			return 0;
+	else{
+		return 0;
 	}
 }
 _attribute_ram_code_sec_ static void tlkdev_hciuart_recvHandler(void)
@@ -331,13 +322,10 @@ _attribute_ram_code_sec_ static void tlkdev_hciuart_recvHandler(void)
 			UART_MANUAL_FLOW_CTR_RTS_START;
 		    return;
 		}
-
 		uint08 *p = pending_dma_buf;
-		u16 dma_offset = PENDING_BUF_LEN - read_dma_size*4;
-		u16 rx_len = 0 ;
-
+		uint16 dma_offset = PENDING_BUF_LEN - read_dma_size*4;
+		uint16 rx_len = 0 ;
 		if(dma_offset+read_buf_cnt){
-
 			GLOBAL_INT_DISABLE();
 			// dma buf + copy tail_uart_data
 			if(read_buf_cnt){
@@ -345,9 +333,7 @@ _attribute_ram_code_sec_ static void tlkdev_hciuart_recvHandler(void)
 			}
 			// length in pending buf
 			rx_len = dma_offset+read_buf_cnt;
-
 			GLOBAL_INT_RESTORE();
-
 	   }
 
 		data_push_controller_hci_fifo_process(pending_dma_buf,rx_len);
@@ -368,9 +354,7 @@ uint08 tlkdev_hciuart_tick = 0;
 uint08 tlkdev_hciuart_send(uint08 * addr)
 {
 	if(tlkdev_hciuart_send_flag == 1){
-
 		if(clock_time_exceed(tlkdev_hciuart_tick,SERIAL_BUSY_TIMEOUT)){
-
 			uart_tx_reset_init();
 			tlkdev_hciuart_send_flag = 0;
 			my_dump_str_u32s(TLKAPP_HCI_UART_MODE,"tlkdev_hciuart_send",tlkdev_hciuart_send_flag,0,0,0);

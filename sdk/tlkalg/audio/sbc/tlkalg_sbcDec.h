@@ -33,7 +33,7 @@ typedef	struct
 	sint16 costab_4[32];
 	sint16 costab_8[128];
 	sint08 loudness_4[4][4];
-	sint08	loudness_8[4][8];
+	sint08 loudness_8[4][8];
 	sint16 V[2][160];
 }tlkalg_sbc_decParam_t;
 

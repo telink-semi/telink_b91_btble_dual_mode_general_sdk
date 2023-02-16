@@ -42,7 +42,6 @@
 /----------------------------------------------------------------------------*/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 #if (TLK_FS_FAT_ENABLE)
 #include <string.h>
 #include "ff.h"			/* Declarations of FatFs API */

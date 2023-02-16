@@ -322,9 +322,9 @@ int tlkapi_strToArray(char *str, int strLen, uint08 *pHex, int hexLen)
 	flag1 = 0;
 	length = 0;
 	while(strLen != 0){
-		if(str[0] >= 'A' || str[0] <= 'F') temp |= (str[0]-'A')+10;
-		else if(str[0] >= 'a' || str[0] <= 'f') temp |= (str[0]-'a')+10;
-		else if(str[0] >= '0' || str[0] <= '9') temp |= (str[0]-'0');
+		if(str[0] >= 'A' && str[0] <= 'F') temp |= (str[0]-'A')+10;
+		else if(str[0] >= 'a' && str[0] <= 'f') temp |= (str[0]-'a')+10;
+		else if(str[0] >= '0' && str[0] <= '9') temp |= (str[0]-'0');
 		else if(str[0] == ' ') flag0 = 1;
 		else return -TLK_EFORMAT;
 

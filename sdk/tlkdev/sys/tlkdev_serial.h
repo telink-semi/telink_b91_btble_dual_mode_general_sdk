@@ -43,6 +43,8 @@ typedef void(*tlkdev_serial_recvCB)(uint08 *pFrame, uint16 frmLen);
 
 int  tlkdev_serial_init(void);
 
+void tlkdev_serial_clear(void);
+
 void tlkdev_serial_regCB(tlkdev_serial_recvCB cb);
 
 bool tlkdev_serial_isBusy(void);

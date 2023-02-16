@@ -37,7 +37,7 @@
  *     @pTask[OUT]--Task control structure.
  *     @pName[IN]--The Name of the task to be created.
  *     @priority[IN]--The priority of the task to be created.
- *     @stackSize[IN]--The stack size of the task to be created.
+ *     @stackSize[IN]--The stack size of the task to be created. Unit-Bytes.
  *     @enter[IN]--The callback function of the task to be created.
  *     @pUsrArg[IN]--The user argument of the task to be created.
  * Return: Operating results, TLK_ENONE means success and others mean failure.
@@ -50,7 +50,7 @@ int tlkos_task_create(tlkos_task_t *pTask, char *pName, uint08 priority, uint16 
 #if (TLK_OS_FREERTOS_ENABLE)
 	ulong handle = 0;
 	BaseType_t ret;
-	ret = xTaskCreate((TaskFunction_t)enter, pName, stackSize, pUsrArg, priority, (TaskHandle_t*)&handle);
+	ret = xTaskCreate((TaskFunction_t)enter, pName, stackSize >> 2, pUsrArg, priority, (TaskHandle_t*)&handle);
 	if(ret != pdPASS || handle == 0) return -TLK_EFAIL;
 	pTask->handle = handle;
 	return TLK_ENONE;
@@ -78,6 +78,26 @@ int tlkos_task_destory(tlkos_task_t *pTask)
 	return -TLK_ENOSUPPORT;
 #endif
 }
+
+/******************************************************************************
+ * Function: tlkos_task_delayMs
+ * Descript: Implement the delayed action of the task.
+ * Params:
+ *     @pTask[IN]--Task control structure.
+ *     @delayMs[IN]--Time to be delayed. Unit-ms.
+ * Return: Operating results, TLK_ENONE means success and others mean failure.
+*******************************************************************************/
+int tlkos_task_delayMs(tlkos_task_t *pTask, uint delayMs)
+{
+	if(pTask == nullptr) return -TLK_EPARAM;
+#if (TLK_OS_FREERTOS_ENABLE)
+	vTaskDelay(delayMs);
+	return TLK_ENONE;
+#else
+	return -TLK_ENOSUPPORT;
+#endif
+}
+
 
 /******************************************************************************
  * Function: tlkos_task_suspend
@@ -213,6 +233,22 @@ void tlkos_task_setPriority(tlkos_task_t *pTask, uint priority)
 #endif	
 }
 
+/******************************************************************************
+ * Function: tlkos_task_getStackValid
+ * Descript: Query the size of the remaining stack.
+ * Params:
+ *     @pTask[IN]--Task control structure.
+ * Return: The size of the remaining stack. Unit-Bytes.
+*******************************************************************************/
+uint tlkos_task_getStackValid(tlkos_task_t *pTask)
+{
+	if(pTask == nullptr) return 0;
+#if (TLK_OS_FREERTOS_ENABLE)
+	return 4*uxTaskGetStackHighWaterMark((TaskHandle_t)(pTask->handle));
+#else
+	return 0;
+#endif
+}
 
 
 #endif //#if (TLK_CFG_OS_ENABLE)

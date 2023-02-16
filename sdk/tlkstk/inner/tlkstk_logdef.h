@@ -207,7 +207,9 @@
 #define			SL16_reserved_state16_1           26
 #define			SL16_reserved_state16_2           27
 #define			SL16_reserved_state16_3           28
-
+#define			SL16_reserved_state16_4           29
+#define			SL16_reserved_state16_5           30
+#define			SL16_reserved_state16_6           31
 
 
 #define			SL16_ec_rptr					31

@@ -23,13 +23,12 @@
 
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
-#include "tlkmmi/phone/tlkmmi_phone.h"
-#include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
-#include "tlkmmi/phone/tlkmmi_phoneComm.h"
-#include "tlkmmi/phone/tlkmmi_phoneBook.h"
-#include "tlkmmi/phone/tlkmmi_phoneStatus.h"
+#include "tlkmmi_phone.h"
+#include "tlkmmi_phoneAdapt.h"
+#include "tlkmmi_phoneCtrl.h"
+#include "tlkmmi_phoneBook.h"
+#include "tlkmmi_phoneTask.h"
 
 
 
@@ -44,10 +43,10 @@
 *******************************************************************************/
 int tlkmmi_phone_init(void)
 {
+	tlkmmi_phone_taskInit();
+	tlkmmi_phone_adaptInit();
 	tlkmmi_phone_ctrlInit();
-	tlkmmi_phone_commInit();
 	tlkmmi_phone_bookInit();
-	tlkmmi_phone_statusInit();
 	
 
 	return TLK_ENONE;

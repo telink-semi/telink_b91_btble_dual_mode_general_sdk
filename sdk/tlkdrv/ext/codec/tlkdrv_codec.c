@@ -23,6 +23,9 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdrv_codec.h"
 #include "tlkdrv_rtl2108.h"
+#if (TLKDRV_CODEC_PA_ENABLE)
+#include "tlkdrv_aw87318.h"
+#endif
 #include "drivers.h"
 
 
@@ -39,20 +42,15 @@ static const tlkdrv_codec_modinf_t *spTlkDrvCodecModinf[TLKDRV_CODEC_DEV_MAX] = 
 	nullptr,
 	#endif
 };
-//static uint08 sTlkDrvCodecMajorDev = TLKDRV_CODEC_DEV_INNER;
-//static uint08 sTlkDrvCodecMinorDev = TLKDRV_CODEC_SUBDEV_BOTH;
 static uint08 sTlkDrvCodecSpkIsMute = true;
 static uint08 sTlkDrvCodecMajorDev = 0xFF; //Unknown
 static uint08 sTlkDrvCodecMinorDev = 0xFF; //Unknown
-static uint08 sTlkDrvCodecMicVol = 100;
-static uint08 sTlkDrvCodecSpkVol = 100;
 static uint16 gTlkDrvCodecSpkOffset = 0;
 static uint16 gTlkDrvCodecMicOffset = 0;
 uint16  gTlkDrvCodecSpkBuffLen = 0;
 uint16  gTlkDrvCodecMicBuffLen = 0;
 uint08 *gpTlkDrvCodecSpkBuffer = nullptr;
 uint08 *gpTlkDrvCodecMicBuffer = nullptr;
-
 
 int tlkdrv_codec_mount(TLKDRV_CODEC_DEV_ENUM dev, TLKDRV_CODEC_SUBDEV_ENUM subDev)
 {
@@ -123,24 +121,43 @@ int tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_ENUM subDev, uint08 opcode, uint32 p
 	return pModInf->Config(subDev, opcode, param0, param1);
 }
 
+bool tlkdrv_codec_paIsOpen(void)
+{
+	#if (TLKDRV_CODEC_PA_ENABLE)
+	return tlkdrv_aw87318_isOpen();
+	#else
+	return false;
+	#endif
+}
+void tlkdrv_codec_paInit(void)
+{
+	#if (TLKDRV_CODEC_PA_ENABLE)
+	tlkdrv_aw87318_init();
+	#endif
+}
+void tlkdrv_codec_paOpen(void)
+{
+	#if (TLKDRV_CODEC_PA_ENABLE)
+	tlkdrv_aw87318_open();
+	#endif
+}
+void tlkdrv_codec_paClose(void)
+{
+	#if (TLKDRV_CODEC_PA_ENABLE)
+	tlkdrv_aw87318_close();
+	#endif
+}
 
-int tlkdrv_codec_setMute(void)
+
+int tlkdrv_codec_setMicStatus(bool isMute)
 {
-	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_DEF, TLKDRV_CODEC_OPCODE_SET_MUTE, 0, 0);
+	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_MIC, TLKDRV_CODEC_OPCODE_SET_MUTE, isMute, 0);
 }
-int tlkdrv_codec_setMicMute(void)
+int tlkdrv_codec_setSpkStatus(bool isMute)
 {
-	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_MIC, TLKDRV_CODEC_OPCODE_SET_MUTE, 0, 0);
-}
-int tlkdrv_codec_setSpkMute(void)
-{
-	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_SPK, TLKDRV_CODEC_OPCODE_SET_MUTE, 0, 0);
+	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_SPK, TLKDRV_CODEC_OPCODE_SET_MUTE, isMute, 0);
 }
 
-int tlkdrv_codec_setVolume(uint08 volume)
-{
-	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_DEF, TLKDRV_CODEC_OPCODE_SET_VOLUME, volume, 0);
-}
 int tlkdrv_codec_setMicVolume(uint08 volume)
 {
 	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_MIC, TLKDRV_CODEC_OPCODE_SET_VOLUME, volume, 0);
@@ -148,6 +165,15 @@ int tlkdrv_codec_setMicVolume(uint08 volume)
 int tlkdrv_codec_setSpkVolume(uint08 volume)
 {
 	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_SPK, TLKDRV_CODEC_OPCODE_SET_VOLUME, volume, 0);
+}
+
+int tlkdrv_codec_getMicVolume(void)
+{
+	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_MIC, TLKDRV_CODEC_OPCODE_GET_VOLUME, 0, 0);
+}
+int tlkdrv_codec_getSpkVolume(void)
+{
+	return tlkdrv_codec_config(TLKDRV_CODEC_SUBDEV_SPK, TLKDRV_CODEC_OPCODE_GET_VOLUME, 0, 0);
 }
 
 int tlkdrv_codec_setChannel(uint08 channel)
@@ -200,24 +226,7 @@ uint08 tlkdrv_codec_getChannel(void)
 
 void tlkdrv_codec_muteSpk(void)
 {
-	if(sTlkDrvCodecSpkIsMute) return;
-	if(gTlkDrvCodecSpkBuffLen != 0){
-		tmemset(gpTlkDrvCodecSpkBuffer, 0, gTlkDrvCodecSpkBuffLen);
-	}
-	sTlkDrvCodecSpkIsMute = true;
-}
-
-int tlkdrv_codec_setSoftSpkVol(uint08 volume)
-{
-	if(volume > 100) return TLK_EPARAM;
-	sTlkDrvCodecMicVol = volume;
-	return TLK_ENONE;
-}
-int tlkdrv_codec_setSoftMicVol(uint08 volume)
-{
-	if(volume > 100) return TLK_EPARAM;
-	sTlkDrvCodecSpkVol = volume;
-	return TLK_ENONE;
+	tlkdrv_codec_muteSpkBuff();
 }
 
 void tlkdrv_codec_setSpkBuffer(uint08 *pBuffer, uint16 buffLen)
@@ -372,6 +381,14 @@ bool tlkdrv_codec_readMicData(uint08 *pBuffer, uint16 buffLen, uint16 *pOffset)
 	return true;
 }
 
+void tlkdrv_codec_muteSpkBuff(void)
+{
+	if(sTlkDrvCodecSpkIsMute) return;
+	if(gTlkDrvCodecSpkBuffLen != 0){
+		tmemset(gpTlkDrvCodecSpkBuffer, 0, gTlkDrvCodecSpkBuffLen);
+	}
+	sTlkDrvCodecSpkIsMute = true;
+}
 //"dataLen == 0x0000":Fills all idle buffers; "dataLen == 0xFFFF":Fill all buffers.
 void tlkdrv_codec_zeroSpkBuff(uint16 zeroLen, bool isInc)
 {
@@ -393,6 +410,8 @@ void tlkdrv_codec_zeroSpkBuff(uint16 zeroLen, bool isInc)
 		if(zeroLen != 0){
 			woffset = zeroLen;
 			tmemset(pBuffer, 0, zeroLen);
+		}else if(woffset >= gTlkDrvCodecSpkBuffLen){
+			woffset = 0;
 		}
 		if(isInc){
 			gTlkDrvCodecSpkOffset = woffset;
@@ -427,14 +446,11 @@ bool tlkdrv_codec_fillSpkBuff(uint08 *pData, uint16 dataLen)
 
 	if(gTlkDrvCodecSpkBuffLen == 0 || !tlkdrv_codec_isOpen(TLKDRV_CODEC_SUBDEV_SPK)) return false;
 	if(pData == NULL || dataLen == 0 || (dataLen & 0x01) != 0) return false;
-
-	if(sTlkDrvCodecSpkIsMute) sTlkDrvCodecSpkIsMute = false;
-
+	
 	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "=== spkFillBuff");
 	wptr = gTlkDrvCodecSpkOffset;
 	rptr = (audio_get_tx_dma_rptr(TLKDRV_CODEC_SPK_DMA))-((uint32)gpTlkDrvCodecSpkBuffer);
 	
-
 	if(rptr > wptr) unUsed = rptr-wptr;
 	else unUsed = gTlkDrvCodecSpkBuffLen+rptr-wptr;
 
@@ -444,6 +460,9 @@ bool tlkdrv_codec_fillSpkBuff(uint08 *pData, uint16 dataLen)
 		tlkapi_warn(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "fill2: %d %d %d %d", rptr, wptr, unUsed, dataLen);
 		return false;
 	}
+
+	if(sTlkDrvCodecSpkIsMute) sTlkDrvCodecSpkIsMute = false;
+	
 	
 	tlkapi_trace(TLKDRV_CODEC_DBG_FLAG, TLKDRV_CODEC_DBG_SIGN, "fill data: ok");
 
@@ -504,6 +523,7 @@ bool tlkdrv_codec_backReadSpkData(uint08 *pBuffer, uint16 buffLen, uint16 offset
 
 	return true;
 }
+
 
 
 

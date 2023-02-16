@@ -22,12 +22,12 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_STK_BTP_ENABLE)
-#include "tlkstk/bt/btp/btp_stdio.h"
+#include "../btp_stdio.h"
 #if (TLKBTP_CFG_SDP_ENABLE)
-#include "tlkstk/bt/btp/sdp/btp_sdpConst.h"
-//#include "tlkstk/bt/btp/sdp/btp_sdpInner.h"
-#include "tlkstk/bt/btp/sdp/btp_sdp.h"
-#include "tlkstk/bt/btp/btp_config.h"
+#include "btp_sdpConst.h"
+//#include "btp_sdpInner.h"
+#include "btp_sdp.h"
+#include "../btp_config.h"
 
 
 

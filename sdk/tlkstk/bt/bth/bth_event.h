@@ -50,6 +50,7 @@ typedef enum{
 	BTH_EVTID_PINCODE_REQUEST,
 	BTH_EVTID_LINKKEY_REQUEST,
 	BTH_EVTID_LINKKEY_NOTIFY,
+	BTH_EVTID_ACL_ESTABLISH, //Private Protocol
 	
 	//Signal Event
 	BTH_EVTID_SIGNAL_CONNREQ,
@@ -326,8 +327,15 @@ int bth_send_linkKeyRequestEvt(uint16 handle, uint08 btaddr[6]);
 *******************************************************************************/
 int bth_send_linkKeyNotifyEvt(uint08 keyType, uint08 btaddr[6], uint08 linkKey[16]);
 
-
-
+/******************************************************************************
+ * Function: bth_send_aclEstablishEvt
+ * Descript: Send the link key notify event via callback.
+ * Params:
+ *        @pData[IN]--The event data.
+ *        @dataLen[IN]--The data length.
+ * Reutrn: TLK_ENONE is success, other value if false.
+*******************************************************************************/
+int bth_send_aclEstablishEvt(uint08 *pData, uint16_t dataLen);
 
 
 

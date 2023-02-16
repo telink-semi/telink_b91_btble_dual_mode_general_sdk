@@ -25,11 +25,7 @@
 #define TLKAPI_MEM_H
 
 
-#if (TLKMDI_CFG_REUSE_SPKBUFF_ENABLE)
-#define TLKAPI_MEM_TOTAL_SIZE         (37*1024) //MP3(36740) = 36740 -- Worst scenario: Music playing on the headphone
-#else
 #define TLKAPI_MEM_TOTAL_SIZE         (40*1024) //MP3(36740)+SrcEnc(4048) = 36740+4048=40788  -- Worst scenario: Music playing on the headphone
-#endif
 
 typedef ulong tlkapi_mem_t;
 

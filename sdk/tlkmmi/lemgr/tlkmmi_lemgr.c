@@ -22,26 +22,26 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
-#include "tlkmmi/lemgr/tlkmmi_lemgr.h"
-#include "tlkmmi/lemgr/tlkmmi_lemgrComm.h"
-#include "tlkmmi/lemgr/tlkmmi_lemgrCtrl.h"
-#include "tlkmmi/lemgr/tlkmmi_lemgrAcl.h"
+#include "tlkmmi_lemgr.h"
+#include "tlkmmi_lemgrAdapt.h"
+#include "tlkmmi_lemgrCtrl.h"
+#include "tlkmmi_lemgrAcl.h"
+#include "tlkmmi_lemgrTask.h"
 
 
 
 
 int tlkmmi_lemgr_init(void)
 {
+	tlkmmi_lemgr_taskInit();
+	tlkmmi_lemgr_adaptInit();
 	tlkmmi_lemgr_ctrlInit();
 	tlkmmi_lemgr_aclInit();
-	tlkmmi_lemgr_commInit();
 	
 	
 	return TLK_ENONE;
 }
-
 
 
 
