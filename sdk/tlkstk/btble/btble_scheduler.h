@@ -189,6 +189,7 @@ typedef struct env_scheduler
 
 
 extern env_scheduler_t	env_sch;
+extern u8 bt_ll_bandwith_req;
 
 static inline void bt_ll_schedule_disable (uint8_t id) {if (id < MAX_SCHEDULE_LINK) {env_sch.link_scheduler[id].en = 0;}}
 
@@ -210,7 +211,6 @@ static inline u8 bt_ll_shedule_slot12_pre_end (int id, u32 slot, int sco)
 }
 static inline u16 bt_ll_shedule_cur_next_id_get (void)
 {
-
 	return env_sch.cur_id | (env_sch.next_id << 8);
 }
 static inline int bt_ll_schedule_get_ble_acl (uint8_t sch_link) {return sch_link >= ID_LINK_BLE && sch_link < MAX_SCHEDULE_LINK ? sch_link - ID_LINK_BLE : FLAG_SCHEDULE_LINK_ID_NULL;}

@@ -44,6 +44,12 @@ void 		blc_ll_initAclSlaveRole_module(void);
  */
 int 		blc_ll_setIgnoreIntvlCnt(unsigned char ignoreCnt);
 
+/**
+ * @brief      for used to configure how many consecutive intervals the task will be abandoned
+ * @param	   the number of consecutive intervals.
+ * @return     0:success; -1:fail.
+ */
+int			blc_ll_setConsecIntvlCnt(unsigned char consecCnt);
 
 
 /**

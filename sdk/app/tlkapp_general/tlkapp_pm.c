@@ -24,7 +24,6 @@
 #include "tlkdev/tlkdev.h"
 #include "tlkmmi/tlkmmi.h"
 #include "tlkmmi/audio/tlkmmi_audio.h"
-#include "tlkmmi/btmgr/tlkmmi_btmgrRec.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkapp_config.h"
 #include "tlkapp_pm.h"

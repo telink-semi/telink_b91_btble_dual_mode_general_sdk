@@ -394,6 +394,9 @@ typedef struct {
 	u8 		*conn_pkt_dec_pending;
 #endif
 
+	u16 task_consec_cnt;
+	u16 reserve2;
+
 } st_ll_conn_t;
 
 extern _attribute_aligned_(4)	volatile st_ll_conn_t	AA_blms[];   // AA_ just for debug

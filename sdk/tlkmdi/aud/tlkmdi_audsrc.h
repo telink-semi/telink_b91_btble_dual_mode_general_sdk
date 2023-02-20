@@ -47,6 +47,7 @@ typedef struct{
 	uint32 unitTime;
 	uint32 timeStamp;
 
+	uint08 isPause;
 	uint08 mp3State;
 	uint08 waitStart;
 	uint16 playIndex;

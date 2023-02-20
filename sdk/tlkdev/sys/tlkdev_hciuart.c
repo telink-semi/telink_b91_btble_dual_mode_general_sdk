@@ -22,8 +22,8 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_HCIUART_ENABLE)
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlkprt/tlkprt_comm.h"
+//#include "tlkdev/tlkdev_stdio.h"
+#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkdev/sys/tlkdev_hciuart.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 

@@ -35,7 +35,9 @@
 #ifdef TLKAPP_BOOTLOADER_ENABLE
 	#include "app/tlkapp_bootloader/tlkapp_config.h"
 #endif
-
+#ifdef TLKAPP_BQB_ENABLE
+	#include "app/tlkapp_bqb/tlkapp_config.h"
+#endif
 
 #ifndef JTAG_DEBUG_ENABLE
 	//PE4 ~ PE7 as JTAG will cost some power

@@ -116,9 +116,12 @@ static int tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen)
 		}
 		sTlkMdiSrcCtrl.waitStart = 0;
 		sTlkMdiSrcCtrl.waitTimer = 0;
-	}else{
-		tlkmdi_audsrc_switch(pEvt->handle, TLK_STATE_CLOSED);
-		tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SRC, pEvt->handle);
+	}
+	else{
+		if(!sTlkMdiSrcCtrl.isPause){
+			tlkmdi_audsrc_switch(pEvt->handle, TLK_STATE_CLOSED);
+			tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SRC, pEvt->handle);
+		}
 	}
 	return TLK_ENONE;
 }
@@ -153,6 +156,7 @@ static void tlkmdi_audsrc_keyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 i
 
 int tlkmdi_audsrc_start(uint16 handle, uint32 param)
 {
+	sTlkMdiSrcCtrl.isPause = false;
 	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	int ret;
 	ret = btp_a2dpsrc_start(handle);
@@ -168,6 +172,7 @@ int tlkmdi_audsrc_start(uint16 handle, uint32 param)
 }
 int tlkmdi_audsrc_close(uint16 handle)
 {
+	sTlkMdiSrcCtrl.isPause = false;
 	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 	if(sTlkMdiSrcCtrl.handle != handle){
 		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_close: enable handle");
@@ -255,6 +260,18 @@ bool tlkmdi_audsrc_switch(uint16 handle, uint08 status)
 		btp_a2dpsrc_suspend(sTlkMdiSrcCtrl.handle);
 		#endif
 	}
+	if(status == TLK_STATE_PAUSED && sTlkMdiSrcCtrl.handle != 0)
+	{
+		sTlkMdiSrcCtrl.isPause = true;
+		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
+		btp_a2dpsrc_suspend(sTlkMdiSrcCtrl.handle);
+		#endif
+	}else if(status == TLK_STATE_OPENED && sTlkMdiSrcCtrl.handle != 0 && sTlkMdiSrcCtrl.isPause){
+		sTlkMdiSrcCtrl.isPause = false;
+		tlkmdi_audsrc_start(sTlkMdiSrcCtrl.handle, 0);
+	}else{
+		sTlkMdiSrcCtrl.isPause = false;
+	}
 	if(sTlkMdiSrcCtrl.enable == enable) return true;
 	
 	if(!enable) sTlkMdiSrcCtrl.enable = false;
@@ -279,7 +296,7 @@ bool tlkmdi_audsrc_switch(uint16 handle, uint08 status)
 			uint08 buffer[6];
 			buffer[buffLen++] = (handle & 0xFF);
 			buffer[buffLen++] = (handle & 0xFF00) >> 8;
-			buffer[buffLen++] = 0x00;
+			buffer[buffLen++] = 0x01;
 			buffer[buffLen++] = tlkmdi_audio_getHeadsetBtpVolume();
 			buffer[buffLen++] = tlkmdi_audio_getHeadsetBtpVolume(); //Android Volume
 			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
@@ -520,6 +537,7 @@ static void tlkmdi_src_fillHandler(void)
 			sTlkMdiSrcCtrl.sndFrame = 0;
 			sTlkMdiSrcCtrl.seqNumber ++;
 			sTlkMdiSrcCtrl.timeStamp += 8;
+//			tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "=== app_audio_a2dpSrcPlayProcs 005");
 		}
 	}
 	#endif

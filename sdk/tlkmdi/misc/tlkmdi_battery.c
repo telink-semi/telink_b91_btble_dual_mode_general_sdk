@@ -154,7 +154,7 @@ void tlkmdi_battery_check(void)
 
 	tlkapi_trace(TLKMDI_BAT_DBG_FLAG, TLKMDI_BAT_DBG_SIGN, "app_battery_check: voltage-%d", sTlkMdiBatCtrl.voltage);
 
-	battery[0] = 0x00;
+	battery[0] = sTlkMdiBatCtrl.level;
 	battery[1] = (sTlkMdiBatCtrl.voltage & 0x00FF);
 	battery[2] = (sTlkMdiBatCtrl.voltage & 0xFF00) >> 8;
 	tlktsk_sendInnerMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_BATTERY_REPORT, battery, 3);
