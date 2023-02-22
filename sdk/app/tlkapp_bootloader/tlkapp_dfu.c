@@ -27,7 +27,7 @@
 
 #include "drivers.h"
 #include "tlkapp_dfu.h"
-#include "tlkmdi/tlkmdi_file.h"
+#include "tlkmdi/misc/tlkmdi_file.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 #include "tlkalg/digest/sha/tlkalg_sha.h"
 

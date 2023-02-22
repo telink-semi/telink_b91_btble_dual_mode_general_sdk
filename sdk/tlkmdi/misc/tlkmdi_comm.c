@@ -231,14 +231,15 @@ int tlkmdi_comm_sendEvt(uint08 mType, uint08 evtID, uint08 *pData, uint08 dataLe
 int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen)
 {
 	int ret;
-	uint08 head[4];
+	uint08 head[8];
 	
 	if(pData == nullptr || dataLen == 0 || dataLen > 256) return -TLK_EPARAM;
-	head[0] = (numb & 0x00FF); //Num
-	head[1] = (numb & 0xFF00) >> 8;
-	head[2] = datID; //DID
-	head[3] = dataLen-1; //Lens
-	ret = tlkmdi_comm_makeSendFrame(TLKPRT_COMM_PTYPE_DAT, head, 4, pData, dataLen);
+	head[0] = datID; //DID
+	head[1] = (numb & 0x00FF); //Num
+	head[2] = (numb & 0xFF00) >> 8;
+	head[3] = (dataLen & 0x00FF); //Lens
+	head[4] = (dataLen & 0xFF00) >> 8; 
+	ret = tlkmdi_comm_makeSendFrame(TLKPRT_COMM_PTYPE_DAT, head, 5, pData, dataLen);
 	if(ret == TLK_ENONE){
 		#if (TLK_DEV_SERIAL_ENABLE)
 		ret = tlkdev_serial_send(sTlkMdiCommCtrl.sendFrame, sTlkMdiCommCtrl.sendFrameLen);
