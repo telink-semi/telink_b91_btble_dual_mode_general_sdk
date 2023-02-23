@@ -26,6 +26,7 @@
 
 
 #define BTH_SCO_TIMEOUT         (100000)
+#define BTH_SCO_TIMEOUT_MS      (100)
 #define BTH_SCO_CONN_TIMEOUT    (5000000/BTH_SCO_TIMEOUT) // <256
 #define BTH_SCO_DISC_TIMEOUT    (5000000/BTH_SCO_TIMEOUT) // <256
 
@@ -37,6 +38,15 @@ typedef enum{
 	TLK_SCO_BUSY_SEND_DISC_REQUEST = 0x04,
 }TLK_SCO_BUSYS_ENUM;
 
+
+/******************************************************************************
+ * Function: bth_sco_setConnTimeout
+ * Descript: Set the time from establishment of the SCO to connection timeout.
+ * Params: 
+ *     @timeout[IN]--The time of connection timeout. Unit-ms, Range[3000~15000].
+ * Reutrn: None.
+*******************************************************************************/
+void bth_sco_setConnTimeout(uint16 timeout);
 
 /******************************************************************************
  * Function: bth_sco_getCodec

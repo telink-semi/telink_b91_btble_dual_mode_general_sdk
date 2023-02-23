@@ -24,11 +24,15 @@
 #include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_DEBUG_ENABLE)
 #include "tlkmdi_debug.h"
+#include "tlklib/dbg/tlkdbg.h"
 #include "drivers.h"
 
 
 #define TLKMDI_DEBUG_DBG_FLAG         ((TLK_MAJOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_MISC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_DEBUG_DBG_SIGN         "[MDI]"
+
+extern void tlk_debug_init(void);
+
 
 #if (TLKMDI_DEBUG_STACK_CHECK_ENABLE)
 static uint32 sTlkMdiDbgStackCheckTimer = 0;
@@ -37,7 +41,9 @@ static uint32 sTlkMdiDbgStackCheckTimer = 0;
 
 int tlkmdi_debug_init(void)
 {
-	tlkapi_debug_init();
+	tlk_debug_init();
+	tlkdbg_init();
+	
 	#if (TLKMDI_DEBUG_STACK_CHECK_ENABLE)
 	tlkapi_chip_stackInit();
 	#endif
@@ -48,12 +54,12 @@ int tlkmdi_debug_init(void)
 
 bool tlkmdi_debug_pmIsBusy(void)
 {
-	return tlkapi_debug_isBusy();
+	return tlkdbg_isBusy();
 }
 
 void tlkmdi_debug_handler(void)
 {
-	tlkapi_debug_handler();
+	tlkdbg_handler();
 	#if (TLKMDI_DEBUG_STACK_CHECK_ENABLE)
 	if(sTlkMdiDbgStackCheckTimer == 0 || clock_time_exceed(sTlkMdiDbgStackCheckTimer, 3000000)){
 		uint length = tlkapi_chip_stackCheck();

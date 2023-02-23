@@ -284,7 +284,7 @@
 #define TLK_MDI_LED_ENABLE           (0)
 #endif
 #ifndef TLK_MDI_GUI_ENABLE
-#define TLK_MDI_GUI_ENABLE           (0)
+#define TLK_MDI_GUI_ENABLE           (0 && TLK_CFG_GUI_ENABLE)
 #endif
 #ifndef TLK_MDI_USB_ENABLE
 #define TLK_MDI_USB_ENABLE           (1 && TLK_CFG_USB_ENABLE)

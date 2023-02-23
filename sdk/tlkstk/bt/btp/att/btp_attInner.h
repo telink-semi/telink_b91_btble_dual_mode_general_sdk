@@ -30,13 +30,6 @@
 #define BTP_ATT_DBG_SIGN     nullptr
 
 
-#define BTP_ATT_TIMEOUT              200000 //100ms
-#define BTP_ATT_CONN_TIMEOUT         (5000000/BTP_ATT_TIMEOUT)
-#define BTP_ATT_DISC_TIMEOUT         (5000000/BTP_ATT_TIMEOUT)
-
-
-
-
 
 typedef struct{
 	uint08 state;

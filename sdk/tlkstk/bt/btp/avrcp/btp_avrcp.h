@@ -117,11 +117,6 @@ typedef void (*BtpAvrcpVolumeChangeCallback)(uint16 aclHandle, uint08 volume);
 
 
 
-#define BTP_AVRCP_TIMEOUT         200000 //100ms
-#define BTP_AVRCP_CONN_TIMEOUT    (5000000/BTP_AVRCP_TIMEOUT)
-#define BTP_AVRCP_DISC_TIMEOUT    (5000000/BTP_AVRCP_TIMEOUT)
-
-
 /******************************************************************************
  * Function: AVRCP init interface
  * Descript: This interface be used by user to initial the avrcp resource

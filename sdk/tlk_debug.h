@@ -34,6 +34,20 @@
 #define TLK_DEBUG_DBG_FLAG_ASSERT        0x80
 #define TLK_DEBUG_DBG_FLAG_ALL           0xFE
 
+typedef struct{
+	unsigned char minorID;
+	unsigned char dbgIsEn;
+	unsigned char vcdIsEn;
+	unsigned char dbgFlag;
+	const char *pDbgSign;
+}tlk_debug_unit_t;
+typedef struct{
+	unsigned char dbgIsEn;
+	unsigned char vcdIsEn;
+	unsigned char dbgFlag;
+	unsigned char unitCnt;
+	tlk_debug_unit_t unit[32];
+}tlk_debug_info_t;
 
 typedef enum{
 	TLK_MAJOR_DBGID_NONE = 0,

@@ -31,7 +31,7 @@
 
 
 #define TLKMMI_SYS_PROCID           TLKTSK_PROCID_SYSTEM
-
+#define TLKMMI_SYS_TIMEOUT			100000
 
 int  tlkmmi_sys_init(void);
 

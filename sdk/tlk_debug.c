@@ -38,20 +38,6 @@
 #define nullptr  0
 #endif
 
-typedef struct{
-	unsigned char minorID;
-	unsigned char dbgIsEn;
-	unsigned char vcdIsEn;
-	unsigned char dbgFlag;
-	const char *pDbgSign;
-}tlk_debug_unit_t;
-typedef struct{
-	unsigned char dbgIsEn;
-	unsigned char vcdIsEn;
-	unsigned char dbgFlag;
-	unsigned char unitCnt;
-	tlk_debug_unit_t unit[32];
-}tlk_debug_info_t;
 
 
 static const tlk_debug_info_t scTlkDebugSysInfo = {
@@ -359,6 +345,16 @@ static unsigned long sTlkDebugVcdMask[TLK_MAJOR_DBGID_MAX];
 #endif
 
 void tlk_debug_dbgLoad(void);
+
+tlk_debug_info_t **tlk_debug_get_dbgInfo()
+{
+	return &scTlkDebugInfo;
+}
+
+unsigned long *tlk_debug_get_dbgMask()
+{
+	return sTlkDebugDbgMask;
+}
 
 
 void tlk_debug_init(void)

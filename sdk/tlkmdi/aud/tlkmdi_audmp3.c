@@ -96,7 +96,7 @@ int tlkmdi_mp3_init(void)
 		|| mp3dec_Query_ScratchSize() > TLKMDI_MP3_DEC_CACHE0_SIZE){
 		while(true){
 			tlkapi_error(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "MP3 Buffer Error");
-			tlkapi_debug_handler();
+			tlkdbg_handler();
 		}
 	}
 	

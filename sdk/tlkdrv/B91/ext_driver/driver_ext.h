@@ -31,5 +31,5 @@
 #include "software_pa.h"
 #include "ext_gpio_dbg.h"
 #include "ext_uart1_dbg.h"
-
+#include "ext_aes.h"
 #endif /* DRIVERS_B91_EXT_DRIVER_DRIVER_EXT_H_ */

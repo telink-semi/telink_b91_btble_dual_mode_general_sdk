@@ -40,7 +40,7 @@
 #include "tlkdev/sys/tlkdev_codec.h"
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlksys/prt/tlkpto_comm.h"
-#include "tlkalg/audio/aec/tlkalg_aec_ns.h"
+
 
 #define TLKMDI_AUDSCO_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SCO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_AUDSCO_DBG_SIGN       "[MDI]"

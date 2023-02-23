@@ -34,78 +34,6 @@
 #define TLKAPI_DBG_ASSERT_FLAG      0x80
 #define TLKAPI_DBG_FLAG_ALL         0xFE
 
-#define tlkapi_warn      tlkapi_debug_warn
-#define tlkapi_info      tlkapi_debug_info
-#define tlkapi_trace     tlkapi_debug_trace
-#define tlkapi_fatal     tlkapi_debug_fatal
-#define tlkapi_error     tlkapi_debug_error
-#define tlkapi_array     tlkapi_debug_array
-#define tlkapi_assert    tlkapi_debug_assert
-#define tlkapi_sprintf   tlkapi_debug_sprintf
-
-#define tlkapi_sendStr(flags,pStr)                        tlkapi_debug_sendData(flags,pStr,0,0)
-#define tlkapi_sendData(flags,pStr,pData,dataLen)         tlkapi_debug_sendData(flags,pStr,(uint08*)pData,dataLen)
-#define tlkapi_sendU08s(flags,pStr,val0,val1,val2,val3)   tlkapi_debug_sendU08s(flags,pStr,(uint08)(val0),(uint08)(val1),(uint08)(val2),(uint08)(val3))
-#define tlkapi_sendU16s(flags,pStr,val0,val1,val2,val3)   tlkapi_debug_sendU16s(flags,pStr,(uint16)(val0),(uint16)(val1),(uint16)(val2),(uint16)(val3))
-#define tlkapi_sendU32s(flags,pStr,val0,val1,val2,val3)   tlkapi_debug_sendU32s(flags,pStr,(uint32)(val0),(uint32)(val1),(uint32)(val2),(uint32)(val3))
-
-
-void tlkapi_debug_warn(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_info(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_trace(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_fatal(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_error(uint flags, char *pSign, const char *format, ...);
-void tlkapi_debug_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkapi_debug_assert(uint flags, bool isAssert, char *pSign, const char *format, ...);
-int  tlkapi_debug_sprintf(char *pOut, const char *format, ...);
-
-void tlkapi_debug_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen);
-void tlkapi_debug_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
-void tlkapi_debug_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
-void tlkapi_debug_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
-
-void tlkapi_debug_handler(void);
-
-void tlkapi_debug_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
-void tlkapi_debug_delayForPrint(uint32 us);
-
-
-void tlkapi_vcd_ref(void);
-void tlkapi_vcd_sync(bool enable);
-void tlkapi_vcd_tick(uint flags, uint08 id);
-void tlkapi_vcd_level(uint flags, uint08 id, uint08 level);
-void tlkapi_vcd_event(uint flags, uint08 id);
-void tlkapi_vcd_byte(uint flags, uint08 id, uint08 value);
-void tlkapi_vcd_word(uint flags, uint08 id, uint16 value);
-
-
-
-#if (TLK_CFG_DBG_ENABLE)
-
-
-#define TLKAPI_DEBUG_CHANNEL_UDB      1
-#define TLKAPI_DEBUG_CHANNEL_GSUART   2 //GPIO simulate UART
-#define TLKAPI_DEBUG_CHANNEL_UART     3
-#if (TLK_USB_UDB_ENABLE)
-#define TLKAPI_DEBUG_CHANNEL          TLKAPI_DEBUG_CHANNEL_UDB
-#else
-#define TLKAPI_DEBUG_CHANNEL          TLKAPI_DEBUG_CHANNEL_GSUART
-//#define TLKAPI_DEBUG_CHANNEL          TLKAPI_DEBUG_CHANNEL_UART
-#endif
-
-#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_GSUART)
-#define TLKAPI_DEBUG_GPIO_PIN        GPIO_PD5
-#define TLKAPI_DEBUG_BAUD_RATE       1000000
-#endif
-
-#if (TLKAPI_DEBUG_CHANNEL == TLKAPI_DEBUG_CHANNEL_UART)
-#define TLKAPI_DEBUG_UART_PORT       UART0
-#define TLKAPI_DEBUG_UART_TX_DMA     DMA7
-#define TLKAPI_DEBUG_UART_TX_PIN     UART0_TX_PD2
-#define TLKAPI_DEBUG_UART_BAUDRATE   921600
-#endif
-
-
 #define TLKAPI_WARN_HEAD       "<WARN>"
 #define TLKAPI_INFO_HEAD       "<INFO>"
 #define TLKAPI_TRACE_HEAD      "<TRACE>"
@@ -115,13 +43,49 @@ void tlkapi_vcd_word(uint flags, uint08 id, uint16 value);
 #define TLKAPI_ASSERT_HEAD     "<ASSERT>"
 
 
-int  tlkapi_debug_init(void);
+#define tlkapi_warn      tlkdbg_warn
+#define tlkapi_info      tlkdbg_info
+#define tlkapi_trace     tlkdbg_trace
+#define tlkapi_fatal     tlkdbg_fatal
+#define tlkapi_error     tlkdbg_error
+#define tlkapi_array     tlkdbg_array
+#define tlkapi_assert    tlkdbg_assert
+#define tlkapi_sprintf   tlkdbg_sprintf
 
-void tlkapi_debug_reset(void);
+#define tlkapi_sendStr(flags,pStr)                        tlkdbg_sendData(flags,pStr,0,0)
+#define tlkapi_sendData(flags,pStr,pData,dataLen)         tlkdbg_sendData(flags,pStr,(uint08*)pData,dataLen)
+#define tlkapi_sendU08s(flags,pStr,val0,val1,val2,val3)   tlkdbg_sendU08s(flags,pStr,(uint08)(val0),(uint08)(val1),(uint08)(val2),(uint08)(val3))
+#define tlkapi_sendU16s(flags,pStr,val0,val1,val2,val3)   tlkdbg_sendU16s(flags,pStr,(uint16)(val0),(uint16)(val1),(uint16)(val2),(uint16)(val3))
+#define tlkapi_sendU32s(flags,pStr,val0,val1,val2,val3)   tlkdbg_sendU32s(flags,pStr,(uint32)(val0),(uint32)(val1),(uint32)(val2),(uint32)(val3))
 
-bool tlkapi_debug_isBusy(void);
 
-#endif //#if (TLK_CFG_DBG_ENABLE)
+extern void tlkdbg_warn(uint flags, char *pSign, const char *format, ...);
+extern void tlkdbg_info(uint flags, char *pSign, const char *format, ...);
+extern void tlkdbg_trace(uint flags, char *pSign, const char *format, ...);
+extern void tlkdbg_fatal(uint flags, char *pSign, const char *format, ...);
+extern void tlkdbg_error(uint flags, char *pSign, const char *format, ...);
+extern void tlkdbg_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
+extern void tlkdbg_assert(uint flags, bool isAssert, char *pSign, const char *format, ...);
+extern int  tlkdbg_sprintf(char *pOut, const char *format, ...);
+
+extern void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen);
+extern void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
+extern void tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
+extern void tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
+extern void tlkdbg_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
+
+extern void tlkdbg_handler(void);
+extern void tlkdbg_delayForPrint(uint32 us);
+
+extern void tlkdbg_vcd_ref(void);
+extern void tlkdbg_vcd_sync(bool enable);
+extern void tlkdbg_vcd_tick(uint flags, uint08 id);
+extern void tlkdbg_vcd_level(uint flags, uint08 id, uint08 level);
+extern void tlkdbg_vcd_event(uint flags, uint08 id);
+extern void tlkdbg_vcd_byte(uint flags, uint08 id, uint08 value);
+extern void tlkdbg_vcd_word(uint flags, uint08 id, uint16 value);
+
+
 
 #endif //TLKAPI_DEBUG_H
 

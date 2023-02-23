@@ -25,10 +25,10 @@
 #define BTH_ACL_H
 
 
-#define BTH_ACL_TIMEOUT         (100000)
-#define BTH_ACL_CONN_TIMEOUT    (5000000/BTH_ACL_TIMEOUT)
-#define BTH_ACL_DISC_TIMEOUT    (5000000/BTH_ACL_TIMEOUT)
-#define BTH_ACL_CONN1_TIMEOUT   (30000000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_TIMEOUT           (100000)
+#define BTH_ACL_TIMEOUT_MS        (100)
+#define BTH_ACL_CONN_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_DISC_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
 #define BTH_ACL_CANCEL_TIMEOUT    (2000000/BTH_ACL_TIMEOUT)
 
 
@@ -68,6 +68,15 @@ typedef enum{
 	BTH_ACL_FLAG_WAIT_DISC_RESULT = 0x0010,
 }BTH_ACL_FLAGS_ENUM;
 
+
+/******************************************************************************
+ * Function: bth_acl_setConnTimeout
+ * Descript: Set the time from establishment of the ACL to connection timeout.
+ * Params: 
+ *     @timeout[IN]--The time of connection timeout. Unit-ms, Range[3000~15000].
+ * Reutrn: None.
+*******************************************************************************/
+void bth_acl_setConnTimeout(uint16 timeout);
 
 /******************************************************************************
  * Function: bth_acl_setInitRole

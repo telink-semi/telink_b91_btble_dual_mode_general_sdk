@@ -206,7 +206,9 @@ static void tlkdev_serial_sendHandler(void)
 	uint08 *pBuffer;
 	if(!sTlkDevSerialSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkDevSerialSendFifo)){
 		pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr || (pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
+		if(pBuffer == nullptr){
+
+		}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
 			tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DmaLen error! %x", pBuffer[0]);
 			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
 		}else{
@@ -217,7 +219,6 @@ static void tlkdev_serial_sendHandler(void)
 			}else{
 				sTlkDevSerialSendIsBusy = true;
 				uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
-				tlkapi_array(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send OK:", pBuffer+4, dataLen);
 			}
 		}
 	}
@@ -284,6 +285,20 @@ void uart1_irq_handler(void)
 		if(sTlkDevSerialSendIsBusy){
 			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
 			sTlkDevSerialSendIsBusy = false;
+			uint08 *pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
+			if(pBuffer == nullptr){
+				
+			}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
+				tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
+			}else{
+				uint16 dataLen = ((uint16)pBuffer[1] << 8) | pBuffer[0];
+				if(dataLen == 0 || dataLen > TLKDEV_SERIAL_SEND_BUFF_SIZE){
+					tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
+				}else{
+					sTlkDevSerialSendIsBusy = true;
+					uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
+				}
+			}
 		}
 	}
     if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXDONE)){ //A0-SOC can't use RX-DONE status,so this interrupt can noly used in A1-SOC.

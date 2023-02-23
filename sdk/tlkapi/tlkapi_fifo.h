@@ -167,6 +167,42 @@ int tlkapi_fifo_readByte(tlkapi_fifo_t *pFifo, uint08 *pByte);
 int tlkapi_fifo_writeByte(tlkapi_fifo_t *pFifo, uint08 obyte);
 
 
+/******************************************************************************
+ * Function: tlkapi_fifo_read
+ * Descript: Read written data from FIFO.
+ * Params:
+ *     @fifo[IN]--Fifo management handle.
+ *     @pBuff[OUT]--A buffer that holds read data.
+ *     @readLen[IN]--The maximum length of the data to be read.
+ *     @chgOffset[IN]--Whether to change the offset value. If false, the 
+ *         read-with value is still cached in the pool.
+ * Return: The actual length of the data read. A negative value means 
+ *         that the read failed.
+ * Others: None.
+*******************************************************************************/
+_attribute_ram_code_sec_noinline_
+int tlkapi_fifo_readCommon(tlkapi_fifo_t *pFifo, uint08 *pBuff, uint16 readLen, bool chgOffset);
+
+/******************************************************************************
+ * Function: tlkapi_fifo_write
+ * Descript: Write data into FIFO.
+ * Params:
+ *     @fifo[IN]--Fifo management handle.
+ *     @pBuff[IN]--Data to be written.
+ *     @writeLen[IN]--The length of the data to be written.
+ *     @chgOffset[IN]--Whether to change the offset value. If false, the 
+ *         write-with value is still cached in the pool.
+ * Return: The actual length of the written data. A negative value means 
+ *         that the read failed.
+ * Others: None.
+*******************************************************************************/
+_attribute_ram_code_sec_noinline_
+int tlkapi_fifo_writeCommon(tlkapi_fifo_t *pFifo, uint08 *pData, uint16 dataLen, bool chgOffset);
+
+int tlkapi_fifo_chgReadPos(tlkapi_fifo_t *pFifo, uint16 offset);
+int tlkapi_fifo_chgWritePos(tlkapi_fifo_t *pFifo, uint16 offset);
+
+
 
 #endif //TLKAPI_FIFO_H
 

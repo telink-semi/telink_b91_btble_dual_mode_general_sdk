@@ -542,6 +542,15 @@ int bth_hci_sendSetESCOMuteCmd(uint16 escoHandle, uint08 micSpk, uint08 muteEn);
 int bth_hci_sendSetBtAddrCmd(uint08 pBtAddr[6]);
 
 
+/******************************************************************************
+ * Function: bth_hci_sendSetMaxSlotCmd
+ * Descript: set max slot command.
+ * Params:
+ *        @pBtAddr[IN]--the bt address.
+ * Reutrn: TLK_ENONE is success, other value is failure.
+*******************************************************************************/
+int bth_hci_sendSetMaxSlotCmd(uint08 pBtAddr[6]);
+
 
 #endif //BTH_HCICMD_H
 

@@ -20,9 +20,8 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#ifndef AEC_NS_API_H
-#define AEC_NS_API_H
+#ifndef TLKALG_AEC_NS_H
+#define TLKALG_AEC_NS_H
 
 #define GSCON 1
 #define AECON 1
@@ -256,4 +255,7 @@ int tlka_ns_set_parameter(void *state, int request, void *ptr);
 float tlka_ns_get_gain_average(SpeexPreprocessState *st);
 
 void tlka_ns_free(void *state);
-#endif
+
+
+#endif //TLKALG_AEC_NS_H
+

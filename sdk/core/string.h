@@ -64,6 +64,7 @@ void zeromem4(void *data, unsigned int len);
 
 int tstrlen(const char *pStr);
 int tmemcmp(const void * m1, const void *m2, u32 len);
+int  tmemcmp4(void * m1, void * m2, register unsigned int len);
 void * tmemset(void * dest, int val, unsigned int len);
 void tmemcpy(void * out, const void * in, unsigned int length);
 void tmemcpy4(void * d, const void * s, unsigned int length);
@@ -71,6 +72,7 @@ extern volatile uint32_t tdest_addr;
 extern volatile uint32_t tdest_addr_end;
 
 #define smemcmp				tmemcmp
+#define smemcmp4			tmemcmp4
 #define smemset				tmemset
 #define smemcpy				tmemcpy
 #define smemcpy4			tmemcpy4

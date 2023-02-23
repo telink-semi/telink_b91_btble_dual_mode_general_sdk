@@ -75,7 +75,6 @@
 
 
 #include "tlkalg/crypt/ecc/tlkalg_ecc_ll.h"
-#include "tlkalg/crypt/aes/tlkalg_aes_ccm.h"
 #include "tlkstk/ble/crypto/crypto_alg.h"
 
 

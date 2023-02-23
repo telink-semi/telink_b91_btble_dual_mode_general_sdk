@@ -221,7 +221,7 @@ _attribute_retention_code_ __attribute__((weak)) void except_handler(long cause,
 	core_disable_interrupt();
 
 	#if (TLK_CFG_DBG_ENABLE)
-	tlkapi_debug_delayForPrint(10000);
+	tlkdbg_delayForPrint(10000);
 	#endif
 	
 	except_handler_e.pc = epc;
@@ -233,19 +233,19 @@ _attribute_retention_code_ __attribute__((weak)) void except_handler(long cause,
 	#if (TLK_CFG_DBG_ENABLE)
 	for(volatile unsigned int i = 0; i < 20; i++)
 	{		
-		tlkapi_debug_sendU32s(TLKDRV_PLIC_DBG_FLAG,
+		tlkdbg_sendU32s(TLKDRV_PLIC_DBG_FLAG,
 					"cause",
 					except_handler_e.pc, 
 					except_handler_e.lr, 
 					except_handler_e.sp, 
 					except_handler_e.cause);
-		tlkapi_debug_sendU32s(TLKDRV_PLIC_DBG_FLAG,
+		tlkdbg_sendU32s(TLKDRV_PLIC_DBG_FLAG,
 					"PC,LR,SP,GP",
 					except_handler_e.pc, 
 					except_handler_e.lr, 
 					except_handler_e.sp, 
 					except_handler_e.gp);
-		tlkapi_debug_delayForPrint(10000);
+		tlkdbg_delayForPrint(10000);
 	}
 	#endif
 	while(1){ asm("nop"); }

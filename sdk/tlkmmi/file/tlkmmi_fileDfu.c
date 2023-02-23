@@ -397,7 +397,7 @@ static void tlkmmi_file_dfuOverHandler(bool isSucc)
 	tlkapi_save2_smartSave(&sTlkMmiFileDfuCtrl.saveCtrl, (uint08*)&sTlkMmiFileDfuCtrl.saveParam, TLKMMI_FILE_DFU_SAVE_SIZE);
 	#endif
 	#if (TLK_CFG_DBG_ENABLE)
-	tlkapi_debug_delayForPrint(100000);
+	tlkdbg_delayForPrint(100000);
 	#else
 	delay_ms(100);
 	#endif

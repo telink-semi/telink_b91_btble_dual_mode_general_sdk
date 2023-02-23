@@ -50,6 +50,11 @@ typedef enum{
 	BTP_HFP_VOLUME_TYPE_MIC,
 }BTP_HFP_VOLUME_TYPE_ENUM;
 
+typedef enum{
+	BTP_HFP_CALL_TYPE = 0,
+	BTP_HFP_CALL_SETUP_TYPE,
+	BTP_HFP_CALL_HELD_TYPE,
+}BTP_HFP_CALL_STATUS_TYPE;
 
 typedef int(*BtpHfpAgRecvCmdCB)(uint16 aclHandle, uint08 *pCmd, uint08 cmdLen);
 typedef int(*BtpHfpAgUnknownCmdCB)(uint16 aclHandle, uint08 *pCmd, uint08 cmdLen);

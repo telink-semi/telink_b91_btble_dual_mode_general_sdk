@@ -27,6 +27,8 @@
 #if (TLK_STK_BTP_ENABLE)
 
 
+#define BTP_TIMER_TIMEOUT               200000
+#define BTP_TIMER_TIMEOUT_MS            200
 
 #define BTP_MAP_L2CAP_ENABLE            0
 #define BTP_PBAP_L2CAP_ENABLE           1

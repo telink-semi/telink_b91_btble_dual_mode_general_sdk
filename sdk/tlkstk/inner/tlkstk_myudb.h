@@ -34,20 +34,20 @@
 #define GLOBAL_INT_DISABLE()		u32 rie = core_disable_interrupt ()
 #define GLOBAL_INT_RESTORE()		core_restore_interrupt(rie)
 
-extern void tlkapi_debug_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
-extern void tlkapi_debug_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
+extern void tlkdbg_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
+extern void tlkdbg_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
 
-extern void tlkapi_vcd_ref(void);
-extern void tlkapi_vcd_sync(bool enable);
-extern void tlkapi_vcd_tick(uint32 flags, uint08 id);
-extern void tlkapi_vcd_level(uint32 flags, uint08 id, uint08 level);
-extern void tlkapi_vcd_event(uint32 flags, uint08 id);
-extern void tlkapi_vcd_byte(uint32 flags, uint08 id, uint08 value);
-extern void tlkapi_vcd_word(uint32 flags, uint08 id, uint16 value);
+extern void tlkdbg_vcd_ref(void);
+extern void tlkdbg_vcd_sync(bool enable);
+extern void tlkdbg_vcd_tick(uint32 flags, uint08 id);
+extern void tlkdbg_vcd_level(uint32 flags, uint08 id, uint08 level);
+extern void tlkdbg_vcd_event(uint32 flags, uint08 id);
+extern void tlkdbg_vcd_byte(uint32 flags, uint08 id, uint08 value);
+extern void tlkdbg_vcd_word(uint32 flags, uint08 id, uint16 value);
 
 
-#define my_dump_str_data(flags,s,p,n)           tlkapi_debug_sendData(flags,s,(uint08*)(p),n)
-#define my_dump_str_u32s(flags,s,d0,d1,d2,d3)   tlkapi_debug_sendU32s(flags,s,(uint32)(d0),(uint32)(d1),(uint32)(d2),(uint32)(d3))
+#define my_dump_str_data(flags,s,p,n)           tlkdbg_sendData(flags,s,(uint08*)(p),n)
+#define my_dump_str_u32s(flags,s,d0,d1,d2,d3)   tlkdbg_sendU32s(flags,s,(uint32)(d0),(uint32)(d1),(uint32)(d2),(uint32)(d3))
 
 
 
@@ -99,29 +99,29 @@ extern void tlkapi_vcd_word(uint32 flags, uint08 id, uint16 value);
 
 
 
-#define	log_hw_ref()	tlkapi_vcd_ref()
+#define	log_hw_ref()	tlkdbg_vcd_ref()
 // 4-byte sync word: 00 00 00 00
-#define	log_sync(en)	tlkapi_vcd_sync(en)
+#define	log_sync(en)	tlkdbg_vcd_sync(en)
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
-#define	log_tick(en,id)	tlkapi_vcd_tick(en,id)
+#define	log_tick(en,id)	tlkdbg_vcd_tick(en,id)
 //1-byte (000_id-5bits)
-#define	log_event(en,id) tlkapi_vcd_event(en,id)
+#define	log_event(en,id) tlkdbg_vcd_event(en,id)
 //1-byte (01x_id-5bits) 1-bit data: id0 & id1 reserved for hardware
-#define	log_task(en,id,b)	tlkapi_vcd_level(en,id,b)
+#define	log_task(en,id,b)	tlkdbg_vcd_level(en,id,b)
 //2-byte (10-id-6bits) 8-bit data
-#define	log_b8(en,id,d)	tlkapi_vcd_byte(en,id,d)
+#define	log_b8(en,id,d)	tlkdbg_vcd_byte(en,id,d)
 //3-byte (11-id-6bits) 16-bit data
-#define	log_b16(en,id,d) tlkapi_vcd_word(en,id,d)
+#define	log_b16(en,id,d) tlkdbg_vcd_word(en,id,d)
 
 
 //BLE used only //
-#define	log_sync_mainloop(en)	tlkapi_vcd_sync(en)
-#define	log_tick_mainloop(en,id) tlkapi_vcd_tick(en,id)
-#define	log_tick_irq(en,id)		tlkapi_vcd_tick(en,id)
-#define	log_event_irq(en,id) 	tlkapi_vcd_event(en,id)
-#define	log_task_irq(en,id,b)	tlkapi_vcd_level(en,id,b)
-#define	log_b8_irq(en,id,d)		tlkapi_vcd_byte(en,id,d)
-#define	log_b16_irq(en,id,d)	tlkapi_vcd_word(en,id,d)
+#define	log_sync_mainloop(en)	tlkdbg_vcd_sync(en)
+#define	log_tick_mainloop(en,id) tlkdbg_vcd_tick(en,id)
+#define	log_tick_irq(en,id)		tlkdbg_vcd_tick(en,id)
+#define	log_event_irq(en,id) 	tlkdbg_vcd_event(en,id)
+#define	log_task_irq(en,id,b)	tlkdbg_vcd_level(en,id,b)
+#define	log_b8_irq(en,id,d)		tlkdbg_vcd_byte(en,id,d)
+#define	log_b16_irq(en,id,d)	tlkdbg_vcd_word(en,id,d)
 
 
 #ifndef	DUMP_BLE_MSG

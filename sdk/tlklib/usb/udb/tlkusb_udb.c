@@ -26,6 +26,11 @@
 #if (TLK_USB_UDB_ENABLE)
 #include "tlklib/usb/udb/tlkusb_udbDefine.h"
 #include "tlklib/usb/udb/tlkusb_udb.h"
+#include <stdio.h>
+#include <stdarg.h>
+#include "tlklib/dbg/tlkdbg.h"
+#include "tlklib/dbg/tlkdbg_config.h"
+#include "tlklib/dbg/tlkdbg_usblog.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +118,9 @@ void tlkusb_udb_recvHander(void)
 			tlkusb_udb_recvCmdProc(sTlkUsbUdbCmdBuffer, sTlkUsbUdbCmdLength, &isDown);
 			if(isDown) sTlkUsbUdbCmdLength = 0;
 		}
-		tlkapi_debug_handler();
+		#if (TLKDBG_CFG_USB_LOG_ENABLE)
+		tlkdbg_usblog_handler();
+		#endif
 	}while(isDown);
 	if(ready){
 		if(sTlkUsbUdbCmdBuffer[0] == 0x11){
@@ -131,6 +138,7 @@ void tlkusb_udb_recvHander(void)
 }
 
 
+extern void tlkdbg_usblog_reset(void);
 
 _attribute_ram_code_
 static bool tlkusb_udb_recvDatDeal(void)
@@ -164,8 +172,8 @@ static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 	
 	//////////////////////////  Memory Read ////////////////////////////////////
 	if(cmd == 0x28 && dataLen >= 8){
-		#if (TLK_CFG_DBG_ENABLE)
-		tlkapi_debug_sendStatus(0x81, 8, pData, 12);
+		#if (TLKDBG_CFG_USB_LOG_ENABLE)
+		tlkdbg_usblog_sendStatus(0x81, 8, pData, 12);
 		#endif
 		rsp[0] = 0x29;
 		tmemcpy(rsp + 1, pData+1, 5);
@@ -183,8 +191,8 @@ static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 		}else if(type == 2 || type == 3){//flash
 			flash_read_page(adr, n, rsp + 6);
 		}
-		#if (TLK_CFG_DBG_ENABLE)
-		tlkapi_debug_sendStatus(0x82, 8, rsp, n + 6);
+		#if (TLKDBG_CFG_USB_LOG_ENABLE)
+		tlkdbg_usblog_sendStatus(0x82, 8, rsp, n + 6);
 		#endif
 	}
 	//////////////////////////  Memory Write ////////////////////////////////////
@@ -196,8 +204,8 @@ static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 		rsp[0] = 0x2b;
 		tmemcpy(rsp+1, pData+1, 16);
 
-		#if (TLK_CFG_DBG_ENABLE)
-		tlkapi_debug_sendStatus(0x81, 8, pData, 12);
+		#if (TLKDBG_CFG_USB_LOG_ENABLE)
+		tlkdbg_usblog_sendStatus(0x81, 8, pData, 12);
 		#endif
 		if(type == 0){				//RAM
 			tmemcpy((void *)addr, pData+6, temp);
@@ -222,13 +230,13 @@ static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 			}
 		}else if(type == 0xFE){ //FW_DOWNLOAD
 			core_disable_interrupt();
-			#if (TLK_CFG_DBG_ENABLE)
-			tlkapi_debug_reset();
+			#if (TLKDBG_CFG_USB_LOG_ENABLE)
+			tlkdbg_usblog_reset();
 			#endif
 			*pIsDown = true;
 		}
-		#if (TLK_CFG_DBG_ENABLE)
-		tlkapi_debug_sendStatus(0x82, 8, rsp, 14);
+		#if (TLKDBG_CFG_USB_LOG_ENABLE)
+		tlkdbg_usblog_sendStatus(0x82, 8, rsp, 14);
 		#endif
 	}
 }

@@ -33,6 +33,9 @@
 #include "tlkstk/bt/btp/btp.h"
 
 
+extern uint16 gBtpConnTimeout;
+extern uint16 gBtpDiscTimeout;
+
 
 
 #endif //BTP_STDIO_H

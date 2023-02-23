@@ -50,7 +50,7 @@ extern int bth_sendLeaveSleepCmd(void);
 extern void tlkdrv_xtsd01g_shutDown(void);
 extern uint bth_getAclCount(void);
 
-
+static void tlkapp_pm_btaclDisconnCb(uint16 handle, uint08 reason, uint08 *pBtAddr);
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 
@@ -61,7 +61,7 @@ extern unsigned long  DEBUG_IPREG_INIT[];
 extern unsigned long  DEBUG_TL_MODEMREG_INIT[];
 extern unsigned long  DEBUG_TL_RADIOREG_INIT[];
 extern unsigned long  DEBUG_TL_PDZB_INIT[];
-extern uint32 gTlkAppSystemBusyTimer;
+
 
 
 static uint08 sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
@@ -82,6 +82,7 @@ int tlkapp_pm_init(void)
 	btble_pm_initPowerManagement_module();
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SLEEP_ENTER,  tlkapp_pm_enterSleepHandler);
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SUSPEND_EXIT, tlkapp_pm_leaveSleepHandler);
+	tlkmdi_btmgr_regAclDisconnCB(tlkapp_pm_btaclDisconnCb);
 
 	pm_set_gpio_wakeup(TLKAPP_WAKEUP_PIN, WAKEUP_LEVEL_LOW, 1);
 	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLUP_1M);
@@ -106,12 +107,7 @@ void tlkapp_pm_handler(void)
 {
 	bool isBusy = false;
 	
-//	if(gTlkAppSystemBusyTimer != 0 && clock_time_exceed(gTlkAppSystemBusyTimer, 1000000)){
-//		//Solve the problem that Android phones are difficult to connect
-//		gTlkAppSystemBusyTimer = 0;
-//	}
-	
-	if(/*gTlkAppSystemBusyTimer != 0 ||*/ !gpio_read(TLKAPP_WAKEUP_PIN)){
+	if(!gpio_read(TLKAPP_WAKEUP_PIN)){
 		isBusy = true;
 	}else if(tlkmdi_pmIsbusy() || tlkmmi_pmIsbusy() || tlkstk_pmIsBusy() || tlkapp_pmIsBusy()){
 		isBusy = true;
@@ -148,6 +144,11 @@ void tlkapp_pm_handler(void)
 	}
 }
 
+static void tlkapp_pm_btaclDisconnCb(uint16 handle, uint08 reason, uint08 *pBtAddr)
+{
+	//Solve the problem that Android phones are difficult to connect
+	gTlkAppPmSysIdleTimer = clock_time()|1;
+}
 
 /******************************************************************************
  * Function: tlkapp_pm_enterSleepHandler

@@ -64,6 +64,21 @@ _attribute_retention_code_ int tmemcmp(const void * m1, const void *m2, u32 len)
 	return 0;
 }
 
+_attribute_retention_code_ int tmemcmp4(void * m1, void * m2, register unsigned int len)
+{
+	unsigned int *st1 = (unsigned int *) m1;
+	unsigned int *st2 = (unsigned int *) m2;
+	unsigned int word_len = len >> 2;
+	while(word_len--){
+		if(*st1 != *st2){
+			return 1; //return (*st1 - *st2)
+		}
+		st1++;
+		st2++;
+	}
+	return 0;
+}
+
 extern uint32_t _RETENTION_DATA_VMA_END,_RAMCODE_VMA_END,_RETENTION_RESET_VMA_END;
 
 volatile uint32_t tdest_addr;

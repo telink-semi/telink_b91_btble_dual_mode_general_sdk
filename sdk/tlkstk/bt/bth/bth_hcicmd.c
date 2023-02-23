@@ -29,7 +29,6 @@
 #define BTH_HCICMD_DBG_FLAG       ((TLK_MAJOR_DBGID_BTH << 24) | (TLK_MINOR_DBGID_BTH_CMD << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define BTH_HCICMD_DBG_SIGN       nullptr
 
-
 extern int bth_hci_pushCmdToFifo(uint16 opcode, uint08 *pData, uint08 dataLen);
 
 
@@ -253,9 +252,9 @@ int bth_hci_sendLinkkeyReqReplyCmd(uint08 mac[6], uint08 *pLinkkey)
 {
 	uint08 buffLen;
 	uint08 buffer[32];
-
-	tlkapi_trace(BTH_HCICMD_DBG_FLAG, BTH_HCICMD_DBG_SIGN, "bth_hci_sendLinkkeyReqReplyCmd");
-
+	
+	tlkapi_array(BTH_HCICMD_DBG_FLAG, BTH_HCICMD_DBG_SIGN, "bth_hci_sendLinkkeyReqReplyCmd - linkkey",pLinkkey,16);
+	
 	buffLen = 0;
 	tmemcpy(&buffer[buffLen], mac, 6); //BD_ADDR
 	buffLen += 6;
@@ -1071,6 +1070,5 @@ int bth_hci_sendSetBtAddrCmd(uint08 pBtAddr[6])
 
 	return bth_hci_pushCmdToFifo(HCI_TDB_SET_BT_BD_ADDR_CMD_OPCODE, pBtAddr, 6);
 }
-
 
 

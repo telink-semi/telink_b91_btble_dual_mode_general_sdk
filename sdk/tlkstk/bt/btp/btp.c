@@ -29,6 +29,8 @@
 #include "../bth/bth_device.h"
 #include "../bth/bth_handle.h"
 #include "btp.h"
+#include "btp_config.h"
+#include "btp_define.h"
 #include "sdp/btp_sdp.h"
 #include "a2dp/btp_a2dp.h"
 #include "avrcp/btp_avrcp.h"
@@ -119,6 +121,23 @@ void btp_destroy(uint16 aclHandle)
 	#if (TLKBTP_CFG_HID_ENABLE)
 	btp_hid_destroy(aclHandle);
 	#endif
+}
+
+
+uint16 gBtpConnTimeout = 5000/BTP_TIMER_TIMEOUT_MS;
+uint16 gBtpDiscTimeout = 5000/BTP_TIMER_TIMEOUT_MS;
+
+void btp_setConnTimeout(uint16 timeout)
+{
+	if(timeout < 3000) timeout = 3000;
+	else if(timeout > 15000) timeout = 15000;
+	gBtpConnTimeout = timeout / BTP_TIMER_TIMEOUT_MS;
+}
+void btp_setDiscTimeout(uint16 timeout)
+{
+	if(timeout < 3000) timeout = 3000;
+	else if(timeout > 15000) timeout = 15000;
+	gBtpDiscTimeout = timeout / BTP_TIMER_TIMEOUT_MS;
 }
 
 
