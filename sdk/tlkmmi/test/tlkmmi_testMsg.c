@@ -28,6 +28,28 @@
 #include "tlkmmi_testMsg.h"
 
 
+static void tlkmmi_test_recvStartDeal(uint08 *pData, uint16 dataLen);
+static void tlkmmi_test_recvPauseDeal(uint08 *pData, uint16 dataLen);
+static void tlkmmi_test_recvCloseDeal(uint08 *pData, uint16 dataLen);
+static void tlkmmi_test_recvRebootDeal(void);
+
+
+int tlkmmi_test_recvMsgHandler(uint16 msgID, uint08 *pData, uint16 dataLen)
+{
+	if(msgID == TLKPRT_COMM_CMDID_TEST_START){
+		tlkmmi_test_recvStartDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_TEST_CLOSE){
+		tlkmmi_test_recvPauseDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_TEST_PAUSE){
+		tlkmmi_test_recvCloseDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_TEST_REBOOT){
+		tlkmmi_test_recvRebootDeal();
+	}else{
+		tlkmmi_test_sendCommRsp(msgID, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOSUPPORT, nullptr, 0);
+		return -TLK_ENOSUPPORT;
+	}
+	return TLK_ENONE;
+}
 
 /******************************************************************************
  * Function: tlkmmi_test_sendCommXxx.
@@ -71,6 +93,41 @@ int tlkmmi_test_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 
+static void tlkmmi_test_recvStartDeal(uint08 *pData, uint16 dataLen)
+{
+	int ret = tlkmmi_test_start();
+	if(ret < 0) ret = -ret;
+	if(ret == TLK_ENONE){
+		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_START, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+	}else{
+		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_START, TLKPRT_COMM_RSP_STATUE_FAILURE, ret, nullptr, 0);
+	}
+}
+static void tlkmmi_test_recvPauseDeal(uint08 *pData, uint16 dataLen)
+{
+	int ret = tlkmmi_test_pause();
+	if(ret < 0) ret = -ret;
+	if(ret == TLK_ENONE){
+		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_PAUSE, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+	}else{
+		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_PAUSE, TLKPRT_COMM_RSP_STATUE_FAILURE, ret, nullptr, 0);
+	}
+}
+static void tlkmmi_test_recvCloseDeal(uint08 *pData, uint16 dataLen)
+{
+	int ret = tlkmmi_test_close();
+	if(ret < 0) ret = -ret;
+	if(ret == TLK_ENONE){
+		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_CLOSE, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+	}else{
+		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_CLOSE, TLKPRT_COMM_RSP_STATUE_FAILURE, ret, nullptr, 0);
+	}
+}
+static void tlkmmi_test_recvRebootDeal(void)
+{
+	tlkmmi_test_reboot(500);
+	tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_REBOOT, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+}
 
 
 

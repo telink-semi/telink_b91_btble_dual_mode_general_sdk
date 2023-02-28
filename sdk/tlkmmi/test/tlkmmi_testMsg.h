@@ -32,7 +32,7 @@ int tlkmmi_test_sendCommCmd(uint08 cmdID, uint08 *pData, uint08 dataLen);
 int tlkmmi_test_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen);
 int tlkmmi_test_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen);
 
-
+int tlkmmi_test_recvMsgHandler(uint16 msgID, uint08 *pData, uint16 dataLen);
 
 
 

@@ -47,6 +47,8 @@ extern int tlkmmi_init(void);
 static uint32 sTlkAppTimer; 
 static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
 
+//extern void tlk_setWorkMode(TLK_WORK_MODE_ENUM wmode);
+
 /******************************************************************************
  * Function: tlkapp_init
  * Descript: user initialization when MCU power on or wake_up from deepSleep mode.
@@ -56,6 +58,8 @@ static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
 *******************************************************************************/  
 int tlkapp_init(void)
 {
+//	tlk_setWorkMode(TLK_WORK_MODE_TEST_PTS);
+
   	g_plic_preempt_en = 1; //Interrupt nesting is mandatory, core_enter_critical/core_leave_critical
 	flash_plic_preempt_config(1, 1);
 	trng_init();

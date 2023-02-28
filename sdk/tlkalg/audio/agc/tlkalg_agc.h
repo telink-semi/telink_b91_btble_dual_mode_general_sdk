@@ -29,7 +29,7 @@
 #define AGC_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
 
 /*! Version number to ensure header and binary are matching. */
-#define AGC_VERSION AGC_VERSION_INT(0, 2, 0)
+#define AGC_VERSION AGC_VERSION_INT(0, 2, 1)
 
 typedef struct _AGC_CFG_Param
 {
@@ -81,6 +81,5 @@ TLKA_AGC_Error tlka_agc_process(void *agcInst,
                                 short *const *out);
 
 #endif
-
 
 #endif //TLKALG_AGC_H

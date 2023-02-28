@@ -41,8 +41,10 @@ static void tlkmmi_sys_commDbgMinorUpdate(uint08 *pData,uint16 dataLen);
 
 
 extern tlkapi_timer_t gTlkMmiSysDbgTimer;
+#if (TLK_CFG_DBG_ENABLE)
 extern unsigned long *tlk_debug_get_dbgMask();
 extern tlk_debug_info_t **tlk_debug_get_dbgInfo();
+#endif
 
 int tlkmmi_sys_sysMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 {
@@ -67,7 +69,7 @@ int tlkmmi_sys_sysMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 
 static void tlkmmi_sys_commDbgMajorUpdate(uint08 *pData,uint16 dataLen)
 {
-#if TLK_CFG_DBG_ENABLE
+#if (TLK_CFG_DBG_ENABLE)
 	int majorID = pData[1];
 	uint32 flags = 0;
 	if((majorID >= TLK_MAJOR_DBGID_MAX) || (tlk_debug_get_dbgInfo()[majorID] == nullptr)){
@@ -82,6 +84,7 @@ static void tlkmmi_sys_commDbgMajorUpdate(uint08 *pData,uint16 dataLen)
 }
 static void tlkmmi_sys_commDbgMinorUpdate(uint08 *pData,uint16 dataLen)
 {
+#if (TLK_CFG_DBG_ENABLE)
 	if(dataLen < 4)
 	{
 		tlkmmi_sys_sendCommRsp(TLKPRT_COMM_CMDID_SYS_DBG_MINOR_UPDATE, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFORMAT, nullptr, 0);
@@ -92,6 +95,7 @@ static void tlkmmi_sys_commDbgMinorUpdate(uint08 *pData,uint16 dataLen)
 
 	if(pData[3]) tlk_debug_get_dbgMask()[majorID] |= (1<<minorID);
 	else tlk_debug_get_dbgMask()[majorID] &= ~(1<<minorID);
+#endif
 }
 static void tlkmmi_sys_commDbgLoad()
 {
@@ -99,9 +103,9 @@ static void tlkmmi_sys_commDbgLoad()
 	tlkmmi_sys_adaptInsertTimer(&gTlkMmiSysDbgTimer);
 #endif
 }
+#if (TLK_CFG_DBG_ENABLE)
 int tlkmmi_sys_commDbgItemEvtSend(TLK_DEBUG_MAJOR_ID_ENUM majorId)
 {
-#if (TLK_CFG_DBG_ENABLE)
 	static int index = 0;
 	
 	int total = tlk_debug_get_dbgInfo()[majorId]->unitCnt;
@@ -136,10 +140,8 @@ int tlkmmi_sys_commDbgItemEvtSend(TLK_DEBUG_MAJOR_ID_ENUM majorId)
 		return total;
 	}
 	return index;
-#else
-	return TLK_ENONE;
-#endif
 }
+#endif //#if (TLK_CFG_DBG_ENABLE)
 
 static void tlkmmi_sys_commGetVersionDeal(void)
 {

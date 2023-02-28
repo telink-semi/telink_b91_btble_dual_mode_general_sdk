@@ -54,9 +54,10 @@ int tlkmmi_init(void)
 	#endif
 	if(gTlkWorkMode != TLK_WORK_MODE_NORMAL){
 		#if (TLKMMI_TEST_ENABLE)
-		tlkmmi_test_init();
+		if(tlkmmi_test_init() == TLK_ENONE){
+			return TLK_ENONE;
+		}
 		#endif
-		return TLK_ENONE;
 	}
 	
 	#if (TLKMMI_AUDIO_ENABLE)

@@ -318,13 +318,7 @@ void tlkdbg_assert(uint flags, bool isAssert, char *pSign, const char *format, .
 	#endif
 	va_end(args);
 }
-_attribute_noinline_
-int tlkdbg_sprintf(char *pOut, const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	return vsprintf(pOut, format, args);
-}
+
 
 
 _attribute_ram_code_sec_noinline_ 
@@ -395,13 +389,7 @@ void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen)
 	tlkdbg_hwulog_sendData(tlk_debug_getDbgSign(flags), pStr, pData, dataLen);
 	#endif
 }
- 
-void tlkdbg_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen)
-{
-	#if (TLKDBG_CFG_USB_LOG_ENABLE)
-	tlkdbg_usblog_sendStatus(status, buffNumb, pData, dataLen);
-	#endif
-}
+
 
 
 _attribute_ram_code_sec_noinline_

@@ -25,9 +25,39 @@
 
 #if (TLKMMI_TEST_ENABLE)
 
+#define TLKMMI_TEST_DBG_FLAG         ((TLK_MAJOR_DBGID_MMI_TEST << 24) | (TLK_MINOR_DBGID_MMI_TEST << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMMI_TEST_DBG_SIGN         "[TEST]"
+
+
+#define TLKMMI_TEST_TIMEOUT          50000 //50ms
+
+
+typedef enum{
+	TLKMMI_TEST_BUSY_NONE   = 0x0000,
+	TLKMMI_TEST_BUSY_REBOOT = 0x0001,
+}TLKMMI_TEST_BUSYS_ENUM;
+
+
+typedef struct{
+	uint08 wmode; //workMode
+	uint16 flags;
+	uint16 busys;
+	uint16 rebootTime;
+	tlkapi_timer_t timer;
+}tlkmmi_test_ctrl_t;
+
 
 
 int tlkmmi_test_init(void);
+
+
+int tlkmmi_test_start(void);
+int tlkmmi_test_pause(void);
+int tlkmmi_test_close(void);
+int tlkmmi_test_input(uint16 msgID, uint08 *pData, uint16 dataLen);
+
+void tlkmmi_test_reboot(uint16 timeout);
+void tlkmmi_test_handler(void);
 
 
 

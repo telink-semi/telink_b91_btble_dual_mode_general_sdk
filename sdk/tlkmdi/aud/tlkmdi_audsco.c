@@ -725,8 +725,8 @@ static bool tlkmdi_sco_mallocAlgBuffer(void)
 		sTlkMdiScoBuff.pAecmBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_AEC_BUFFER_SIZE);
 	}
 	if(sTlkMdiScoBuff.pSpeexBuffer == nullptr){
-			sTlkMdiScoBuff.pSpeexBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_SPEEX_BUFFER_SIZE);
-		}
+		sTlkMdiScoBuff.pSpeexBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_SPEEX_BUFFER_SIZE);
+	}
 	if(sTlkMdiScoBuff.pCacheBuffer == nullptr){
 		sTlkMdiScoBuff.pCacheBuffer = (uint08*)tlkapi_malloc(TLKMDI_SCO_CACHE_BUFFER_SIZE);
 	} 

@@ -72,7 +72,6 @@ extern void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLe
 extern void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
 extern void tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
 extern void tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
-extern void tlkdbg_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
 
 extern void tlkdbg_handler(void);
 extern void tlkdbg_delayForPrint(uint32 us);

@@ -25,7 +25,7 @@
 #include "tlkmmi_test.h"
 #include "tlkmmi_testAdapt.h"
 #include "tlksys/tsk/tlktsk_stdio.h"
-
+#include "tlkmmi_testStdio.h"
 
 
 /******************************************************************************

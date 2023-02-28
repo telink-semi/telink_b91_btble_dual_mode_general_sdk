@@ -42,6 +42,7 @@ extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16
 
 bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
+static uint32 sTlkDbgHpuVcdTicks;
 static uint08 sTlkdbgHpuVcdBuffer[TLKDBG_HPU_VCD_BUFFER_SIZE];
 static tlkapi_fifo_t sTlkDbgHpuVcdFifo;
 //static tlkapi_timer_t sTlkDbgHpuVcdTimer;
@@ -68,6 +69,12 @@ void tlkdbg_hpuvcd_handler(void)
 	int ret;
 	uint readLen;
 	uint08 buffer[TLKDBG_HPU_VCD_CACHE_SIZE];
+
+	if(sTlkDbgHpuVcdTicks == 0 || clock_time_exceed(sTlkDbgHpuVcdTicks, 10000)){
+		sTlkDbgHpuVcdTicks = clock_time() | 1;
+		tlkdbg_hpuvcd_ref();
+		tlkdbg_hpuvcd_sync(true);
+	}
 	
 	readLen = tlkdev_serial_sfifoSingleLen();
 	if(readLen > TLKDBG_HPU_VCD_CACHE_SIZE) readLen = TLKDBG_HPU_VCD_CACHE_SIZE;
@@ -178,7 +185,7 @@ void tlkdbg_hpuvcd_word(uint08 id, uint16 value)
 	uint08 buffLen = 0;
 	uint08 buffer[4];
 	uint32 r = core_disable_interrupt();
-	buffer[buffLen++] = 0x80 | (id&63);
+	buffer[buffLen++] = 0xc0 | (id&63);
 	buffer[buffLen++] = value & 0xFF;
 	buffer[buffLen++] = (value & 0xFF00) >> 8;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);

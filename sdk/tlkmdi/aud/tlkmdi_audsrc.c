@@ -39,7 +39,7 @@
 
 
 #define TLKMDI_AUDSRC_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SRC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
-#define TLKMDI_AUDSRC_DBG_SIGN       "[MDI]"
+#define TLKMDI_AUDSRC_DBG_SIGN       "[MSRC]"
 
 
 extern void bt_ll_schedule_acl_bandwith_policy_enter(uint16_t con_handle);
@@ -199,7 +199,7 @@ void tlkmdi_audsrc_timer(void)
 			sTlkMdiSrcCtrl.waitTimer = clock_time()|1;
 			sTlkMdiSrcCtrl.waitStart = 2;
 		}else{
-			tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_src_mp3Handler: disable - set sampleRate");
+			tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_timer: disable - set sampleRate");
 			sTlkMdiSrcCtrl.runing = false;
 			sTlkMdiSrcCtrl.waitStart = 3;
 			tlkmdi_audsrc_close(sTlkMdiSrcCtrl.handle);
@@ -207,6 +207,9 @@ void tlkmdi_audsrc_timer(void)
 	}
 	if(sTlkMdiSrcCtrl.waitStart != 0 && sTlkMdiSrcCtrl.waitStart != 3 && sTlkMdiSrcCtrl.waitTimer != 0 
 		&& clock_time_exceed(sTlkMdiSrcCtrl.waitTimer, TLKMDI_SRC_WAIT_RECFG_TIMEOUT)){
+		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN,
+			"tlkmdi_audsrc_timer: wait timeout - waitStart[%d] waitTimer[%d]",
+			sTlkMdiSrcCtrl.waitStart, sTlkMdiSrcCtrl.waitTimer);
 		sTlkMdiSrcCtrl.runing = false;
 		sTlkMdiSrcCtrl.waitStart = 3;
 		tlkmdi_audsrc_close(sTlkMdiSrcCtrl.handle);

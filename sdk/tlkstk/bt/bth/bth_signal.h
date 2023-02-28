@@ -157,7 +157,7 @@ int bth_signal_sendClosedEvt(bth_l2cap_channel_t *pChannel);
  *        @handle[IN]--The acl handle.
  * Reutrn: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
-int bth_signal_sendRequestEvt(uint16 psmID, uint16 handle);
+int bth_signal_sendRequestEvt(uint16 psmID, uint16 handle, uint16 scid);
 
 /******************************************************************************
  * Function: bth_signal_sendRequestEvt

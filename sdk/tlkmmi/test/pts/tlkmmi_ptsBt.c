@@ -33,11 +33,17 @@
 
 
 extern int bt_ll_set_bd_addr(uint8_t *bdAddr);
+extern void bth_func_setAclHandle(uint16 aclHandle);
+extern void bth_func_setScoHandle(uint16 scoHandle);
+extern void btp_func_setAclHandle(uint16 aclHandle);
 
-static int tlkmmi_pts_btRequestEvt(uint08 *pData, uint16 dataLen);
-static int tlkmmi_pts_btConnectEvt(uint08 *pData, uint16 dataLen);
-static int tlkmmi_pts_btEncryptEvt(uint08 *pData, uint16 dataLen);
-static int tlkmmi_pts_btDisconnEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btAclRequestEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btAclConnectEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btAclEncryptEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btAclDisconnEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btScoRequestEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btScoConnectEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_btScoDisconnEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileServiceEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileChannelEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileRequestEvt(uint08 *pData, uint16 dataLen);
@@ -45,20 +51,31 @@ static int tlkmmi_pts_btProfileConnectEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileDisconnEvt(uint08 *pData, uint16 dataLen);
 
 
+uint08 gTlkMmiTestPtsHfpChannel = 0;
+uint08 gTlkMmiTestPtsSppChannel = 0;
+uint16 gTlkMmiTestPtsBtAclHandle = 0;
+uint16 gTlkMmiTestPtsBtScoHandle = 0;
+uint08 gTlkMmiTestPtsDongleAddr[6] = {0};
+
 
 int tlkmmi_pts_btInit(void)
 {
 	uint08 bdaddr[6] = TLKMMI_BTPTS_BDADDR_DEF;
+	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTPTS_DEVICE_CLASS);
 	bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
 
 	bt_ll_set_bd_addr(bdaddr);
 	bth_hci_sendWriteLocalNameCmd(TLKMMI_BTPTS_BTNAME_DEF);
 	
-	bth_event_regCB(BTH_EVTID_ACLCONN_REQUEST,  tlkmmi_pts_btRequestEvt);
-	bth_event_regCB(BTH_EVTID_ACLCONN_COMPLETE, tlkmmi_pts_btConnectEvt);
-	bth_event_regCB(BTH_EVTID_ENCRYPT_COMPLETE, tlkmmi_pts_btEncryptEvt);
-	bth_event_regCB(BTH_EVTID_ACLDISC_COMPLETE, tlkmmi_pts_btDisconnEvt);
+	bth_event_regCB(BTH_EVTID_ACLCONN_REQUEST,  tlkmmi_pts_btAclRequestEvt);
+	bth_event_regCB(BTH_EVTID_ACLCONN_COMPLETE, tlkmmi_pts_btAclConnectEvt);
+	bth_event_regCB(BTH_EVTID_ENCRYPT_COMPLETE, tlkmmi_pts_btAclEncryptEvt);
+	bth_event_regCB(BTH_EVTID_ACLDISC_COMPLETE, tlkmmi_pts_btAclDisconnEvt);
+
+	bth_event_regCB(BTH_EVTID_SCOCONN_REQUEST,  tlkmmi_pts_btScoRequestEvt);
+	bth_event_regCB(BTH_EVTID_SCOCONN_COMPLETE, tlkmmi_pts_btScoConnectEvt);
+	bth_event_regCB(BTH_EVTID_SCOCONN_COMPLETE, tlkmmi_pts_btScoDisconnEvt);
 
 	btp_event_regCB(BTP_EVTID_PROFILE_SERVICE, tlkmmi_pts_btProfileServiceEvt);
 	btp_event_regCB(BTP_EVTID_PROFILE_CHANNEL, tlkmmi_pts_btProfileChannelEvt);
@@ -69,15 +86,32 @@ int tlkmmi_pts_btInit(void)
 	return TLK_ENONE;
 }
 
+void tlkmmi_pts_btConnDevice(uint08 *pAddr)
+{
+	bth_acl_connect(gTlkMmiTestPtsDongleAddr, 0x240404, 1, 5000);
+}
+void tlkmmi_pts_btDiscDevice(void)
+{
+	bth_acl_disconn(gTlkMmiTestPtsBtAclHandle);
+}
 
-static int tlkmmi_pts_btRequestEvt(uint08 *pData, uint16 dataLen)
+void tlkmmi_pts_btConnProfile(uint08 ptype, uint08 usrID)
+{
+
+}
+void tlkmmi_pts_btDiscProfile(uint08 ptype, uint08 usrID)
+{
+
+}
+
+static int tlkmmi_pts_btAclRequestEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 btRole;
 	bth_aclConnRequestEvt_t *pEvt;
 
 	pEvt = (bth_aclConnRequestEvt_t*)pData;
 	
-	tlkapi_trace(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "tlkmmi_pts_btRequestEvt: {devClass - 0x%x}", pEvt->devClass);
+	tlkapi_trace(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btAclRequestEvt: {devClass - 0x%x}", pEvt->devClass);
 
 	uint08 devType = bth_devClassToDevType(pEvt->devClass);
 	if(devType == BTH_REMOTE_DTYPE_HEADSET){
@@ -92,30 +126,29 @@ static int tlkmmi_pts_btRequestEvt(uint08 *pData, uint16 dataLen)
 	
 	return TLK_ENONE;
 }
-static int tlkmmi_pts_btConnectEvt(uint08 *pData, uint16 dataLen)
+static int tlkmmi_pts_btAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
 	bth_aclConnComplateEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;	
+	pEvt = (bth_aclConnComplateEvt_t*)pData;
 	if(pEvt->status != TLK_ENONE){
-		tlkapi_error(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "tlkmmi_pts_btConnectEvt: failure -- %d", pEvt->status);
+		tlkapi_error(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btAclConnectEvt: failure -- %d", pEvt->status);
 		return TLK_ENONE;
 	}
 	
-	tlkapi_array(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "tlkmmi_pts_btConnectEvt", pData, dataLen);
+	tlkapi_array(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btAclConnectEvt", pData, dataLen);
 	
+	gTlkMmiTestPtsBtAclHandle = pEvt->handle;
+	bth_func_setAclHandle(gTlkMmiTestPtsBtAclHandle);
+	btp_func_setAclHandle(gTlkMmiTestPtsBtAclHandle);
 	
 	return TLK_ENONE;
 }
-
-
-static int tlkmmi_pts_btEncryptEvt(uint08 *pData, uint16 dataLen)
+static int tlkmmi_pts_btAclEncryptEvt(uint08 *pData, uint16 dataLen)
 {
-	
-	
 	return TLK_ENONE;
 }
-static int tlkmmi_pts_btDisconnEvt(uint08 *pData, uint16 dataLen)
+static int tlkmmi_pts_btAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
 	bth_aclDiscComplateEvt_t *pEvt;
 
@@ -124,12 +157,53 @@ static int tlkmmi_pts_btDisconnEvt(uint08 *pData, uint16 dataLen)
 	btp_destroy(pEvt->handle);
 	bth_destroy(pEvt->handle);
 
-	tlkapi_trace(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "tlkmmi_pts_btDisconnEvt: success - 0x%x", pEvt->handle);
-	
-	
+	tlkapi_trace(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btAclDisconnEvt: success - 0x%x", pEvt->handle);
+
+	gTlkMmiTestPtsBtScoHandle = 0;
+	bth_func_setAclHandle(gTlkMmiTestPtsBtAclHandle);
+	btp_func_setAclHandle(gTlkMmiTestPtsBtAclHandle);
 
 	return TLK_ENONE;
 }
+
+
+static int tlkmmi_pts_btScoRequestEvt(uint08 *pData, uint16 dataLen)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_pts_btScoConnectEvt(uint08 *pData, uint16 dataLen)
+{
+	bth_scoConnComplateEvt_t *pEvt;
+	
+	pEvt = (bth_scoConnComplateEvt_t*)pData;
+	if(pEvt->status != TLK_ENONE){
+		tlkapi_error(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btScoConnectEvt: failure -- %d", pEvt->status);
+		return TLK_ENONE;
+	}
+	
+	tlkapi_array(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btScoConnectEvt", pData, dataLen);
+	
+	gTlkMmiTestPtsBtScoHandle = pEvt->scoHandle;
+	bth_func_setScoHandle(gTlkMmiTestPtsBtScoHandle);
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_pts_btScoDisconnEvt(uint08 *pData, uint16 dataLen)
+{
+	bth_scoDiscComplateEvt_t *pEvt;
+
+	pEvt = (bth_scoDiscComplateEvt_t*)pData;
+
+	tlkapi_trace(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btScoDisconnEvt: success - 0x%x", pEvt->scoHandle);
+
+	gTlkMmiTestPtsBtScoHandle = 0;
+	bth_func_setScoHandle(gTlkMmiTestPtsBtScoHandle);
+	
+	return TLK_ENONE;
+}
+
+
+
 static int tlkmmi_pts_btProfileServiceEvt(uint08 *pData, uint16 dataLen)
 {
 	//Not Support.
@@ -141,7 +215,7 @@ static int tlkmmi_pts_btProfileChannelEvt(uint08 *pData, uint16 dataLen)
 
 	pEvt = (btp_channelEvt_t*)pData;
 	
-	tlkapi_trace(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "tlkmmi_pts_btProfileChannelEvt:{handle-0x%x,service-%d,channel-%d}",
+	tlkapi_trace(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btProfileChannelEvt:{handle-0x%x,service-%d,channel-%d}",
 		pEvt->handle, pEvt->service, pEvt->channel);
 	
 	if(pEvt->service == BTP_SDP_SRVCLASS_ID_HANDSFREE){
@@ -177,7 +251,6 @@ static int tlkmmi_pts_btProfileDisconnEvt(uint08 *pData, uint16 dataLen)
 
 	return TLK_ENONE;
 }
-
 
 
 

@@ -52,7 +52,13 @@ void tlkdbg_delayForPrint(uint32 us)
 
 #endif
 
-
+_attribute_noinline_
+int tlkdbg_sprintf(char *pOut, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	return vsprintf(pOut, format, args);
+}
 
 
 #if !(TLK_CFG_DBG_ENABLE)
@@ -61,7 +67,7 @@ void tlkdbg_handler(void)
 {
 
 }
-_attribute_ram_code_sec_noinline_
+_attribute_ram_code_sec_
 void tlkapi_debug_default(void)
 {
 	
@@ -73,7 +79,6 @@ void __attribute__((unused))tlkdbg_fatal(uint flags, char *pSign, const char *fo
 void __attribute__((unused))tlkdbg_error(uint flags, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_assert(uint flags, bool isAssert, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-int  __attribute__((unused))tlkdbg_sprintf(char *pOut, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 
 void __attribute__((unused))tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
@@ -88,7 +93,7 @@ void __attribute__((unused))tlkdbg_delayForPrint(uint32 us) __attribute__((weak,
 
 #if !(TLK_CFG_VCD_ENABLE)
 
-_attribute_ram_code_sec_noinline_
+_attribute_ram_code_sec_
 void tlkdbg_vcd_default(void){}
 void __attribute__((unused))tlkdbg_vcd_ref(void) __attribute__((weak, alias("tlkdbg_vcd_default")));
 void __attribute__((unused))tlkdbg_vcd_sync(bool enable) __attribute__((weak, alias("tlkdbg_vcd_default")));

@@ -117,17 +117,11 @@ void tlkusb_core_handler(void)
 		tlkusb_ctrlTranStatusProc();
 	}
 
-	if(reg_usb_irq_mask & FLD_USB_IRQ_RESET_O){
-		reg_usb_irq_mask |= FLD_USB_IRQ_RESET_O; 
+	if(reg_usb_irq_mask & FLD_USB_IRQ_RESET_MASK){
+		reg_usb_irq_mask |= FLD_USB_IRQ_RESET_MASK;
 		tlkusb_module_reset(gTlkUsbCurModType);
-	}
-//	if(usbhw_get_irq_status(USB_IRQ_RESET_STATUS)){
-//		usbhw_clr_irq_status(USB_IRQ_RESET_STATUS);
-//		tlkusb_module_reset(gTlkUsbCurModType);
-//	}
-//	if(usbhw_get_irq_status(USB_IRQ_SUSPEND_STATUS)){
-//		usbhw_clr_irq_status(USB_IRQ_SUSPEND_STATUS);
-//	}
+    }
+
 	
 	sTlkUsbCtrl.stall = 0;
 		

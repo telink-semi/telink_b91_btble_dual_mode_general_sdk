@@ -28,4 +28,9 @@
 unsigned char gTlkWorkMode = TLK_WORK_MODE_NORMAL;
 
 
+void tlk_setWorkMode(TLK_WORK_MODE_ENUM wmode)
+{
+	gTlkWorkMode = wmode;
+}
+
 

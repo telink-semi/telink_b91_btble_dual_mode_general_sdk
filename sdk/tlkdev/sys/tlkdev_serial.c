@@ -302,13 +302,13 @@ void uart1_irq_handler(void)
 		}
 	}
     if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXDONE)){ //A0-SOC can't use RX-DONE status,so this interrupt can noly used in A1-SOC.
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
 //		tlkapi_sendStr(TLKDEV_SYS_DBG_FLAG, "irq: recv");
 		uint32 *pBuffer = (uint32*)tlkapi_qfifo_getBuff(&sTlkDevSerialRecvFifo);
 		if(pBuffer != nullptr){
 			pBuffer[0] = uart_get_dma_rev_data_len(TLKDEV_SERIAL_PORT, TLKDEV_SERIAL_DMA_RX);
 			tlkapi_qfifo_dropBuff(&sTlkDevSerialRecvFifo);
 		}
+		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
 		pBuffer = (uint32*)tlkapi_qfifo_getBuff(&sTlkDevSerialRecvFifo);
 		if(pBuffer == nullptr){
 			sTlkDevSerialRecvIsBusy = true;

@@ -320,10 +320,10 @@ static void tlkmmi_btmgr_recvVolDecCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	int ret = tlkmmi_btmgr_ctrlVolDec();
 	if(ret == TLK_ENONE){
-		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_VOL_INC, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_VOL_DEC, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 	}else{
 		if(ret < 0) ret = -ret;
-		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_VOL_INC, TLKPRT_COMM_RSP_STATUE_FAILURE, (uint08)ret, nullptr, 0);
+		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_VOL_DEC, TLKPRT_COMM_RSP_STATUE_FAILURE, (uint08)ret, nullptr, 0);
 	}
 }
 

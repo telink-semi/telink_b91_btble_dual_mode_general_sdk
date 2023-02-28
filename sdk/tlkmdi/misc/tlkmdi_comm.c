@@ -30,9 +30,8 @@
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 
 
-#define TLKMDI_COMM_DBG_FLAG       ((TLK_MINOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_COMM << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMDI_COMM_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_COMM << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_COMM_DBG_SIGN       "[MDI]"
-
 
 
 static void tlkmdi_comm_makeRecvFrame(uint08 rbyte);
@@ -42,12 +41,18 @@ static int  tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 head
 typedef struct{
 	uint08 sendNumb;
 	uint08 recvNumb;
+	uint08 isEscape;
 	uint08 makeState;
 	uint16 makeLength;
 	uint16 recvFrameLen;
 	uint16 sendFrameLen;
 	uint08 recvFrame[TLKPRT_COMM_FRM_MAXLEN];
+	#if (TLKPRT_COMM_SEND_ESCAPE_ENABLE)
+	uint08 sendFrame[TLKPRT_COMM_FRM_MAXLEN+TLKPRT_COMM_FRM_DATA_MAXLEN];
+	uint08 sendCache[TLKPRT_COMM_FRM_MAXLEN];
+	#else
 	uint08 sendFrame[TLKPRT_COMM_FRM_MAXLEN];
+	#endif
 	uint08 taskList[TLKPRT_COMM_MTYPE_MAX];
 }tlkmdi_comm_ctrl_t;
 static tlkmdi_comm_ctrl_t sTlkMdiCommCtrl;
@@ -272,9 +277,12 @@ void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 	uint16 index;
 	uint16 rawCrc;
 	uint16 calCrc;
+
+//	tlkapi_array(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "=== recv", pData, dataLen);
 	
 	for(index=0; index<dataLen; index++){
 		tlkmdi_comm_makeRecvFrame(pData[index]);
+				
 		if(sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_READY) continue;
 		rawCrc = ((uint16)(sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen-3])<<8)
 			| (sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen-4]);
@@ -336,6 +344,49 @@ void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 
 static void tlkmdi_comm_makeRecvFrame(uint08 rbyte)
 {
+	#if (TLKPRT_COMM_RECV_ESCAPE_ENABLE)
+	if(rbyte == TLKPRT_COMM_HEAD_SIGN && sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_HEAD){
+		sTlkMdiCommCtrl.isEscape = false;
+		sTlkMdiCommCtrl.makeLength = 1;
+		sTlkMdiCommCtrl.makeState  = TLKMDI_COMM_MSTATE_HEAD;
+		return;
+	}
+	if(rbyte == TLKPRT_COMM_TAIL_SIGN && sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_TAIL){
+		sTlkMdiCommCtrl.isEscape = false;
+		sTlkMdiCommCtrl.makeLength = 0;
+		sTlkMdiCommCtrl.makeState  = TLKMDI_COMM_MSTATE_HEAD;
+		return;
+	}
+	if(rbyte == TLKPRT_COMM_ESCAPE_CHARS){
+//		tlkapi_trace(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "=== TLKPRT_COMM_ESCAPE_CHARS");
+		if(sTlkMdiCommCtrl.makeState  == TLKMDI_COMM_MSTATE_HEAD) return;
+		if(sTlkMdiCommCtrl.isEscape){
+			sTlkMdiCommCtrl.isEscape = false;
+			sTlkMdiCommCtrl.makeLength = 0;
+			sTlkMdiCommCtrl.makeState  = TLKMDI_COMM_MSTATE_HEAD;
+		}else{
+			sTlkMdiCommCtrl.isEscape = true;
+		}
+		return;
+	}
+	if(sTlkMdiCommCtrl.isEscape){
+		sTlkMdiCommCtrl.isEscape = false;
+//		tlkapi_trace(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "=== TLKPRT_COMM_ESCAPE_CHARS01: %x", rbyte);
+		if(rbyte == TLKPRT_COMM_ESCAPE_CHARS_RAW){
+			rbyte = TLKPRT_COMM_ESCAPE_CHARS;
+		}else if(rbyte == TLKPRT_COMM_ESCAPE_CHARS_HEAD){
+			rbyte = TLKPRT_COMM_HEAD_SIGN;
+		}else if(rbyte == TLKPRT_COMM_ESCAPE_CHARS_TAIL){
+			rbyte = TLKPRT_COMM_TAIL_SIGN;
+		}else{
+			sTlkMdiCommCtrl.makeLength = 0;
+			sTlkMdiCommCtrl.makeState  = TLKMDI_COMM_MSTATE_HEAD;
+			return;
+		}
+//		tlkapi_trace(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "=== TLKPRT_COMM_ESCAPE_CHARS02: %x", rbyte);
+	}
+	#endif
+
 	if(sTlkMdiCommCtrl.makeState == TLKMDI_COMM_MSTATE_HEAD){
 		if(sTlkMdiCommCtrl.makeLength == 0 && rbyte == TLKPRT_COMM_HEAD_SIGN0){
 			sTlkMdiCommCtrl.makeLength ++;
@@ -392,35 +443,77 @@ static void tlkmdi_comm_makeRecvFrame(uint08 rbyte)
 static int tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen)
 {
 	uint16 tempVar;
+	uint08 *pFrame;
+	uint16 frmLen;
+	#if (TLKPRT_COMM_SEND_ESCAPE_ENABLE)
+	uint16 index;
+	#endif
 	
-//	my_dump_str_data(1, "send 01:", &sTlkDevSerialSendIsBusy, 1);
+//	tlkapi_trace(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "send 01:", &sTlkDevSerialSendIsBusy, 1);
 	if(headLen == 0 && pHead != nullptr) pHead = nullptr;
 	if(bodyLen == 0 && pBody != nullptr) pBody = nullptr;
 	if((headLen+bodyLen) == 0) return -TLK_EPARAM;
 	if(headLen+bodyLen+TLKPRT_COMM_FRM_EXTLEN > TLKPRT_COMM_FRM_MAXLEN){
 		return -TLK_ELENGTH;
 	}
-	
-	sTlkMdiCommCtrl.sendFrameLen = 0;
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_HEAD_SIGN0;
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_HEAD_SIGN1;
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = 0x00; //Length[0~7]
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = (pktType & 0x0F) << 4; //Length[8~11]+pktType[0~4]
+
+	#if (TLKPRT_COMM_SEND_ESCAPE_ENABLE)
+	pFrame = sTlkMdiCommCtrl.sendCache;
+	#else
+	pFrame = sTlkMdiCommCtrl.sendFrame;
+	#endif
+
+	frmLen = 0;
+	pFrame[frmLen++] = TLKPRT_COMM_HEAD_SIGN0;
+	pFrame[frmLen++] = TLKPRT_COMM_HEAD_SIGN1;
+	pFrame[frmLen++] = 0x00; //Length[0~7]
+	pFrame[frmLen++] = (pktType & 0x0F) << 4; //Length[8~11]+pktType[0~4]
 	if(headLen != 0){
-		tmemcpy(sTlkMdiCommCtrl.sendFrame+sTlkMdiCommCtrl.sendFrameLen, pHead, headLen);
-		sTlkMdiCommCtrl.sendFrameLen += headLen;
+		tmemcpy(pFrame+frmLen, pHead, headLen);
+		frmLen += headLen;
 	}
 	if(bodyLen != 0){
-		tmemcpy(sTlkMdiCommCtrl.sendFrame+sTlkMdiCommCtrl.sendFrameLen, pBody, bodyLen);
-		sTlkMdiCommCtrl.sendFrameLen += bodyLen;
+		tmemcpy(pFrame+frmLen, pBody, bodyLen);
+		frmLen += bodyLen;
 	}
-	sTlkMdiCommCtrl.sendFrame[2] |= (sTlkMdiCommCtrl.sendFrameLen & 0x00FF);
-	sTlkMdiCommCtrl.sendFrame[3] |= (sTlkMdiCommCtrl.sendFrameLen & 0x0F00) >> 8;
-	tempVar = tlkalg_crc16_calc(sTlkMdiCommCtrl.sendFrame+2, sTlkMdiCommCtrl.sendFrameLen-2);
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = (tempVar & 0x00FF);
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = (tempVar & 0xFF00) >> 8;
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_TAIL_SIGN0;
-	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_TAIL_SIGN1;
+	pFrame[2] |= (frmLen & 0x00FF);
+	pFrame[3] |= (frmLen & 0x0F00) >> 8;
+	tempVar = tlkalg_crc16_calc(pFrame+2, frmLen-2);
+	pFrame[frmLen++] = (tempVar & 0x00FF);
+	pFrame[frmLen++] = (tempVar & 0xFF00) >> 8;
+	pFrame[frmLen++] = TLKPRT_COMM_TAIL_SIGN0;
+	pFrame[frmLen++] = TLKPRT_COMM_TAIL_SIGN1;
+	sTlkMdiCommCtrl.sendFrameLen = frmLen;
+
+	#if (TLKPRT_COMM_SEND_ESCAPE_ENABLE)
+	sTlkMdiCommCtrl.sendFrameLen = 0;
+	sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_HEAD_SIGN;
+    sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_HEAD_SIGN;
+    for(index=0; index<frmLen-4; index++)
+    {
+        if(pFrame[index+2] == TLKPRT_COMM_ESCAPE_CHARS)
+        {
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_ESCAPE_CHARS;
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_ESCAPE_CHARS_RAW;
+        }
+        else if(pFrame[index+2] == TLKPRT_COMM_HEAD_SIGN)
+        {
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_ESCAPE_CHARS;
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_ESCAPE_CHARS_HEAD;
+        }
+        else if(pFrame[index+2] == TLKPRT_COMM_TAIL_SIGN)
+        {
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_ESCAPE_CHARS;
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_ESCAPE_CHARS_TAIL;
+        }
+        else
+        {
+            sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = pFrame[index+2];
+        }
+    }
+    sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_TAIL_SIGN;
+    sTlkMdiCommCtrl.sendFrame[sTlkMdiCommCtrl.sendFrameLen++] = TLKPRT_COMM_TAIL_SIGN;
+	#endif
 	
 	return TLK_ENONE;
 }

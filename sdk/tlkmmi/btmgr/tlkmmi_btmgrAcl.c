@@ -407,31 +407,32 @@ static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtA
 		data[1] = (handle >> 8) & 0xFF;
 		tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_DISCONN_EVT, data, 2);
 	}
-	if(sTlkMmiBtMgrAclDiscCB != nullptr){
-		sTlkMmiBtMgrAclDiscCB(handle, reason, pBtAddr);
+	
+	#if TLKMMI_BTMGR_BTREC_ENABLE
+	if(tlkmdi_btacl_getIdleCount() == 0){
+		tlkmmi_btmgr_recClose();	
+	}else if(tlkmmi_btmgr_recIsPage() || tlkmmi_btmgr_recIsScan()){
+		uint08 *pPageAddr = tlkmmi_btmgr_recPageAddr();
+		if(pPageAddr != nullptr && tmemcmp(pBtAddr, pPageAddr, 6) == 0){
+			tlkmmi_btmgr_recClose();
+		}
+		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 	}else{
-		#if TLKMMI_BTMGR_BTREC_ENABLE
-		if(tlkmdi_btacl_getIdleCount() == 0){
-			tlkmmi_btmgr_recClose();	
-		}else if(tlkmmi_btmgr_recIsPage() || tlkmmi_btmgr_recIsScan()){
-			uint08 *pPageAddr = tlkmmi_btmgr_recPageAddr();
-			if(pPageAddr != nullptr && tmemcmp(pBtAddr, pPageAddr, 6) == 0){
-				tlkmmi_btmgr_recClose();
-			}
-			tlkmmi_btmgr_recStart(nullptr, 0, false, false);
-		}else{
-			if(reason == BTH_HCI_ERROR_CONN_TIMEOUT && bth_getAclCount() == 0){ //Start Reconnect
-				bth_device_item_t *pItem = bth_device_getItem(pBtAddr, nullptr);
-				if(pItem != nullptr){
-					tlkmmi_btmgr_recStart(pBtAddr, pItem->devClass, true, true);
-				}else{
-					tlkmmi_btmgr_recStart(nullptr, 0, false, false);
-				}
+		if(reason == BTH_HCI_ERROR_CONN_TIMEOUT && bth_getAclCount() == 0){ //Start Reconnect
+			bth_device_item_t *pItem = bth_device_getItem(pBtAddr, nullptr);
+			if(pItem != nullptr){
+				tlkmmi_btmgr_recStart(pBtAddr, pItem->devClass, true, true);
 			}else{
 				tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 			}
+		}else{
+			tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 		}
-		#endif
+	}
+	#endif
+
+	if(sTlkMmiBtMgrAclDiscCB != nullptr){
+		sTlkMmiBtMgrAclDiscCB(handle, reason, pBtAddr);
 	}
 }
 static void tlkmmi_btmgr_aclProfConnCB(uint16 handle, uint08 status, uint08 ptype, uint08 usrID, uint08 *pBtAddr)

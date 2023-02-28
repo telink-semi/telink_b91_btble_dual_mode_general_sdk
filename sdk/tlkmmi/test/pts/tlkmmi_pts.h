@@ -29,6 +29,14 @@
 
 #define TLKMMI_PTS_TIMEOUT          50000 //50ms
 
+#define TLKMMI_PTS_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_TEST << 24) | (TLK_MINOR_DBGID_MMI_TEST_PTS << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKMMI_PTS_DBG_SIGN       nullptr
+
+
+typedef enum{
+	TLKMMI_PTS_BUSY_NONE   = 0x0000,
+}TLKMMI_PTS_BUSYS_ENUM;
+
 
 typedef struct{
 	uint16 flags;
@@ -36,6 +44,8 @@ typedef struct{
 	tlkapi_timer_t timer;
 }tlkmmi_pts_ctrl_t;
 
+
+void tlkmmi_pts_reboot(uint16 timeout); //Unit: ms
 
 
 

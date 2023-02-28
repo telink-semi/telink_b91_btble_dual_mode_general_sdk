@@ -95,6 +95,7 @@ static const tlk_debug_info_t scTlkDebugBthInfo = {
 		{TLK_MINOR_DBGID_BTH_EVT, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[EVT]"},
 		{TLK_MINOR_DBGID_BTH_L2C, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[L2C]"},
 		{TLK_MINOR_DBGID_BTH_SIG, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SIG]"},
+		{TLK_MINOR_DBGID_BTH_FUNC, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[FUNC]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugBtpInfo = {
@@ -119,10 +120,11 @@ static const tlk_debug_info_t scTlkDebugBtpInfo = {
 		{TLK_MINOR_DBGID_BTP_HIDC,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[HIDC]"},
 		{TLK_MINOR_DBGID_BTP_HFP,    true,  false, TLK_DEBUG_DBG_FLAG_ALL, "[HFP]"},
 		{TLK_MINOR_DBGID_BTP_HFPAG,  false, false, TLK_DEBUG_DBG_FLAG_ALL, "[HFPAG]"},
-		{TLK_MINOR_DBGID_BTP_HFPHF,  false, false, TLK_DEBUG_DBG_FLAG_ALL, "[HFPHF]"},
+		{TLK_MINOR_DBGID_BTP_HFPHF,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[HFPHF]"},
 		{TLK_MINOR_DBGID_BTP_AVRCP,  true,  false, TLK_DEBUG_DBG_FLAG_ALL, "[AVRCP]"},
 		{TLK_MINOR_DBGID_BTP_OBEX,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[OBEX]"},
 		{TLK_MINOR_DBGID_BTP_PBAP,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[PBAP]"},
+		{TLK_MINOR_DBGID_BTP_FUNC,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[PBAP]"},
 	}
 };
 
@@ -299,7 +301,11 @@ static const tlk_debug_info_t scTlkDebugMmiTestInfo = {
 	TLK_DEBUG_DBG_FLAG_ALL,
 	TLK_MINOR_DBGID_MMI_TEST_MAX,
 	{
-		{TLK_MINOR_DBGID_MMI_TEST, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
+		{TLK_MINOR_DBGID_MMI_TEST, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[TST]"},
+		{TLK_MINOR_DBGID_MMI_TEST_PTS, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[PTS]"},
+		{TLK_MINOR_DBGID_MMI_TEST_FAT, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[FAT]"},
+		{TLK_MINOR_DBGID_MMI_TEST_EMI, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[EMI]"},
+		{TLK_MINOR_DBGID_MMI_TEST_RDT, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[RDT]"},
 	}
 };
 static const tlk_debug_info_t scTlkDebugMmiSystemInfo = {
@@ -348,7 +354,7 @@ void tlk_debug_dbgLoad(void);
 
 tlk_debug_info_t **tlk_debug_get_dbgInfo()
 {
-	return &scTlkDebugInfo;
+	return (tlk_debug_info_t**)&scTlkDebugInfo;
 }
 
 unsigned long *tlk_debug_get_dbgMask()

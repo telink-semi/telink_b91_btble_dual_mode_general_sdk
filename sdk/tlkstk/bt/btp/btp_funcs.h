@@ -26,40 +26,70 @@
 #if (TLK_STK_BTP_ENABLE)
 
 
+enum BTP_FUNCID_SET_ENUM{
+	BTP_FUNCID_NONE = 0x0000,
+	//SDP Start
+	BTP_FUNCID_SDP_START = 0x0100,
+	BTP_FUNCID_SDP_SRV_CONNECT = 0x01+BTP_FUNCID_SDP_START,
+	BTP_FUNCID_SDP_SRV_DISCONN = 0x02+BTP_FUNCID_SDP_START,
+	BTP_FUNCID_SDP_CLT_CONNECT = 0x03+BTP_FUNCID_SDP_START,
+	BTP_FUNCID_SDP_CLT_DISCONN = 0x04+BTP_FUNCID_SDP_START,
+	//RFC Start
+	BTP_FUNCID_RFC_START = 0x0200,
+ 	//IAP Start
+ 	BTP_FUNCID_IAP_START = 0x0300,
+	//SPP Start
+	BTP_FUNCID_SPP_START = 0x0400,
+	BTP_FUNCID_SPP_CONNECT = 0x01+BTP_FUNCID_SPP_START,
+	BTP_FUNCID_SPP_DISCONN = 0x02+BTP_FUNCID_SPP_START,
+	//ATT Start
+	BTP_FUNCID_ATT_START = 0x0500,
+	//A2DP Start
+	BTP_FUNCID_A2DP_START = 0x0600,
+	BTP_FUNCID_A2DP_SET_MODE    = 0x01+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SRC_CONNECT = 0x11+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SRC_DISCONN = 0x12+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SNK_CONNECT = 0x13+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SNK_DISCONN = 0x14+BTP_FUNCID_A2DP_START,
+	//HID Start
+	BTP_FUNCID_HID_START = 0x0700,
+	//HFP Start
+	BTP_FUNCID_HFP_START = 0x0800,
+	//AVRCP Start
+	BTP_FUNCID_AVRCP_START = 0x0900,
+	//OBEX Start
+	BTP_FUNCID_OBEX_START = 0x0A00,
+	//PBAP Start
+	BTP_FUNCID_PBAP_START = 0x0B00,
+};
+
 
 typedef struct{
-	uint08 type; //funcType
 	uint16 funID;
 	int(*Func)(uint08 *pData, uint16 dataLen);
 }btp_func_item_t;
 
-typedef enum{
-	TLK_FUNC_TYPE_BTP = 0,
-	TLK_FUNC_TYPE_BTP_SDP,
-	TLK_FUNC_TYPE_BTP_SDPC,
-	TLK_FUNC_TYPE_BTP_SDPS,
-	TLK_FUNC_TYPE_BTP_RFCOMM,
-	TLK_FUNC_TYPE_BTP_IAP,
-	TLK_FUNC_TYPE_BTP_SPP,
-	TLK_FUNC_TYPE_BTP_ATT,
-	TLK_FUNC_TYPE_BTP_A2DP,
-	TLK_FUNC_TYPE_BTP_A2DPS,
-	TLK_FUNC_TYPE_BTP_A2DPC,
-	TLK_FUNC_TYPE_BTP_HID,
-	TLK_FUNC_TYPE_BTP_HIDS,
-	TLK_FUNC_TYPE_BTP_HIDC,
-	TLK_FUNC_TYPE_BTP_HFP,
-	TLK_FUNC_TYPE_BTP_HFPAG,
-	TLK_FUNC_TYPE_BTP_HFPHF,
-	TLK_FUNC_TYPE_BTP_AVRCP,
-	TLK_FUNC_TYPE_BTP_OBEX,
-	TLK_FUNC_TYPE_BTP_PBAP,
-	TLK_FUNC_TYPE_BTP_MAX,
-}TLK_FUNC_BTP_TYPE_ENUM;
+
+int btp_func_call(uint16 funcID, uint08 *pData, uint16 dataLen);
+
+void btp_func_setAclHandle(uint16 aclHandle);
 
 
+static int btp_func_sdpSrvConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_sdpSrvDisconn(uint08 *pData, uint16 dataLen);
+static int btp_func_sdpCltConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_sdpCltDisconn(uint08 *pData, uint16 dataLen);
 
-int btp_FuncCall(uint08 funcType, uint08 funcID, uint08 *pData, uint16 dataLen);
+static int btp_func_sppConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_sppDisconn(uint08 *pData, uint16 dataLen);
+
+static int btp_func_a2dpSetMode(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcDisconn(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSnkConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSnkDisconn(uint08 *pData, uint16 dataLen);
+
+
 
 
 #endif //#if (TLK_STK_BTP_ENABLE)

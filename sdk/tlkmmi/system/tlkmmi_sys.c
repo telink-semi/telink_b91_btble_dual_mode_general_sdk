@@ -50,7 +50,7 @@ int tlkmmi_sys_init(void)
 
 bool tlkmmi_sys_timer(tlkapi_timer_t *pTimer,uint32 userArg)
 {
-
+	#if (TLK_CFG_DBG_ENABLE)
 	static int majorID = 0;
 
 	int unitCnt = 0;
@@ -59,7 +59,6 @@ bool tlkmmi_sys_timer(tlkapi_timer_t *pTimer,uint32 userArg)
 		majorID = 0;
 		return false;
 	}
-#if (TLK_CFG_DBG_ENABLE)
 	if(tlk_debug_get_dbgInfo()[majorID] == nullptr)
 	{
 		majorID++;
@@ -70,11 +69,8 @@ bool tlkmmi_sys_timer(tlkapi_timer_t *pTimer,uint32 userArg)
 	{
 		majorID++;
 	}
-	
+	#endif //#if (TLK_CFG_DBG_ENABLE)
 	return true;
-#else
-	return TLK_ENONE;
-#endif
 }
 
 void tlkmmi_sys_start()

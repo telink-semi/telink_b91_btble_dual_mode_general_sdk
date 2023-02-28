@@ -26,9 +26,6 @@
 #if (TLKMMI_TEST_ENABLE)
 
 
-#define TLKMMI_TEST_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_TEST << 24) | (TLK_MINOR_DBGID_MMI_TEST << 16) | TLK_DEBUG_DBG_FLAG_ALL)
-#define TLKMMI_TEST_DBG_SIGN       "[TEST]"
-
 
 typedef struct
 {

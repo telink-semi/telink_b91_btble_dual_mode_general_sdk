@@ -26,44 +26,64 @@
 #if (TLK_STK_BTH_ENABLE)
 
 
+
+enum BTH_FUNCID_SET_ENUM{
+	BTH_FUNCID_NONE = 0x0000,
+	//Comm
+	BTH_FUNCID_COMM_START = 0x0000,
+	BTH_FUNCID_COMM_START_SCAN = 0x01 + BTH_FUNCID_COMM_START,
+	BTH_FUNCID_COMM_CLOSE_SCAN = 0x02 + BTH_FUNCID_COMM_START,
+	BTH_FUNCID_COMM_CLS_PEER_INFO = 0x03 + BTH_FUNCID_COMM_START,
+	//ACL Start
+	BTH_FUNCID_ACL_START = 0x0100,
+	BTH_FUNCID_ACL_CONNECT = 0x01 + BTH_FUNCID_ACL_START,
+	BTH_FUNCID_ACL_DISCONN = 0x02 + BTH_FUNCID_ACL_START,
+	BTH_FUNCID_ACL_DISCONN_BY_ADDR = 0x03 + BTH_FUNCID_ACL_START,
+	BTH_FUNCID_ACL_CANCEL_CONNECT  = 0x04 + BTH_FUNCID_ACL_START,
+	//SCO Start
+	BTH_FUNCID_SCO_START = 0x0200,
+	BTH_FUNCID_SCO_CONNECT = 0x01 + BTH_FUNCID_SCO_START,
+	BTH_FUNCID_SCO_DISCONN = 0x02 + BTH_FUNCID_SCO_START,
+	BTH_FUNCID_SCO_DISCONN_BY_ADDR = 0x03 + BTH_FUNCID_SCO_START,
+ 	//Dev Start
+ 	BTH_FUNCID_DEV_START = 0x0300,
+	//HCI-CMD Start
+	BTH_FUNCID_CMD_START = 0x0400,
+	//HCI-EVT Start
+	BTH_FUNCID_EVT_START = 0x0500,
+	//L2cap Start
+	BTH_FUNCID_L2C_START = 0x0600,
+	//Signal Start
+	BTH_FUNCID_SIG_START = 0x0700,
+};
+
+
 typedef struct{
-	uint08 type; //funcType
-	uint16 funID;
+	uint16 funID; //Refer to BTH_FUNC_ID_ENUM.
 	int(*Func)(uint08 *pData, uint16 dataLen);
 }bth_func_item_t;
 
-typedef enum{
-	TLK_FUNC_TYPE_BTH = 0,
-	TLK_FUNC_TYPE_BTH_ACL,
-	TLK_FUNC_TYPE_BTH_SCO,
-	TLK_FUNC_TYPE_BTH_DEV,
-	TLK_FUNC_TYPE_BTH_CMD, //HCI-CMD
-	TLK_FUNC_TYPE_BTH_EVT, //HCI-EVT
-	TLK_FUNC_TYPE_BTH_L2C,
-	TLK_FUNC_TYPE_BTH_SIG,
-	TLK_FUNC_TYPE_BTH_MAX,
-}TLK_FUNC_BTH_TYPE_ENUM;
+
+
+int bth_func_call(uint16 funcID, uint08 *pData, uint16 dataLen);
+void bth_func_setAclHandle(uint16 aclHandle);
+void bth_func_setScoHandle(uint16 scoHandle);
+void bth_func_setPeerAddr(uint08 peerAddr[6]);
 
 
 
-int bth_FuncAcl_Conn(uint08 *pData, uint16 dataLen);
-int bth_FuncAcl_ConnCancel(uint08 *pData,uint16 dataLen);
-int bth_FuncAcl_ConnCancelComplete(uint08 *pData,uint16 dataLen);
-int bth_FuncAcl_Disc(uint08 *pData, uint16 dataLen);
-int bth_FuncAcl_DiscByAddr(uint08 *pData, uint16 dataLen);
-int bth_FuncSco_Conn(uint08 *pData, uint16 dataLen);
-int bth_FuncSco_Disc(uint08 *pData,uint16 dataLen);
+static int bth_func_commStartScan(uint08 *pData, uint16 dataLen);
+static int bth_func_commCloseScan(uint08 *pData, uint16 dataLen);
+static int bth_func_commClsPeerInfo(uint08 *pData, uint16 dataLen);
 
+static int bth_func_aclConnect(uint08 *pData, uint16 dataLen);
+static int bth_func_aclDisconn(uint08 *pData, uint16 dataLen);
+static int bth_func_aclConnectCancel(uint08 *pData, uint16 dataLen);
+static int bth_func_aclDisconnByAddr(uint08 *pData, uint16 dataLen);
 
-
-
-
-
-
-int bth_scoConnectCall(uint08 pData, uint16 dataLen);
-
-
-int bth_callFunc(uint08 funcType, uint08 funcID, uint08 *pData, uint16 dataLen);
+static int bth_func_scoConnect(uint08 *pData, uint16 dataLen);
+static int bth_func_scoDisconn(uint08 *pData, uint16 dataLen);
+static int bth_func_scoDisconnByAddr(uint08 *pData, uint16 dataLen);
 
 
 

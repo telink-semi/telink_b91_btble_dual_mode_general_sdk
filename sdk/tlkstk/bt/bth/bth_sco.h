@@ -89,6 +89,16 @@ int  bth_sco_connect(uint16 aclHandle, uint16 linkType, uint08 airMode);
 int  bth_sco_disconn(uint16 scoHandle, uint08 reason);
 
 /******************************************************************************
+ * Function: bth_sco_disconn
+ * Descript: This interface be used to disconn the SCO link which
+ *           specify by scoHandle.
+ * Params: @scoHandle[IN]--The sco link handle.
+ *         @reason[IN]--disconnect reason.
+ * Reutrn: TLK_ENONE is set sucess, others means failure.
+*******************************************************************************/
+int bth_sco_disconnByAddr(uint08 btaddr[6], uint08 reason);
+
+/******************************************************************************
  * Function: bth_sco_destroy
  * Descript: This interface be used to destroy the SCO link resource.
  * Params: @scoHandle[IN]--The sco link handle.

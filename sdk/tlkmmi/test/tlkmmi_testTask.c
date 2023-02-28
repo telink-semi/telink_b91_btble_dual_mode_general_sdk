@@ -28,7 +28,8 @@
 #include "tlkmmi_testTask.h"
 #include "tlkmmi_testAdapt.h"
 #include "tlkmmi_testModinf.h"
-
+#include "tlkmmi_testStdio.h"
+#include "tlkmmi_testMsg.h"
 
 extern int  tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID);
 
@@ -65,23 +66,30 @@ int tlkmmi_test_taskInit(void)
 
 static int tlkmmi_test_taskStart(void)
 {
-	tlkmmi_test_modStart(gTlkMmiTestWorkMode);
+	tlkmmi_test_start();
 	return TLK_ENONE;
 }
 static int tlkmmi_test_taskPause(void)
 {
-	tlkmmi_test_modPause(gTlkMmiTestWorkMode);
+	tlkmmi_test_pause();
 	return TLK_ENONE;
 }
 static int tlkmmi_test_taskClose(void)
 {
-	tlkmmi_test_modClose(gTlkMmiTestWorkMode);
+	tlkmmi_test_close();
 	return TLK_ENONE;
 }
 static int tlkmmi_test_taskInput(uint08 mtype, uint16 msgID, uint08 *pData, uint16 dataLen)
 {
 	if(mtype != TLKPRT_COMM_MTYPE_TEST) return -TLK_ENOSUPPORT;
-	return tlkmmi_test_modInput(gTlkMmiTestWorkMode, msgID, pData, dataLen);
+	tlkapi_trace(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "mtype->%d msgID->%d", mtype, msgID);
+	tlkapi_array(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "Payload", pData, dataLen);
+	if(msgID < TLKPRT_COMM_CMDID_TEST_CONTEXT_START){
+		tlkmmi_test_recvMsgHandler(msgID, pData, dataLen);
+		return TLK_ENONE;
+	}else{
+		return tlkmmi_test_input(msgID, pData, dataLen);
+	}
 }
 static int tlkmmi_test_taskExtMsg(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen)
 {
@@ -97,7 +105,7 @@ static void tlkmmi_test_taskWakeup(void)
 }
 static void tlkmmi_test_taskHandler(void)
 {
-	tlkmmi_test_modHandler(gTlkMmiTestWorkMode);
+	tlkmmi_test_handler();
 }
 
 

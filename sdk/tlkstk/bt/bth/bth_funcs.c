@@ -23,145 +23,232 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "types.h"
 #include "tlksys/prt/tlkpto_comm.h"
-#if (TLK_STK_BTH_ENABLE)
+#if (TLK_STK_BTH_ENABLE && TLK_CFG_TEST_ENABLE)
 #include "bth_stdio.h"
 #include "bth_l2cap.h"
 #include "bth_signal.h"
 #include "bth_funcs.h"
 #include "bth_acl.h"
 #include "bth_sco.h"
+#include "bth_hcicmd.h"
 
+
+#define BTH_FUNC_DBG_FLAG       ((TLK_MAJOR_DBGID_BTH << 24) | (TLK_MINOR_DBGID_BTH_FUNC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define BTH_FUNC_DBG_SIGN       nullptr
+
+
+static uint16 sBthFuncAclHandle;
+static uint16 sBthFuncScoHandle;
+static uint08 sBthFuncPeerAddr[6];
 static const bth_func_item_t scBthFunSet[] = {
+	//hci
+	{BTH_FUNCID_COMM_START_SCAN, bth_func_commStartScan},
+	{BTH_FUNCID_COMM_CLOSE_SCAN, bth_func_commCloseScan},
+	{BTH_FUNCID_COMM_CLS_PEER_INFO, bth_func_commClsPeerInfo},
 	//acl
-	{TLK_FUNC_TYPE_BTH_ACL,0x01,bth_FuncAcl_Conn},
-	{TLK_FUNC_TYPE_BTH_ACL,0x02,bth_FuncAcl_ConnCancel},
-	{TLK_FUNC_TYPE_BTH_ACL,0x03,bth_FuncAcl_ConnCancelComplete},
-	{TLK_FUNC_TYPE_BTH_ACL,0X04,bth_FuncAcl_Disc},
-	{TLK_FUNC_TYPE_BTH_ACL,0X05,bth_FuncAcl_DiscByAddr},
+	{BTH_FUNCID_ACL_CONNECT, bth_func_aclConnect},
+	{BTH_FUNCID_ACL_DISCONN, bth_func_aclDisconn},
+	{BTH_FUNCID_ACL_DISCONN_BY_ADDR, bth_func_aclDisconnByAddr},
+	{BTH_FUNCID_ACL_CANCEL_CONNECT,  bth_func_aclConnectCancel},
 	//sco
-	{TLK_FUNC_TYPE_BTH_SCO,0x01,bth_FuncSco_Conn},
-	{TLK_FUNC_TYPE_BTH_SCO,0x02,bth_FuncSco_Disc},
+	{BTH_FUNCID_SCO_CONNECT, bth_func_scoConnect},
+	{BTH_FUNCID_SCO_DISCONN, bth_func_scoDisconn},
+	{BTH_FUNCID_SCO_DISCONN_BY_ADDR, bth_func_scoDisconnByAddr},
 };
-int bth_FuncAcl_Conn(uint08 *pData, uint16 dataLen)
+
+
+
+int bth_func_call(uint16 funcID, uint08 *pData, uint16 dataLen)
 {
-	int ret = 0;
+	int index;
+	int count;
+	
+	count = sizeof(scBthFunSet)/sizeof(scBthFunSet[0]);
+	for(index= 0; index<count; index++){
+		if(scBthFunSet[index].funID == funcID) break;
+	}
+	if(index == count || scBthFunSet[index].Func == nullptr){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "Function ID is not in BTH !");
+		return -TLK_EFAIL;
+	}
+	return scBthFunSet[index].Func(pData,dataLen);
+}
+void bth_func_setAclHandle(uint16 aclHandle)
+{
+	sBthFuncAclHandle = aclHandle;
+}
+void bth_func_setScoHandle(uint16 scoHandle)
+{
+	sBthFuncScoHandle = scoHandle;
+}
+void bth_func_setPeerAddr(uint08 peerAddr[6])
+{
+	tmemcpy(sBthFuncPeerAddr, peerAddr, 6);
+}
+
+
+
+static int bth_func_commStartScan(uint08 *pData, uint16 dataLen)
+{
+	uint08 scan = 0;
+
+//	INQUIRY_SCAN_ENABLE  = 0x01,
+//	PAGE_SCAN_ENABLE	 = 0x02,
+	if(dataLen != 0) scan = pData[0];
+	if(scan == 0) scan = 0x03;
+	
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_commStartScan: scan[%d]", scan);
+	return bth_hci_sendWriteScanEnableCmd(scan);
+}
+static int bth_func_commCloseScan(uint08 *pData, uint16 dataLen)
+{
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_commCloseScan");
+	return bth_hci_sendWriteScanEnableCmd(0);
+}
+static int bth_func_commClsPeerInfo(uint08 *pData, uint16 dataLen)
+{
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_commClsPeerInfo");
+	bth_device_clsItem();
+	return TLK_ENONE;
+}
+
+
+static int bth_func_aclConnect(uint08 *pData, uint16 dataLen)
+{
 	uint08 btAddr[6] = {0};
 	uint32 devClass = 0;
 	uint08 initRole;
 	uint16 timeout;
-	if(pData == nullptr || dataLen < 13)
-	{
+	
+	if(pData == nullptr || dataLen < 10){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclConnect: failure - param error");
 		return -TLK_EPARAM;
 	}
 
 	tmemcpy(btAddr, pData, 6);
+	if(btAddr[0] == 0 && btAddr[1] == 0 && btAddr[2] == 0 && btAddr[3] == 0 && btAddr[4] == 0 && btAddr[5] == 0){
+		tmemcpy(btAddr, sBthFuncPeerAddr, 6);
+	}
 	
-	devClass |= (pData[9] << 24) & 0xFF000000;
 	devClass |= (pData[8] << 16) & 0xFF0000;
 	devClass |= (pData[7] <<  8) & 0xFF00;
 	devClass |= pData[6] & 0xFF;
-	initRole = pData[10];
-	timeout = (((uint16)pData[12] << 8) | pData[11])*100;
-
-	ret = bth_acl_connect(btAddr, devClass, initRole,timeout);
-
-	return ret;
+	initRole = pData[9];
+	timeout  = (((uint16)pData[12] << 8) | pData[11])*100;
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclConnect: initRole[%d], timeout[%d], devClass[0x%x], btAddr[%x-%x-%x-%x-%x-%x]",
+		initRole, timeout, devClass, btAddr[0], btAddr[1], btAddr[2], btAddr[3], btAddr[4], btAddr[5]);
+	return bth_acl_connect(btAddr, devClass, initRole,timeout);
 }
-int bth_FuncAcl_ConnCancel(uint08 *pData,uint16 dataLen)
+static int bth_func_aclDisconn(uint08 *pData, uint16 dataLen)
 {
-	int ret = 0;
-	uint08 btAddr[6] = {0};
-	if(pData == nullptr || dataLen < 6)
-		return -TLK_EPARAM;
-	tmemcpy(btAddr,pData,6);
-	ret = bth_acl_connectCancel(pData);
-
-	return ret;
-}
-int bth_FuncAcl_ConnCancelComplete(uint08 *pData,uint16 dataLen)
-{
-	int ret = 0;
-	uint08 status;
-	uint08 btAddr[6] = {0};
-	if(pData == nullptr || dataLen < 7)
-		return -TLK_EPARAM;
-
-	status = pData[0];
-	tmemcpy(btAddr, pData+1, 6);
-
-	bth_acl_connCancelComplete(status, btAddr);
-
-	return ret;
-}
-int bth_FuncAcl_Disc(uint08 *pData, uint16 dataLen)
-{
-	int ret;
 	uint16 handle;
 
-	if(pData == nullptr || dataLen < 2)
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclDisconn: failure - param error");
 		return -TLK_EPARAM;
+	}
 
 	handle = ((uint16)pData[1]<<8) | pData[0];
-	ret = bth_acl_disconn(handle);
+	if(handle == 0) handle = sBthFuncAclHandle;
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclDisconn: handle[0x%x]", handle);
 
-	return ret;
+	return bth_acl_disconn(handle);
 }
-int bth_FuncAcl_DiscByAddr(uint08 *pData, uint16 dataLen)
+static int bth_func_aclConnectCancel(uint08 *pData, uint16 dataLen)
 {
-	int ret = 0;
-	uint08 btAddr[6] = {0};
-	if(pData == nullptr || dataLen < 6)
+	uint08 btAddr[6];
+
+	if(pData == nullptr || dataLen < 6){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclConnectCancel: failure - param error");
 		return -TLK_EPARAM;
+	}
+	
 	tmemcpy(btAddr,pData,6);
-	ret = bth_acl_disconnByAddr(btAddr);
-	return ret;
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclConnectCancel: btAddr[%x-%x-%x-%x-%x-%x]",
+		btAddr[0], btAddr[1], btAddr[2], btAddr[3], btAddr[4], btAddr[5]);
+	
+	return bth_acl_connectCancel(pData);
 }
-int bth_FuncSco_Conn(uint08 *pData, uint16 dataLen)
+static int bth_func_aclDisconnByAddr(uint08 *pData, uint16 dataLen)
 {
-	int ret = 0;
+	uint08 btAddr[6];
+	
+	if(pData == nullptr || dataLen < 6){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclDisconnByAddr: failure - param error");
+		return -TLK_EPARAM;
+	}
+	
+	tmemcpy(btAddr,pData,6);
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclDisconnByAddr: btAddr[%x-%x-%x-%x-%x-%x]",
+		btAddr[0], btAddr[1], btAddr[2], btAddr[3], btAddr[4], btAddr[5]);
+	
+	return bth_acl_disconnByAddr(btAddr);
+}
+
+
+static int bth_func_scoConnect(uint08 *pData, uint16 dataLen)
+{
 	uint16 handle;
 	uint16 linkType;
 	uint08 airMode;
-	if(pData == nullptr || dataLen < 5)
+
+	if(pData == nullptr || dataLen < 5){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_scoConnect: failure - param error");
 		return -TLK_EPARAM;
+	}
 	
 	handle = ((uint16)pData[1]<<8 | pData[0]);
 	linkType = ((uint16)pData[3]<<8 | pData[2]);
 	airMode = pData[4];
-	ret = bth_sco_connect(handle,linkType, airMode);
-	return ret;
+	if(handle == 0) handle = sBthFuncAclHandle;
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_scoConnect: handle[0x%x], linkType[%d], airMode[0x%x]",
+		handle, linkType, airMode);
+	
+	return bth_sco_connect(handle,linkType, airMode);
 }
-int bth_FuncSco_Disc(uint08 *pData,uint16 dataLen)
+static int bth_func_scoDisconn(uint08 *pData, uint16 dataLen)
 {
-	int ret = 0;
 	uint16 handle;
 	uint08 reason;
-	if(pData == nullptr || dataLen < 3)
+	
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_scoDisconn: failure - param error");
 		return -TLK_EPARAM;
+	}
+	
 	handle = ((uint16)pData[1]<<8 | pData[0]);
 	reason = pData[2];
-
-	ret = bth_sco_disconn(handle,reason);
-
-	return ret;
+	if(handle == 0) handle = sBthFuncScoHandle;
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_scoDisconn: handle[0x%x], reason[0x%x], airMode[0x%x]",
+		handle, reason);
+	
+	return bth_sco_disconn(handle, reason);
 }
-int bth_getSetNum()
+static int bth_func_scoDisconnByAddr(uint08 *pData, uint16 dataLen)
 {
-	return sizeof(scBthFunSet)/sizeof(scBthFunSet[0]);
-}
-int bth_FuncCall(uint08 funcType, uint08 funcID, uint08 *pData, uint16 dataLen)
-{
-	int ret = 0;
-	if(funcID > TLK_FUNC_TYPE_BTH_MAX)
+	uint08 reason;
+	uint08 btAddr[6];
+		
+	if(pData == nullptr || dataLen < 7){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_scoDisconnByAddr: failure - param error");
 		return -TLK_EPARAM;
-	for(int i = 0;i<bth_getSetNum();i++)
-	{
-		if(scBthFunSet[i].type == funcType && scBthFunSet[i].funID == funcID)ret = scBthFunSet[i].Func(pData,dataLen);
 	}
-	return ret;
+	
+	tmemcpy(btAddr,pData,6);
+	if(btAddr[0] == 0 && btAddr[1] == 0 && btAddr[2] == 0 && btAddr[3] == 0 && btAddr[4] == 0 && btAddr[5] == 0){
+		tmemcpy(btAddr, sBthFuncPeerAddr, 6);
+	}
+	
+	reason = pData[6];
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_scoDisconnByAddr: reason[0x%x] btAddr[%x-%x-%x-%x-%x-%x]",
+		reason, btAddr[0], btAddr[1], btAddr[2], btAddr[3], btAddr[4], btAddr[5]);
+	
+	return bth_sco_disconnByAddr(btAddr, reason);
 }
 
 
 
-#endif //#if (TLK_STK_BTH_ENABLE)
+
+
+#endif //#if (TLK_STK_BTH_ENABLE && TLK_CFG_TEST_ENABLE)
 

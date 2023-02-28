@@ -222,6 +222,7 @@ typedef struct{
 	uint08 isActive;
 }bth_l2cap_closedEvt_t;
 typedef struct{
+	uint16 scid;
 	uint16 handle;
 }bth_l2cap_requestEvt_t;
 typedef struct{

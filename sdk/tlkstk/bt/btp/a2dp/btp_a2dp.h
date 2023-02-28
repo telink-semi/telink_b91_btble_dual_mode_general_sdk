@@ -32,6 +32,11 @@ typedef	void(*BtpA2dpRecvDataCallback)(uint08 *pData, uint16 dataLen);
 
 
 typedef enum{
+	BTP_A2DP_MODE_AUTO = 0x01, //By default, both Sink and Source are supported
+	BTP_A2DP_MODE_SNK, //Only support Sink
+	BTP_A2DP_MODE_SRC, //Only support Source
+}BTP_A2DP_MODE_ENUM;
+typedef enum{
 	BTP_A2DP_STATUS_CLOSED = 0,
 	BTP_A2DP_STATUS_OPENED,
 	BTP_A2DP_STATUS_PAUSED,
@@ -75,6 +80,28 @@ typedef enum{
  *         If others value is returned means the initial process fail.
 *******************************************************************************/
 extern int btp_a2dp_init(void);
+
+/******************************************************************************
+ * Function: btp_a2dp_setMode
+ * Descript: Example Set the working mode of A2DP
+ * Params:
+ *     @aclHandle[IN]--The ACL link's handle. If this value is 0, the default
+ *         working mode of A2DP is set. 
+ *     @mode--Work Mode. Refer BTP_A2DP_MODE_ENUM
+ *         BTP_A2DP_MODE_AUTO: Both Sink and Source are supported;
+ *         BTP_A2DP_MODE_SNK: Only support Sink
+ *         BTP_A2DP_MODE_SRC: Only support Source
+ * Return: Returning TLK_ENONE(0x00) means the initial process success.
+ *         If others value is returned means the initial process fail.
+ * Notice:
+ *     1. If "aclHandle" is not 0, you need to set the mode immediately after 
+ *        the A2DP is connected. Otherwise, a connection exception may be raised.
+ *     2. If roles have already been identified during the connection process, 
+ *        you are not allowed to change the current mode again.
+ *     3. If the working mode has already been assigned, another assignment 
+ *        will not be allowed.
+*******************************************************************************/
+extern int btp_a2dp_setMode(uint16 aclHandle, uint08 mode);
 
 /******************************************************************************
  * Function: A2DP connect interface
@@ -233,11 +260,9 @@ extern int btp_a2dpsrc_setSampleRate(uint16 aclHandle, uint32 sampleRate);
  * Return: SampleRate.
  *******************************************************************************/
 extern uint btp_a2dpsrc_getSampleRate(uint16 aclHandle);
-#if TLK_CFG_PTS_ENABLE
-extern uint btp_a2dpsrc_getbitpool(uint16 aclHandle);
-extern uint btp_a2dpsrc_getblock(uint16 aclHandle);
+extern uint btp_a2dpsrc_getBitpool(uint16 aclHandle);
+extern uint btp_a2dpsrc_getBlockSize(uint16 aclHandle);
 extern int  btp_a2dpsrc_sendDiscoveryCmd(uint16 aclHandle);
-#endif
 
 #endif //#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 
