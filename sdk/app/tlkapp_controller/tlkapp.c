@@ -22,10 +22,12 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 #include "tlkstk/tlkstk_stdio.h"
-#include "tlkprt/tlkprt_comm.h"
+#include "tlkmdi/tlkmdi_stdio.h"
+#include "tlksys/prt/tlkpto_stdio.h"
 #include "tlkmdi/tlkmdi.h"
+#include "tlkdev/tlkdev.h"
+#include "tlklib/usb/tlkusb.h"
 
 #include "tlkstk/ble/ble.h"
 #include "tlkapp_config.h"
@@ -54,6 +56,9 @@ int tlkapp_init(void)
 	tlksdk_mode_select(0,1);
 	tlkapp_irq_init();
 	tlkdev_init();
+	#if (TLK_CFG_DBG_ENABLE)
+	tlkdbg_init();
+	#endif
 	tlkstk_init();
 	tlkapp_debug_init();
 
@@ -69,10 +74,11 @@ int tlkapp_init(void)
 *******************************************************************************/
 void tlkapp_process(void)
 {
+	tlkdbg_handler();
+	tlkusb_process();
 	#if (TLK_DEV_HCIUART_ENABLE)
 	tlkdev_hciuart_handler();
 	#endif
-	tlkstk_process();
 }
 
 

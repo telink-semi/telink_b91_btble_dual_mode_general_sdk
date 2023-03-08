@@ -24,7 +24,6 @@
 #include "tlkstk/inner/tlkstk_inner.h"
 #include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
 
 #include "tlkstk/ble/ble.h"
 

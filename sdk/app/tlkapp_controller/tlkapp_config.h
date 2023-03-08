@@ -64,7 +64,7 @@
 
 #if TLKAPP_HCI_UART_MODE
 #define TLK_DEV_SERIAL_ENABLE        (0)
-#define TLK_DEV_HCIUART_ENABLE       (1)
+#define TLK_DEV_HCIUART_ENABLE       (0)
 //baudrate of UART
 #define UART_BAUDRATE   115200
 /*! HCI Transport configuration  */
@@ -101,11 +101,6 @@
 #define TLK_SCO_ENABLE                        (1&&TLK_STK_BT_ENABLE)
 
 
-
-
-#define TLK_CFG_FS_ENABLE        0
-#define TLK_STK_BTH_ENABLE       0
-#define TLK_STK_BTP_ENABLE       0
 
 
 

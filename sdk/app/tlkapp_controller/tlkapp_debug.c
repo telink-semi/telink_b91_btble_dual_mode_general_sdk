@@ -24,10 +24,6 @@
 #include "types.h"
 #include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmmi/tlkmmi_stdio.h"
-#include "tlkprt/tlkprt_comm.h"
 
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_handle.h"
