@@ -45,7 +45,7 @@ typedef void(*tlkmdi_comm_datCB)(uint08 datID, uint16 number, uint08 *pData, uin
  * Function: tlkmdi_comm_init.
  * Descript: Initial the Serial port and register event handler callback.
  * Params: None.
- * Return: TLK_ENONE is success,other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
  * Others: None.
 *******************************************************************************/
 int tlkmdi_comm_init(void);
@@ -108,6 +108,9 @@ int tlkmdi_comm_sendEvt(uint08 mType, uint08 msgID, uint08 *pData, uint08 dataLe
 int tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
 
 int tlkmdi_comm_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
+
+uint tlkmdi_comm_getSingleDatPktMaxLen(void);
+uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 
 
 #endif //#if (TLK_CFG_COMM_ENABLE)

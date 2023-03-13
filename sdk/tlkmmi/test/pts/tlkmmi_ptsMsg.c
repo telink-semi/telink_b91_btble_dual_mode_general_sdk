@@ -34,28 +34,16 @@ extern int bth_func_call(uint16 funcID, uint08 *pData, uint16 dataLen);
 extern int btp_func_call(uint16 funcID, uint08 *pData, uint16 dataLen);
 
 static void tlkmmi_pts_recvRebootMsgDeal(uint08 *pData, uint16 dataLen);
-static void tlkmmi_pts_recvConnDeviceMsgDeal(uint08 *pData, uint16 dataLen);
-static void tlkmmi_pts_recvDiscDeviceMsgDeal(uint08 *pData, uint16 dataLen);
-static void tlkmmi_pts_recvConnProfileMsgDeal(uint08 *pData, uint16 dataLen);
-static void tlkmmi_pts_recvDiscProfileMsgDeal(uint08 *pData, uint16 dataLen);
 static void tlkmmi_pts_recvCallFuncMsgDeal(uint08 *pData, uint16 dataLen);
 static void tlkmmi_pts_recvCallBthFuncMsgDeal(uint08 *pData, uint16 dataLen);
 static void tlkmmi_pts_recvCallBtpFuncMsgDeal(uint08 *pData, uint16 dataLen);
 
 
-int tlkmmi_pts_recvMsgHandler(uint16 msgID, uint08 *pData, uint16 dataLen)
+int tlkmmi_pts_recvMsgHandler(uint08 msgID, uint08 *pData, uint16 dataLen)
 {
 	tlkapi_trace(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_recvMsgHandler->%d", msgID);
 	if(msgID == TLKMMI_PTS_MSGID_REBOOT){
 		tlkmmi_pts_recvRebootMsgDeal(pData, dataLen);
-	}else if(msgID == TLKMMI_PTS_MSGID_CONN_DEVICE){
-		tlkmmi_pts_recvConnDeviceMsgDeal(pData, dataLen);
-	}else if(msgID == TLKMMI_PTS_MSGID_DISC_DEVICE){
-		tlkmmi_pts_recvDiscDeviceMsgDeal(pData, dataLen);
-	}else if(msgID == TLKMMI_PTS_MSGID_CONN_PROFILE){
-		tlkmmi_pts_recvConnProfileMsgDeal(pData, dataLen);
-	}else if(msgID == TLKMMI_PTS_MSGID_DISC_PROFILE){
-		tlkmmi_pts_recvDiscProfileMsgDeal(pData, dataLen);
 	}else if(msgID == TLKMMI_PTS_MSGID_CALL_FUNC){
 		tlkmmi_pts_recvCallFuncMsgDeal(pData, dataLen);
 	}else if(msgID == TLKMMI_PTS_MSGID_CALL_BTH_FUNC){
@@ -72,24 +60,6 @@ static void tlkmmi_pts_recvRebootMsgDeal(uint08 *pData, uint16 dataLen)
 {
 	tlkmmi_test_reboot(500);
 }
-static void tlkmmi_pts_recvConnDeviceMsgDeal(uint08 *pData, uint16 dataLen)
-{
-//	tlkmmi_pts_btConnDevice();
-}
-static void tlkmmi_pts_recvDiscDeviceMsgDeal(uint08 *pData, uint16 dataLen)
-{
-//	tlkmmi_pts_btDiscDevice();
-}
-
-static void tlkmmi_pts_recvConnProfileMsgDeal(uint08 *pData, uint16 dataLen)
-{
-
-}
-static void tlkmmi_pts_recvDiscProfileMsgDeal(uint08 *pData, uint16 dataLen)
-{
-
-}
-
 
 static void tlkmmi_pts_recvCallFuncMsgDeal(uint08 *pData, uint16 dataLen)
 {
@@ -100,11 +70,11 @@ static void tlkmmi_pts_recvCallFuncMsgDeal(uint08 *pData, uint16 dataLen)
 		return;
 	}
 
-	type = pData[0];
+	type = ((uint16)pData[1]<<8) | pData[0];
 	if(type == TLKMMI_PTS_FUNC_TYPE_BTH){
-		tlkmmi_pts_recvCallBthFuncMsgDeal(pData+1, dataLen-1);
+		tlkmmi_pts_recvCallBthFuncMsgDeal(pData+2, dataLen-2);
 	}else if(type == TLKMMI_PTS_FUNC_TYPE_BTP){
-		tlkmmi_pts_recvCallBthFuncMsgDeal(pData+1, dataLen-1);
+		tlkmmi_pts_recvCallBthFuncMsgDeal(pData+2, dataLen-2);
 	}else{
 		tlkapi_error(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_recvCallFuncMsgDeal: unknown type [%d]", type);
 	}

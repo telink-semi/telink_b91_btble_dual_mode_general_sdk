@@ -81,7 +81,7 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           1
+#define TLK_CFG_DBG_ENABLE           0
 #endif
 #ifndef TLK_CFG_USB_ENABLE
 #define TLK_CFG_USB_ENABLE           1
@@ -166,9 +166,6 @@
 #endif
 #ifndef TLK_STK_LE_ENABLE
 #define TLK_STK_LE_ENABLE            (1 && TLK_CFG_STK_ENABLE)
-#endif
-#ifndef TLK_STK_LEOTA_EN
-#define TLK_STK_LEOTA_EN             (0 && TLK_STK_LE_ENABLE)
 #endif
 #ifndef TLK_STK_BTH_ENABLE
 #define TLK_STK_BTH_ENABLE           (1 && TLK_STK_BT_ENABLE)
@@ -336,9 +333,6 @@
 #ifndef TLKMMI_LEMST_ENABLE
 #define TLKMMI_LEMST_ENABLE          (1 && TLK_STK_LE_ENABLE && TLKAPP_DUALMODE_DONGLE_ENABLE && !TLKMMI_LEMGR_ENABLE)
 #endif
-#ifndef TLKMMI_LEOTA_ENABLE
-#define TLKMMI_LEOTA_ENABLE          (1 && TLKMMI_LEMGR_ENABLE && TLK_STK_LEOTA_EN)
-#endif
 #ifndef TLKMMI_PHONE_ENABLE
 #define TLKMMI_PHONE_ENABLE          (1 && TLK_STK_BTH_ENABLE)
 #endif
@@ -387,7 +381,7 @@
 
 #define TLK_CFG_FLASH_OTA_PARAM_ADDR          (0xC0000+TLK_CFG_FLASH_CAP-0x100000) 
 
-#define TLK_CFG_FLASH_TEST_PARAM_ADDR         (0xC1000+TLK_CFG_FLASH_CAP-0x100000)
+#define TLK_CFG_FLASH_SYS_CONFIG_ADDR         (0xC1000+TLK_CFG_FLASH_CAP-0x100000)
 
 #define TLK_CFG_FLASH_PBAP_LIST_ADDR          (0xC2000+TLK_CFG_FLASH_CAP-0x100000) 
 #define TLK_CFG_FLASH_PBAP_LIST_LENS          0x0E000 //0xC0000~0xCFFFF
@@ -397,6 +391,7 @@
 #define TLK_CFG_FLASH_VOLUME_ADDR             (0xEA000+TLK_CFG_FLASH_CAP-0x100000) //play,SRC,SNK,SCO,HFP-HF,HFP-AG,Tone-local,Tone-headset
 
 
+//NOTE: The position of NAME and addr can not change.
 #define TLK_CFG_FLASH_LE_NAME_ADDR            (0xED000+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
 #define TLK_CFG_FLASH_LE_NAME_LENS            32
 #define TLK_CFG_FLASH_BT_NAME_ADDR            (0xED100+TLK_CFG_FLASH_CAP-0x100000) //NAME  -- Bind to the tool and do not change
@@ -410,7 +405,18 @@
 #define TLK_CFG_FLASH_BT_PAIR_ADDR1           (0xEC000+TLK_CFG_FLASH_CAP-0x100000)
 #define TLK_CFG_FLASH_BT_PAIR_NUMB            5 //
 
-//BLE: F6000~FBFFF
+//NOTE: TLK_CFG_FLASH_LE_CALIBEATION can not change
+#define TLK_CFG_FLASH_LE_CALIBEATION_ADDR     (0xFE000+TLK_CFG_FLASH_CAP-0x100000) //can not change
+/* SMP pairing and key information area */
+#define TLK_CFG_FLASH_LE_SMP_PAIRING_ADDR     (0xFA000+TLK_CFG_FLASH_CAP-0x100000)
+#define TLK_CFG_FLASH_LE_SMP_PAIRING_SIZE     (2*4096) //normal 8K + backup 8K = 16K
+/* bonding slave information for custom pair area */
+#define TLK_CFG_FLASH_LE_ADR_CUSTOM_PAIRING_ADDR     (0xF8000+TLK_CFG_FLASH_CAP-0x100000)
+#define TLK_CFG_FLASH_LE_ADR_CUSTOM_PAIRING_SIZE     4096
+/* bonding slave GATT service critical information area */
+#define TLK_CFG_FLASH_LE_SDP_ATT_ADRR         (0xF6000+TLK_CFG_FLASH_CAP-0x100000) //for master: store peer slave device's ATT handle
+#define TLK_CFG_FLASH_LE_SDP_ATT_SIZE         (2*4096) //8K flash for ATT HANLDE storage
+
 
 
 

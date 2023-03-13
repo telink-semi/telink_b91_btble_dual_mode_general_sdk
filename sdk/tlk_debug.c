@@ -128,33 +128,43 @@ static const tlk_debug_info_t scTlkDebugBtpInfo = {
 	}
 };
 
-static const tlk_debug_info_t scTlkDebugLeCInfo = {
+static const tlk_debug_info_t scTlkDebugLecInfo = {
 	false, //dbgIsEn
 	false, //vcdIsEn
 	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
-	TLK_MAJOR_DBGID_LEC_MAX, //unitCnt
+	TLK_MINOR_DBGID_LEC_MAX, //unitCnt
 	{
-		{TLK_MAJOR_DBGID_LEC_ADV,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_ADV]"},
-		{TLK_MAJOR_DBGID_LEC_CON, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_CON]"},
-		{TLK_MAJOR_DBGID_LEC_INIT,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_INIT]"},
-		{TLK_MAJOR_DBGID_LEC_S, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SLAVE]"},
-		{TLK_MAJOR_DBGID_LEC_M, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_MASTER]"},
-		{TLK_MAJOR_DBGID_LEC_SCAN,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SCAN]"},
-		{TLK_MAJOR_DBGID_LEC_SCH,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SCH]"},
-		{TLK_MAJOR_DBGID_LEC_HCI,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_HCI]"},
+		{TLK_MINOR_DBGID_LEC_ADV,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_ADV]"},
+		{TLK_MINOR_DBGID_LEC_CON, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_CON]"},
+		{TLK_MINOR_DBGID_LEC_INIT,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_INIT]"},
+		{TLK_MINOR_DBGID_LEC_S, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SLAVE]"},
+		{TLK_MINOR_DBGID_LEC_M, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_MASTER]"},
+		{TLK_MINOR_DBGID_LEC_SCAN,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SCAN]"},
+		{TLK_MINOR_DBGID_LEC_SCH,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SCH]"},
+		{TLK_MINOR_DBGID_LEC_HCI,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_HCI]"},
 	}
 };
-
-static const tlk_debug_info_t scTlkDebugLeHInfo = {
+static const tlk_debug_info_t scTlkDebugLehInfo = {
 	true, //dbgIsEn
 	false, //vcdIsEn
 	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
-	TLK_MAJOR_DBGID_LEH_MAX, //unitCnt
+	TLK_MINOR_DBGID_LEH_MAX, //unitCnt
 	{
-		{TLK_MAJOR_DBGID_LEH_L2CAP, true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_L2CAP]"},
-		{TLK_MAJOR_DBGID_LEH_SMP,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SMP]"},
-		{TLK_MAJOR_DBGID_LEH_GAP, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_GAP]"},
-		{TLK_MAJOR_DBGID_LEH_GATT, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_GATT]"},
+		{TLK_MINOR_DBGID_LEH_L2CAP, true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_L2CAP]"},
+		{TLK_MINOR_DBGID_LEH_SMP,   true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_SMP]"},
+		{TLK_MINOR_DBGID_LEH_GAP, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_GAP]"},
+		{TLK_MINOR_DBGID_LEH_GATT, 	true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BLE_GATT]"},
+		{TLK_MINOR_DBGID_LEH_FUNC, 	true, false, TLK_DEBUG_DBG_FLAG_ALL, "[LEH_FUNC]"},
+	}
+};
+static const tlk_debug_info_t scTlkDebugLepInfo = {
+	true, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
+	TLK_MINOR_DBGID_LEP_MAX, //unitCnt
+	{
+		{TLK_MINOR_DBGID_LEP,       true, true, TLK_DEBUG_DBG_FLAG_ALL, "[LEP]"},
+		{TLK_MINOR_DBGID_LEP_FUNC,  true, true, TLK_DEBUG_DBG_FLAG_ALL, "[LEP_FUNC]"},
 	}
 };
 
@@ -325,9 +335,9 @@ static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
 	&scTlkDebugBtcInfo, //TLK_MAJOR_DBGID_BTC
 	&scTlkDebugBthInfo, //TLK_MAJOR_DBGID_BTH
 	&scTlkDebugBtpInfo, //TLK_MAJOR_DBGID_BTP
-	&scTlkDebugLeCInfo, //TLK_MAJOR_DBGID_LEC
-	&scTlkDebugLeHInfo, //TLK_MAJOR_DBGID_LEH
-	nullptr, //TLK_MAJOR_DBGID_LEP
+	&scTlkDebugLecInfo, //TLK_MAJOR_DBGID_LEC
+	&scTlkDebugLehInfo, //TLK_MAJOR_DBGID_LEH
+	&scTlkDebugLepInfo, //TLK_MAJOR_DBGID_LEP
 	&scTlkDebugDrvInfo, //TLK_MAJOR_DBGID_DRV
 	&scTlkDebugDevInfo, //TLK_MAJOR_DBGID_DEV
 	&scTlkDebugAppInfo, //TLK_MAJOR_DBGID_APP
@@ -361,7 +371,14 @@ unsigned long *tlk_debug_get_dbgMask()
 {
 	return sTlkDebugDbgMask;
 }
-
+unsigned long *tlk_debug_get_vcdMask()
+{
+#if (TLK_CFG_VCD_ENABLE)
+	return sTlkDebugVcdMask;
+#else
+	return 0;
+#endif
+}
 
 void tlk_debug_init(void)
 {

@@ -36,7 +36,10 @@
 #include "tlkmdi/misc/tlkmdi_debug.h"
 
 
-extern int  tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID);
+#if (TLK_CFG_COMM_ENABLE)
+extern int tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID);
+extern int tlkmdi_comm_regDatCB(uint08 datID, tlkmdi_comm_datCB datCB, bool isForce);
+#endif
 
 static int  tlkmmi_sys_taskStart(void);
 static int  tlkmmi_sys_taskPause(void);
@@ -58,23 +61,27 @@ static const tlktsk_modinf_t sTlkMmiSysTaskInfs = {
 	tlkmmi_sys_taskHandler, //void(*Handler)
 };
 
+static void tlkmmi_sys_datCB(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen);
 
 int tlkmmi_sys_taskInit(void)
 {
 	tlktsk_mount(TLKMMI_SYS_PROCID, &sTlkMmiSysTaskInfs);
 	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_SYS, TLKTSK_TASKID_SYSTEM);
 	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_DBG, TLKTSK_TASKID_SYSTEM);
+	tlkmdi_comm_regDatCB(TLKPRT_COMM_SYS_DAT_PORT, tlkmmi_sys_datCB, true);
 	
 	return TLK_ENONE;
 }
-
-
 
 
 static int tlkmmi_sys_taskStart(void)
 {
 	#if (TLK_CFG_COMM_ENABLE)
 	tlkmdi_comm_clear();
+	#endif
+
+	#if (TLK_MDI_BATTERY_ENABLE)
+	tlkmdi_battery_startCheck();
 	#endif
 	tlkmmi_sys_sendCommEvt(TLKPRT_COMM_EVTID_SYS_READY, nullptr, 0);
 
@@ -86,6 +93,10 @@ static int tlkmmi_sys_taskPause(void)
 }
 static int tlkmmi_sys_taskClose(void)
 {
+	#if (TLK_MDI_BATTERY_ENABLE)
+	tlkmdi_battery_closeCheck();
+	#endif
+
 	return TLK_ENONE;
 }
 static int tlkmmi_sys_taskInput(uint08 mtype, uint16 msgID, uint08 *pData, uint16 dataLen)
@@ -129,6 +140,12 @@ static void tlkmmi_sys_taskHandler(void)
 	tlkmmi_sys_ctrlHandler();
 }
 
+
+static void tlkmmi_sys_datCB(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen)
+{
+	tlkapi_trace(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_datCB 01");
+	
+}
 
 
 #endif //#if (TLKMMI_SYSTEM_ENABLE)

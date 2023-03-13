@@ -35,7 +35,7 @@
 #include "tlkmmi/test/tlkmmi_test.h"
 
 
-extern unsigned char gTlkWorkMode;
+extern uint tlkcfg_getWorkMode(void);
 
 /******************************************************************************
  * Function: tlkmmi_init
@@ -49,10 +49,7 @@ int tlkmmi_init(void)
 	#if (TLKMMI_SYSTEM_ENABLE)
 	tlkmmi_sys_init();
 	#endif
-	#if (TLKMMI_STACK_ENABLE)
-	tlkmmi_stack_init();
-	#endif
-	if(gTlkWorkMode != TLK_WORK_MODE_NORMAL){
+	if(tlkcfg_getWorkMode() != TLK_WORK_MODE_NORMAL){
 		#if (TLKMMI_TEST_ENABLE)
 		if(tlkmmi_test_init() == TLK_ENONE){
 			return TLK_ENONE;
@@ -60,6 +57,9 @@ int tlkmmi_init(void)
 		#endif
 	}
 	
+	#if (TLKMMI_STACK_ENABLE)
+	tlkmmi_stack_init();
+	#endif
 	#if (TLKMMI_AUDIO_ENABLE)
 	tlkmmi_audio_init();
 	#endif

@@ -130,6 +130,27 @@ void tlkmmi_audio_validOptype(uint08 *pOptype, uint16 *pHandle)
 	*pHandle = 0;
 #endif
 }
+
+int tlkmmi_audio_extendPlay(uint16 index, uint08 offset)
+{
+	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SNK 
+		|| gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC
+		|| gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_PLAY
+		|| gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_NONE){
+		uint08 optype;
+		uint16 handle;
+		tlkmmi_audio_validOptype(&optype, &handle);
+		if(gTlkMmiAudioCurOptype != optype){
+			uint32 param;
+			param = 0x20000000 | index;
+			if(offset != 0) param |= 0x10000000 | ((uint32)(offset & 0x7F) << 16);
+			return tlkmmi_audio_modinfStart(optype, handle, param);
+		}
+		return TLK_ENONE;
+	}
+	return -TLK_EFAIL;
+}
+
 /******************************************************************************
  * Function: tlkmmi_audio_startPlay
  * Descript: Insert the music fileindex into the audio status control list,
@@ -155,6 +176,7 @@ int tlkmmi_audio_startPlay(void)
 	}
 	return -TLK_EFAIL;
 }
+
 /******************************************************************************
  * Function: tlkmmi_audio_closePlay
  * Descript: Suspend the current music and adjust the audio handle and it's 
@@ -171,6 +193,20 @@ void tlkmmi_audio_closePlay(void)
 		tlkmmi_audio_modinfClose(gTlkMmiAudioCurOptype, gTlkMmiAudioCurHandle);
 	}
 }
+
+/******************************************************************************
+ * Function: tlkmmi_audio_fastPlay
+ * Descript: 
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+bool tlkmmi_audio_fastPlay(bool isRewind, bool isStart)
+{
+	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_NONE) return false;
+	return tlkmmi_audio_modinfFPlay(gTlkMmiAudioCurOptype, isRewind, isStart);
+}
+
 /******************************************************************************
  * Function: tlkmmi_audio_playNext
  * Descript: play next music.

@@ -42,12 +42,11 @@ extern void trng_init(void);
 extern int tlkdev_init(void);
 extern int tlktsk_init(void);
 extern int tlkmmi_init(void);
-
+extern int tlkcfg_load(void);
 
 static uint32 sTlkAppTimer; 
 static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
 
-//extern void tlk_setWorkMode(TLK_WORK_MODE_ENUM wmode);
 
 /******************************************************************************
  * Function: tlkapp_init
@@ -58,8 +57,6 @@ static uint08 sTlkAppMemBuffer[TLKAPP_MEM_TOTAL_SIZE] = {0};
 *******************************************************************************/  
 int tlkapp_init(void)
 {
-//	tlk_setWorkMode(TLK_WORK_MODE_TEST_PTS);
-
   	g_plic_preempt_en = 1; //Interrupt nesting is mandatory, core_enter_critical/core_leave_critical
 	flash_plic_preempt_config(1, 1);
 	trng_init();
@@ -67,7 +64,8 @@ int tlkapp_init(void)
 	tlkapi_setSysMemBuffer(false, sTlkAppMemBuffer, TLKAPP_MEM_TOTAL_SIZE);
 
 	tlkapp_irq_init();
-	
+
+	tlkcfg_load();
 	tlkdev_init();
 	tlktsk_init();
 	tlkstk_init();

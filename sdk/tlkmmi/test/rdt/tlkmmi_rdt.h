@@ -26,9 +26,12 @@
 #if (TLK_TEST_RDT_ENABLE)
 
 
+void tlkmmi_rdt_reboot(void);
 
-
-
+int tlkmmi_rdt_startTest(uint16 caseID, uint08 role);
+int tlkmmi_rdt_pauseTest(void);
+int tlkmmi_rdt_closeTest(void);
+int tlkmmi_rdt_testInput(uint08 msgID, uint08 *pData, uint16 dataLen);
 
 
 #endif //#if (TLK_TEST_RDT_ENABLE)

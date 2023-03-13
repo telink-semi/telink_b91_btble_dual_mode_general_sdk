@@ -51,7 +51,7 @@
 #include "tlkmdi/tlkmdi.h"
 
 
-extern unsigned char gTlkWorkMode;
+extern uint tlkcfg_getWorkMode(void);
 
 
 /******************************************************************************
@@ -84,7 +84,9 @@ int tlkmdi_init(void)
 	tlkmdi_usb_init();
 	#endif
 	
-	if(gTlkWorkMode != TLK_WORK_MODE_NORMAL) return TLK_ENONE;
+	if(tlkcfg_getWorkMode() != TLK_WORK_MODE_NORMAL){
+		return TLK_ENONE;
+	}
 
 	#if (TLK_MDI_FS_ENABLE)
 	tlkmdi_fs_init();

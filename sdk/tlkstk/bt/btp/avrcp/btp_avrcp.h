@@ -102,6 +102,32 @@ typedef enum{
 	BTP_AVRCP_PLAY_STATE_REV_SEEK,
 }BTP_AVRCP_PLAY_STATE_ENUM;
 
+typedef enum{
+	BTP_AVRCP_STATUS_CODE_NONE = 0x00,
+	BTP_AVRCP_STATUS_CODE_INVALID_PARAMTER         = 0x01,
+	BTP_AVRCP_STATUS_CODE_PARAMTER_CONTENT_ERROR   = 0x02,
+	BTP_AVRCP_STATUS_CODE_INTERNAL_ERROR           = 0x03,
+	BTP_AVRCP_STATUS_CODE_OPERATE_WITHOUT_ERROR    = 0x04,
+	BTP_AVRCP_STATUS_CODE_UID_CHANGE               = 0x05,
+	BTP_AVRCP_STATUS_CODE_RESERVED                 = 0x06,
+	BTP_AVRCP_STATUS_CODE_INVALID_DIRECTION        = 0x07,
+	BTP_AVRCP_STATUS_CODE_NOT_A_DIRECTORY          = 0x08,
+	BTP_AVRCP_STATUS_CODE_DOES_NOT_EXIST           = 0x09,
+	BTP_AVRCP_STATUS_CODE_INVALID_SCOPE            = 0x0A,
+	BTP_AVRCP_STATUS_CODE_RANGE_OUT_OF_BOUNDS      = 0x0B,
+	BTP_AVRCP_STATUS_CODE_FOLDER_ITEM_IS_NOT_PLAYABLE = 0x0C,
+	BTP_AVRCP_STATUS_CODE_MEDIA_IN_USE             = 0x0D,
+	BTP_AVRCP_STATUS_CODE_NOW_PLAYING_LIST_FULL    = 0x0E,
+	BTP_AVRCP_STATUS_CODE_SEARCH_NOT_SUPPORTED     = 0x0F,
+	BTP_AVRCP_STATUS_CODE_SEARCH_IN_PROGRESS       = 0x10,
+	BTP_AVRCP_STATUS_CODE_INVALID_PLAYER_ID        = 0x11,
+	BTP_AVRCP_STATUS_CODE_PLAY_NOT_BROWSABLE       = 0x12,
+	BTP_AVRCP_STATUS_CODE_PLAY_NOT_ADDRESSED       = 0x13,
+	BTP_AVRCP_STATUS_CODE_NO_VALID_SEARCHRESULTS   = 0x14,
+	BTP_AVRCP_STATUS_CODE_NO_AVAILABLE_PLAYERS     = 0x15,
+	BTP_AVRCP_STATUS_CODE_ADDRESSED_PLAYER_CHANGED = 0x16,
+}BTP_AVRCP_STATUS_CODE_ENUM;
+
 
 //#endif
 #define AVRCP_BTN_PUSHED	0x00
@@ -188,17 +214,18 @@ bool btp_avrcp_isSupportSetVolume(uint16 aclHandle);
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int btp_avrcp_setVolume(uint16 aclHandle, uint08 volume, bool isSrc);
+int btp_avrcp_setDefaultVolume(uint08 volume);
 
 /******************************************************************************
  * Function: AVRCP Set music state interface
  * Descript: Defines trigger the avrcp cmd change the music of peer avrcp entity.
  * Params:
  *        @aclHandle--The Acl Handle identifier.
- *        @playsate--The state of music to be set.
+ *        @playsate--The state of music to be set. Refer BTP_AVRCP_PLAY_STATE_ENUM.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int  btp_avrcp_setPlayState(uint16 aclHandle, uint08 playState);
+int btp_avrcp_setPlayState(uint16 aclHandle, uint08 playState);
 
 /******************************************************************************
  * Function: AVRCP Notify music sate Command interface
@@ -206,11 +233,11 @@ int  btp_avrcp_setPlayState(uint16 aclHandle, uint08 playState);
  *           changing to peer avrcp entity.
  * Params:
  *        @aclHandle--The Acl Handle identifier.
- *        @playState--The service channel id.
+ *        @playState--Refer BTP_AVRCP_PLAY_STATE_ENUM.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int  btp_avrcp_notifyPlayState(uint16 aclHandle, uint08 playState);
+int btp_avrcp_notifyPlayState(uint16 aclHandle, uint08 playState);
 
 /******************************************************************************
  * Function: AVRCP Send Key interface
@@ -221,7 +248,7 @@ int  btp_avrcp_notifyPlayState(uint16 aclHandle, uint08 playState);
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int  btp_avrcp_sendKeyPress(uint16 aclHandle, uint08 keyID);
+int btp_avrcp_sendKeyPress(uint16 aclHandle, uint08 keyID);
 
 /******************************************************************************
  * Function: AVRCP Send Key Release interface
@@ -232,7 +259,7 @@ int  btp_avrcp_sendKeyPress(uint16 aclHandle, uint08 keyID);
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int  btp_avrcp_sendKeyRelease(uint16 aclHandle, uint08 keyID);
+int btp_avrcp_sendKeyRelease(uint16 aclHandle, uint08 keyID);
 
 /******************************************************************************
  * Function: AVRCP Register to listen the Music change interface

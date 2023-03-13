@@ -22,15 +22,57 @@
  *******************************************************************************************************/
 #include "tlk_config.h"
 #include "tlk_define.h"
+#include "tlkapi/tlkapi_stdio.h"
+#include "drivers.h"
 
 
-//Refer TLK_WORK_MODE_ENUM.
-unsigned char gTlkWorkMode = TLK_WORK_MODE_NORMAL;
+#define TLK_CONFIG_INFO_SIGN        0x3C
+#define TLK_CONFIG_INFO_VERS        0x01
+#define TLK_CONFIG_INFO_ADDR        TLK_CFG_FLASH_SYS_CONFIG_ADDR
+#define TLK_CONFIG_INFO_SIZE        16
 
 
-void tlk_setWorkMode(TLK_WORK_MODE_ENUM wmode)
+static uint08 sTlkWorkMode = TLK_WORK_MODE_NORMAL;
+static tlkapi_save_ctrl_t sTlkConfigSave;
+
+
+int tlkcfg_load(void)
 {
-	gTlkWorkMode = wmode;
+	uint08 buffer[TLK_CONFIG_INFO_SIZE] = {0};
+
+	sTlkWorkMode = TLK_WORK_MODE_NORMAL;
+	tlkapi_save2_init(&sTlkConfigSave, TLK_CONFIG_INFO_SIGN, TLK_CONFIG_INFO_VERS,
+		TLK_CONFIG_INFO_SIZE, TLK_CONFIG_INFO_ADDR);
+	if(tlkapi_save2_load(&sTlkConfigSave, buffer, TLK_CONFIG_INFO_SIZE) <= 0){
+		return TLK_ENONE;
+	}
+	#if (TLK_CFG_TEST_ENABLE)
+	if(buffer[0] >= TLK_WORK_MODE_NORMAL && buffer[0] <= TLK_WORK_MODE_TEST_USR){
+		sTlkWorkMode = buffer[0];
+	}
+	#endif
+	return TLK_ENONE;
+}
+
+
+uint tlkcfg_getWorkMode(void)
+{
+	return sTlkWorkMode;
+}
+void tlkcfg_setWorkMode(TLK_WORK_MODE_ENUM wmode)
+{
+	#if (TLK_CFG_TEST_ENABLE)
+	uint08 buffer[TLK_CONFIG_INFO_SIZE] = {0};
+
+	if(sTlkWorkMode == wmode) return;
+	if(!(wmode >= TLK_WORK_MODE_NORMAL && wmode <= TLK_WORK_MODE_TEST_USR)){
+		return;
+	}
+	sTlkWorkMode = wmode;
+	tlkapi_save2_load(&sTlkConfigSave, buffer, TLK_CONFIG_INFO_SIZE);
+	buffer[0] = sTlkWorkMode;
+	tlkapi_save2_save(&sTlkConfigSave, buffer, TLK_CONFIG_INFO_SIZE);
+	#endif //#if (TLK_CFG_TEST_ENABLE)
 }
 
 

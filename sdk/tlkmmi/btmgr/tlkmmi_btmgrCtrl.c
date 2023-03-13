@@ -105,9 +105,7 @@ int tlkmmi_btmgr_ctrlInit(void)
 	    bttemp[5] = randValue[0];
 	    tlkapi_flash_write(TLK_CFG_FLASH_BT_ADDR_ADDR, bttemp, 6);
 	}
-	for(index=0; index<6; index++){
-		gTlkMmiBtmgrCtrl.btaddr[index] = bttemp[5-index];
-	}
+	tmemcpy(gTlkMmiBtmgrCtrl.btaddr, bttemp, 6);
 
 	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
 	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);

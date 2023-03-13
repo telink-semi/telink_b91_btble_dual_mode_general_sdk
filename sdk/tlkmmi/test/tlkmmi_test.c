@@ -33,18 +33,20 @@ static bool tlkmmi_test_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkmmi_test_rebootDeal(void);
 
 
-extern unsigned char gTlkWorkMode;
+extern uint tlkcfg_getWorkMode(void);
 static tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
 
 
 
 int tlkmmi_test_init(void)
 {
+	uint08 workMode = tlkcfg_getWorkMode();
 	tmemset(&sTlkMmiTestCtrl, 0, sizeof(tlkmmi_test_ctrl_t));
-	if(gTlkWorkMode == TLK_WORK_MODE_TEST_PTS) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_PTS;
-	else if(gTlkWorkMode == TLK_WORK_MODE_TEST_RDT) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_RDT;
-	else if(gTlkWorkMode == TLK_WORK_MODE_TEST_FAT) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_FAT;
-	else if(gTlkWorkMode == TLK_WORK_MODE_TEST_EMI) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_EMI;
+	if(workMode == TLK_WORK_MODE_TEST_PTS) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_PTS;
+	else if(workMode == TLK_WORK_MODE_TEST_RDT) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_RDT;
+	else if(workMode == TLK_WORK_MODE_TEST_FAT) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_FAT;
+	else if(workMode == TLK_WORK_MODE_TEST_EMI) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_EMI;
+	else if(workMode == TLK_WORK_MODE_TEST_USR) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_USR;
 	else sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_NONE;
 	if(sTlkMmiTestCtrl.wmode == TLKMMI_TEST_MODTYPE_NONE) return TLK_ENONE;
 
@@ -86,7 +88,7 @@ void tlkmmi_test_reboot(uint16 timeout)
 }
 void tlkmmi_test_handler(void)
 {
-	tlkmmi_test_modHandler(sTlkMmiTestCtrl.wmode);
+	
 }
 
 

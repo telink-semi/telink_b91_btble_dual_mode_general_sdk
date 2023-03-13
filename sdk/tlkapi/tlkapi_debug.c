@@ -80,6 +80,10 @@ void __attribute__((unused))tlkdbg_error(uint flags, char *pSign, const char *fo
 void __attribute__((unused))tlkdbg_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_assert(uint flags, bool isAssert, char *pSign, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 
+#if (TLK_CFG_DBG_ENABLE)
+int  __attribute__((unused))tlkdbg_sprintf(char *pOut, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+#endif
+
 void __attribute__((unused))tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3) __attribute__((weak, alias("tlkapi_debug_default")));

@@ -31,59 +31,10 @@ const u8 	telink_adv_trigger_pairing[6] = {5, 0xFF, 0x11, 0x02, 0x01, 0x00};
 const u8 	telink_adv_trigger_unpair[6] = {5, 0xFF, 0x11, 0x02, 0x01, 0x01};
 const  u8 vendor_OtaUUID[16]	= WRAPPING_BRACES(TELINK_SPP_DATA_OTA);
 
-#if (TLK_CFG_FLASH_CAP == 0x100000)
-	/* default flash is 1M
-	 * for 1M Flash, flash_sector_mac_address equals to 0xFF000
-	 * for 2M Flash, flash_sector_mac_address equals to 0x1FF000 */
-	_attribute_ble_data_retention_	u32 flash_sector_mac_address = CFG_ADR_MAC_1M_FLASH;
-	_attribute_ble_data_retention_	u32 flash_sector_calibration = CFG_ADR_CALIBRATION_1M_FLASH;
-#elif (TLK_CFG_FLASH_CAP == 0x200000)
-	_attribute_ble_data_retention_	u32 flash_sector_mac_address = CFG_ADR_MAC_2M_FLASH;
-	_attribute_ble_data_retention_	u32 flash_sector_calibration = CFG_ADR_CALIBRATION_2M_FLASH;
-#elif (TLK_CFG_FLASH_CAP == 0x400000)
-	_attribute_ble_data_retention_	u32 flash_sector_mac_address = CFG_ADR_MAC_4M_FLASH;
-	_attribute_ble_data_retention_	u32 flash_sector_calibration = CFG_ADR_CALIBRATION_4M_FLASH;
-#elif (TLK_CFG_FLASH_CAP == 0x80000)
-	_attribute_ble_data_retention_	u32 flash_sector_mac_address = CFG_ADR_MAC_512K_FLASH;
-	_attribute_ble_data_retention_	u32 flash_sector_calibration = CFG_ADR_CALIBRATION_512K_FLASH;
-#else
-	#error "Flash Config Error"
-#endif
+_attribute_ble_data_retention_	u32 flash_sector_mac_address = TLK_CFG_FLASH_LE_ADDR_ADDR;
+_attribute_ble_data_retention_	u32 flash_sector_calibration = TLK_CFG_FLASH_LE_CALIBEATION_ADDR;
 
 
-
-
-
-/**
- * @brief		This function can automatically recognize the flash size,
- * 				and the system selects different customized sector according
- * 				to different sizes.
- * @param[in]	none
- * @return      none
- */
-_attribute_no_inline_
-void blc_readFlashSize_autoConfigCustomFlashSector(void)
-{
-	u8 temp_buf[4];
-	((unsigned int*)(temp_buf))[0] = flash_read_mid();
-	u8	flash_cap = temp_buf[2];
-
-	if(flash_cap == FLASH_CAPACITY_1M){
-		flash_sector_mac_address = CFG_ADR_MAC_1M_FLASH;
-		flash_sector_calibration = CFG_ADR_CALIBRATION_1M_FLASH;
-	}
-	else if(flash_cap == FLASH_CAPACITY_2M){
-		flash_sector_mac_address = CFG_ADR_MAC_2M_FLASH;
-		flash_sector_calibration = CFG_ADR_CALIBRATION_2M_FLASH;
-	}
-	else{
-		//This SDK do not support flash size other than 1M/2M
-		//If code stop here, please check your Flash
-		while(1);
-	}
-
-//	flash_set_capacity(flash_cap);
-}
 
 
 

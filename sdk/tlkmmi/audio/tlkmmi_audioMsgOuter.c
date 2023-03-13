@@ -43,8 +43,11 @@
 
 static void tlkmmi_audio_playStartDeal(void);
 static void tlkmmi_audio_playCloseDeal(void);
+static void tlkmmi_audio_extendPlayDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_audio_playNextDeal(void);
 static void tlkmmi_audio_playPrevDeal(void);
+static void tlkmmi_audio_fastForwardDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_audio_fastRewindDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_audio_getStateDeal(void);
 static void tlkmmi_audio_getProgressDeal(void);
 static void tlkmmi_audio_getDurationDeal(void);
@@ -70,10 +73,16 @@ int tlkmmi_audio_outerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		tlkmmi_audio_playStartDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_PLAY_CLOSE){
 		tlkmmi_audio_playCloseDeal();
+	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_EXTEND_PLAY){
+		tlkmmi_audio_extendPlayDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_PLAY_NEXT){
 		tlkmmi_audio_playNextDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_PLAY_PREV){
 		tlkmmi_audio_playPrevDeal();
+	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_FAST_FORWARD){
+		tlkmmi_audio_fastForwardDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_FAST_REWIND){
+		tlkmmi_audio_fastRewindDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_GET_STATE){
 		tlkmmi_audio_getStateDeal();
 	}else if(msgID == TLKPRT_COMM_CMDID_AUDIO_GET_PROGRESS){
@@ -119,19 +128,56 @@ static void tlkmmi_audio_playCloseDeal(void)
 			TLK_ENONE, nullptr, 0);
 	tlkmmi_audio_closePlay();
 }
+static void tlkmmi_audio_extendPlayDeal(uint08 *pData, uint08 dataLen)
+{
+	uint16 index;
+	uint08 offset;
+	
+	if(dataLen < 3){
+		tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_EXTEND_PLAY, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EPARAM, nullptr, 0);
+		return;
+	}
+	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_EXTEND_PLAY, TLKPRT_COMM_RSP_STATUE_SUCCESS,
+		TLK_ENONE, nullptr, 0);
+	index = ((uint16)pData[1] << 8) | pData[0];
+	offset = pData[1];
+	tlkmmi_audio_extendPlay(index, offset);
+}
 static void tlkmmi_audio_playNextDeal(void)
 {
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_PLAY_NEXT, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, nullptr, 0);
+		TLK_ENONE, nullptr, 0);
 	tlkmmi_audio_playNext();
 }
 static void tlkmmi_audio_playPrevDeal(void)
 {
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_PLAY_PREV, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, nullptr, 0);
+		TLK_ENONE, nullptr, 0);
 	tlkmmi_audio_playPrev();
 }
-
+static void tlkmmi_audio_fastForwardDeal(uint08 *pData, uint08 dataLen)
+{
+	if(dataLen == 0){
+		tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_FAST_FORWARD, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EPARAM, nullptr, 0);
+		return;
+	}
+	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_FAST_FORWARD, TLKPRT_COMM_RSP_STATUE_SUCCESS,
+		TLK_ENONE, nullptr, 0);
+	tlkmmi_audio_fastPlay(false, pData[0]);
+}
+static void tlkmmi_audio_fastRewindDeal(uint08 *pData, uint08 dataLen)
+{
+	if(dataLen == 0){
+		tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_FAST_REWIND, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EPARAM, nullptr, 0);
+		return;
+	}
+	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_FAST_REWIND, TLKPRT_COMM_RSP_STATUE_SUCCESS,
+		TLK_ENONE, nullptr, 0);
+	tlkmmi_audio_fastPlay(true, pData[0]);
+}
 static void tlkmmi_audio_getStateDeal(void)
 {
 	uint08 channel;
@@ -148,7 +194,7 @@ static void tlkmmi_audio_getStateDeal(void)
 		buffer[buffLen++] = 1; //start
 	}
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_GET_STATE, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, buffer, buffLen);
+		TLK_ENONE, buffer, buffLen);
 }
 static void tlkmmi_audio_getProgressDeal(void)
 {
@@ -169,7 +215,7 @@ static void tlkmmi_audio_getProgressDeal(void)
 	buffer[buffLen++] = (progress & 0xFF);
 	buffer[buffLen++] = (progress & 0xFF00) >> 8;
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_GET_PROGRESS, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, buffer, buffLen);
+		TLK_ENONE, buffer, buffLen);
 }
 static void tlkmmi_audio_getDurationDeal(void)
 {
@@ -195,7 +241,7 @@ static void tlkmmi_audio_getDurationDeal(void)
 	buffer[buffLen++] = (duration & 0xFF0000) >> 16;
 	buffer[buffLen++] = (duration & 0xFF000000) >> 24;
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_GET_DURATION, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, buffer, buffLen);
+		TLK_ENONE, buffer, buffLen);
 }
 static void tlkmmi_audio_getFileNameDeal(void)
 {
@@ -227,7 +273,7 @@ static void tlkmmi_audio_getFileNameDeal(void)
 		buffLen += length;
 	}
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_GET_FILENAME, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, buffer, buffLen);
+		TLK_ENONE, buffer, buffLen);
 }
 static void tlkmmi_audio_getSingerDeal(void)
 {
@@ -259,7 +305,7 @@ static void tlkmmi_audio_getSingerDeal(void)
 		buffLen += length;
 	}
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_GET_SINGER, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, buffer, buffLen);
+		TLK_ENONE, buffer, buffLen);
 }
 static void tlkmmi_audio_getPlayModeDeal(void)
 {
@@ -273,7 +319,7 @@ static void tlkmmi_audio_getPlayModeDeal(void)
 	buffer[buffLen++] = 0;
 	#endif
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_GET_PLAY_MODE, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, buffer, buffLen);
+		TLK_ENONE, buffer, buffLen);
 }
 static void tlkmmi_audio_setPlayModeDeal(uint08 *pData, uint08 dataLen)
 {
@@ -296,7 +342,7 @@ static void tlkmmi_audio_setPlayModeDeal(uint08 *pData, uint08 dataLen)
 
 	tlkmdi_mp3_setPlayMode(playMode);
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_SET_PLAY_MODE, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, nullptr, 0);
+		TLK_ENONE, nullptr, 0);
 #else
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_SET_PLAY_MODE, TLKPRT_COMM_RSP_STATUE_FAILURE,
 		TLK_ENOSUPPORT, nullptr, 0);
@@ -378,7 +424,7 @@ static void tlkmmi_audio_closeReportDeal(void)
 {
 	tlkmdi_audio_setReport(false, 0);
 	tlkmmi_audio_sendCommRsp(TLKPRT_COMM_CMDID_AUDIO_CLOSE_REPORT, TLKPRT_COMM_RSP_STATUE_SUCCESS,
-			TLK_ENONE, nullptr, 0);	
+		TLK_ENONE, nullptr, 0);	
 }
 
 

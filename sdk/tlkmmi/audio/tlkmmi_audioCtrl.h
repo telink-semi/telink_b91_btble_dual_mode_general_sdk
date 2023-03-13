@@ -85,6 +85,8 @@ int tlkmmi_audio_ctrlInit(void);
 
 void tlkmmi_audio_validOptype(uint08 *pOptype, uint16 *pHandle);
 
+int tlkmmi_audio_extendPlay(uint16 index, uint08 offset);
+
 /******************************************************************************
  * Function: tlkmmi_audio_startPlay
  * Descript: Insert the music fileindex into the audio status control list,
@@ -105,6 +107,15 @@ int tlkmmi_audio_startPlay(void);
  * Others: None.
 *******************************************************************************/
 void tlkmmi_audio_closePlay(void);
+
+/******************************************************************************
+ * Function: tlkmmi_audio_fastPlay
+ * Descript: 
+ * Params: None.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+bool tlkmmi_audio_fastPlay(bool isRewind, bool isStart);
 
 /******************************************************************************
  * Function: tlkmmi_audio_playNext

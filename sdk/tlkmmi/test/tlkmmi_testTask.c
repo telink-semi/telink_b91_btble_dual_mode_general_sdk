@@ -31,6 +31,7 @@
 #include "tlkmmi_testStdio.h"
 #include "tlkmmi_testMsg.h"
 
+extern void tlkstk_process(void);
 extern int  tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID);
 
 static int  tlkmmi_test_taskStart(void);
@@ -103,8 +104,11 @@ static void tlkmmi_test_taskWakeup(void)
 {
 	
 }
+
+
 static void tlkmmi_test_taskHandler(void)
 {
+	tlkstk_process();
 	tlkmmi_test_handler();
 }
 

@@ -85,6 +85,23 @@ int  btp_spp_disconn(uint16 aclHandle);
 void btp_spp_destroy(uint16 aclHandle);
 
 /******************************************************************************
+ * Function: btp_spp_sendRemoteLineStatus
+ * Descript: This interface be used by profile or user to send RLS CMD. 
+ * Params:
+ *     @aclHandle[IN]---The connection handle.
+ *     @status[IN]--The L1-L4 bits indicates the Line Status. 
+ *         If L1 is set to 0, no error have occurred. 
+ *           L1 = 1 indicates the following errors:
+ *         L2-L4:
+ *           100 Overrun Error - Received character overwrote an unread character
+ *           010 Parity Error - Received character's parity was incorrect
+ *           001 Framing Error - a character did not terminate with a stop bit.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+int btp_spp_sendRemoteLineStatus(uint16 aclHandle, uint08 status);
+
+/******************************************************************************
  * Function: SPP send Data interface
  * Descript:
  * Params:

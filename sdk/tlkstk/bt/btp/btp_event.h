@@ -62,7 +62,9 @@ typedef enum{
 	BTP_EVTID_A2DPSNK_STATUS_CHANGED,	
 
     //AVRCP
+    BTP_EVTID_AVRCP_KEY_CHANGED,
     BTP_EVTID_AVRCP_VOLUME_CHANGED,
+    BTP_EVTID_AVRCP_STATUS_CHANGED,
 	
 	BTP_EVTID_MAX,
 }BTP_EVTID_ENUM;
@@ -152,6 +154,21 @@ typedef struct{
 }btp_a2dpReconfigCompleteEvt_t;
 
 
+typedef struct{
+	uint16 handle;
+	uint08 keyID;
+	uint08 isPress;
+}btp_avrcpKeyChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 volume;
+}btp_avrcpVolumeChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 isNoty;
+	uint08 status; // 0-Stoped, 1-PLAYING, 2-PAUSED, 3-FWD_SEEK, 4-REV_SEEK, Refer to BTP_AVRCP_PLAY_STATE_ENUM.
+}btp_avrcpStatusChangeEvt_t;
+
 
 int  btp_event_init(void);
 void btp_event_regCB(uint16 evtID, btp_event_func func);
@@ -181,6 +198,10 @@ int btp_send_a2dpSrcCodecChangedEvt(uint16 aclHandle, uint08 chnMode, uint08 cod
 int btp_send_a2dpSnkCodecChangedEvt(uint16 aclHandle, uint08 chnMode, uint08 codecType, uint32 frequence, uint32 bitRate, uint08 objType);
 int btp_send_a2dpSrcStatusChangedEvt(uint16 aclHandle, uint08 status);
 int btp_send_a2dpSnkStatusChangedEvt(uint16 aclHandle, uint08 status);
+
+int btp_send_avrcpKeyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 isPress);
+int btp_send_avrcpVolumeChangedEvt(uint16 aclHandle, uint08 volume);
+int btp_send_avrcpStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 isNoty);
 
 
 

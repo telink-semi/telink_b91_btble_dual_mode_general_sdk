@@ -30,11 +30,6 @@
 #include "tlkmmi_sysDbg.h"
 #include "tlkmmi_sysTask.h"
 
-tlkapi_timer_t gTlkMmiSysDbgTimer;
-bool tlkmmi_sys_timer(tlkapi_timer_t *pTimer,uint32 userArg);
-extern tlk_debug_info_t **tlk_debug_get_dbgInfo();
-extern int tlkmmi_sys_commDbgItemEvtSend(TLK_DEBUG_MAJOR_ID_ENUM majorId);
-
 
 int tlkmmi_sys_init(void)
 {
@@ -43,43 +38,8 @@ int tlkmmi_sys_init(void)
 	tlkmmi_sys_ctrlInit();
 	tlkmmi_sys_dbgInit();
 	tlkmmi_sys_devInit();
-	tlkmmi_sys_adaptInitTimer(&gTlkMmiSysDbgTimer, tlkmmi_sys_timer, NULL, TLKMMI_SYS_TIMEOUT);
 	
 	return TLK_ENONE;
-}
-
-bool tlkmmi_sys_timer(tlkapi_timer_t *pTimer,uint32 userArg)
-{
-	#if (TLK_CFG_DBG_ENABLE)
-	static int majorID = 0;
-
-	int unitCnt = 0;
-	if(majorID == TLK_MAJOR_DBGID_MAX)
-	{
-		majorID = 0;
-		return false;
-	}
-	if(tlk_debug_get_dbgInfo()[majorID] == nullptr)
-	{
-		majorID++;
-		return true;
-	}
-	unitCnt = tlk_debug_get_dbgInfo()[majorID]->unitCnt;
-	if( tlkmmi_sys_commDbgItemEvtSend(majorID) >= unitCnt)
-	{
-		majorID++;
-	}
-	#endif //#if (TLK_CFG_DBG_ENABLE)
-	return true;
-}
-
-void tlkmmi_sys_start()
-{
-	tlkmmi_sys_adaptInsertTimer(&gTlkMmiSysDbgTimer);
-}
-void tlkmmi_sys_close()
-{
-	tlkmmi_sys_adaptRemoveTimer(&gTlkMmiSysDbgTimer);
 }
 
 #endif //#if (TLKMMI_SYSTEM_ENABLE)

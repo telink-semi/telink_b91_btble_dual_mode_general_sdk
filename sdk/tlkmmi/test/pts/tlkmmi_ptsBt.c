@@ -36,6 +36,9 @@ extern int bt_ll_set_bd_addr(uint8_t *bdAddr);
 extern void bth_func_setAclHandle(uint16 aclHandle);
 extern void bth_func_setScoHandle(uint16 scoHandle);
 extern void btp_func_setAclHandle(uint16 aclHandle);
+extern void btp_func_setSppRfcChn(uint08 rfcChannel);
+extern void btp_func_setSppHfpHfChn(uint08 rfcChannel);
+extern void btp_func_setSppHfpAgChn(uint08 rfcChannel);
 
 static int tlkmmi_pts_btAclRequestEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btAclConnectEvt(uint08 *pData, uint16 dataLen);
@@ -60,13 +63,31 @@ uint08 gTlkMmiTestPtsDongleAddr[6] = {0};
 
 int tlkmmi_pts_btInit(void)
 {
+	uint08 index;
+	uint08 btAddr[6];
+	uint08 btName[TLK_CFG_FLASH_BT_NAME_LENS+1];
 	uint08 bdaddr[6] = TLKMMI_BTPTS_BDADDR_DEF;
+		
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, btAddr, 6);
+	if(btAddr[0] == 0xFF && btAddr[1] == 0xFF && btAddr[2] == 0xFF){
+		tmemcpy(btAddr, bdaddr, 6);
+	}
+	bt_ll_set_bd_addr(btAddr);
 	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTPTS_DEVICE_CLASS);
 	bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
-
-	bt_ll_set_bd_addr(bdaddr);
-	bth_hci_sendWriteLocalNameCmd(TLKMMI_BTPTS_BTNAME_DEF);
+	
+	tlkapi_flash_read(TLK_CFG_FLASH_BT_NAME_ADDR, btName, TLK_CFG_FLASH_BT_NAME_LENS-1);
+	for(index=0; index<TLK_CFG_FLASH_BT_NAME_LENS-1; index++){
+		if(btName[index] == 0xFF || btName[index] == 0x00) break;
+	}
+	if(index == 0){
+		index = strlen(TLKMMI_BTPTS_BTNAME_DEF);
+		if(index > TLK_CFG_FLASH_BT_NAME_LENS) index = TLK_CFG_FLASH_BT_NAME_LENS;
+		tmemcpy(btName, TLKMMI_BTPTS_BTNAME_DEF, index);
+	}
+	btName[index] = 0;
+	bth_hci_sendWriteLocalNameCmd(btName);
 	
 	bth_event_regCB(BTH_EVTID_ACLCONN_REQUEST,  tlkmmi_pts_btAclRequestEvt);
 	bth_event_regCB(BTH_EVTID_ACLCONN_COMPLETE, tlkmmi_pts_btAclConnectEvt);
@@ -219,11 +240,11 @@ static int tlkmmi_pts_btProfileChannelEvt(uint08 *pData, uint16 dataLen)
 		pEvt->handle, pEvt->service, pEvt->channel);
 	
 	if(pEvt->service == BTP_SDP_SRVCLASS_ID_HANDSFREE){
-		
+		btp_func_setSppHfpHfChn(pEvt->channel);
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_HANDSFREE_AGW){
-		
+		btp_func_setSppHfpAgChn(pEvt->channel);
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_SERIAL_PORT){
-		
+		btp_func_setSppRfcChn(pEvt->channel);
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_PBAP_PSE){
 		
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_IAP2_TEMP){

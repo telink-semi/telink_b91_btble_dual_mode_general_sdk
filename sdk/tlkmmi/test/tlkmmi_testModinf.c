@@ -91,12 +91,6 @@ int tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID, uint08 *pD
 	if(pModinf == nullptr || pModinf->Input == nullptr) return -TLK_ENOSUPPORT;
 	return pModinf->Input(msgID, pData, dataLen);
 }
-void tlkmmi_test_modHandler(TLKMMI_TEST_MODTYPE_ENUM type)
-{
-	const tlkmmi_testModinf_t *pModinf = tlkmmi_test_getModinf(type);
-	if(pModinf == nullptr || pModinf->Handler == nullptr) return;
-	pModinf->Handler();
-}
 
 
 static const tlkmmi_testModinf_t *tlkmmi_test_getModinf(TLKMMI_TEST_MODTYPE_ENUM type)

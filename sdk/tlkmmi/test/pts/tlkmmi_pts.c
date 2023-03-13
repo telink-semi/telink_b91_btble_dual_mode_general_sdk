@@ -34,21 +34,18 @@
 
 
 extern int bth_hci_sendResetCmd(void);
-extern int tlkmmi_pts_recvMsgHandler(uint16 msgID, uint08 *pData, uint16 dataLen);
 
 static int  tlkmmi_pts_start(void);
 static int  tlkmmi_pts_pause(void);
 static int  tlkmmi_pts_close(void);
-static int  tlkmmi_pts_input(uint16 msgID, uint08 *pData, uint16 dataLen);
+static int  tlkmmi_pts_input(uint08 msgID, uint08 *pData, uint16 dataLen);
 static bool tlkmmi_pts_timer(tlkapi_timer_t *pTimer, uint32 userArg);
-static void tlkmmi_pts_handler(void);
 const tlkmmi_testModinf_t gTlkMmiPtsModinf = 
 {
 	tlkmmi_pts_start, //.Start
 	tlkmmi_pts_pause, //.Pause
 	tlkmmi_pts_close, //.Close
 	tlkmmi_pts_input, //.Input
-	tlkmmi_pts_handler, //.Handler
 };
 tlkmmi_pts_ctrl_t gTlkMmiPtsCtrl;
 
@@ -70,7 +67,7 @@ static int tlkmmi_pts_close(void)
 	bth_hci_sendResetCmd();
 	return TLK_ENONE;
 }
-static int tlkmmi_pts_input(uint16 msgID, uint08 *pData, uint16 dataLen)
+static int tlkmmi_pts_input(uint08 msgID, uint08 *pData, uint16 dataLen)
 {
 	if(msgID != TLKPRT_COMM_CMDID_TEST_PTS || dataLen == 0) return -TLK_EPARAM;
 	return tlkmmi_pts_recvMsgHandler(pData[0], pData+1, dataLen-1);
@@ -79,10 +76,6 @@ static bool tlkmmi_pts_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {
 	
 	return true;
-}
-static void tlkmmi_pts_handler(void)
-{
-	
 }
 
 

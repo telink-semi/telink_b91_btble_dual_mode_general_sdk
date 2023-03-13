@@ -41,17 +41,8 @@ static tlkdrv_mfi_t sTlkdrvMfiCtrl;
 
 int tlkdrv_mfi_init(void)
 {
-	uint32 chipID;
-	uint08 buffer[4];
 	
 	tmemset(&sTlkdrvMfiCtrl, 0, sizeof(tlkdrv_mfi_t));
-	
-	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_DeviceID, buffer, 4);
-	ARRAY_TO_UINT32H(buffer, 0, chipID);
-	if(chipID != TLKDRV_MFI_CHIP_ID){
-		tlkapi_trace(TLKDRV_MFI_DBG_FLAG, TLKDRV_MFI_DBG_SIGN, "tlkdrv_mfi_init check failure: %d - %d", TLKDRV_MFI_CHIP_ID, chipID);
-		return -TLK_EFAIL;
-	}
 	
 	sTlkdrvMfiCtrl.isInit = true;
 	
@@ -63,6 +54,19 @@ int tlkdrv_mfi_open(void)
 	if(!sTlkdrvMfiCtrl.isInit) return -TLK_ENOREADY;
 	if(sTlkdrvMfiCtrl.isOpen) return -TLK_EREPEAT;
 	sTlkdrvMfiCtrl.isOpen = true;
+
+	uint32 chipID;
+	uint08 buffer[4];
+	
+	tmemset(buffer, 0, sizeof(uint08)*4);
+	
+	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_DeviceID, buffer, 4);
+	ARRAY_TO_UINT32H(buffer, 0, chipID);
+
+	if(chipID != TLKDRV_MFI_CHIP_ID){
+		tlkapi_trace(TLKDRV_MFI_DBG_FLAG, TLKDRV_MFI_DBG_SIGN, "tlkdrv_mfi_open check failure: %d - %d", TLKDRV_MFI_CHIP_ID, chipID);
+		return -TLK_EFAIL;
+	}
 	return TLK_ENONE;
 }
 int tlkdrv_mfi_close(void)

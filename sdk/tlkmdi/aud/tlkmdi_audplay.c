@@ -82,9 +82,21 @@ int tlkmdi_audplay_start(uint16 handle, uint32 param)
 	if(sTlkMdiPlayCtrl.enable) return TLK_ENONE;
 	ret = tlkmdi_audio_sendStartEvt(TLKPTI_AUD_OPTYPE_PLAY, handle);
 	if(ret != TLK_ENONE) return ret;
-	if((param & 0x80000000) != 0) sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getNextIndex();
-	else if((param & 0x40000000) != 0) sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getPrevIndex();
-	else sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getPlayIndex();
+
+	if((param & 0x80000000) != 0){
+		sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getNextIndex();
+	}else if((param & 0x40000000) != 0){
+		sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getPrevIndex();
+	}else if((param & 0x20000000) != 0){
+		sTlkMdiPlayCtrl.playIndex = (param & 0xFFFF);
+		if(sTlkMdiPlayCtrl.playIndex >= tlkmdi_mp3_getPlayCount()) sTlkMdiPlayCtrl.playIndex = 0;
+	}else{
+		sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getPlayIndex();
+	}
+	if((param & 0x10000000) != 0){
+		
+	}
+	
 	return TLK_ENONE;
 }
 int tlkmdi_audplay_close(uint16 handle)
@@ -95,6 +107,10 @@ int tlkmdi_audplay_close(uint16 handle)
 	return TLK_ENONE;
 }
 
+bool tlkmdi_audplay_fPlay(bool isRewind, bool isStart)
+{
+	return false;
+}
 
 /******************************************************************************
  * Function: tlkmdi_audplay_toNext
@@ -317,6 +333,8 @@ static void tlkmdi_play_mp3Handler(void)
 			tlkapi_trace(TLKMDI_AUDPLAY_DBG_FLAG, TLKMDI_AUDPLAY_DBG_SIGN, "tlkmdi_play_mp3Handler: over");
 			if(tlkmdi_mp3_indexIsOver()){
 				tlkmdi_mp3_setPlayIndex(0);
+				sTlkMdiPlayCtrl.playIndex = 0;
+				tlkmdi_mp3_updataPlayNameByIndex(0);
 				sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_DONE;
 			}else{
 				sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_WAIT;

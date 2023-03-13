@@ -20,10 +20,12 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#ifndef TLKA_AGC_API_H
-#define TLKA_AGC_API_H
+#ifndef TLKALG_AGC_H
+#define TLKALG_AGC_H
 
 #if TLK_ALG_AGC_ENABLE
+
+
 
 /*! Construct version number from major/minor/micro values. */
 #define AGC_VERSION_INT(major, minor, micro) (((major) << 16) | ((minor) << 8) | (micro))
@@ -82,4 +84,6 @@ TLKA_AGC_Error tlka_agc_process(void *agcInst,
 
 #endif
 
+
 #endif //TLKALG_AGC_H
+

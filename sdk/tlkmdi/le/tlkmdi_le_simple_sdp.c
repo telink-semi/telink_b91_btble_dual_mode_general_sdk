@@ -27,6 +27,7 @@
 #include "tlkstk/inner/tlkstk_inner.h"
 #include "drivers.h"
 #include "tlkstk/ble/ble.h"
+#include "tlk_config.h"
 
 
 #if (BLE_MASTER_SIMPLE_SDP_ENABLE)
@@ -418,7 +419,7 @@ int		dev_char_info_store_peer_att_handle(dev_char_info_t* pdev_char)
 {
 	u8 mark;
 	u32 current_flash_adr;
-	for(current_flash_adr = FLASH_SDP_ATT_ADRRESS; current_flash_adr < (FLASH_SDP_ATT_ADRRESS + FLASH_SDP_ATT_MAX_SIZE); current_flash_adr += sizeof(dev_att_t) )
+	for(current_flash_adr = TLK_CFG_FLASH_LE_SDP_ATT_ADRR; current_flash_adr < (TLK_CFG_FLASH_LE_SDP_ATT_ADRR + TLK_CFG_FLASH_LE_SDP_ATT_SIZE); current_flash_adr += sizeof(dev_att_t) )
 	{
 		flash_read_page(current_flash_adr, 1, &mark);
 
@@ -474,7 +475,7 @@ int		dev_char_info_search_peer_att_handle_by_peer_mac(u8 adr_type, u8* addr, dev
 
 	u8 mark;
 	u32 current_flash_adr;
-	for(current_flash_adr = FLASH_SDP_ATT_ADRRESS; current_flash_adr < (FLASH_SDP_ATT_ADRRESS + FLASH_SDP_ATT_MAX_SIZE); current_flash_adr += sizeof(dev_att_t) )
+	for(current_flash_adr = TLK_CFG_FLASH_LE_SDP_ATT_ADRR; current_flash_adr < (TLK_CFG_FLASH_LE_SDP_ATT_ADRR + TLK_CFG_FLASH_LE_SDP_ATT_SIZE); current_flash_adr += sizeof(dev_att_t) )
 	{
 		flash_read_page(current_flash_adr, 1, &mark);
 
@@ -530,8 +531,8 @@ int dev_char_info_delete_peer_att_handle_by_peer_mac(u8 addrType, u8 *addr)
 {
 	dev_att_t dev_info;
 
-	for(u32 cur_flash_addr = FLASH_SDP_ATT_ADRRESS;
-		cur_flash_addr < FLASH_SDP_ATT_ADRRESS + FLASH_SDP_ATT_MAX_SIZE;
+	for(u32 cur_flash_addr = TLK_CFG_FLASH_LE_SDP_ATT_ADRR;
+		cur_flash_addr < TLK_CFG_FLASH_LE_SDP_ATT_ADRR + TLK_CFG_FLASH_LE_SDP_ATT_SIZE;
 		cur_flash_addr += sizeof(dev_att_t))
 	{
 		u8 flag;

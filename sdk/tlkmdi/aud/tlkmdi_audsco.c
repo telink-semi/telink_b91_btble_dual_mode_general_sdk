@@ -31,6 +31,8 @@
 #include "tlkmdi/aud/tlkmdi_audsco.h"
 #if TLK_ALG_EC_ENABLE
 #include "tlkalg/audio/ec/tlkalg_ec.h"
+#include "tlkalg/audio/aec/tlkalg_aec_ns.h"
+#include "tlkalg/audio/agc/tlkalg_agc.h"
 #endif
 #if TLK_ALG_AGC_ENABLE
 #include "tlkalg/audio/agc/tlkalg_agc.h"
@@ -40,6 +42,9 @@
 #include "tlkdev/sys/tlkdev_codec.h"
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlksys/prt/tlkpto_comm.h"
+
+
+#define TLKMDI_AUDSCO_DOUBLE_CHANNEL_ENABLE     1
 
 
 #define TLKMDI_AUDSCO_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SCO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
@@ -560,7 +565,7 @@ static int tlkmdi_sco_plcDecode (uint08 *ps, int len, sint16 *pd, int plc)
 		my_voice_plc = 2;
 		//tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "voice plc: %d %d", sTlkMdiScoCtrl.spk_enc_rptr, my_voice_plc);
 	}
-	sTlkMdiScoCtrl.dec_func (ps, 60, pd);
+	sTlkMdiScoCtrl.dec_func(ps, 60, pd);
 
 	if(my_voice_plc)
 	{
@@ -571,7 +576,7 @@ static int tlkmdi_sco_plcDecode (uint08 *ps, int len, sint16 *pd, int plc)
 			pd[i] = (my_voice_buff[119 - i] * (119 - i) + pdd[i] * i) / 120;
 		}
 	}
-	for (int i=0; i<120; i++)
+	for(int i=0; i<120; i++)
 	{
 		my_voice_buff[i] = pd[i];
 	}

@@ -361,7 +361,7 @@ int tlkmdi_pwmled_insert(uint08 ledID, uint32 ioPort, uint08 pwmID, bool isInver
 	pUnit->pwmID = pwmID + 1;
 	pUnit->ioPort = ioPort;
 	
-	pwm_set_pin(pUnit->ioPort, pwmID + 1);
+	pwm_set_pin(pUnit->ioPort);
 	if(isInvert) pwm_n_invert_en(pUnit->pwmID-1);
 	pwm_set_clk((uint08)(sys_clk.pclk*1000*1000/TLKMDI_LED_PWM_PCLK_SPEED-1));
 	pwm_set_tcmp(pUnit->pwmID-1, TLKMDI_LED_PWM_CLOCK_10US);

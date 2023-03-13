@@ -32,6 +32,15 @@
 
 #define TLKMMI_LEMGR_PROCID         TLKTSK_PROCID_STACK
 
+#ifndef TLK_STK_LEOTA_EN
+#define TLK_STK_LEOTA_EN             (0 && TLK_STK_LE_ENABLE)
+#endif
+
+#ifndef TLKMMI_LEOTA_ENABLE
+#define TLKMMI_LEOTA_ENABLE          (1 && TLKMMI_LEMGR_ENABLE && TLK_STK_LEOTA_EN)
+#endif
+
+
 
 int tlkmmi_lemgr_init(void);
 

@@ -42,6 +42,8 @@
 #endif
 
 
+#define TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE     1
+
 #define TLKMDI_AUDSNK_VOLUME_STEP    3
 #define TLKMDI_AUDSNK_WAIT_FRAMES    5
 
@@ -52,6 +54,7 @@ extern void bt_ll_schedule_acl_bandwith_policy_enter(uint16_t con_handle);
 extern void bt_ll_schedule_acl_bandwith_policy_exit(void);
 
 static int tlkmdi_audsnk_statusChangedEvt(uint08 *pData, uint16 dataLen);
+static int tlkmdi_audsnk_avrcpStatusChangedEvt(uint08 *pData, uint16 dataLen);
 
 #if (TLKBTP_CFG_A2DPSNK_ENABLE)
 static bool tlkmdi_snk_initBuffer(bool enable);
@@ -111,6 +114,7 @@ int tlkmdi_audsnk_init(void)
 	btp_a2dpsnk_regRecvDataCB(tlkmdi_snk_addEncFrame);
 	#endif
 	btp_event_regCB(BTP_EVTID_A2DPSNK_STATUS_CHANGED, tlkmdi_audsnk_statusChangedEvt);
+	btp_event_regCB(BTP_EVTID_AVRCP_STATUS_CHANGED, tlkmdi_audsnk_avrcpStatusChangedEvt);
 	
 	return TLK_ENONE;
 }
@@ -127,6 +131,19 @@ static int tlkmdi_audsnk_statusChangedEvt(uint08 *pData, uint16 dataLen)
 	}
 	return TLK_ENONE;
 }
+static int tlkmdi_audsnk_avrcpStatusChangedEvt(uint08 *pData, uint16 dataLen)
+{
+	btp_avrcpStatusChangeEvt_t *pEvt;
+	pEvt = (btp_avrcpStatusChangeEvt_t*)pData;
+	if(!pEvt->isNoty) return TLK_ENONE;
+	if(pEvt->status == BTP_AVRCP_PLAY_STATE_PLAYING){
+		tlkmdi_audio_sendStartEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
+	}else if(pEvt->status == BTP_AVRCP_PLAY_STATE_PAUSED || pEvt->status == BTP_AVRCP_PLAY_STATE_STOPPED){
+		tlkmdi_audsnk_switch(pEvt->handle, TLK_STATE_CLOSED);
+		tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
+	}
+	return TLK_ENONE;
+}
 
 int tlkmdi_audsnk_start(uint16 handle, uint32 param)
 {
@@ -138,10 +155,6 @@ int tlkmdi_audsnk_start(uint16 handle, uint32 param)
 int tlkmdi_audsnk_close(uint16 handle)
 {
 	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_close ..");
-//	if(!sTlkMdiSnkCtrl.enable) return -TLK_EREPEAT;
-//	tlkmdi_audsnk_switch(handle, TLK_STATE_CLOSED);
-//	btp_avrcp_sendKeyPress(handle, BTP_AVRCP_KEYID_STOP);
-//	btp_avrcp_sendKeyRelease(handle, BTP_AVRCP_KEYID_STOP);
 	btp_avrcp_sendKeyPress(handle, BTP_AVRCP_KEYID_PAUSE);
 	btp_avrcp_sendKeyRelease(handle, BTP_AVRCP_KEYID_PAUSE);
 
@@ -156,6 +169,24 @@ void tlkmdi_audsnk_timer(void)
 	}
 }
 
+bool tlkmdi_audsnk_fPlay(bool isRewind, bool isStart)
+{
+	if(!sTlkMdiSnkCtrl.enable || sTlkMdiSnkCtrl.handle == 0){
+		return false;
+	}
+	if(isRewind){
+//		if(isStart) btp_avrcp_sendKeyPress(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_BACKWARD);
+//		else btp_avrcp_sendKeyRelease(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_BACKWARD);
+		if(isStart) btp_avrcp_sendKeyPress(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_REWIND);
+		else btp_avrcp_sendKeyRelease(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_REWIND);
+	}else{
+//		if(isStart) btp_avrcp_sendKeyPress(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_FORWARD);
+//		else btp_avrcp_sendKeyRelease(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_FORWARD);
+		if(isStart) btp_avrcp_sendKeyPress(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_FAST_FORWARD);
+		else btp_avrcp_sendKeyRelease(sTlkMdiSnkCtrl.handle, BTP_AVRCP_KEYID_FAST_FORWARD);
+	}
+	return true;
+}
 bool tlkmdi_audsnk_toNext(void)
 {
 	if(!sTlkMdiSnkCtrl.enable) return -TLK_EREPEAT;
@@ -197,17 +228,6 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 			tlkapi_error(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_switch: failure - get sample rate");
 			return false;
 		}
-		{
-			uint08 buffLen = 0;
-			uint08 buffer[6];
-			buffer[buffLen++] = (handle & 0xFF);
-			buffer[buffLen++] = (handle & 0xFF00) >> 8;
-			buffer[buffLen++] = 0x00;
-			buffer[buffLen++] = tlkmdi_audio_getMusicBtpVolume(true); //IOS Volume
-			buffer[buffLen++] = tlkmdi_audio_getMusicBtpVolume(false); //Android Volume
-			tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_switch: Set Volume");
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
-		}
 	}
 	
 	isSucc = tlkmdi_snk_initBuffer(enable);
@@ -217,7 +237,7 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 		return false;
 	}
     if(status == TLK_STATE_CLOSED && (btp_a2dpsnk_getStatus(handle) == BTP_A2DP_STATUS_STREAM)){
-        tlkmdi_audsnk_close(handle);
+//        tlkmdi_audsnk_close(handle);
 	}
 	tlkdev_codec_muteSpk();
 	
@@ -231,9 +251,13 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 	if(enable){
 		bt_ll_schedule_acl_bandwith_policy_enter(sTlkMdiSnkCtrl.handle);
 		sTlkMdiSnkCtrl.sampleRate = sampleRate;
+		#if (TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE)
+		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_STEREO, TLKDEV_CODEC_BITDEPTH_16, sampleRate);
+		#else
 		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sampleRate);
+		#endif
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SNK, TLK_STATE_OPENED);
-		tlkdev_codec_setSpkOffset(640);
+		tlkdev_codec_setSpkOffset(320);
 	}else{
 		bt_ll_schedule_acl_bandwith_policy_exit();
 		tlkdev_codec_close();
@@ -380,13 +404,17 @@ static void tlkmdi_snk_spkHandler(void)
 
 	while(true){
 		length = 0;
-		if(tlkdev_codec_getSpkIdleLen() > 512){
+		if(tlkdev_codec_getSpkIdleLen() > 1024){
 			length = tlkmdi_snk_getPlaybackData((uint08*)spTlkMdiSnkTmpBuff); //length=256
 		}
 		if(length == 0) break;
 		
 		#if (TLK_ALG_EQ_ENABLE)
+		#if (TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE)
+		tlkalg_eq_procss(TLKALG_EQ_TYPE_MUSIC, TLKALG_EQ_CHANNEL_STEREO, sTlkMdiSnkCtrl.sampleRate, (sint16*)spTlkMdiSnkTmpBuff, 64*2);
+		#else
 		tlkalg_eq_procss(TLKALG_EQ_TYPE_MUSIC, TLKALG_EQ_CHANNEL_STEREO, sTlkMdiSnkCtrl.sampleRate, (sint16*)spTlkMdiSnkTmpBuff, 64);
+		#endif
 		#endif
 		
 		volume = tlkmdi_audio_getMusicCalVolume(true);
@@ -437,12 +465,20 @@ void tlkmdi_snk_addEncFrame(uint08 *pData, uint16 dataLen)
 		sampleRate = sTlkMdiSnkCtrl.sampleRate;
 		if(sTlkMdiSnkCtrl.sampleRate != sampleRate){
 			tlkdev_codec_close();
-			tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sTlkMdiSnkCtrl.sampleRate);		
-			tlkdev_codec_setSpkOffset(640);
+			#if (TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE)
+			tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_STEREO, TLKDEV_CODEC_BITDEPTH_16, sTlkMdiSnkCtrl.sampleRate);
+			#else
+			tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_LEFT, TLKDEV_CODEC_BITDEPTH_16, sTlkMdiSnkCtrl.sampleRate);
+			#endif
+			tlkdev_codec_setSpkOffset(320);
 		}
 		sTlkMdiSnkCtrl.encParma = param;
 		sTlkMdiSnkCtrl.firstInit = false;
+		#if (TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE)
+		sTlkMdiSnkCtrl.decFunc = (tlkmdi_snk_decFunc)tlkalg_sbc_dec_stereo;
+		#else
 		sTlkMdiSnkCtrl.decFunc = (tlkmdi_snk_decFunc)tlkalg_sbc_dec_channel0;
+		#endif
 //		tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "==Init Param: %d %d %d %d", sTlkMdiSnkCtrl.sampleRate, sTlkMdiSnkCtrl.frameSize, sTlkMdiSnkCtrl.frameSample, 0);
 	}
 	
@@ -527,7 +563,11 @@ static int tlkmdi_snk_parseSbcParam(uint08 *data)
 
 	sTlkMdiSnkCtrl.frameSize  = frameSize;
 	sTlkMdiSnkCtrl.sampleRate = sampleRate;
+	#if (TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE)
+	sTlkMdiSnkCtrl.frameSample = 256;
+	#else
 	sTlkMdiSnkCtrl.frameSample = 128;
+	#endif
 	
 	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "<enc: sbc param - %d %d %d %d>", sampleRate, sbcBlock, subBand, bitPool);
 	tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "<enc: sbc fsize - %d>", frameSize);

@@ -79,6 +79,8 @@ void tlkmdi_audsrc_timer(void);
 *******************************************************************************/
 bool tlkmdi_audsrc_switch(uint16 handle, uint08 status);
 
+bool tlkmdi_audsrc_fPlay(bool isRewind, bool isStart);
+
 bool tlkmdi_audsrc_toNext(void);
 bool tlkmdi_audsrc_toPrev(void);
 

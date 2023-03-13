@@ -65,7 +65,7 @@ typedef struct{
 
 
 
-int bth_func_call(uint16 funcID, uint08 *pData, uint16 dataLen);
+int  bth_func_call(uint16 funcID, uint08 *pData, uint16 dataLen);
 void bth_func_setAclHandle(uint16 aclHandle);
 void bth_func_setScoHandle(uint16 scoHandle);
 void bth_func_setPeerAddr(uint08 peerAddr[6]);

@@ -171,9 +171,9 @@ static void tlkmmi_lemgr_recvConnectCmdDeal(uint08 *pData, uint08 dataLen)
 static void tlkmmi_lemgr_recvDisconnCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	if(tlkmmi_lemgr_disconn(0, nullptr) == TLK_ENONE){
-		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_CONNECT, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_DISCONN, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 	}else{
-		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_CONNECT, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
+		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_DISCONN, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFAIL, nullptr, 0);
 	}
 }
 static void tlkmmi_lemgr_recvStartAdvCmdDeal(uint08 *pData, uint08 dataLen)
@@ -262,17 +262,17 @@ static void tlkmmi_lemgr_recvSetAddrCmdDeal(uint08 *pData, uint08 dataLen)
 static void tlkmmi_lemgr_recvVolIncCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	if(tlkmmi_lemgr_volumeInc()){
-		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_GET_CDL, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_VOL_INC, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 	}else{
-		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_GET_CDL, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOREADY, nullptr, 0);
+		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_VOL_INC, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOREADY, nullptr, 0);
 	}
 }
 static void tlkmmi_lemgr_recvVolDecCmdDeal(uint08 *pData, uint08 dataLen)
 {
 	if(tlkmmi_lemgr_volumeDec()){
-		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_GET_CDL, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_VOL_DEC, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 	}else{
-		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_GET_CDL, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOREADY, nullptr, 0);
+		tlkmmi_lemgr_sendCommRsp(TLKPRT_COMM_CMDID_LE_VOL_DEC, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_ENOREADY, nullptr, 0);
 	}
 }
 static void tlkmmi_lemgr_recvGetPDLCmdDeal(uint08 *pData, uint08 dataLen)

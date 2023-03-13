@@ -98,6 +98,16 @@ void tlkmmi_audio_modinfTimer(TLKPTI_AUD_OPTYPE_ENUM optype)
 	}
 }
 
+bool tlkmmi_audio_modinfFPlay(TLKPTI_AUD_OPTYPE_ENUM optype, bool isRewind, bool isStart)
+{
+	const tlkmmi_audio_modinf_t *pModinf;
+	pModinf = tlkmmi_audio_getModinf(optype);
+	if(pModinf != nullptr && pModinf->FPlay != nullptr){
+		return pModinf->FPlay(isRewind, isStart);
+	}
+	return false;
+}
+
 /******************************************************************************
  * Function: tlkmmi_audio_modinfSwitch
  * Descript: Call the switching interface of the corresponding audio module to
@@ -215,6 +225,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioToneModinf = {
 	tlkmdi_audtone_start, //Start
 	tlkmdi_audtone_close, //Close
 	nullptr, //Timer
+	nullptr, //FPlay
 	nullptr, //ToNext
 	nullptr, //ToNext
 	tlkmdi_audtone_switch, //Switch
@@ -228,6 +239,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioPlayModinf = {
 	tlkmdi_audplay_start, //Start
 	tlkmdi_audplay_close, //Close
 	nullptr, //Timer
+	tlkmdi_audplay_fPlay, //FPlay
 	tlkmdi_audplay_toNext, //ToNext
 	tlkmdi_audplay_toPrev, //ToNext
 	tlkmdi_audplay_switch, //Switch
@@ -241,6 +253,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioHfModinf = {
 	nullptr, //Start
 	nullptr, //Close
 	nullptr, //Timer
+	nullptr, //FPlay
 	nullptr, //ToNext
 	nullptr, //ToNext
 	tlkmdi_audhfp_switch, //Switch
@@ -252,6 +265,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioAgModinf = {
 	nullptr, //Start
 	nullptr, //Close
 	nullptr, //Timer
+	nullptr, //FPlay
 	nullptr, //ToNext
 	nullptr, //ToNext
 	tlkmdi_audhfp_switch, //Switch
@@ -265,6 +279,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioScoModinf = {
 	nullptr, //Start
 	nullptr, //Close
 	nullptr, //Timer
+	nullptr, //FPlay
 	nullptr, //ToNext
 	nullptr, //ToNext
 	tlkmdi_audsco_switch, //Switch
@@ -278,6 +293,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioSrcModinf = {
 	tlkmdi_audsrc_start, //Start
 	tlkmdi_audsrc_close, //Close
 	tlkmdi_audsrc_timer, //Timer
+	tlkmdi_audsrc_fPlay, //FPlay
 	tlkmdi_audsrc_toNext, //ToNext
 	tlkmdi_audsrc_toPrev, //ToNext
 	tlkmdi_audsrc_switch, //Switch
@@ -291,6 +307,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioSnkModinf = {
 	tlkmdi_audsnk_start, //Start
 	tlkmdi_audsnk_close, //Close
 	tlkmdi_audsnk_timer, //Timer
+	tlkmdi_audsnk_fPlay, //FPlay
 	tlkmdi_audsnk_toNext, //ToNext
 	tlkmdi_audsnk_toPrev, //ToNext
 	tlkmdi_audsnk_switch, //Switch
@@ -304,6 +321,7 @@ static const tlkmmi_audio_modinf_t sTlkMMidAudioUacModinf = {
 	tlkmdi_auduac_start, //Start
 	tlkmdi_auduac_close, //Close
 	tlkmdi_auduac_timer, //Timer
+	nullptr, //FPlay
 	nullptr, //ToNext
 	nullptr, //ToNext
 	tlkmdi_auduac_switch, //Switch

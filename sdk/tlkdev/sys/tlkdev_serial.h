@@ -30,7 +30,7 @@
 #define TLKDEV_SERIAL_PORT               UART1
 #define TLKDEV_SERIAL_TX_PIN             UART1_TX_PD6
 #define TLKDEV_SERIAL_RX_PIN             UART1_RX_PD7
-#define TLKDEV_SERIAL_BAUDRATE           2000000//921600//115200
+#define TLKDEV_SERIAL_BAUDRATE           1500000//921600//115200
 
 #define TLKDEV_SERIAL_DMA_ENABLE         1
 
@@ -53,6 +53,12 @@ void tlkdev_serial_wakeup(void);
 void tlkdev_serial_handler(void);
 
 int  tlkdev_serial_send(uint08 *pData, uint16 dataLen);
+
+uint tlkdev_serial_sfifoSingleLen(void);
+bool tlkdev_serial_sfifoIsMore60(uint16 dataLen);
+bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
+
+void tlkdev_serial_setRecvFifo(tlkapi_qfifo_t *pFifo);
 void tlkdev_serial_setBaudrate(uint32 baudrate);
 
 

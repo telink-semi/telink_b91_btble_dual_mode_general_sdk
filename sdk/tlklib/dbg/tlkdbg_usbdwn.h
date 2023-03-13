@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     tlkmmi_rdtShell.h
+ * @file     tlkdbg_usbdwn.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -20,18 +20,23 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#ifndef TLKMMI_RDT_SHELL_H
-#define TLKMMI_RDT_SHELL_H
+#ifndef TLKDBG_USB_DWN_H
+#define TLKDBG_USB_DWN_H
 
-#if (TLK_TEST_RDT_ENABLE)
-
-
-
+#if (TLK_CFG_DBG_ENABLE)
+#if (TLKDBG_CFG_USB_DWN_ENABLE)
 
 
 
+void tlkdbg_usbdwn_init(void);
 
-#endif //#if (TLK_TEST_RDT_ENABLE)
+void tlkdbg_usbdwn_handler(void);
 
-#endif //TLKMMI_RDT_SHELL_H
+
+
+
+#endif //#if (TLKDBG_CFG_USB_DWN_ENABLE)
+#endif //#if (TLK_CFG_DBG_ENABLE)
+
+#endif //TLKDBG_USB_DWN_H
 

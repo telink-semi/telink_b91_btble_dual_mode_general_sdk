@@ -39,11 +39,10 @@ typedef enum
 }TLKMMI_TEST_MODTYPE_ENUM;
 
 
-int  tlkmmi_test_modStart(TLKMMI_TEST_MODTYPE_ENUM type);
-int  tlkmmi_test_modPause(TLKMMI_TEST_MODTYPE_ENUM type);
-int  tlkmmi_test_modClose(TLKMMI_TEST_MODTYPE_ENUM type);
-int  tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID, uint08 *pData, uint16 dataLen);
-void tlkmmi_test_modHandler(TLKMMI_TEST_MODTYPE_ENUM type);
+int tlkmmi_test_modStart(TLKMMI_TEST_MODTYPE_ENUM type);
+int tlkmmi_test_modPause(TLKMMI_TEST_MODTYPE_ENUM type);
+int tlkmmi_test_modClose(TLKMMI_TEST_MODTYPE_ENUM type);
+int tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID, uint08 *pData, uint16 dataLen);
 
 
 

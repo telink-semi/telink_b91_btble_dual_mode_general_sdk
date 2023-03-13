@@ -26,13 +26,14 @@
 #if (TLKMMI_TEST_ENABLE)
 
 
+#include "tlkmmi_testAdapt.h"
 
 typedef struct
 {
 	int(*Start)(void);
 	int(*Pause)(void);
 	int(*Close)(void);
-	int(*Input)(uint16 msgID, uint08 *pData, uint16 dataLen);
+	int(*Input)(uint08 msgID, uint08 *pData, uint16 dataLen);
 	void(*Handler)(void);
 }tlkmmi_testModinf_t;
 

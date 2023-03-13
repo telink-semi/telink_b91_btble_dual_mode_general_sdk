@@ -41,6 +41,7 @@ static void tlkmmi_btmgr_recvGetNameCmdDeal(void);
 static void tlkmmi_btmgr_recvGetAddrCmdDeal(void);
 static void tlkmmi_btmgr_recvSetNameCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvSetAddrCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_btmgr_recvGetLinkKeyCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvVolIncCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvVolDecCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvGetPDLCmdDeal(uint08 *pData, uint08 dataLen);
@@ -56,6 +57,9 @@ static void tlkmmi_btmgr_recvDiscProfCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvStartPairCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_btmgr_recvClosePairCmdDeal(uint08 *pData, uint08 dataLen);
 
+
+extern volatile uint08 AAAA_linkKey[];
+extern uint08 *bth_device_getLinkKey(uint08 *pDevAddr);
 
 /******************************************************************************
  * Function: tlkmmi_btmgr_sendAclConnectEvt
@@ -227,6 +231,8 @@ int tlkmmi_btmgr_outerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		tlkmmi_btmgr_recvSetNameCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_SET_ADDR){
 		tlkmmi_btmgr_recvSetAddrCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_BT_GET_LINKEY){
+		tlkmmi_btmgr_recvGetLinkKeyCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_VOL_INC){
 		tlkmmi_btmgr_recvVolIncCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_BT_VOL_DEC){
@@ -304,6 +310,26 @@ static void tlkmmi_btmgr_recvSetAddrCmdDeal(uint08 *pData, uint08 dataLen)
 	}
 	tlkmmi_btmgr_setAddr(pData);
 	tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_SET_ADDR, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
+}
+static void tlkmmi_btmgr_recvGetLinkKeyCmdDeal(uint08 *pData, uint08 dataLen)
+{
+	uint08 *pLinkKey;
+	if(dataLen == 0){
+		pLinkKey = (uint08*)AAAA_linkKey;
+	}else if(dataLen < 6){
+		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_GET_LINKEY, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EFORMAT, nullptr, 0);
+		return;
+	}else{
+		pLinkKey = bth_device_getLinkKey(pData);
+	}
+	if(pLinkKey == nullptr){
+		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_GET_LINKEY, TLKPRT_COMM_RSP_STATUE_FAILURE,
+			TLK_EFAIL, nullptr, 0);
+	}else{
+		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_GET_LINKEY, TLKPRT_COMM_RSP_STATUE_SUCCESS,
+			TLK_ENONE, pLinkKey, 16);
+	}
 }
 
 static void tlkmmi_btmgr_recvVolIncCmdDeal(uint08 *pData, uint08 dataLen)

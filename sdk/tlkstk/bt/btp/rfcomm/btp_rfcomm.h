@@ -25,6 +25,18 @@
 #define BTP_RFCOMM_H
 
 
+//DLC parameter negotiation (PN)
+//Power Saving Control (PSC)
+//Multiplexer close down (CLD)
+//Test Command (Test)
+//Flow Control On Command (FCon)
+//Flow Control Off Command (FCoff)
+//Modem Status Command (MSC)
+//Non Supported Command Response (NSC) 
+//Remote Port Negotiation Command (RPN)
+//Remote Line Status Command(RLS)
+//Service Negotiation Command (SNC)
+
 
 #define RFCOMM_DEFAULT_CREDITS	0
 #define RFCOMM_RX_CREDITS_MAX	100
@@ -711,6 +723,23 @@ int btp_rfcomm_getMtuSize(uint08 rfchandle, uint16 *pMtuSize);
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int btp_rfcomm_getChannelID(uint08 rfchandle, uint08 *pChannel);
+
+/******************************************************************************
+ * Function: btp_rfcomm_sendRemoteLineStatusCmd
+ * Descript: This interface be used by profile or user to send RLS CMD. 
+ * Params:
+ *     @rfchandle[IN]---The rfcomm channel handle.
+ *     @status[IN]--The L1-L4 bits indicates the Line Status. 
+ *         If L1 is set to 0, no error have occurred. 
+ *           L1 = 1 indicates the following errors:
+ *         L2-L4:
+ *           100 Overrun Error - Received character overwrote an unread character
+ *           010 Parity Error - Received character's parity was incorrect
+ *           001 Framing Error - a character did not terminate with a stop bit.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+int btp_rfcomm_sendRemoteLineStatusCmd(uint08 rfcHandle, uint08 status);
 
 /******************************************************************************
  * Function: Rfcomm Destroy interface

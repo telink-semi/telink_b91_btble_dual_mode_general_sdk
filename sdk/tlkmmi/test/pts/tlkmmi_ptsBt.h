@@ -28,7 +28,7 @@
 
 #define TLKMMI_BTPTS_DEVICE_CLASS     0x240404//0x5a020c
 
-#define TLKMMI_BTPTS_BDADDR_DEF       {0xCC, 0xC7, 0xCC, 0xC7, 0x67, 0x96}
+#define TLKMMI_BTPTS_BDADDR_DEF       {0x66, 0x66, 0x55, 0x55, 0x11, 0x11}
 #define TLKMMI_BTPTS_BTNAME_DEF       "Telink-Pts-Host"
 
 

@@ -277,6 +277,7 @@ void tlkmdi_mp3_startUpdate(void);
 void tlkmdi_mp3_updateEnable(bool enable);
 void tlkmdi_mp3_updatePlayName(uint08 *pFName, bool isForce);
 void tlkmdi_mp3_updatePlayLens(uint32 playLen, bool isForce);
+void tlkmdi_mp3_updataPlayNameByIndex(uint16 index);
 
 
 

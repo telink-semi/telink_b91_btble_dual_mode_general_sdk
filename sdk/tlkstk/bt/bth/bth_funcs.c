@@ -21,9 +21,9 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "types.h"
-#include "tlksys/prt/tlkpto_comm.h"
 #if (TLK_STK_BTH_ENABLE && TLK_CFG_TEST_ENABLE)
+#include "tlksys/prt/tlkpto_comm.h"
+#include "types.h"
 #include "bth_stdio.h"
 #include "bth_l2cap.h"
 #include "bth_signal.h"

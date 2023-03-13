@@ -178,7 +178,7 @@ void tlkdbg_gsuvcd_word(uint08 id, uint16 value)
 	uint08 buffLen = 0;
 	uint08 buffer[4];
 	uint32 r = core_disable_interrupt();
-	buffer[buffLen++] = 0x80 | (id&63);
+	buffer[buffLen++] = 0xc0 | (id&63);
 	buffer[buffLen++] = value & 0xFF;
 	buffer[buffLen++] = (value & 0xFF00) >> 8;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);

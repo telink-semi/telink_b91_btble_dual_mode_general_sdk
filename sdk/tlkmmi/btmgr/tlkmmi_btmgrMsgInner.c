@@ -35,6 +35,7 @@
 
 static int tlkmmi_btmgr_setHfpVolumeDeal(uint08 *pData, uint08 dataLen);
 static int tlkmmi_btmgr_setAvrcpVolumeDeal(uint08 *pData, uint08 dataLen);
+static int tlkmmi_btmgr_setAvrcpDefaultVolumeDeal(uint08 *pData, uint08 dataLen);
 
 
 /******************************************************************************
@@ -87,6 +88,8 @@ int tlkmmi_btmgr_innerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		return tlkmmi_btmgr_setHfpVolumeDeal(pData, dataLen);
 	}else if(msgID == TLKPTI_BT_MSGID_SET_AVRCP_VOLUME){
 		return tlkmmi_btmgr_setAvrcpVolumeDeal(pData, dataLen);
+	}else if(msgID == TLKPTI_BT_MSGID_SET_AVRCP_DEF_VOL){
+		return tlkmmi_btmgr_setAvrcpDefaultVolumeDeal(pData, dataLen);
 	}
 	
 	return -TLK_ENOSUPPORT;
@@ -118,6 +121,14 @@ static int tlkmmi_btmgr_setAvrcpVolumeDeal(uint08 *pData, uint08 dataLen)
 	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_setAvrcpVolumeDeal: %d-%d-%d",
 		iosVolume, androidVolume, volume);
 	return btp_avrcp_setVolume(handle, volume, isSrc);
+#else
+	return -TLK_ENOSUPPORT;
+#endif
+}
+static int tlkmmi_btmgr_setAvrcpDefaultVolumeDeal(uint08 *pData, uint08 dataLen)
+{
+#if (TLK_STK_BTP_ENABLE)
+	return btp_avrcp_setDefaultVolume(pData[0]);
 #else
 	return -TLK_ENOSUPPORT;
 #endif

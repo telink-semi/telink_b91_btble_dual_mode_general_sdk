@@ -44,15 +44,19 @@
 
 /* BLE smp trans.. log enable */
 #ifndef	SMP_DBG_EN
-#define SMP_DBG_EN												0
+#define SMP_DBG_EN												((TLK_MAJOR_DBGID_LEH << 24) | (TLK_MINOR_DBGID_LEH_SMP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
 #ifndef	DBG_SLAVE_CONNECT_EN
-#define DBG_SLAVE_CONNECT_EN									0
+#define DBG_SLAVE_CONNECT_EN									((TLK_MAJOR_DBGID_LEC << 24) | (TLK_MINOR_DBGID_LEC_S << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#endif
+
+#ifndef	DBG_CONNECT_EN
+#define DBG_CONNECT_EN									       ((TLK_MAJOR_DBGID_LEC << 24) | (TLK_MINOR_DBGID_LEC_CON << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
 #ifndef	DBG_INITIATE_EN
-#define DBG_INITIATE_EN											0
+#define DBG_INITIATE_EN											((TLK_MAJOR_DBGID_LEC << 24) | (TLK_MINOR_DBGID_LEC_INIT << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
 #ifndef	TX_PUSH_DATA_LOG
@@ -60,7 +64,7 @@
 #endif
 
 #ifndef	RX_L2CAP_DATA_LOG
-#define RX_L2CAP_DATA_LOG										0
+#define RX_L2CAP_DATA_LOG										((TLK_MAJOR_DBGID_LEH << 24) | (TLK_MINOR_DBGID_LEH_L2CAP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
 
@@ -74,7 +78,7 @@
 
 
 #ifndef	DBG_BOUNDARY_RX
-#define DBG_BOUNDARY_RX											0
+#define DBG_BOUNDARY_RX											((TLK_MAJOR_DBGID_LEC << 24) | (TLK_MINOR_DBGID_LEC_SCH << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
 
@@ -83,7 +87,7 @@
 #endif
 
 #ifndef	DBG_MTUREQ_DUMP_EN
-#define DBG_MTUREQ_DUMP_EN										0
+#define DBG_MTUREQ_DUMP_EN										((TLK_MAJOR_DBGID_LEH << 24) | (TLK_MINOR_DBGID_LEH_L2CAP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #endif
 
 #ifndef	DBG_DLE_DUMP_EN
@@ -107,17 +111,9 @@
 #define DEB_CIG_SLV_EN											0
 #endif
 
-#ifndef	DEB_BIG_BCST_EN
-#define DEB_BIG_BCST_EN											0
-#endif
 
-#ifndef	DEB_BIG_SYNC_EN
-#define DEB_BIG_SYNC_EN											0
-#endif
 
-#ifndef DEB_ISO_TEST_EN
-#define	DEG_ISO_TEST_EN											0
-#endif
+
 
 
 #if (DBG_SLAVE_CONN_UPDATE)

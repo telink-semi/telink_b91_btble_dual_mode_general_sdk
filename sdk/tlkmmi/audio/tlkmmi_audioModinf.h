@@ -32,6 +32,7 @@ typedef struct{
 	int (*Start)(uint16 handle, uint32 param);
 	int (*Close)(uint16 handle);
 	void(*Timer)(void);
+	bool(*FPlay)(bool isRewind, bool isStart); //FastPlay
 	bool(*ToNext)(void);
 	bool(*ToPrev)(void);
 	bool(*Switch)(uint16 handle, uint08 status);
@@ -76,6 +77,8 @@ int tlkmmi_audio_modinfClose(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle);
  * Others: None.
 *******************************************************************************/
 void tlkmmi_audio_modinfTimer(TLKPTI_AUD_OPTYPE_ENUM optype);
+
+bool tlkmmi_audio_modinfFPlay(TLKPTI_AUD_OPTYPE_ENUM optype, bool isRewind, bool isStart);
 
 /******************************************************************************
  * Function: tlkmmi_audio_modinfSwitch

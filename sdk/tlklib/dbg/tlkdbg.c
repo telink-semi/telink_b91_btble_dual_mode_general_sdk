@@ -34,6 +34,9 @@
 #if (TLKDBG_CFG_USB_VCD_ENABLE)
 #include "tlkdbg_usbvcd.h"
 #endif
+#if (TLKDBG_CFG_USB_DWN_ENABLE)
+#include "tlkdbg_usbdwn.h"
+#endif
 #if (TLKDBG_CFG_GSU_LOG_ENABLE)
 #include "tlkdbg_gsulog.h"
 #endif
@@ -44,7 +47,10 @@
 #include "tlkdbg_hpulog.h"
 #endif
 #if (TLKDBG_CFG_HPU_VCD_ENABLE)
-#include "tlkdbg_hputvcd.h"
+#include "tlkdbg_hpuvcd.h"
+#endif
+#if (TLKDBG_CFG_HPU_DWN_ENABLE)
+#include "tlkdbg_hpudwn.h"
 #endif
 #if (TLKDBG_CFG_HWU_LOG_ENABLE)
 #include "tlkdbg_hwulog.h"
@@ -67,6 +73,9 @@ void tlkdbg_init(void)
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)
 	tlkdbg_usbvcd_init();
 	#endif
+	#if (TLKDBG_CFG_USB_DWN_ENABLE)
+	tlkdbg_usbdwn_init();
+	#endif
 	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
 	tlkdbg_gsulog_init();
 	#endif
@@ -78,6 +87,9 @@ void tlkdbg_init(void)
 	#endif
 	#if (TLKDBG_CFG_HPU_VCD_ENABLE)
 	tlkdbg_hpuvcd_init();
+	#endif
+	#if (TLKDBG_CFG_HPU_DWN_ENABLE)
+	tlkdbg_hpudwn_init();
 	#endif
 	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
 	tlkdbg_hwulog_init();

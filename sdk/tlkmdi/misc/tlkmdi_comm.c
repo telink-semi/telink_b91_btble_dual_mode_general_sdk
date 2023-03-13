@@ -34,6 +34,9 @@
 #define TLKMDI_COMM_DBG_SIGN       "[MDI]"
 
 
+#if (TLK_DEV_SERIAL_ENABLE)
+extern uint tlkdev_serial_sfifoSingleLen(void);
+#endif
 static void tlkmdi_comm_makeRecvFrame(uint08 rbyte);
 static int  tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 
@@ -41,7 +44,9 @@ static int  tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 head
 typedef struct{
 	uint08 sendNumb;
 	uint08 recvNumb;
+	#if (TLKPRT_COMM_RECV_ESCAPE_ENABLE)
 	uint08 isEscape;
+	#endif
 	uint08 makeState;
 	uint16 makeLength;
 	uint16 recvFrameLen;
@@ -56,7 +61,7 @@ typedef struct{
 	uint08 taskList[TLKPRT_COMM_MTYPE_MAX];
 }tlkmdi_comm_ctrl_t;
 static tlkmdi_comm_ctrl_t sTlkMdiCommCtrl;
-static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX] = {0};
+static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX+1] = {0};
 
 /******************************************************************************
  * Function: tlkmdi_comm_init.
@@ -101,11 +106,11 @@ bool tlkmdi_comm_pmIsBusy(void)
 int tlkmdi_comm_getValidDatID(uint08 *pDatID)
 {
 	uint08 index;
-	for(index=0; index<TLKMDI_COMM_DATA_CHANNEL_MAX; index++){
+	for(index=1; index<=TLKMDI_COMM_DATA_CHANNEL_MAX; index++){
 		if(sTlkMdiCommDatCB[index] == 0) break;
 	}
-	if(index == TLKMDI_COMM_DATA_CHANNEL_MAX) return -TLK_EQUOTA;
-	if(pDatID != nullptr) *pDatID = index+1;
+	if(index == TLKMDI_COMM_DATA_CHANNEL_MAX+1) return -TLK_EQUOTA;
+	if(pDatID != nullptr) *pDatID = index;
 	return TLK_ENONE;
 }
 
@@ -151,12 +156,11 @@ int tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID)
 *******************************************************************************/
 int tlkmdi_comm_regDatCB(uint08 datID, tlkmdi_comm_datCB datCB, bool isForce)
 {
-	if(datID == 0) return -TLK_EPARAM;
 	if(datID > TLKMDI_COMM_DATA_CHANNEL_MAX) return -TLK_EQUOTA;
-	if(!isForce && datCB != nullptr && sTlkMdiCommDatCB[datID-1] != nullptr){
+	if(!isForce && datCB != nullptr && sTlkMdiCommDatCB[datID] != nullptr){
 		return -TLK_EREPEAT;
 	}
-	sTlkMdiCommDatCB[datID-1] = datCB;
+	sTlkMdiCommDatCB[datID] = datCB;
 	return TLK_ENONE;
 }
 
@@ -269,6 +273,19 @@ int tlkmdi_comm_send(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBod
 	return ret;
 }
 
+uint tlkmdi_comm_getSingleDatPktMaxLen(void)
+{
+	return TLKPRT_COMM_DATBODY_MAXLEN;
+}
+uint tlkmdi_comm_getSingleDatPktUnitLen(void)
+{
+	#if (TLK_DEV_SERIAL_ENABLE)
+	return tlkdev_serial_sfifoSingleLen()-TLKPRT_COMM_DATHEAD_LENS-TLKPRT_COMM_FRM_EXTLEN;
+	#else
+	return TLKPRT_COMM_DATBODY_MAXLEN;
+	#endif
+}
+
 
 void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 {
@@ -284,6 +301,7 @@ void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 		tlkmdi_comm_makeRecvFrame(pData[index]);
 				
 		if(sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_READY) continue;
+
 		rawCrc = ((uint16)(sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen-3])<<8)
 			| (sTlkMdiCommCtrl.recvFrame[sTlkMdiCommCtrl.recvFrameLen-4]);
 		calCrc = tlkalg_crc16_calc(sTlkMdiCommCtrl.recvFrame+2, sTlkMdiCommCtrl.recvFrameLen-6);
@@ -328,8 +346,8 @@ void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Length Error: frmLen-%d lens-%d", sTlkMdiCommCtrl.recvFrameLen, lens);
 				return;
 			}
-			if(datID != 0 && datID <= TLKMDI_COMM_DATA_CHANNEL_MAX && sTlkMdiCommDatCB[datID-1] != nullptr){
-				sTlkMdiCommDatCB[datID-1](datID, numb, sTlkMdiCommCtrl.recvFrame+9, lens);
+			if(datID <= TLKMDI_COMM_DATA_CHANNEL_MAX && sTlkMdiCommDatCB[datID] != nullptr){
+				sTlkMdiCommDatCB[datID](datID, numb, sTlkMdiCommCtrl.recvFrame+9, lens);
 			}else{
 				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Unexpect: not used - datID[%d]", datID);
 			}
@@ -347,9 +365,8 @@ static void tlkmdi_comm_makeRecvFrame(uint08 rbyte)
 	#if (TLKPRT_COMM_RECV_ESCAPE_ENABLE)
 	if(rbyte == TLKPRT_COMM_HEAD_SIGN && sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_HEAD){
 		sTlkMdiCommCtrl.isEscape = false;
-		sTlkMdiCommCtrl.makeLength = 1;
+		sTlkMdiCommCtrl.makeLength = 0;
 		sTlkMdiCommCtrl.makeState  = TLKMDI_COMM_MSTATE_HEAD;
-		return;
 	}
 	if(rbyte == TLKPRT_COMM_TAIL_SIGN && sTlkMdiCommCtrl.makeState != TLKMDI_COMM_MSTATE_TAIL){
 		sTlkMdiCommCtrl.isEscape = false;

@@ -140,6 +140,15 @@ bth_device_item_t *bth_device_getInfo(uint08 index);
 bth_device_item_t *bth_device_getItem(uint08 *pDevAddr, uint08 *pIndex);
 
 /******************************************************************************
+ * Function: bth_device_getItem
+ * Descript: Get specified device info.
+ * Params: 
+ *        @pDevAddr[IN]--The device bt address.
+ * Reutrn: Bt device item.
+*******************************************************************************/
+uint08 *bth_device_getLinkKey(uint08 *pDevAddr);
+
+/******************************************************************************
  * Function: bth_device_getLast
  * Descript: Get The last device info.
  * Params: None.

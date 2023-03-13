@@ -189,7 +189,7 @@ int tlkmmi_lemgr_aclInit(void)
 	
 		/* SMP Initialization */
 	#if (TLKMMI_LEMGR_MASTER_SMP_ENABLE || TLKMMI_LEMGR_SLAVE_SMP_ENABLE)
-	blc_smp_configPairingSecurityInfoStorageAddressAndSize(FLASH_ADR_SMP_PAIRING, FLASH_SMP_PAIRING_MAX_SIZE);
+	blc_smp_configPairingSecurityInfoStorageAddressAndSize(TLK_CFG_FLASH_LE_SMP_PAIRING_ADDR, TLK_CFG_FLASH_LE_SMP_PAIRING_SIZE);
 	#endif
 	
 	#if (TLKMMI_LEMGR_SLAVE_SMP_ENABLE)
@@ -681,7 +681,7 @@ static void tlkmmi_lemgr_leaveOTAEvt(int result)
 #endif
 
 
-
+#define APP_BLE_TEST_ENABLE    0
 #if (APP_BLE_TEST_ENABLE)
 #define APP_BLE_TEST_BUFFLEN     (1024+4)
 uint32 gAppBleTestTimer = 0;
@@ -744,21 +744,19 @@ void app_ble_test_handler(void)
 {
 	int ret;
 	if(gAppBleTestTimer != 0 && clock_time_exceed(gAppBleTestTimer, gAppBleTestIntvl)){
-		if(!conn_dev_list[0].conn_state){
-			gAppBleTestTimer = clock_time()|1;
-			return;
-		}
-		if(conn_dev_list[0].conn_handle == 0){
+		if(sTlkMmiLemgrAcl.connHandle == 0){
 			gAppBleTestTimer = 0;
 			gAppBleTestCalcTimer = 0;
 			return;
+		}else{
+			gAppBleTestTimer = clock_time()|1;
 		}
 		
 		gAppBleTestBuff[0] = (gAppBleTestIndex & 0xFF000000) >> 24;
 		gAppBleTestBuff[1] = (gAppBleTestIndex & 0x00FF0000) >> 16;
 		gAppBleTestBuff[2] = (gAppBleTestIndex & 0x0000FF00) >> 8;
 		gAppBleTestBuff[3] = (gAppBleTestIndex & 0x000000FF);
-		ret = blc_gatt_pushHandleValueNotify(conn_dev_list[0].conn_handle, SPP_SERVER_TO_CLIENT_DP_H, 
+		ret = blc_gatt_pushHandleValueNotify(sTlkMmiLemgrAcl.connHandle, SPP_SERVER_TO_CLIENT_DP_H, 
 			gAppBleTestBuff, gAppBleTestSLens);
 		if(ret == 0){ //success
 			gAppBleTestTimer = clock_time()|1;
@@ -774,7 +772,8 @@ void app_ble_test_handler(void)
 		uint32 pktBytes;
 		pktCount = gAppBleTestIndex - gAppBleTestCalcIndex;
 		pktBytes = pktCount*gAppBleTestSLens;
-		tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "Send[sum-%d,snd-%d,ulen-%d,slen-%d]", gAppBleTestIndex, pktCount, gAppBleTestSLens, pktBytes);
+		tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "Send[sum-%d,snd-%d,ulen-%d,slen-%d,count-%d]", 
+			gAppBleTestIndex, pktCount, gAppBleTestSLens, pktBytes, gAppBleTestCount);
 		
 		gAppBleTestCalcIndex = gAppBleTestIndex;
 		gAppBleTestCalcTimer = clock_time()|1;

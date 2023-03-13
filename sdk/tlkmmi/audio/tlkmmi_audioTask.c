@@ -68,8 +68,11 @@ int tlkmmi_audio_taskInit(void)
 
 static int tlkmmi_audio_taskStart(void)
 {
-	uint08 volume = tlkmdi_audio_getVoiceBtpVolume();
+	uint08 volume;
+	volume = tlkmdi_audio_getVoiceBtpVolume();
 	tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
+	volume = tlkmdi_audio_getMusicBtpVolume(false);
+	tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_DEF_VOL, &volume, 1);
 	return TLK_ENONE;
 }
 static int tlkmmi_audio_taskPause(void)

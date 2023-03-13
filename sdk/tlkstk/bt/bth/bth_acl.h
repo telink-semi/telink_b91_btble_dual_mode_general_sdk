@@ -120,7 +120,7 @@ int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
  * Params: @btaddr[IN]--The device bt address.
  *         @devClass[IN]--The device class.
  *         @initRole[IN]--The role of acl link.
- *         @timeout[IN]--The acl setup timeout value
+ *         @timeout[IN]--The acl setup timeout. Unit:ms. Range: 0.625ms to 40.9s.
  * Reutrn: TLK_ENONE is set sucess, others means failure.
 *******************************************************************************/
 int  bth_acl_connect(uint08 btaddr[6], uint32 devClass, uint08 initRole, uint16 timeout); //timeout - ms

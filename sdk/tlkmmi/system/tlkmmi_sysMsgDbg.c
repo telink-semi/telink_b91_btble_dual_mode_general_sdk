@@ -33,18 +33,23 @@
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/hfp/btp_hfp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
+#include "tlklib/dbg/tlkdbg_config.h"
+#include "tlklib/dbg/tlkdbg_hpudwn.h"
+
+
 
 #if (TLK_CFG_USB_ENABLE)
 extern bool tlkusb_setModule(uint08 modtype); //TLKUSB_MODTYPE_ENUM
 #endif
-extern int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout);;
 extern int tlkmmi_phone_bookSetParam(uint08 posi, uint08 type, uint08 sort, uint16 offset, uint16 number);
 extern int tlkmmi_phone_startSyncBook(uint16 aclHandle, uint08 *pBtAddr, bool isForce);
 
-static void tlkmmi_sys_commDbgStartToneDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_sys_commDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_sys_commDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_sys_commDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen);
+
+static void tlkmmi_sys_recvDbgStartToneDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_sys_recvDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_sys_recvDbgFirmwareUpdateDeal(uint08 *pData, uint08 dataLen);
 
 
 int tlkmmi_sys_dbgMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
@@ -52,30 +57,32 @@ int tlkmmi_sys_dbgMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 	tlkapi_trace(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_sysDbgHandler: msgID-%d", msgID);
 	
 	if(msgID == TLKPRT_COMM_CMDID_DBG_START_TONE){
-		tlkmmi_sys_commDbgStartToneDeal(pData, dataLen);
+		tlkmmi_sys_recvDbgStartToneDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_DBG_GET_PHONE_BOOK){
-		tlkmmi_sys_commDbgGetPhoneBookDeal(pData, dataLen);
+		tlkmmi_sys_recvDbgGetPhoneBookDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_DBG_SET_USB_MODE){
-		tlkmmi_sys_commDbgSetUSBModeDeal(pData, dataLen);
+		tlkmmi_sys_recvDbgSetUSBModeDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_DBG_SIMULATE_KEY){
-		tlkmmi_sys_commDbgSimulateKeyDeal(pData, dataLen);
+		tlkmmi_sys_recvDbgSimulateKeyDeal(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_DBG_FIRMWARE_UPDATE){
+		tlkmmi_sys_recvDbgFirmwareUpdateDeal(pData, dataLen);
 	}
 	return TLK_ENONE;
 }
 
 
 
-static void tlkmmi_sys_commDbgStartToneDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_sys_recvDbgStartToneDeal(uint08 *pData, uint08 dataLen)
 {
 	if(dataLen < 3){
-		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgStartToneDeal: length error - %d", dataLen);
+		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgStartToneDeal: length error - %d", dataLen);
 		return;
 	}
 	
-	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgStartToneDeal: start", pData, dataLen);
+	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgStartToneDeal: start", pData, dataLen);
 	tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_START_TONE_CMD, pData, 3);
 }
-static void tlkmmi_sys_commDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 {
 #if (TLK_STK_BT_ENABLE)
 	uint08 posi;
@@ -87,23 +94,23 @@ static void tlkmmi_sys_commDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 	bth_acl_handle_t *pHandle;
 	
 	if(dataLen < 7){
-		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgGetPhoneBookDeal: length error - %d", dataLen);
+		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgGetPhoneBookDeal: length error - %d", dataLen);
 		return;
 	}
 		
 	aclHandle = btp_pbapclt_getAnyConnHandle(0);
 	if(aclHandle == 0){
-		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgGetPhoneBookDeal: failure - no device");
+		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgGetPhoneBookDeal: failure - no device");
 		return;
 	}
 	
 	pHandle = bth_handle_getConnAcl(aclHandle);
 	if(pHandle == nullptr){
-		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgGetPhoneBookDeal: fault - ACL handle not exist");
+		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgGetPhoneBookDeal: fault - ACL handle not exist");
 		return;
 	}
 	
-	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgGetPhoneBookDeal: start", pData, 7);
+	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgGetPhoneBookDeal: start", pData, 7);
 	
 	posi = pData[0];
 	type = pData[1];
@@ -114,20 +121,26 @@ static void tlkmmi_sys_commDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 	tlkmmi_phone_startSyncBook(pHandle->aclHandle, pHandle->btaddr, true);
 #endif
 }
-static void tlkmmi_sys_commDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_sys_recvDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen)
 {
 	if(dataLen < 1){
-		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgSetUSBModeDeal: length error - %d", dataLen);
+		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgSetUSBModeDeal: length error - %d", dataLen);
 		return;
 	}
-	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_commDbgSetUSBModeDeal: ", pData, dataLen);
+	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgSetUSBModeDeal: ", pData, dataLen);
 	#if (TLK_CFG_USB_ENABLE)
 	tlkusb_setModule(pData[0]);
 	#endif
 }
-static void tlkmmi_sys_commDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen)
+static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen)
 {
 	
+}
+static void tlkmmi_sys_recvDbgFirmwareUpdateDeal(uint08 *pData, uint08 dataLen)
+{
+#if (TLKDBG_CFG_HPU_DWN_ENABLE)
+	tlkdbg_hpudbg_recvCmd(pData, dataLen);
+#endif
 }
 
 

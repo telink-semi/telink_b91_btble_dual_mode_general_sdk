@@ -73,6 +73,7 @@ int tlkmdi_audsnk_close(uint16 handle);
 
 void tlkmdi_audsnk_timer(void);
 
+bool tlkmdi_audsnk_fPlay(bool isRewind, bool isStart);
 bool tlkmdi_audsnk_toNext(void);
 bool tlkmdi_audsnk_toPrev(void);
 

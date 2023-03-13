@@ -39,6 +39,8 @@ int  tlkmdi_audplay_init(void);
 int tlkmdi_audplay_start(uint16 handle, uint32 param);
 int tlkmdi_audplay_close(uint16 handle);
 
+bool tlkmdi_audplay_fPlay(bool isRewind, bool isStart);
+
 /******************************************************************************
  * Function: tlkmdi_audplay_toNext
  * Descript: Play the next music. 

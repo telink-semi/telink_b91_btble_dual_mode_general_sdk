@@ -497,7 +497,6 @@ bool tlkmdi_mp3_play(uint16 index)
 	}else{
 		playLen = 0;
 	}
-	if(playLen >= sTlkMdiMp3Ctrl.finfo.fileSize) playLen = 0;
 //	tlkapi_trace(TLKMDI_AUDMP3_DBG_FLAG, TLKMDI_AUDMP3_DBG_SIGN, "tlkmdi_play_start 03: %d %d",
 //		sTlkMdiMp3Ctrl.fsave.playLens, sTlkMdiMp3Ctrl.finfo.fileSize);
 	
@@ -537,7 +536,9 @@ bool tlkmdi_mp3_start(uint08 *pFilePath, uint32 fileOffset)
 		return false;
 	}
 
-	if(fileOffset < sTlkMdiMp3Ctrl.finfo.headLens){
+	if(fileOffset >= sTlkMdiMp3Ctrl.finfo.fileSize){
+		fileOffset = sTlkMdiMp3Ctrl.finfo.headLens;
+	}else if(fileOffset < sTlkMdiMp3Ctrl.finfo.headLens){
 		fileOffset = sTlkMdiMp3Ctrl.finfo.headLens;
 	}else if(fileOffset >= sTlkMdiMp3Ctrl.finfo.fileSize){
 		fileOffset = sTlkMdiMp3Ctrl.finfo.headLens;
@@ -868,6 +869,18 @@ void tlkmdi_mp3_startUpdate(void)
 void tlkmdi_mp3_updateEnable(bool enable)
 {
 	sTlkMdiMp3Ctrl.isUpdate = enable;
+}
+void tlkmdi_mp3_updataPlayNameByIndex(uint16 index)
+{
+	uint08 fname[TLKMDI_MP3_NAME_SIZE+2] = {0};
+
+	if(index >= sTlkMdiMp3Ctrl.fileCount) return;
+
+	if(tlkmdi_mp3_findFileName(fname, index) != TLK_ENONE){
+		return;
+	}
+	sTlkMdiMp3Ctrl.fsave.playLens = 0;
+	tlkmdi_mp3_updatePlayName(fname, true);
 }
 void tlkmdi_mp3_updatePlayName(uint08 *pFName, bool isForce)
 {

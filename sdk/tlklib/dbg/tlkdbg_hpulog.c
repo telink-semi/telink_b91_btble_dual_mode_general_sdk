@@ -34,7 +34,7 @@
 
 //HPU - Hardware Protocol UART
 
-extern uint tlkdev_serial_sfifoSingleLen(void);
+extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern bool tlkdev_serial_sfifoIsMore60(uint16 dataLen);
 extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
 
@@ -67,7 +67,7 @@ void tlkdbg_hpulog_handler(void)
 	int ret;
 	uint readLen;
 
-	readLen = tlkdev_serial_sfifoSingleLen();
+	readLen = tlkmdi_comm_getSingleDatPktUnitLen();
 	if(readLen > TLKDBG_HPU_LOG_CACHE_SIZE) readLen = TLKDBG_HPU_LOG_CACHE_SIZE;
 	while(readLen != 0 && !tlkapi_fifo_isEmpty(&sTlkDbgHpuLogFifo)){
 		ret = tlkapi_fifo_readCommon(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache, readLen, false);

@@ -294,6 +294,8 @@ static int btp_iap_rfcommEventCB(uint08 evtID, uint16 aclHandle, uint08 rfcHandl
 	}
 	else if(evtID == BTP_RFCOMM_EVTID_CONNECT){
 		uint16 mtuSize = 0;
+		btp_rfcomm_connectEvt_t *pEvt;
+		pEvt = (btp_rfcomm_connectEvt_t*)pData;
 		pIap = btp_iap_getUsedItem(aclHandle);
 		if(pIap == nullptr) pIap = btp_iap_getIdleItem();
 		if(pIap == nullptr){
@@ -301,7 +303,7 @@ static int btp_iap_rfcommEventCB(uint08 evtID, uint16 aclHandle, uint08 rfcHandl
 			btp_rfcomm_disconnChannel(rfcHandle);
 			return -TLK_EFAIL;
 		}
-		if(btp_rfcomm_getMtuSize(rfcHandle, &mtuSize) != TLK_ENONE){
+		if(pEvt->status != 0 || btp_rfcomm_getMtuSize(rfcHandle, &mtuSize) != TLK_ENONE){
 			uint08 state = pIap->state;
 			tlkapi_info(BTP_IAP_DBG_FLAG, BTP_IAP_DBG_SIGN, "IapEvent[Connect]: Get MtuSize Failure");
 			btp_iap_resetItem(pIap);
