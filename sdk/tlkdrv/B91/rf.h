@@ -1245,9 +1245,9 @@ static inline void rf_ble_tx_done ()
 
 
 
-#define     RF_NRF_TPLL_PACKET_LENGTH_OK(p)          (p[0] == (p[4] & 0x3f) + 11)
-#define     RF_NRF_TPLL_PACKET_CRC_OK(p)             ((p[p[0]+3] & 0x01) == 0x00)
-#define     RF_NRF_SB_PACKET_CRC_OK(p)              ((p[p[0]+3] & 0x01) == 0x00)
+#define     RF_TPLL_PACKET_LENGTH_OK(p)          (p[0] == (p[4] & 0x3f) + 11)
+#define     RF_TPLL_PACKET_CRC_OK(p)             ((p[p[0]+3] & 0x01) == 0x00)
+#define     RF_SB_PACKET_CRC_OK(p)              ((p[p[0]+3] & 0x01) == 0x00)
 
 
 /**************************************************/

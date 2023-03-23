@@ -129,7 +129,7 @@
 /   862 - Hebrew
 /   863 - Canadian French
 /   864 - Arabic
-/   865 - Nordic
+/   865 - N_Europe
 /   866 - Russian
 /   869 - Greek 2
 /   932 - Japanese (DBCS)
