@@ -29,6 +29,20 @@
 
 #define TLKMDI_COMM_DATA_CHANNEL_MAX       8
 
+#define TLKMDI_COMM_SERIAL_PORT            UART1
+#define TLKMDI_COMM_SERIAL_TX_PIN          GPIO_PD6
+#define TLKMDI_COMM_SERIAL_RX_PIN          GPIO_PD7
+#define TLKMDI_COMM_SERIAL_BAUDRATE        1500000//921600//115200
+
+#define TLKMDI_COMM_SERIAL_TX_DMA          DMA4
+#define TLKMDI_COMM_SERIAL_RX_DMA          DMA5
+#define TLKMDI_COMM_SERIAL_RBUFF_NUMB      8//16
+#define TLKMDI_COMM_SERIAL_RBUFF_SIZE      152//64//(TLKPRT_COMM_FRM_MAXLEN)
+#define TLKMDI_COMM_SERIAL_SBUFF_NUMB      8
+#define TLKMDI_COMM_SERIAL_SBUFF_SIZE      64
+
+
+
 typedef enum{
 	TLKMDI_COMM_MSTATE_HEAD = 0,
 	TLKMDI_COMM_MSTATE_ATTR,
@@ -38,7 +52,7 @@ typedef enum{
 	TLKMDI_COMM_MSTATE_READY,
 }TLKMDI_COMM_MSTATE_ENUM;
 
-typedef void(*tlkmdi_comm_datCB)(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen);
+typedef void(*TlkMdiCommDatCB)(uint08 datID, uint16 number, uint08 *pData, uint08 dataLen);
 
 
 /******************************************************************************
@@ -87,7 +101,7 @@ int  tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID);
  * Return: TLK_ENONE is success,other value is failure.
  * Others: None.
 *******************************************************************************/
-int  tlkmdi_comm_regDatCB(uint08 datID, tlkmdi_comm_datCB datCB, bool isForce);
+int  tlkmdi_comm_regDatCB(uint08 datID, TlkMdiCommDatCB datCB, bool isForce);
 
 /******************************************************************************
  * Function: tlkmdi_comm_sendXXX.

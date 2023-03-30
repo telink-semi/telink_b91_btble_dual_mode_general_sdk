@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_AUDIO_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_audio.h"
 #include "tlkmmi_audioCtrl.h"
 #include "tlkmmi_audioSch.h"

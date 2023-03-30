@@ -25,7 +25,7 @@
 #define TLKSTK_FIFO_H
 
 #include "types.h"
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 
 typedef	struct {
 	u32		size;

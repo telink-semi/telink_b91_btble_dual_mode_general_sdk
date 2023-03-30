@@ -36,10 +36,11 @@
 
 //HPU - Hardware Protocol UART
 
-extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
-extern uint tlkdev_serial_sfifoSingleLen(void);
 extern bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
+#if (TLK_CFG_COMM_ENABLE)
+extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
+#endif
 
 bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
@@ -76,15 +77,23 @@ void tlkdbg_hpuvcd_handler(void)
 		tlkdbg_hpuvcd_ref();
 		tlkdbg_hpuvcd_sync(true);
 	}
-	
+
+	#if (TLK_CFG_COMM_ENABLE)
 	readLen = tlkmdi_comm_getSingleDatPktUnitLen();
+	#else
+	readLen = TLKDBG_HPU_VCD_CACHE_SIZE;
+	#endif
 	if(readLen > TLKDBG_HPU_VCD_CACHE_SIZE) readLen = TLKDBG_HPU_VCD_CACHE_SIZE;
 	while(readLen != 0 && !tlkapi_fifo_isEmpty(&sTlkDbgHpuVcdFifo)){
 		ret = tlkapi_fifo_readCommon(&sTlkDbgHpuVcdFifo, buffer, readLen, false);
 		if(ret <= 0) break;
 		readLen = ret;
+		#if (TLK_CFG_COMM_ENABLE)
 		if(tlkdev_serial_sfifoIsMore80(readLen)) break;
 		ret = tlkmdi_comm_sendDat(TLKPRT_COMM_SYS_DAT_PORT, TLKPRT_COMM_SYS_DAT_VCD, buffer, readLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
 		if(ret == TLK_ENONE || ret == -TLK_ENOSUPPORT){
 			tlkapi_fifo_chgReadPos(&sTlkDbgHpuVcdFifo, readLen);
 		}

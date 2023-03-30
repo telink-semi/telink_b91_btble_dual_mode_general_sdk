@@ -41,13 +41,8 @@ void tlkdbg_gsulog_reset(void);
 bool tlkdbg_gsulog_isBusy(void);
 void tlkdbg_gsulog_handler(void);
 
-void tlkdbg_gsulog_warn(char *pSign, const char *format, va_list args);
-void tlkdbg_gsulog_info(char *pSign, const char *format, va_list args);
-void tlkdbg_gsulog_trace(char *pSign, const char *format, va_list args);
-void tlkdbg_gsulog_fatal(char *pSign, const char *format, va_list args);
-void tlkdbg_gsulog_error(char *pSign, const char *format, va_list args);
-void tlkdbg_gsulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkdbg_gsulog_assert(bool isAssert, char *pSign, const char *format, va_list args);
+void tlkdbg_gsulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args);
+void tlkdbg_gsulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
 
 
 void tlkdbg_gsulog_sendU08s(char *pSign, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);

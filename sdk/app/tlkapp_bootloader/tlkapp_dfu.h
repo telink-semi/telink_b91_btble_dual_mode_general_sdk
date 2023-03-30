@@ -25,9 +25,10 @@
 #define TLKAPP_DFU_H
 
 
+#define TLKAPP_BOOT_START_ADDRESS        0x8000
+
 #define TLKAPP_DFU_MAX_SIZE             (0xBE000)
 #define TLKAPP_DFU_MIN_SIZE             (0x400)
-
 
 #define TLKAPP_DFU_LOAD_INNER           1
 #define TLKAPP_DFU_LOAD_OUTER           2
@@ -37,6 +38,47 @@
 #define TLKAPP_DFU_START_ADDRESS        0x8000
 
 #define TLKAPP_JUMP_TO_APP()    ((void(*)(void))(0x20000000 + TLKAPP_DFU_START_ADDRESS))()
+
+#define TLKAPP_DFU_SAVE_SIGN        0x3A
+#define TLKAPP_DFU_SAVE_VERS        0x03
+#define TLKAPP_DFU_SAVE_ADDR        TLK_CFG_FLASH_OTA_PARAM_ADDR
+#define TLKAPP_DFU_SAVE_SIZE        sizeof(tlkapp_file_Param_t)
+
+
+typedef struct{ //32+80=112
+	uint08 status;
+	uint08 datPos; //Data Position: 1-Inner,
+	uint08 optChn;
+	uint08 cprSch; //Compress Scheme
+	uint08 digSch; //Digest Scheme
+	uint08 tranRole;
+	uint08 dataPort;
+	uint08 waitMask;
+	uint16 fileType;
+	uint16 unitLens;
+	uint16 tranIntv;
+	uint16 authSch;
+	uint16 fastSch;
+	uint16 cryptSch;
+	uint32 dataAddr;
+	uint32 dealSize; //RecvSize or SendSize
+	uint32 fileSize;
+	uint32 fileVers;
+	uint08 authCode[16];
+	uint08 fileSign[16];
+	uint08 realSign[16];
+	uint08 crypCode[16];
+	uint08 fastCode[16];
+}tlkapp_file_Param_t; //refer tlkmdi_file_saveParam_t
+typedef struct{
+	uint08 saveIsOK;
+	uint08 reserve0;
+	uint16 reserve1;
+	uint32 checkDig;
+	tlkapi_save_ctrl_t saveCtrl;
+	tlkapp_file_Param_t saveParam;
+}tlkapp_dfu_ctrl_t;
+
 
 
 void tlkapp_dfu_load(void);

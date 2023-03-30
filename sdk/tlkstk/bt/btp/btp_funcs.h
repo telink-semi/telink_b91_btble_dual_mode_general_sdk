@@ -140,6 +140,7 @@ static int btp_func_a2dpSnkDisconn(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSnkDelayReport(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSrcSendMediaData(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSrcSendStart(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSendAbort(uint08 *pData, uint16 dataLen);
 
 static int btp_func_avrcpConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_avrcpDisconn(uint08 *pData, uint16 dataLen);
@@ -167,7 +168,6 @@ static int btp_func_hfpHfHungupActiveAndResumeHold(uint08 *pData, uint16 dataLen
 static int btp_func_hfpAgConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpAgDisconn(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpAgSetFeature(uint08 *pData, uint16 dataLen);
-
 
 
 

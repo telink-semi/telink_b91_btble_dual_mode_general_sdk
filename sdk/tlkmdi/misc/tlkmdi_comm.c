@@ -22,23 +22,28 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_CFG_COMM_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlksys/prt/tlkpto_comm.h"
 #include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
+#if (TLK_DEV_SERIAL_ENABLE)
+#include "drivers.h"
+#include "tlkdev/sys/tlkdev_serial.h"
+#endif
 
 
 #define TLKMDI_COMM_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_COMM << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_COMM_DBG_SIGN       "[MDI]"
 
 
-#if (TLK_DEV_SERIAL_ENABLE)
-extern uint tlkdev_serial_sfifoSingleLen(void);
-#endif
 static void tlkmdi_comm_makeRecvFrame(uint08 rbyte);
 static int  tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
+
+__attribute__((aligned(4)))
+static uint08 sTlkCommSerialRecvBuffer[TLKMDI_COMM_SERIAL_RBUFF_NUMB*(TLKMDI_COMM_SERIAL_RBUFF_SIZE+4)];
+__attribute__((aligned(4)))
+static uint08 sTlkCommSerialSendBuffer[TLKMDI_COMM_SERIAL_SBUFF_NUMB*(TLKMDI_COMM_SERIAL_SBUFF_SIZE+4)];
 
 
 typedef struct{
@@ -61,7 +66,7 @@ typedef struct{
 	uint08 taskList[TLKPRT_COMM_MTYPE_MAX];
 }tlkmdi_comm_ctrl_t;
 static tlkmdi_comm_ctrl_t sTlkMdiCommCtrl;
-static tlkmdi_comm_datCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX+1] = {0};
+static TlkMdiCommDatCB sTlkMdiCommDatCB[TLKMDI_COMM_DATA_CHANNEL_MAX+1] = {0};
 
 /******************************************************************************
  * Function: tlkmdi_comm_init.
@@ -74,7 +79,15 @@ int tlkmdi_comm_init(void)
 {
 	tmemset(&sTlkMdiCommCtrl, 0, sizeof(tlkmdi_comm_ctrl_t));
 	#if (TLK_DEV_SERIAL_ENABLE)
+	tlkdev_serial_mount(TLKMDI_COMM_SERIAL_PORT, TLKMDI_COMM_SERIAL_BAUDRATE,
+		TLKMDI_COMM_SERIAL_TX_PIN, TLKMDI_COMM_SERIAL_RX_PIN, 
+		TLKMDI_COMM_SERIAL_TX_DMA, TLKMDI_COMM_SERIAL_RX_DMA, 0, 0);
+	tlkdev_serial_setTxQFifo(TLKMDI_COMM_SERIAL_SBUFF_NUMB, TLKMDI_COMM_SERIAL_SBUFF_SIZE+4,
+		sTlkCommSerialSendBuffer, TLKMDI_COMM_SERIAL_SBUFF_NUMB*(TLKMDI_COMM_SERIAL_SBUFF_SIZE+4));
+	tlkdev_serial_setRxQFifo(TLKMDI_COMM_SERIAL_RBUFF_NUMB, TLKMDI_COMM_SERIAL_RBUFF_SIZE+4,
+		sTlkCommSerialRecvBuffer, TLKMDI_COMM_SERIAL_RBUFF_NUMB*(TLKMDI_COMM_SERIAL_RBUFF_SIZE+4));
 	tlkdev_serial_regCB(tlkmdi_comm_input);
+	tlkdev_serial_open();
 	#endif
 	
 	return TLK_ENONE;
@@ -154,7 +167,7 @@ int tlkmdi_comm_regCmdCB(uint08 mtype, uint08 taskID)
  * Return: TLK_ENONE is success,other value is failure.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_comm_regDatCB(uint08 datID, tlkmdi_comm_datCB datCB, bool isForce)
+int tlkmdi_comm_regDatCB(uint08 datID, TlkMdiCommDatCB datCB, bool isForce)
 {
 	if(datID > TLKMDI_COMM_DATA_CHANNEL_MAX) return -TLK_EQUOTA;
 	if(!isForce && datCB != nullptr && sTlkMdiCommDatCB[datID] != nullptr){
@@ -280,7 +293,7 @@ uint tlkmdi_comm_getSingleDatPktMaxLen(void)
 uint tlkmdi_comm_getSingleDatPktUnitLen(void)
 {
 	#if (TLK_DEV_SERIAL_ENABLE)
-	return tlkdev_serial_sfifoSingleLen()-TLKPRT_COMM_DATHEAD_LENS-TLKPRT_COMM_FRM_EXTLEN;
+	return TLKMDI_COMM_SERIAL_SBUFF_SIZE-TLKPRT_COMM_DATHEAD_LENS-TLKPRT_COMM_FRM_EXTLEN;
 	#else
 	return TLKPRT_COMM_DATBODY_MAXLEN;
 	#endif
@@ -332,7 +345,7 @@ void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 			}
 			sTlkMdiCommCtrl.recvNumb = numb;
 			if(mtype != 0 && mtype < TLKPRT_COMM_MTYPE_MAX && sTlkMdiCommCtrl.taskList[mtype] != 0){
-				tlktsk_sendOuterMsg(sTlkMdiCommCtrl.taskList[mtype], mtype, msgID, sTlkMdiCommCtrl.recvFrame+8, lens);
+				tlksys_sendOuterMsg(sTlkMdiCommCtrl.taskList[mtype], mtype, msgID, sTlkMdiCommCtrl.recvFrame+8, lens);
 			}
 		}
 		else if(ptype == TLKPRT_COMM_PTYPE_DAT){

@@ -56,7 +56,7 @@
 #include <stdint.h>       // standard definitions
 #include <stddef.h>       // standard definitions
 
-#include "tlkdrv/B91/compiler.h"     // for inline functions
+#include "compiler.h"     // for inline functions
 
 
 /*
@@ -125,23 +125,23 @@
 
 
 /// Macro for LMP message handler function declaration or definition
-#define LMP_MSG_HANDLER(msg_name)   __STATIC int lmp_##msg_name##_handler(struct lmp_##msg_name const *param,  \
+#define LMP_MSG_HANDLER(msg_name)   static int lmp_##msg_name##_handler(struct lmp_##msg_name const *param,  \
                                                                                 ke_task_id_t const dest_id)
 /// Macro for LMP message handler function declaration or definition
-#define LLCP_MSG_HANDLER(msg_name)   __STATIC int llcp_##msg_name##_handler(struct llcp_##msg_name const *param,  \
+#define LLCP_MSG_HANDLER(msg_name)   static int llcp_##msg_name##_handler(struct llcp_##msg_name const *param,  \
                                                                                 ke_task_id_t const dest_id)
 
 /// Macro for HCI message handler function declaration or definition (for multi-instantiated tasks)
-#define HCI_CMD_HANDLER_C(cmd_name, param_struct)   __STATIC int hci_##cmd_name##_cmd_handler(param_struct const *param,  \
+#define HCI_CMD_HANDLER_C(cmd_name, param_struct)   static int hci_##cmd_name##_cmd_handler(param_struct const *param,  \
                                                                                 ke_task_id_t const dest_id,  \
                                                                                 uint16_t opcode)
 
 /// Macro for HCI message handler function declaration or definition (with parameters)
-#define HCI_CMD_HANDLER(cmd_name, param_struct)   __STATIC int hci_##cmd_name##_cmd_handler(param_struct const *param,  \
+#define HCI_CMD_HANDLER(cmd_name, param_struct)   static int hci_##cmd_name##_cmd_handler(param_struct const *param,  \
                                                                                 uint16_t opcode)
 
 /// Macro for HCI message handler function declaration or definition (with parameters)
-#define HCI_CMD_HANDLER_TAB(task)   __STATIC const struct task##_hci_cmd_handler task##_hci_command_handler_tab[] =
+#define HCI_CMD_HANDLER_TAB(task)   static const struct task##_hci_cmd_handler task##_hci_command_handler_tab[] =
 
 
 /// MACRO to build a subversion field from the Minor and Release fields

@@ -21,28 +21,60 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_LEMST_ENABLE)
-#include "tlkmmi/lemst/tlkmmi_lemst.h"
-#include "tlkmmi/lemst/tlkmmi_lemstAdapt.h"
-#include "tlkmmi/lemst/tlkmmi_lemstCtrl.h"
-#include "tlkmmi/lemst/tlkmmi_lemstAcl.h"
-#include "tlkmmi/lemst/tlkmmi_lemstTask.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
+#include "tlkmmi_lemst.h"
+#include "tlkmmi_lemstAdapt.h"
+#include "tlkmmi_lemstCtrl.h"
+#include "tlkmmi_lemstAcl.h"
+#include "tlkmmi_lemstTask.h"
+#include "tlkmmi_lemstMsgInner.h"
+#include "tlkmmi_lemstMsgOuter.h"
 
 
+TLKSYS_MMI_TASK_DEFINE(lemst, Lemst);
 
 
-int tlkmmi_lemst_init(void)
+static int tlkmmi_lemst_init(uint08 procID, uint08 taskID)
 {
-	tlkmmi_lemst_taskInit();
-	tlkmmi_lemst_adaptInit();
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_LE, TLKSYS_TASKID_LEMST);
+	#endif
+	
+	tlkmmi_lemst_adaptInit(procID);
 	tlkmmi_lemst_ctrlInit();
 	tlkmmi_lemst_aclInit();
+
+	return TLK_ENONE;
+}
+static int tlkmmi_lemst_start(void)
+{
 	
 	return TLK_ENONE;
 }
-
-
+static int tlkmmi_lemst_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_lemst_close(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_lemst_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	if(mtype == TLKPRT_COMM_MTYPE_NONE){
+		tlkmmi_lemst_innerMsgHandler(msgID, pData, dataLen);
+	}else{
+		tlkmmi_lemst_outerMsgHandler(msgID, pData, dataLen);
+	}
+	return TLK_ENONE;
+}
+static void tlkmmi_lemst_handler(void)
+{
+	
+}
 
 
 

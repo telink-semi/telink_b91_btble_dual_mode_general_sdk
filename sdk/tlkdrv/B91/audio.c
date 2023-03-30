@@ -1222,7 +1222,7 @@ void audio_set_ext_codec(void)
  */
 void pwm_set(pwm_pin_e pin)
 {
-	pwm_set_pin(pin);
+	pwm_set_pin(pin, 0);
 	pwm_set_clk((unsigned char) (sys_clk.pclk*1000*1000/24000000-1));//set pwm clk equal pclk 24M
 	pwm_set_pwm0_mode(PWM_NORMAL_MODE);
 	pwm_set_tcmp(PWM0_ID,1);

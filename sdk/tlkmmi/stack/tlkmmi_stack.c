@@ -22,20 +22,46 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_STACK_ENABLE)
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_stack.h"
-#include "tlkmmi_stackTask.h"
+#include "tlkmmi_stackAdapt.h"
+#include "tlkstk/tlkstk_stdio.h"
 
 
+TLKSYS_MMI_TASK_DEFINE(stack, Stack);
 
 
-int tlkmmi_stack_init(void)
+static int tlkmmi_stack_init(uint08 procID, uint08 taskID)
 {
-	tlkmmi_stack_taskInit();
+	tlkmmi_stack_adaptInit(procID);
+	tlkstk_init();
 	
 	return TLK_ENONE;
 }
-
-
+static int tlkmmi_stack_start(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_stack_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_stack_close(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_stack_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	
+	return -TLK_ENOSUPPORT;
+}
+static void tlkmmi_stack_handler(void)
+{
+	tlkstk_handler();
+}
 
 
 

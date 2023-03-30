@@ -23,7 +23,7 @@
 #include "tlk_config.h"
 #if (TLK_CFG_DBG_ENABLE)
 #include "tlk_debug.h"
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 #include "stdbool.h"
 
 #ifndef true
@@ -41,7 +41,7 @@
 
 
 static const tlk_debug_info_t scTlkDebugSysInfo = {
-	false, //dbgIsEn
+	true, //dbgIsEn
 	false, //vcdIsEn
 	TLK_DEBUG_DBG_FLAG_ALL, //dbgFlag
 	TLK_MINOR_DBGID_SYS_MAX, //unitCnt

@@ -42,7 +42,7 @@ int tlkapp_init(void);
  * Return: None.
  * Others: None.
 *******************************************************************************/ 
-void tlkapp_process(void);
+void tlkapp_handler(void);
 
 
 #endif /* TLKAPP_H */

@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_STACK_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_stack.h"
 #include "tlkmmi_stackMsg.h"
 

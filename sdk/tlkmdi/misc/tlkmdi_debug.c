@@ -21,11 +21,14 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_DEBUG_ENABLE)
 #include "tlkmdi_debug.h"
 #include "tlklib/dbg/tlkdbg.h"
 #include "drivers.h"
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_pm.h"
+#endif
+
 
 
 #define TLKMDI_DEBUG_DBG_FLAG         ((TLK_MAJOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_MISC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
@@ -47,15 +50,14 @@ int tlkmdi_debug_init(void)
 	#if (TLKMDI_DEBUG_STACK_CHECK_ENABLE)
 	tlkapi_chip_stackInit();
 	#endif
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendBusyCheckCB(tlkdbg_isBusy);
+	#endif
 	
 	return TLK_ENONE;
 }
 
 
-bool tlkmdi_debug_pmIsBusy(void)
-{
-	return tlkdbg_isBusy();
-}
 
 void tlkmdi_debug_handler(void)
 {

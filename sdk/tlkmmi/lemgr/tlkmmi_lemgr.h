@@ -30,7 +30,6 @@
 #define TLKMMI_LEMGR_DBG_FLAG       ((TLK_MAJOR_DBGID_MMI_LEMGR << 24) | (TLK_MINOR_DBGID_MMI_LEMGR << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMMI_LEMGR_DBG_SIGN       "[MMI]"
 
-#define TLKMMI_LEMGR_PROCID         TLKTSK_PROCID_STACK
 
 #ifndef TLK_STK_LEOTA_EN
 #define TLK_STK_LEOTA_EN             (0 && TLK_STK_LE_ENABLE)
@@ -40,9 +39,13 @@
 #define TLKMMI_LEOTA_ENABLE          (1 && TLKMMI_LEMGR_ENABLE && TLK_STK_LEOTA_EN)
 #endif
 
+#ifndef BLE_IOS_ANCS_ENABLE
+#define BLE_IOS_ANCS_ENABLE			  0
+#endif
+#ifndef	BLE_IOS_AMS_ENABLE
+#define BLE_IOS_AMS_ENABLE			  0
+#endif
 
-
-int tlkmmi_lemgr_init(void);
 
 
 

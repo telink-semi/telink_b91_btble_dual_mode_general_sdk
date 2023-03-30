@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_USB_ENABLE)
 #include "tlkmdi/misc/tlkmdi_usb.h"
 #if (TLK_USB_MSC_ENABLE)
@@ -35,7 +34,7 @@
 
 
 extern int  tlkusb_init(uint16 usbID);
-extern void tlkusb_process(void);
+extern void tlkusb_handler(void);
 
 #if (TLK_USB_MSC_ENABLE && TLK_DEV_STORE_ENABLE)
 static const tlkusb_msc_disk_t sTlkUsbMscDisk0;
@@ -56,7 +55,7 @@ int tlkmdi_usb_init(void)
 
 void tlkmdi_usb_handler(void)
 {
-	tlkusb_process();
+	tlkusb_handler();
 }
 
 

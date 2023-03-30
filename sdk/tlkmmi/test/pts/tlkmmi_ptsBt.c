@@ -30,6 +30,8 @@
 #include "tlkstk/bt/bth/bth_device.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/sdp/btp_sdp.h"
+#include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
+#include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 
 
 extern int bt_ll_set_bd_addr(uint8_t *bdAddr);
@@ -52,6 +54,7 @@ static int tlkmmi_pts_btProfileChannelEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileRequestEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileConnectEvt(uint08 *pData, uint16 dataLen);
 static int tlkmmi_pts_btProfileDisconnEvt(uint08 *pData, uint16 dataLen);
+static int tlkmmi_pts_sinkStatusChangedEvt(uint08 *pData, uint16 dataLen);
 
 
 uint08 gTlkMmiTestPtsHfpChannel = 0;
@@ -103,6 +106,8 @@ int tlkmmi_pts_btInit(void)
 	btp_event_regCB(BTP_EVTID_PROFILE_REQUEST, tlkmmi_pts_btProfileRequestEvt);
 	btp_event_regCB(BTP_EVTID_PROFILE_CONNECT, tlkmmi_pts_btProfileConnectEvt);
 	btp_event_regCB(BTP_EVTID_PROFILE_DISCONN, tlkmmi_pts_btProfileDisconnEvt);
+
+	btp_event_regCB(BTP_EVTID_A2DPSNK_STATUS_CHANGED, tlkmmi_pts_sinkStatusChangedEvt);
 
 	return TLK_ENONE;
 }
@@ -273,6 +278,17 @@ static int tlkmmi_pts_btProfileDisconnEvt(uint08 *pData, uint16 dataLen)
 	return TLK_ENONE;
 }
 
+static int tlkmmi_pts_sinkStatusChangedEvt(uint08 *pData, uint16 dataLen)
+{
+	btp_a2dpStatusChangeEvt_t *pEvt;
+	pEvt = (btp_a2dpStatusChangeEvt_t*)pData;
+	if(pEvt->status == BTP_A2DP_STATUS_STREAM){
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PLAYING);
+	}else{
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PAUSED);
+	}
+	return TLK_ENONE;
+}
 
 
 #endif //#if (TLK_TEST_PTS_ENABLE)

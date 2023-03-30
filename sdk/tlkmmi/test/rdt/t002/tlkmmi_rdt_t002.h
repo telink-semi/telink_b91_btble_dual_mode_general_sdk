@@ -27,6 +27,23 @@
 #if (TLKMMI_RDT_CASE_T002_ENABLE)
 
 
+typedef enum{
+	TLKMMI_RDT_T002_MSGID_NONE = 0,
+	TLKMMI_RDT_T002_MSGID_SET_PEER_INFO = 1,
+}TLKMMI_RDT_T002_MSGID_ENUM;
+
+
+typedef struct{
+	uint08 state;
+	uint08 stage;
+	uint08 devRole;
+	tlkapi_timer_t timer;
+}tlkmmi_rdt_t002_t;
+
+
+int tlkmmi_rdt_t002GetRole(void);
+int tlkmmi_rdt_t002GetState(void);
+
 
 
 

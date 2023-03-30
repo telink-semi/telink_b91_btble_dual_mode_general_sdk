@@ -38,20 +38,8 @@
 #define TLKMMI_AUDIO_DBG_FLAG         ((TLK_MAJOR_DBGID_MMI_AUDIO << 24) | (TLK_MINOR_DBGID_MMI_AUDIO << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMMI_AUDIO_DBG_SIGN         "[MMI]"
 
-#define TLKMMI_AUDIO_PROCID           TLKTSK_PROCID_AUDIO
 
 
-
-/******************************************************************************
- * Function: tlkmmi_audio_init
- * Descript: Initial the audio path and audio ctrl flow, set the audio paramter.
- * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
- * Others: None.
-*******************************************************************************/
-int  tlkmmi_audio_init(void);
-
-void tlkmmi_audio_handler(void);
 
 /******************************************************************************
  * Function: tlkmmi_audio_isBusy
@@ -104,8 +92,8 @@ extern void tlkmmi_audio_stopLocalPlay(void);
 extern bool tlkmmi_audio_startTone(uint16 fileIndex, uint16 playCount);
 
 
-void tlkmmi_audio_start(void);
-void tlkmmi_audio_close(void);
+void tlkmmi_audio_startHandler(void);
+void tlkmmi_audio_closeHandler(void);
 
 
 

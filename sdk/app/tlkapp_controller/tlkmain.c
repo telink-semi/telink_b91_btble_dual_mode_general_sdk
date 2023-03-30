@@ -34,7 +34,6 @@ extern void btc_ll_system_tick_isr(void);
 extern void btc_core_isr(void);
 
 
-
 /******************************************************************************
  * Function: main
  * Descript: This is main function.
@@ -51,16 +50,13 @@ int main(void)
     CCLK_48M_HCLK_48M_PCLK_24M;
 
     gpio_init(1);
-	
     tlkapp_init();
-		
 	core_enable_interrupt();
 
 	while(1)
 	{
-		tlkapp_process();
+		tlkapp_handler();
 	}
-	
     return 0;
 } 
 
@@ -89,8 +85,9 @@ _attribute_retention_code_ void rf_irq_handler(void)
 	ble_sdk_rf_irq_handler();
 }
 
-
+#if (TLK_USB_AUD_ENABLE)
 extern void tlkusb_audirq_handler(void);
+#endif
 /******************************************************************************
  * Function: usb_endpoint_irq_handler
  * Descript: Usb endpoint interrupt handler.

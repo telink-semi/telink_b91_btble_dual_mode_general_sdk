@@ -27,39 +27,37 @@
 #if (TLK_DEV_SERIAL_ENABLE)
 
 
-#define TLKDEV_SERIAL_PORT               UART1
-#define TLKDEV_SERIAL_TX_PIN             UART1_TX_PD6
-#define TLKDEV_SERIAL_RX_PIN             UART1_RX_PD7
-#define TLKDEV_SERIAL_BAUDRATE           1500000//921600//115200
-
-#define TLKDEV_SERIAL_DMA_ENABLE         1
-
-#define TLKDEV_SERIAL_DMA_TX             DMA4
-#define TLKDEV_SERIAL_DMA_RX             DMA5
+typedef void(*TlkDevSerialRecvCB)(uint08 *pData, uint16 dataLen);
 
 
-typedef void(*tlkdev_serial_recvCB)(uint08 *pFrame, uint16 frmLen);
+int tlkdev_serial_init(void);
 
+int tlkdev_serial_mount(uint08 port, uint32 baudRate, uint16 txPin,
+	uint16 rxPin, uint08 txDma, uint08 rxDma, uint16 rtsPin, uint16 ctsPin);
+int tlkdev_serial_unmount(void);
 
-int  tlkdev_serial_init(void);
+int tlkdev_serial_setBaudrate(uint32 baudRate);
+
+int tlkdev_serial_setRxFifo(uint08 *pBuffer, uint16 buffLen);
+int tlkdev_serial_setTxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen);
+int tlkdev_serial_setRxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen);
+
+int tlkdev_serial_open(void);
+int tlkdev_serial_close(void);
+
+int tlkdev_serial_send(uint08 *pData, uint16 dataLen);
+int tlkdev_serial_read(uint08 *pBuff, uint16 buffLen);
 
 void tlkdev_serial_clear(void);
-
-void tlkdev_serial_regCB(tlkdev_serial_recvCB cb);
-
-bool tlkdev_serial_isBusy(void);
-void tlkdev_serial_wakeup(void);
-
-void tlkdev_serial_handler(void);
-
-int  tlkdev_serial_send(uint08 *pData, uint16 dataLen);
-
-uint tlkdev_serial_sfifoSingleLen(void);
+void tlkdev_serial_regCB(TlkDevSerialRecvCB cb);
 bool tlkdev_serial_sfifoIsMore60(uint16 dataLen);
 bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
 
-void tlkdev_serial_setRecvFifo(tlkapi_qfifo_t *pFifo);
-void tlkdev_serial_setBaudrate(uint32 baudrate);
+bool tlkdev_serial_isBusy(void);
+void tlkdev_serial_wakeup(uint wakeSrc);
+
+void tlkdev_serial_handler(void);
+
 
 
 

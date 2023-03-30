@@ -38,7 +38,6 @@
 
 static void tlkdbg_gsulog_send(uint08 *pData, uint16 dataLen);
 static void tlkdbg_gsulog_putchar(uint08 byte);
-static void tlkdbg_gsulog_common(char *pSign, char *pHead, const char *format, va_list args);
 
 
 static uint32 sTlkDbgGsuLogGpioPin;
@@ -85,27 +84,38 @@ void tlkdbg_gsulog_handler(void)
 }
 
 
-void tlkdbg_gsulog_warn(char *pSign, const char *format, va_list args)
+void tlkdbg_gsulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
 {
-	tlkdbg_gsulog_common(pSign, TLKAPI_WARN_HEAD, format, args);
+	uint16 serial;
+	uint16 dataLen;
+
+	serial = sTlkDbgGsuLogSerial ++;
+
+	tlkdbg_setPrintBuffer(sTlkDbgGsuLogCache, TLKDBG_GSU_LOG_CACHE_SIZE);
+	
+	printf("[%04x]",serial);
+	if(pSign != nullptr) printf(pSign);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
+	vprintf(format, args);
+
+	tlkdbg_setPrintBuffer(nullptr, 0);
+	
+	uint32 r = core_disable_interrupt();
+	dataLen = ((uint16)sTlkDbgGsuLogCache[1] << 8) | sTlkDbgGsuLogCache[0];
+	#if (TLKDBG_GSULOG_NEWLINE_MODE1_ENABLE)
+	sTlkDbgGsuLogCache[dataLen+2+0] = '\r';
+	sTlkDbgGsuLogCache[dataLen+2+1] = '\n';
+	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, dataLen+2);
+	#else
+	sTlkDbgGsuLogCache[dataLen+2+0] = '\n';
+	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, dataLen+1);
+	#endif
+	core_restore_interrupt(r);
 }
-void tlkdbg_gsulog_info(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_gsulog_common(pSign, TLKAPI_INFO_HEAD, format, args);
-}
-void tlkdbg_gsulog_trace(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_gsulog_common(pSign, TLKAPI_TRACE_HEAD, format, args);
-}
-void tlkdbg_gsulog_fatal(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_gsulog_common(pSign, TLKAPI_FATAL_HEAD, format, args);
-}
-void tlkdbg_gsulog_error(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_gsulog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
-}
-void tlkdbg_gsulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen)
+void tlkdbg_gsulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
 	uint16 index;
 	uint16 serial;
@@ -119,8 +129,10 @@ void tlkdbg_gsulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 		
 	printf("[%04x]",serial);
 	if(pSign != nullptr) printf(pSign);
-	printf(TLKAPI_ARRAY_HEAD);
-	if(pInfo != nullptr) printf(pInfo);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
 	printf("(%d)", dataLen);
 	for(index=0; index<dataLen; index++){
 		printf("%02x ", pData[index]);
@@ -139,10 +151,6 @@ void tlkdbg_gsulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, optLen+1);
 	#endif
 	core_restore_interrupt(r);
-}
-void tlkdbg_gsulog_assert(bool isAssert, char *pSign, const char *format, va_list args)
-{
-	tlkdbg_gsulog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
 }
 
 
@@ -240,35 +248,6 @@ void tlkdbg_gsulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 	core_restore_interrupt(r);
 }
 
-
-static void tlkdbg_gsulog_common(char *pSign, char *pHead, const char *format, va_list args)
-{
-	uint16 serial;
-	uint16 dataLen;
-
-	serial = sTlkDbgGsuLogSerial ++;
-
-	tlkdbg_setPrintBuffer(sTlkDbgGsuLogCache, TLKDBG_GSU_LOG_CACHE_SIZE);
-	
-	printf("[%04x]",serial);
-	if(pSign != nullptr) printf(pSign);
-	if(pHead != nullptr) printf(pHead);
-	vprintf(format, args);
-
-	tlkdbg_setPrintBuffer(nullptr, 0);
-	
-	uint32 r = core_disable_interrupt();
-	dataLen = ((uint16)sTlkDbgGsuLogCache[1] << 8) | sTlkDbgGsuLogCache[0];
-	#if (TLKDBG_GSULOG_NEWLINE_MODE1_ENABLE)
-	sTlkDbgGsuLogCache[dataLen+2+0] = '\r';
-	sTlkDbgGsuLogCache[dataLen+2+1] = '\n';
-	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, dataLen+2);
-	#else
-	sTlkDbgGsuLogCache[dataLen+2+0] = '\n';
-	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, dataLen+1);
-	#endif
-	core_restore_interrupt(r);
-}
 
 
 static void tlkdbg_gsulog_send(uint08 *pData, uint16 dataLen)

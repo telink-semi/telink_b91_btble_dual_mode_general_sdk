@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
 #include "tlkstk/ble/ble.h"
 #include "tlkmdi/le/tlkmdi_le_common.h"
@@ -34,6 +33,16 @@
 #include "tlkmmi/lemgr/tlkmmi_lemgrCtrl.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAtt.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAcl.h"
+
+#if BLE_IOS_ANCS_ENABLE
+	#include "tlklib/ios_service/ancs/ancs.h"
+	#include "tlklib/ios_service/ancs/ancsDemo.h"
+#endif
+
+#if BLE_IOS_AMS_ENABLE
+	#include "tlklib/ios_service/ams/ams.h"
+	#include "tlklib/ios_service/ams/amsDemo.h"
+#endif
 
 
 
@@ -111,6 +120,170 @@ static bool tlkmmi_lemgr_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
 static tlkmmi_lemgr_acl_t sTlkMmiLemgrAcl;
+
+
+#if (!BLE_IOS_ANCS_ENABLE)
+
+void latency_turn_off_onceEx(){
+	extern void 		bls_pm_setManualLatency(u16 latency);
+	bls_pm_setManualLatency(0);
+}
+#else
+
+_attribute_data_retention_ u8	bls_needSendSecurityReq = 0;
+_attribute_data_retention_ u8	bls_is_ios = 0;
+_attribute_data_retention_ u32 	tick_findAncsSrv;
+_attribute_data_retention_ u32 	tick_encryptionFinish;
+_attribute_data_retention_ u32 	tick_conn_update_parm = 0;
+
+enum{
+	NO_NEED_SEND_SEC_REQ = 0,
+	NEED_SEND_SEC_REQ = 1,
+};
+
+enum{
+	SYSTEM_TYPE_ANDROID = 0,
+	SYSTEM_TYPE_IOS		= 1,
+};
+
+
+typedef enum{
+	BLE_DISCONNECTED	= 0,
+	BLE_CONNECTED 		= 1,
+}BLE_CONNECTION_STATE;
+_attribute_ble_data_retention_ u8 bleConnState = BLE_DISCONNECTED;
+
+void app_setCurBleConnState(u8 state){
+	bleConnState = state;
+}
+
+u8	app_getCurBleConnState(){
+	return bleConnState;
+}
+
+
+void app_setSystemType(u8 isIOS){
+	bls_is_ios = isIOS;
+}
+
+u8 app_getSystemType(){
+	return bls_is_ios;
+}
+
+void app_setSendSecReqFlag(u8 en){
+	bls_needSendSecurityReq = en;
+}
+
+u8 app_getSendSecReqFlag(){
+	return bls_needSendSecurityReq;
+}
+
+void task_ancs_proc(u16 connHandle, u8 *p)
+{
+	if(ancsFuncIsEn()){
+		ancsStackCallback(p);
+	}
+
+	if(app_getSendSecReqFlag() == NO_NEED_SEND_SEC_REQ ){
+		rf_packet_l2cap_req_t_special_ancs *req = (rf_packet_l2cap_req_t_special_ancs *)p;
+		//req = ancs_attPktTrans(p);
+
+
+		if((req->chanId == 0x04)
+			&& (req->opcode == ATT_OP_FIND_BY_TYPE_VALUE_RSP)){///ATT
+			app_setSendSecReqFlag(NEED_SEND_SEC_REQ);
+			//blc_smp_sendSecurityRequest();
+			blt_smp_sendSecurityRequest(connHandle);
+			tick_findAncsSrv = 0x00;
+			my_dump_str_data(1, "security request send", 0, 0);
+			blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
+		}else{
+			if((req->opcode == ATT_OP_ERROR_RSP) ///op_code
+				&& (req->data[0] == ATT_OP_FIND_BY_TYPE_VALUE_RSP)){///err_op_code
+				//tick_findAncsSrv = clock_time() | 1;
+				//att not found
+				app_setSendSecReqFlag(NO_NEED_SEND_SEC_REQ);
+			}
+		}
+	}
+
+	return;
+}
+
+void task_findAncsService(){
+	 _attribute_data_retention_ static u8 ancsRetry = 0;
+
+	if((tick_findAncsSrv & 0x01) && (clock_time_exceed(tick_findAncsSrv, 2 * 1000 * 1000))){
+		ancsRetry++;
+		tick_findAncsSrv = clock_time() | 0x01;
+		ancs_findAncsService();
+	}else{
+		if((ancsRetry == 3)
+			|| (ancsRetry && (tick_findAncsSrv == 0))){
+			ancsRetry = 0;
+			tick_findAncsSrv = 0;
+		}
+	}
+}
+extern u8			blt_llms_getCurrentState(void);
+void task_ancsServiceEstablish(){
+	if(app_getCurBleConnState() != BLE_CONNECTED){
+		return;  // no connection
+	}
+
+	_attribute_data_retention_ static u8 flag_ancsBuidSrv = 0;
+	task_findAncsService();///for check ANCS service enable
+
+	if((tick_encryptionFinish & 0x01) && (clock_time_exceed(tick_encryptionFinish, 2 * 1000 * 1000))){
+		ancsFuncSetEnable(1);
+		tick_encryptionFinish = 0x00;
+		flag_ancsBuidSrv = 1;
+		my_dump_str_data(DUMP_ACL_MSG,"ancs enable", 0, 0);
+	}else{
+		if(flag_ancsBuidSrv){
+			if(ancsGetConnState() == ANCS_CONNECTION_ESTABLISHED){///must be enabled after the ANCS established
+				#if BLE_IOS_AMS_ENABLE
+				amsInit(1);
+				amsFuncSetEnable(1);
+				#endif
+				flag_ancsBuidSrv = 0;
+			}
+		}
+	}
+}
+
+void app_curSystemType(){
+	if(app_getSendSecReqFlag() == NEED_SEND_SEC_REQ){
+		app_setSystemType(SYSTEM_TYPE_IOS);
+	}else{
+		if(ancsGetConnState() == ANCS_CONNECTION_ESTABLISHED){
+			app_setSystemType(SYSTEM_TYPE_IOS);
+		}
+	}
+
+}
+
+void app_ancsTask(){
+	if(app_getCurBleConnState() == BLE_CONNECTED){
+			task_ancsServiceEstablish();
+			app_curSystemType();
+			ancs_mainLoopTask();
+	}
+}
+
+#endif
+
+
+#if (BLE_IOS_AMS_ENABLE)
+
+void app_amsTask(){
+	if(app_getCurBleConnState() == BLE_CONNECTED){
+		ams_mainLoopTask();
+	}
+}
+
+#endif
+
 
 
 int tlkmmi_lemgr_aclInit(void)
@@ -463,7 +636,17 @@ static int tlkmmi_lemgr_hostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 		
 		case GAP_EVT_SMP_SECURITY_PROCESS_DONE:
 		{
-
+#if BLE_IOS_ANCS_ENABLE
+			app_setSendSecReqFlag(NEED_SEND_SEC_REQ);
+#endif
+#if BLE_IOS_ANCS_ENABLE
+			tick_findAncsSrv = 0x00;
+			tick_encryptionFinish = clock_time() | 1;
+#endif
+#if (BLE_IOS_AMS_ENABLE && (!BLE_IOS_ANCS_ENABLE))
+			amsInit(1);
+			amsFuncSetEnable(1);
+#endif
 		}
 		break;
 		
@@ -539,6 +722,20 @@ static int tlkmmi_lemgr_connectCompleteEvt(uint08 *pData, uint16 dataLen)
 		}
 		sTlkMmiLemgrAcl.connHandle = pConnEvt->connHandle;
 		tmemcpy(sTlkMmiLemgrAcl.connAddr, pConnEvt->peerAddr, 6);
+
+#if (BLE_IOS_ANCS_ENABLE || BLE_IOS_AMS_ENABLE)
+		app_setCurBleConnState(BLE_CONNECTED);
+#endif
+
+#if BLE_IOS_ANCS_ENABLE
+		//ancs_findAncsService(); //should not call when conn back
+		app_setSendSecReqFlag(NO_NEED_SEND_SEC_REQ);
+		tick_findAncsSrv = clock_time() | 0x01;
+		ancs_initial(ANCS_ATT_TYPE_ALL_INCLUDE);
+		app_setSystemType(SYSTEM_TYPE_ANDROID);
+		ancs_setNewsReceivedStatus(ANCS_SET_NO_NEW_NOTICE);
+		tick_conn_update_parm = clock_time() | 1;
+#endif
 	}
 	
 	tlkmmi_lemgr_sendAclConnectEvt(pConnEvt->connHandle, pConnEvt->status, 0x02, pConnEvt->peerAddrType, pConnEvt->peerAddr);
@@ -568,6 +765,14 @@ static int tlkmmi_lemgr_disconnCompleteEvt(uint08 *pData, uint16 dataLen)
 	else{
 
 	}
+
+#if BLE_IOS_ANCS_ENABLE
+	blc_smp_configSecurityRequestSending(SecReq_IMM_SEND, SecReq_IMM_SEND, 0);
+#endif
+
+#if (BLE_IOS_ANCS_ENABLE || BLE_IOS_AMS_ENABLE)
+	app_setCurBleConnState(BLE_DISCONNECTED);
+#endif
 
 
 	dev_char_info_delete_by_connhandle(pDiscEvt->connHandle);
@@ -645,6 +850,17 @@ static int tlkmmi_lemgr_gattDataCB(uint16 connHandle, uint08 *pkt)
 
 	}
 #endif
+
+#if BLE_IOS_ANCS_ENABLE
+		task_ancs_proc(connHandle, pkt);
+#endif
+	
+#if BLE_IOS_AMS_ENABLE
+		if(amsFuncIsEn()){
+			amsStackCallback(pkt);
+		}
+#endif
+
 
 	return 0;
 }

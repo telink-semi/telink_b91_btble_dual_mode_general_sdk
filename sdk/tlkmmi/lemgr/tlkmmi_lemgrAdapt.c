@@ -24,8 +24,10 @@
 #if (TLKMMI_LEMGR_ENABLE)
 #include "tlkmmi_lemgr.h"
 #include "tlkmmi_lemgrAdapt.h"
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
+
+static uint08 sTlkMmiLemgrProcID = 0;
 
 
 /******************************************************************************
@@ -35,9 +37,10 @@
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_lemgr_adaptInit(void)
+int tlkmmi_lemgr_adaptInit(uint08 procID)
 {
-	return tlktsk_adapt_init(TLKMMI_LEMGR_PROCID);
+	sTlkMmiLemgrProcID = procID;
+	return tlksys_adapt_init(sTlkMmiLemgrProcID);
 }
 
 /******************************************************************************
@@ -50,7 +53,7 @@ int tlkmmi_lemgr_adaptInit(void)
 *******************************************************************************/
 void tlkmmi_lemgr_adaptHandler(void)
 {
-	tlktsk_adapt_handler(TLKMMI_LEMGR_PROCID);
+	tlksys_adapt_handler(sTlkMmiLemgrProcID);
 }
 
 /******************************************************************************
@@ -62,7 +65,7 @@ void tlkmmi_lemgr_adaptHandler(void)
 *******************************************************************************/
 uint tlkmmi_lemgr_adaptInterval(void)
 {
-	return tlktsk_adapt_interval(TLKMMI_LEMGR_PROCID);
+	return tlksys_adapt_interval(sTlkMmiLemgrProcID);
 }
 
 /******************************************************************************
@@ -81,19 +84,19 @@ uint tlkmmi_lemgr_adaptInterval(void)
 *******************************************************************************/
 int tlkmmi_lemgr_adaptInitTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
-	return tlktsk_adapt_initTimer(TLKMMI_LEMGR_PROCID, pTimer, timerCB, userArg, timeout);
+	return tlksys_adapt_initTimer(sTlkMmiLemgrProcID, pTimer, timerCB, userArg, timeout);
 }
 int tlkmmi_lemgr_adaptInitQueue(tlkapi_queue_t *pProcs, TlkApiQueueCB queueCB, uint32 userArg)
 {
-	return tlktsk_adapt_initQueue(TLKMMI_LEMGR_PROCID, pProcs, queueCB, userArg);
+	return tlksys_adapt_initQueue(sTlkMmiLemgrProcID, pProcs, queueCB, userArg);
 }
 void tlkmmi_lemgr_adaptDeinitTimer(tlkapi_timer_t *pTimer)
 {
-	tlktsk_adapt_deinitTimer(TLKMMI_LEMGR_PROCID, pTimer);
+	tlksys_adapt_deinitTimer(sTlkMmiLemgrProcID, pTimer);
 }
 void tlkmmi_lemgr_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 {
-	tlktsk_adapt_deinitQueue(TLKMMI_LEMGR_PROCID, pProcs);
+	tlksys_adapt_deinitQueue(sTlkMmiLemgrProcID, pProcs);
 }
 
 /******************************************************************************
@@ -107,11 +110,11 @@ void tlkmmi_lemgr_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 bool tlkmmi_lemgr_adaptIsHaveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_isHaveTimer(TLKMMI_LEMGR_PROCID, pTimer);
+	return tlksys_adapt_isHaveTimer(sTlkMmiLemgrProcID, pTimer);
 }
 bool tlkmmi_lemgr_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_isHaveQueue(TLKMMI_LEMGR_PROCID, pProcs);
+	return tlksys_adapt_isHaveQueue(sTlkMmiLemgrProcID, pProcs);
 }
 
 /******************************************************************************
@@ -124,11 +127,11 @@ bool tlkmmi_lemgr_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_lemgr_adaptAppendQueue(tlkapi_queue_t *pProcs)
 {	
-	return tlktsk_adapt_appendQueue(TLKMMI_LEMGR_PROCID, pProcs);
+	return tlksys_adapt_appendQueue(sTlkMmiLemgrProcID, pProcs);
 }
 int tlkmmi_lemgr_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_removeQueue(TLKMMI_LEMGR_PROCID, pProcs);
+	return tlksys_adapt_removeQueue(sTlkMmiLemgrProcID, pProcs);
 }
 
 /******************************************************************************
@@ -144,15 +147,15 @@ int tlkmmi_lemgr_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_lemgr_adaptUpdateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)
 {
-	return tlktsk_adapt_updateTimer(TLKMMI_LEMGR_PROCID, pTimer, timeout, isInsert);
+	return tlksys_adapt_updateTimer(sTlkMmiLemgrProcID, pTimer, timeout, isInsert);
 }
 int tlkmmi_lemgr_adaptInsertTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_insertTimer(TLKMMI_LEMGR_PROCID, pTimer, true);
+	return tlksys_adapt_insertTimer(sTlkMmiLemgrProcID, pTimer, true);
 }
 int tlkmmi_lemgr_adaptRemoveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_removeTimer(TLKMMI_LEMGR_PROCID, pTimer);
+	return tlksys_adapt_removeTimer(sTlkMmiLemgrProcID, pTimer);
 }
 
 

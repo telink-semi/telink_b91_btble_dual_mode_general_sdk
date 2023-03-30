@@ -205,24 +205,28 @@ static int tlkdrv_rtl2108_setMuteDeal(uint08 subDev, uint32 param0, uint32 param
 {
 	uint08 mute = param0 & 0xFF;
 	if(mute != 0x00 && mute != 0x01) return -TLK_EPARAM;
+	if(subDev != TLKDRV_CODEC_SUBDEV_MIC) return -TLK_ENOSUPPORT;
 	tlkdrv_rtl2108_setMicMuteStatus(mute);
 	sTlkDrvRtl2108Ctrl.isMute = mute;
 	return TLK_ENONE;
 }
 static int tlkdrv_rtl2108_getMuteDeal(uint08 subDev, uint32 param0, uint32 param1)
 {
+	if(subDev != TLKDRV_CODEC_SUBDEV_MIC) return -TLK_ENOSUPPORT;
 	return sTlkDrvRtl2108Ctrl.isMute;
 }
 static int tlkdrv_rtl2108_setVolumeDeal(uint08 subDev, uint32 param0, uint32 param1)
 {
 	uint08 micVol = param0 & 0xFF;
 	if(micVol > 100) return -TLK_EPARAM;
+	if(subDev != TLKDRV_CODEC_SUBDEV_MIC) return -TLK_ENOSUPPORT;
 	tlkdrv_rtl2108_setMicGain(micVol);
 	sTlkDrvRtl2108Ctrl.micVol = micVol;
 	return TLK_ENONE;
 }
 static int tlkdrv_rtl2108_getVolumeDeal(uint08 subDev, uint32 param0, uint32 param1)
 {
+	if(subDev != TLKDRV_CODEC_SUBDEV_MIC) return -TLK_ENOSUPPORT;
 	return sTlkDrvRtl2108Ctrl.micVol;
 }
 static int tlkdrv_rtl2108_setChannelDeal(uint08 subDev, uint32 param0, uint32 param1)

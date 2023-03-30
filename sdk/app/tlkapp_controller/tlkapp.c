@@ -20,26 +20,29 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkstk/tlkstk_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlksys/prt/tlkpto_stdio.h"
-#include "tlkmdi/tlkmdi.h"
-#include "tlkdev/tlkdev.h"
-#include "tlklib/usb/tlkusb.h"
-
-#include "tlkstk/ble/ble.h"
 #include "tlkapp_config.h"
-
-#include "tlkapp_debug.h"
+#include "tlkapp_serial.h"
 #include "tlkapp_irq.h"
-
 #include "tlkapp.h"
+#include "drivers.h"
+
 
 
 extern void trng_init(void);
+extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 
+extern void tlkbt_set_workMode(u8 workMode);
+extern plic_interrupt_claim_callback_t plic_interrupt_claim_cb;
+
+extern int tlkdev_init(void);
+extern int tlkusb_init(uint16 usbID);
+#if (TLK_CFG_DBG_ENABLE)
+extern void tlkdbg_init(void);
+extern void tlkusb_handler(void);
+extern void tlk_debug_init(void);
+#endif
 
 
 /******************************************************************************
@@ -52,33 +55,43 @@ extern void trng_init(void);
 int tlkapp_init(void)
 {
   	g_plic_preempt_en = 1;
+	flash_plic_preempt_config(1, 1);
 	trng_init();
-	tlksdk_mode_select(0,1);
+	tlkbt_set_workMode(0);
+
 	tlkapp_irq_init();
-	tlkdev_init();
-	#if (TLK_CFG_DBG_ENABLE)
+	
+#if (TLK_CFG_DBG_ENABLE)
+	tlk_debug_init();
 	tlkdbg_init();
-	#endif
+	tlkusb_init(0x120);
+#endif
+	tlkdev_init();
 	tlkstk_init();
-	tlkapp_debug_init();
+	
+	plic_interrupt_claim_cb = (plic_interrupt_claim_callback_t)plic_interrupt_claim();
+	
+	tlkapp_serial_init();
 
 	return TLK_ENONE;
 }
 
+
 /******************************************************************************
- * Function: tlkapp_process
+ * Function: tlkapp_handler
  * Descript: BTBLE SDK main loop.
  * Params: None.
  * Return: None.
  * Others: None.
 *******************************************************************************/
-void tlkapp_process(void)
+void tlkapp_handler(void)
 {
+#if (TLK_CFG_DBG_ENABLE)
 	tlkdbg_handler();
-	tlkusb_process();
-	#if (TLK_DEV_HCIUART_ENABLE)
-	tlkdev_hciuart_handler();
-	#endif
+	tlkusb_handler();
+#endif
+	tlkstk_handler();
+	tlkapp_serial_handler();
 }
 
 

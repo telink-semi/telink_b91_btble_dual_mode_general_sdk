@@ -32,18 +32,7 @@
 
 #define TLKMMI_PHONE_SCO_MANAGE     (0 && TLK_MDI_AUDSCO_ENABLE)
 
-#define TLKMMI_PHONE_PROCID         TLKTSK_PROCID_STACK
 
-
-/******************************************************************************
- * Function: tlkmmi_phone_init
- * Descript: Trigger the phone to initial, including the phone control block, 
- *           and phone status,phone book and comm. 
- * Params:
- * Return: Return TLK_ENONE is success, other value is failure.
- * Others: None.
-*******************************************************************************/
-extern int tlkmmi_phone_init(void);
 
 /******************************************************************************
  * Function: tlkmmi_phone_startSyncBook

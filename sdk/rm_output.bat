@@ -1,15 +1,14 @@
-@Rem        脚本功能：递归遍历，删除指定子文件夹
-echo off & color 0A
-::指定起始文件夹
-set DIR="%cd%"
-set DEL_NAME=output
-echo DIR=%DIR%
+@echo off
+set "folderToDelete=output"
+set "folderCount=0"
 
-
-for /d /R %DIR% %%f in (*) do ( 
-	@echo %%f
-	@echo %DEL_NAME%
-	@echo %%f | findstr %DEL_NAME% >nul && rd /s /q %%f || echo no
+for /d /r %%i in (*%folderToDelete%) do (
+    if /i "%%~nxi"=="%folderToDelete%" (
+        echo Deleting folder: "%%~i"
+        rd /s /q "%%~i"
+        set /a "folderCount+=1"
+    )
 )
-@echo success all
+
+echo %folderCount% folders were deleted.
 pause

@@ -20,13 +20,12 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#include "drivers.h"
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkapp_config.h"
 #include "tlkapp.h"
 
 #include "tlkapp_dfu.h"
-
+#include "drivers.h"
 
 
 
@@ -48,12 +47,12 @@ int main(void)
 	#if 1
 	tlkapp_dfu_load();
 	TLKAPP_JUMP_TO_APP();
-	while(1){ start_reboot(); }
+	while(1){ core_reboot(); }
 	#else
     tlkapp_init();
 	while(1)
 	{
-		tlkapp_process();
+		tlkapp_handler();
 	}
 	#endif
     return 0;

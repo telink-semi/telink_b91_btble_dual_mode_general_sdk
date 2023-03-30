@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_SYSTEM_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_sys.h"
 #include "tlkmmi_sysCtrl.h"
 #include "tlkmmi_sysMsgSys.h"
@@ -36,7 +36,7 @@
 extern int bth_hci_sendResetCmd(void);
 extern uint tlkcfg_getWorkMode(void);
 extern void tlkcfg_setWorkMode(TLK_WORK_MODE_ENUM wmode);
-extern void start_reboot(void);
+extern void core_reboot(void);
 
 static void tlkmmi_sys_commGetVersionDeal(void);
 static void tlkmmi_sys_commRebootDeal(void);
@@ -296,7 +296,7 @@ static void tlkmmi_sys_commSetWorkMode(uint08 *pData, uint08 dataLen)
 		tlkmmi_sys_sendCommRsp(TLKPRT_COMM_CMDID_SYS_SET_WORK_MODE, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EFORMAT, nullptr, 0);
 	}else{
 		tlkcfg_setWorkMode(pData[0]);
-		start_reboot();
+		core_reboot();
 	}
 #endif
 }

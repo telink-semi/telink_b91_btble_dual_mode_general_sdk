@@ -40,7 +40,7 @@ static tlkmmi_rdt_t001_t sTlkMmiRdtT001 = {0};
 
 int tlkmmi_rdt_t001GetRole(void)
 {
-	return sTlkMmiRdtT001.state;
+	return sTlkMmiRdtT001.devRole;
 }
 int tlkmmi_rdt_t001GetState(void)
 {

@@ -22,10 +22,13 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_TEST_ENABLE)
+#include "tlksys/tlksys_stdio.h"
+#include "tlkstk/tlkstk_stdio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkmmi_test.h"
-#include "tlkmmi_testTask.h"
 #include "tlkmmi_testAdapt.h"
 #include "tlkmmi_testModinf.h"
+#include "tlkmmi_testMsg.h"
 #include "drivers.h"
 
 
@@ -34,11 +37,13 @@ static void tlkmmi_test_rebootDeal(void);
 
 
 extern uint tlkcfg_getWorkMode(void);
-static tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
+ tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
 
 
+TLKSYS_MMI_TASK_DEFINE(test, Test);
 
-int tlkmmi_test_init(void)
+
+static int tlkmmi_test_init(uint08 procID, uint08 taskID)
 {
 	uint08 workMode = tlkcfg_getWorkMode();
 	tmemset(&sTlkMmiTestCtrl, 0, sizeof(tlkmmi_test_ctrl_t));
@@ -50,30 +55,50 @@ int tlkmmi_test_init(void)
 	else sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_NONE;
 	if(sTlkMmiTestCtrl.wmode == TLKMMI_TEST_MODTYPE_NONE) return TLK_ENONE;
 
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_TEST, TLKSYS_TASKID_TEST);
+	#endif
+	tlkstk_init();
+	tlkmmi_test_adaptInit(procID);
+
 	tlkmmi_test_adaptInitTimer(&sTlkMmiTestCtrl.timer, tlkmmi_test_timer, NULL, TLKMMI_TEST_TIMEOUT);
-	tlkmmi_test_taskInit();	
+
+	return TLK_ENONE;
+}
+static int tlkmmi_test_start(void)
+{
 	
 	return TLK_ENONE;
 }
+static int tlkmmi_test_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_test_close(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_test_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen, 
+	uint08 *pData, uint16 dataLen)
+{
+	if(mtype != TLKPRT_COMM_MTYPE_TEST) return -TLK_ENOSUPPORT;
+	tlkapi_trace(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "mtype->%d msgID->%d", mtype, msgID);
+	tlkapi_array(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "Payload", pData, dataLen);
+	if(msgID < TLKPRT_COMM_CMDID_TEST_CONTEXT_START){
+		tlkmmi_test_recvMsgHandler(msgID, pData, dataLen);
+		return TLK_ENONE;
+	}else{
+		return tlkmmi_test_modInput(sTlkMmiTestCtrl.wmode, msgID, pHead, headLen, pData, dataLen);
+	}
+}
+static void tlkmmi_test_handler(void)
+{
+	tlkstk_handler();
+}
 
 
-int tlkmmi_test_start(void)
-{
-	return tlkmmi_test_modStart(sTlkMmiTestCtrl.wmode);
-}
-int tlkmmi_test_pause(void)
-{
-	return tlkmmi_test_modPause(sTlkMmiTestCtrl.wmode);
-}
-int tlkmmi_test_close(void)
-{
-	return tlkmmi_test_modClose(sTlkMmiTestCtrl.wmode);
-}
-int tlkmmi_test_input(uint16 msgID, uint08 *pData, uint16 dataLen)
-{
-	tlkapi_trace(TLKMMI_TEST_DBG_FLAG, TLKMMI_TEST_DBG_SIGN, "tlkmmi_test_input->%d", sTlkMmiTestCtrl.wmode);
-	return tlkmmi_test_modInput(sTlkMmiTestCtrl.wmode, msgID, pData, dataLen);
-}
+
 void tlkmmi_test_reboot(uint16 timeout)
 {
 	tlkmmi_test_close();
@@ -86,11 +111,6 @@ void tlkmmi_test_reboot(uint16 timeout)
 		tlkmmi_test_adaptInsertTimer(&sTlkMmiTestCtrl.timer);
 	}
 }
-void tlkmmi_test_handler(void)
-{
-	
-}
-
 
 static bool tlkmmi_test_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 {

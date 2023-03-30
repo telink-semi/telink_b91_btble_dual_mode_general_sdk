@@ -30,9 +30,7 @@ int tlkmmi_sys_sendCommCmd(uint08 cmdID, uint08 *pData, uint08 dataLen);
 int tlkmmi_sys_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen);
 int tlkmmi_sys_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen);
 
-int tlkmmi_sys_innerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen);
-
-int tlkmmi_sys_innerExtMsgHandler(uint08 msgID, uint08 *pHead, uint08 headLen, uint08 *pData, uint08 dataLen);
+int tlkmmi_sys_innerMsgHandler(uint08 msgID, uint08 *pHead, uint08 headLen, uint08 *pData, uint08 dataLen);
 
 
 

@@ -70,7 +70,7 @@ void tlkalg_ec_init(uint08 *pNs, uint08 *pAec ,uint08 *pScratch)
 		nsParas.ns_threshold_low = 0.0f,				//NS threshold
 		nsParas.frame_size = 120;
 		nsParas.sampling_rate = 16000;
-		tlka_ns_init(sTlkAlgEcNsCtrl, &nsParas, (void *)sTlkAlgEcScratch);
+		tlka_ns_init((void *)sTlkAlgEcNsCtrl, (void *)&nsParas, (void *)sTlkAlgEcScratch);
 		if(sTlkAlgEcAecCtrl != nullptr){
 			tlka_ns_set_parameter(sTlkAlgEcNsCtrl, SPEEX_PREPROCESS_SET_ECHO_STATE, sTlkAlgEcAecCtrl);
 		}

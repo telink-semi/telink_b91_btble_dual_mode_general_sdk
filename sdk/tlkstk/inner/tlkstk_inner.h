@@ -42,10 +42,6 @@
 #include "tlkstk/inner/tlkstk_utility.h"
 
 
-extern my_fifo_t	hci_txfifo;
-extern my_fifo_t	hci_rxfifo;
-
-
 
 
 #endif //TLKSTK_INNER_H

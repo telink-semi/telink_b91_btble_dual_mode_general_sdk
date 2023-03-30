@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_lemgr.h"
 #include "tlkmmi_lemgrMsgInner.h"
 
@@ -48,7 +47,7 @@ int tlkmmi_lemgr_sendCommCmd(uint08 cmdID, uint08 *pData, uint08 dataLen)
 	head[headLen++] = TLKPRT_COMM_PTYPE_CMD; //Cmd
 	head[headLen++] = TLKPRT_COMM_MTYPE_LE;
 	head[headLen++] = cmdID;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 int tlkmmi_lemgr_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen)
 {
@@ -59,7 +58,7 @@ int tlkmmi_lemgr_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 
 	head[headLen++] = cmdID;
 	head[headLen++] = status;
 	head[headLen++] = reason;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 int tlkmmi_lemgr_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 {
@@ -68,7 +67,7 @@ int tlkmmi_lemgr_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 	head[headLen++] = TLKPRT_COMM_PTYPE_EVT; //Cmd
 	head[headLen++] = TLKPRT_COMM_MTYPE_LE;
 	head[headLen++] = evtID;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 
 

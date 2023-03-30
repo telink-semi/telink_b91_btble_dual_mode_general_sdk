@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlksys/prt/tlkpto_comm.h"
 #include "tlkmdi/misc/tlkmdi_comm.h"

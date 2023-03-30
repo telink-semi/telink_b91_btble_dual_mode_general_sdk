@@ -61,7 +61,7 @@
 
 /* Standard includes. */
 #include "string.h"
-#include "tlkdrv/B92/compiler.h"
+#include "compiler.h"
 #include "types.h"
 #include "drivers.h"
 #include "tlk_riscv.h"

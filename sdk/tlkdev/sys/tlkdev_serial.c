@@ -25,529 +25,193 @@
 #include "tlkdev/tlkdev.h"
 #include "tlksys/prt/tlkpto_comm.h"
 #include "tlkdev/sys/tlkdev_serial.h"
-#include "tlkalg/digest/crc/tlkalg_crc.h"
-
-#include "drivers.h"
-
-
-static void tlkdev_serial_sendHandler(void);
-static void tlkdev_serial_recvHandler(void);
-
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	#define TLKDEV_SERIAL_RECV_BUFF_NUMB      1 //4
-	#define TLKDEV_SERIAL_RECV_BUFF_SIZE      127//(TLKPRT_COMM_FRM_MAXLEN)
-	#define TLKDEV_SERIAL_SEND_BUFF_NUMB      1
-	#define TLKDEV_SERIAL_SEND_BUFF_SIZE      (TLKPRT_COMM_FRM_MAXLEN)
-	static tlkapi_fifo_t sTlkDevSerialRecvFifo;
-	static tlkapi_fifo_t *spTlkDevSerialRecvFifo;
-#else
-	#define TLKDEV_SERIAL_RECV_BUFF_NUMB      8//16
-	#define TLKDEV_SERIAL_RECV_BUFF_SIZE      152//64//(TLKPRT_COMM_FRM_MAXLEN)
-	#define TLKDEV_SERIAL_SEND_BUFF_NUMB      8
-	#define TLKDEV_SERIAL_SEND_BUFF_SIZE      64
-	static tlkapi_qfifo_t sTlkDevSerialRecvFifo;
-	static tlkapi_qfifo_t sTlkDevSerialSendFifo;
-	static tlkapi_qfifo_t *spTlkDevSerialRecvFifo;
-	static uint16 sTlkDevSerialRecvDmaLen;
+#include "tlkdrv/ext/serial/tlkdrv_serial.h"
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_pm.h"
 #endif
 
-static uint08 sTlkDevSerialSend60Thrd;
-static uint08 sTlkDevSerialSend80Thrd;
-static uint08 sTlkDevSerialSendIsBusy;
-static uint08 sTlkDevSerialRecvIsBusy;
-__attribute__((aligned(4)))
-static uint08 sTlkDevSerialRecvBuffer[TLKDEV_SERIAL_RECV_BUFF_NUMB*(TLKDEV_SERIAL_RECV_BUFF_SIZE+4)];
-#if (TLKDEV_SERIAL_DMA_ENABLE)
-__attribute__((aligned(4)))
-static uint08 sTlkDevSerialSendBuffer[TLKDEV_SERIAL_SEND_BUFF_NUMB*(TLKDEV_SERIAL_SEND_BUFF_SIZE+4)];
-#endif
-static tlkdev_serial_recvCB sTlkDevSerialRecvCB;
 
+static uint08 sTlkDevSerialPort = 0xFF;
+static uint08 sTlkDevSerialIsOpen = false;
 
 
 int tlkdev_serial_init(void)
 {
-	unsigned short div;
-	unsigned char bwpc;
+	sTlkDevSerialPort = 0xFF;
+	tlkdrv_serial_init();
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendBusyCheckCB(tlkdev_serial_isBusy);
+	tlksys_pm_appendLeaveSleepCB(tlkdev_serial_wakeup);
+	#endif
 
-	sTlkDevSerialRecvCB = nullptr;
-	sTlkDevSerialSendIsBusy = false;
-	sTlkDevSerialRecvIsBusy = false;
-	
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	tlkapi_fifo_init(&spTlkDevSerialRecvFifo, false, false, sTlkDevSerialRecvBuffer, TLKDEV_SERIAL_RECV_BUFF_NUMB*TLKDEV_SERIAL_RECV_BUFF_SIZE);
-
-	uart_reset(TLKDEV_SERIAL_PORT);
-	uart_set_pin(TLKDEV_SERIAL_TX_PIN, TLKDEV_SERIAL_RX_PIN);
-	uart_cal_div_and_bwpc(TLKDEV_SERIAL_BAUDRATE, sys_clk.pclk*1000*1000, &div, &bwpc);
-	uart_init(TLKDEV_SERIAL_PORT, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);
-	
-	/* UART RX enable */
-	uart_rx_irq_trig_level(TLKDEV_SERIAL_PORT, 1);
-	plic_interrupt_enable(IRQ18_UART1);
-	uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_RX_IRQ_MASK | UART_ERR_IRQ_MASK);
-	plic_set_priority(IRQ18_UART1, IRQ_PRI_LEV3);
-#else
-	spTlkDevSerialRecvFifo = &sTlkDevSerialRecvFifo;
-	tlkapi_qfifo_init(&sTlkDevSerialRecvFifo, TLKDEV_SERIAL_RECV_BUFF_NUMB, (TLKDEV_SERIAL_RECV_BUFF_SIZE+4), 
-		sTlkDevSerialRecvBuffer, TLKDEV_SERIAL_RECV_BUFF_NUMB*(TLKDEV_SERIAL_RECV_BUFF_SIZE+4));
-	tlkapi_qfifo_init(&sTlkDevSerialSendFifo, TLKDEV_SERIAL_SEND_BUFF_NUMB, (TLKDEV_SERIAL_SEND_BUFF_SIZE+4), 
-		sTlkDevSerialSendBuffer, TLKDEV_SERIAL_SEND_BUFF_NUMB*(TLKDEV_SERIAL_SEND_BUFF_SIZE+4));
-	sTlkDevSerialRecvDmaLen = TLKDEV_SERIAL_RECV_BUFF_SIZE;
-
-	sTlkDevSerialSend60Thrd = TLKDEV_SERIAL_SEND_BUFF_NUMB*6/10;
-	sTlkDevSerialSend80Thrd = TLKDEV_SERIAL_SEND_BUFF_NUMB*8/10;
-		
-	uart_reset(TLKDEV_SERIAL_PORT);
-	uart_set_pin(TLKDEV_SERIAL_TX_PIN, TLKDEV_SERIAL_RX_PIN);
-		
-	uart_cal_div_and_bwpc(TLKDEV_SERIAL_BAUDRATE, sys_clk.pclk*1000*1000, &div, &bwpc);
-	uart_init(TLKDEV_SERIAL_PORT, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);	
-	uart_set_dma_rx_timeout(TLKDEV_SERIAL_PORT, bwpc, 12, UART_BW_MUL2);		
-
-	uart_set_tx_dma_config(TLKDEV_SERIAL_PORT, TLKDEV_SERIAL_DMA_TX);
-	uart_set_rx_dma_config(TLKDEV_SERIAL_PORT, TLKDEV_SERIAL_DMA_RX);
-	
-	uart_clr_tx_done(TLKDEV_SERIAL_PORT);
-
-	dma_clr_irq_mask(TLKDEV_SERIAL_DMA_TX, TC_MASK|ABT_MASK|ERR_MASK);
-	dma_clr_irq_mask(TLKDEV_SERIAL_DMA_RX, TC_MASK|ABT_MASK|ERR_MASK);
-	
-	uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_RXDONE_MASK);
-	uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_TXDONE_MASK); 
-	uart_set_irq_mask(TLKDEV_SERIAL_PORT, UART_ERR_IRQ_MASK);
-
-	plic_interrupt_enable(IRQ18_UART1);
-	plic_set_priority(IRQ18_UART1, IRQ_PRI_LEV2);
-	
-	uint08 *pBuffer = tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-	uart_receive_dma(TLKDEV_SERIAL_PORT, pBuffer+4, sTlkDevSerialRecvDmaLen);
-#endif
-	
 	return TLK_ENONE;
+}
+
+int tlkdev_serial_mount(uint08 port, uint32 baudRate, uint16 txPin,
+	uint16 rxPin, uint08 txDma, uint08 rxDma, uint16 rtsPin, uint16 ctsPin)
+{	
+	int ret;
+
+	if(sTlkDevSerialPort != 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_mount: failure - already mount");
+		return -TLK_EBUSY;
+	}
+	
+	ret = tlkdrv_serial_mount(port, baudRate, txPin, rxPin, txDma, rxDma,
+		  rtsPin, ctsPin);
+	if(ret == TLK_ENONE){
+		sTlkDevSerialPort = port;
+		sTlkDevSerialIsOpen = false;
+	}
+	return ret;
+}
+int tlkdev_serial_unmount(void)
+{
+	int ret;
+	
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_unmount: failure - not mount");
+		return -TLK_ENOOBJECT;
+	}
+	
+	ret = tlkdrv_serial_unmount(sTlkDevSerialPort);
+	if(ret == TLK_ENONE){
+		sTlkDevSerialPort = 0xFF;
+		sTlkDevSerialIsOpen = false;
+	}
+	return ret;
+}
+
+int tlkdev_serial_setBaudrate(uint32 baudRate)
+{
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_setBaudrate: failure - not mount");
+		return -TLK_EBUSY;
+	}
+	return tlkdrv_serial_setBaudrate(sTlkDevSerialPort, baudRate);
+}
+
+int tlkdev_serial_setRxFifo(uint08 *pBuffer, uint16 buffLen)
+{
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_setRxFifo: failure - not mount");
+		return -TLK_EBUSY;
+	}
+	return tlkdrv_serial_setRxFifo(sTlkDevSerialPort, pBuffer, buffLen);
+}
+int tlkdev_serial_setTxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen)
+{
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_setTxQFifo: failure - not mount");
+		return -TLK_EBUSY;
+	}
+	return tlkdrv_serial_setTxQFifo(sTlkDevSerialPort, fnumb, fsize, pBuffer, buffLen);
+}
+int tlkdev_serial_setRxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen)
+{
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_setRxQFifo: failure - not mount");
+		return -TLK_EBUSY;
+	}
+	return tlkdrv_serial_setRxQFifo(sTlkDevSerialPort, fnumb, fsize, pBuffer, buffLen);
+}
+
+int tlkdev_serial_open(void)
+{
+	int ret;
+
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdrv_serial_open: failure - not mount");
+		return -TLK_ENOREADY;
+	}
+	if(sTlkDevSerialIsOpen){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdrv_serial_open: failure - already open");
+		return -TLK_EREPEAT;
+	}
+	
+	ret = tlkdrv_serial_open(sTlkDevSerialPort);
+	if(ret == TLK_ENONE){
+		sTlkDevSerialIsOpen = true;
+	}
+	return ret;
+}
+int tlkdev_serial_close(void)
+{
+	int ret;
+	
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_close: failure - not mount");
+		return -TLK_ENOREADY;
+	}
+	if(!sTlkDevSerialIsOpen){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkdev_serial_close: failure - not open");
+		return -TLK_ESTATUS;
+	}
+	
+	ret = tlkdrv_serial_close(sTlkDevSerialPort);
+	if(ret == TLK_ENONE){
+		sTlkDevSerialIsOpen = false;
+	}
+	return ret;
+}
+
+int tlkdev_serial_read(uint08 *pBuff, uint16 buffLen)
+{
+	if(sTlkDevSerialPort == 0xFF || !sTlkDevSerialIsOpen) return -TLK_ENOREADY;
+	return tlkdrv_serial_read(sTlkDevSerialPort, pBuff, buffLen);
+}
+_attribute_ram_code_sec_
+int tlkdev_serial_send(uint08 *pData, uint16 dataLen)
+{
+	if(sTlkDevSerialPort == 0xFF || !sTlkDevSerialIsOpen) return -TLK_ENOREADY;
+	return tlkdrv_serial_send(sTlkDevSerialPort, pData, dataLen);
 }
 
 bool tlkdev_serial_isBusy(void)
 {
-	return (sTlkDevSerialSendIsBusy || sTlkDevSerialRecvIsBusy/*|| uart_tx_is_busy(TLKDEV_SERIAL_PORT)*/)
-		#if !(TLKDEV_SERIAL_DMA_ENABLE)
-			|| !tlkapi_fifo_isEmpty(spTlkDevSerialRecvFifo)
-		#else
-			|| !tlkapi_qfifo_isEmpty(&sTlkDevSerialSendFifo) || !tlkapi_qfifo_isEmpty(spTlkDevSerialRecvFifo)
-		#endif
-		;
+	if(sTlkDevSerialPort == 0xFF || !sTlkDevSerialIsOpen) return false;
+	return tlkdrv_serial_isBusy(sTlkDevSerialPort);
 }
-void tlkdev_serial_wakeup(void)
+void tlkdev_serial_wakeup(uint wakeSrc)
 {
-	uart_clr_tx_index(TLKDEV_SERIAL_PORT);
-	uart_clr_rx_index(TLKDEV_SERIAL_PORT);
-	#if (TLKDEV_SERIAL_DMA_ENABLE)
-	uint08 *pBuffer = tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-	uart_receive_dma(TLKDEV_SERIAL_PORT, pBuffer+4, sTlkDevSerialRecvDmaLen);
-	#endif
-}
-
-
-int tlkdev_serial_send(uint08 *pData, uint16 dataLen)
-{
-	#if (TLKDEV_SERIAL_DMA_ENABLE)
-	uint16 count;
-	uint16 tempVar;
-	uint08 *pBuffer;
-	#endif
-
-#if (TLKDEV_SERIAL_DMA_ENABLE)
-	count = (dataLen+TLKPRT_COMM_FRM_EXTLEN+TLKDEV_SERIAL_SEND_BUFF_SIZE-1)/TLKDEV_SERIAL_SEND_BUFF_SIZE;
-//	tlkapi_trace(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "send 02: %d %d %d %d", count, sTlkDevSerialSendFifo.wptr,
-//		sTlkDevSerialSendFifo.rptr, tlkapi_qfifo_usedNum(&sTlkDevSerialSendFifo));
-	if(count > tlkapi_qfifo_idleNum(&sTlkDevSerialSendFifo)) return -TLK_EQUOTA;
-#endif
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	uint16 index;
-	for(index=0; index<dataLen; index++){    
-        uart_send_byte(TLKDEV_SERIAL_PORT, pData[index]);
-    }
-#else
-//	tlkapi_trace(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "send 03: %d", count);
-	while((count--) != 0 && dataLen != 0){
-//		tlkapi_trace(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "send 04: %d", dataLen);
-		pBuffer = tlkapi_qfifo_getBuff(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr) break;
-		if(dataLen <= TLKDEV_SERIAL_SEND_BUFF_SIZE) tempVar = dataLen;
-		else tempVar = TLKDEV_SERIAL_SEND_BUFF_SIZE;
-		pBuffer[0] = (tempVar & 0x00FF);
-		pBuffer[1] = (tempVar & 0xFF00) >> 8;
-		pBuffer[2] = 0;
-		pBuffer[3] = 0;
-		tmemcpy(pBuffer+4, pData, tempVar);
-		pData   += tempVar;
-		dataLen -= tempVar;
-		tlkapi_qfifo_dropBuff(&sTlkDevSerialSendFifo);
-//		tlkapi_array(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "snd OK:", pBuffer, tempVar+4);
+	if(sTlkDevSerialPort != 0xFF && sTlkDevSerialIsOpen){
+		tlkdrv_serial_wakeup(sTlkDevSerialPort);
 	}
-	if(!sTlkDevSerialSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkDevSerialSendFifo)){
-		uint08 *pBuffer;
-		pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr){
-			
-		}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
-			tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DmaLen error! %x", pBuffer[0]);
-			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-		}else{
-			uint16 dataLen = ((uint16)pBuffer[1] << 8) | pBuffer[0];
-			if(dataLen == 0 || dataLen > TLKDEV_SERIAL_SEND_BUFF_SIZE){
-				tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DataLen[%d] error!", dataLen);
-				tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-			}else{
-				sTlkDevSerialSendIsBusy = true;
-				uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
-			}
-		}
-	}
-#endif
-	
-	return TLK_ENONE;
 }
 
 void tlkdev_serial_clear(void)
 {
-	#if (TLKDEV_SERIAL_DMA_ENABLE)
-	tlkapi_qfifo_clear(&sTlkDevSerialSendFifo);
-	tlkapi_qfifo_clear(spTlkDevSerialRecvFifo);
-	#endif
+	if(sTlkDevSerialPort == 0xFF) return;
+	tlkdrv_serial_clear(sTlkDevSerialPort);
 }
 
-void tlkdev_serial_regCB(tlkdev_serial_recvCB cb)
+void tlkdev_serial_regCB(TlkDevSerialRecvCB cb)
 {
-	sTlkDevSerialRecvCB = cb;
+	if(sTlkDevSerialPort == 0xFF) return;
+	tlkdrv_serial_regCB(sTlkDevSerialPort, (TlkDrvSerialRecvCB)cb);
 }
 
-uint tlkdev_serial_sfifoSingleLen(void)
-{
-	return TLKDEV_SERIAL_SEND_BUFF_SIZE;
-}
+
 bool tlkdev_serial_sfifoIsMore60(uint16 dataLen)
 {
-#if !(TLKDEV_SERIAL_DMA_ENABLE)	
-	return false;
-#else
-	if(tlkapi_qfifo_usedNum(&sTlkDevSerialSendFifo) >= sTlkDevSerialSend60Thrd) return true;
-	else return false;
-#endif
+	if(sTlkDevSerialPort == 0xFF) return false;
+	return tlkdrv_serial_sfifoIsMore60(sTlkDevSerialPort, dataLen);
 }
 bool tlkdev_serial_sfifoIsMore80(uint16 dataLen)
 {
-#if !(TLKDEV_SERIAL_DMA_ENABLE)	
-	return false;
-#else
-	if(tlkapi_qfifo_usedNum(&sTlkDevSerialSendFifo) >= sTlkDevSerialSend80Thrd) return true;
-	else return false;
-#endif
-
+	if(sTlkDevSerialPort == 0xFF) return false;
+	return tlkdrv_serial_sfifoIsMore85(sTlkDevSerialPort, dataLen);
 }
 
-
+_attribute_ram_code_sec_
 void tlkdev_serial_handler(void)
 {
-	tlkdev_serial_sendHandler();
-	tlkdev_serial_recvHandler();
-}
-
-static void tlkdev_serial_sendHandler(void)
-{
-#if (TLKDEV_SERIAL_DMA_ENABLE)
-	uint08 *pBuffer;
-	if(!sTlkDevSerialSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkDevSerialSendFifo)){
-		pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr){
-
-		}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
-			tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DmaLen error! %x", pBuffer[0]);
-			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-		}else{
-			uint16 dataLen = ((uint16)pBuffer[1] << 8) | pBuffer[0];
-			if(dataLen == 0 || dataLen > TLKDEV_SERIAL_SEND_BUFF_SIZE){
-				tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DataLen[%d] error!", dataLen);
-				tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-			}else{
-				sTlkDevSerialSendIsBusy = true;
-				uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
-			}
-		}
-	}
-	if(sTlkDevSerialRecvIsBusy){
-		pBuffer = tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-		if(pBuffer != nullptr){
-			sTlkDevSerialRecvIsBusy = false;
-			uart_receive_dma(TLKDEV_SERIAL_PORT, pBuffer+4, sTlkDevSerialRecvDmaLen);
-		}
-	}
-#endif
-}
-static void tlkdev_serial_recvHandler(void)
-{
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	uint08 rbyte;
-	while(tlkapi_fifo_readByte(spTlkDevSerialRecvFifo, &rbyte) == TLK_ENONE){
-		if(sTlkDevSerialRecvCB != nullptr) sTlkDevSerialRecvCB(&rbyte, 1);
-	}
-#else
-	uint08 *pData;
-	uint16 dataLen;
-	if((reg_dma_tc_isr & FLD_DMA_CHANNEL5_IRQ) != 0){
-		reg_dma_tc_isr |= FLD_DMA_CHANNEL5_IRQ;
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR);
-		sTlkDevSerialRecvIsBusy = true;
-	}
-	while(!tlkapi_qfifo_isEmpty(spTlkDevSerialRecvFifo)){
-		pData = tlkapi_qfifo_getData(spTlkDevSerialRecvFifo);
-		dataLen = (((uint16)pData[1]) << 8) | pData[0];
-		pData  += 4;
-//		tlkapi_array(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "recv1:", pData, dataLen);
-		if(sTlkDevSerialRecvCB != nullptr) sTlkDevSerialRecvCB(pData, dataLen);
-		tlkapi_qfifo_dropData(spTlkDevSerialRecvFifo);
-	}
-#endif
+	if(sTlkDevSerialPort == 0xFF) return;
+	tlkdrv_serial_handler(sTlkDevSerialPort);
 }
 
 
-_attribute_ram_code_sec_ 
-void uart1_irq_handler(void)
-{
-//	tlkapi_sendData(TLKDEV_SYS_DBG_FLAG, "irq:", 0, 0);
-	
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXBUF_IRQ_STATUS)){
-		while(uart_get_rxfifo_num(TLKDEV_SERIAL_PORT) > 0){
-			uint08 rxData = reg_uart_data_buf(TLKDEV_SERIAL_PORT, uart_rx_byte_index[TLKDEV_SERIAL_PORT]) ;
-			uart_rx_byte_index[TLKDEV_SERIAL_PORT] ++;
-			uart_rx_byte_index[TLKDEV_SERIAL_PORT] &= 0x03;
-			tlkapi_fifo_writeByte(spTlkDevSerialRecvFifo, rxData);
-//			tlkapi_sendData(TLKDEV_SYS_DBG_FLAG, "rv:", &rxData, 1);
-		}
-	}
-	if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR)){
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
-		// it will clear rx_fifo and rx_err_irq ,rx_buff_irq,so it won't enter rx_buff interrupt.
-		uart_reset(TLKDEV_SERIAL_PORT); //clear hardware pointer
-		uart_clr_rx_index(TLKDEV_SERIAL_PORT); //clear software pointer
-	}
-#else
-    if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_TXDONE)){
-	    uart_clr_tx_done(TLKDEV_SERIAL_PORT);
-		if(sTlkDevSerialSendIsBusy){
-			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-			sTlkDevSerialSendIsBusy = false;
-			uint08 *pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
-			if(pBuffer == nullptr){
-				
-			}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
-				tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-			}else{
-				uint16 dataLen = ((uint16)pBuffer[1] << 8) | pBuffer[0];
-				if(dataLen == 0 || dataLen > TLKDEV_SERIAL_SEND_BUFF_SIZE){
-					tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-				}else{
-					sTlkDevSerialSendIsBusy = true;
-					uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
-				}
-			}
-		}
-	}
-    if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXDONE)){ //A0-SOC can't use RX-DONE status,so this interrupt can noly used in A1-SOC.
-//		tlkapi_sendStr(TLKDEV_SYS_DBG_FLAG, "irq: recv");
-		uint32 *pBuffer = (uint32*)tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-		if(pBuffer != nullptr){
-			pBuffer[0] = uart_get_dma_rev_data_len(TLKDEV_SERIAL_PORT, TLKDEV_SERIAL_DMA_RX);
-			tlkapi_qfifo_dropBuff(spTlkDevSerialRecvFifo);
-		}
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
-		pBuffer = (uint32*)tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-		if(pBuffer == nullptr){
-			sTlkDevSerialRecvIsBusy = true;
-		}else{
-			pBuffer[0] = 0;
-			sTlkDevSerialRecvIsBusy = false;
-			uart_receive_dma(TLKDEV_SERIAL_PORT, (uint08*)(pBuffer+1), sTlkDevSerialRecvDmaLen);
-		}
-    }
-	if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_TXBUF_IRQ_STATUS)){
-		
-	}
-	if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RXBUF_IRQ_STATUS)){
-//		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
-//		uart_reset(TLKDEV_SERIAL_PORT); 
-//		sTlkDevSerialRecvIsBusy = true;
-	}
-	if(uart_get_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR)){
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_CLR_RX);
-		// it will clear rx_fifo and rx_err_irq ,rx_buff_irq,so it won't enter rx_buff interrupt.
-		sTlkDevSerialRecvIsBusy = true;
-	}
-#endif
-}
 
 
-#if (TLK_CFG_DBG_ENABLE)
+#endif //#if (TLK_DEV_SERIAL_ENABLE)
 
-_attribute_ram_code_sec_
-static void tlkdev_serial_sendHandler1(void)
-{
-#if (TLKDEV_SERIAL_DMA_ENABLE)
-	uint08 *pBuffer;
-	if(!sTlkDevSerialSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkDevSerialSendFifo)){
-		pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr){
-
-		}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
-			tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DmaLen error! %x", pBuffer[0]);
-			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-		}else{
-			uint16 dataLen = ((uint16)pBuffer[1] << 8) | pBuffer[0];
-			if(dataLen == 0 || dataLen > TLKDEV_SERIAL_SEND_BUFF_SIZE){
-				tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "Serial Send Fail: DataLen[%d] error!", dataLen);
-				tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-			}else{
-				sTlkDevSerialSendIsBusy = true;
-				uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
-			}
-		}
-	}
-	if(sTlkDevSerialRecvIsBusy){
-		pBuffer = tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-		if(pBuffer != nullptr){
-			sTlkDevSerialRecvIsBusy = false;
-			uart_receive_dma(TLKDEV_SERIAL_PORT, pBuffer+4, sTlkDevSerialRecvDmaLen);
-		}
-	}
-#endif
-}
-_attribute_ram_code_sec_
-static void tlkdev_serial_recvHandler1(void)
-{
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	uint08 rbyte;
-	while(tlkapi_fifo_readByte(spTlkDevSerialRecvFifo, &rbyte) == TLK_ENONE){
-		if(sTlkDevSerialRecvCB != nullptr) sTlkDevSerialRecvCB(&rbyte, 1);
-	}
-#else
-	uint08 *pData;
-	uint16 dataLen;
-	if((reg_dma_tc_isr & FLD_DMA_CHANNEL5_IRQ) != 0){
-		reg_dma_tc_isr |= FLD_DMA_CHANNEL5_IRQ;
-		uart_clr_irq_status(TLKDEV_SERIAL_PORT, UART_RX_ERR);
-		sTlkDevSerialRecvIsBusy = true;
-	}
-	while(!tlkapi_qfifo_isEmpty(spTlkDevSerialRecvFifo)){
-		pData = tlkapi_qfifo_getData(spTlkDevSerialRecvFifo);
-		dataLen = (((uint16)pData[1]) << 8) | pData[0];
-		pData  += 4;
-//		tlkapi_array(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "recv1:", pData, dataLen);
-		if(sTlkDevSerialRecvCB != nullptr) sTlkDevSerialRecvCB(pData, dataLen);
-		tlkapi_qfifo_dropData(spTlkDevSerialRecvFifo);
-	}
-#endif
-}
-_attribute_ram_code_sec_
-void tlkdev_serial_handler1(void)
-{
-	tlkdev_serial_sendHandler1();
-	tlkdev_serial_recvHandler1();
-}
-_attribute_ram_code_sec_
-void tlkdev_serial_clear1(void)
-{
-	#if (TLKDEV_SERIAL_DMA_ENABLE)
-	sTlkDevSerialSendFifo.wptr = 0;
-	sTlkDevSerialSendFifo.rptr = 0;
-	sTlkDevSerialSendFifo.full = false;
-	spTlkDevSerialRecvFifo->wptr = 0;
-	spTlkDevSerialRecvFifo->rptr = 0;
-	spTlkDevSerialRecvFifo->full = false;
-	#endif
-}
-_attribute_ram_code_sec_
-void tlkdev_serial_setRecvFifo(tlkapi_qfifo_t *pFifo)
-{
-	if(pFifo == nullptr) return;
-	#if (TLKDEV_SERIAL_DMA_ENABLE)
-	uint ret = core_disable_interrupt();
-	dma_chn_dis(TLKDEV_SERIAL_DMA_RX);
-	sTlkDevSerialRecvIsBusy = false;
-	spTlkDevSerialRecvFifo = pFifo;
-	sTlkDevSerialRecvDmaLen = tlkapi_qfifo_size(pFifo)-4;
-	core_restore_interrupt(ret);
-	uint08 *pBuffer = tlkapi_qfifo_getBuff(spTlkDevSerialRecvFifo);
-	if(pBuffer != nullptr){
-		uart_receive_dma(TLKDEV_SERIAL_PORT, pBuffer+4, sTlkDevSerialRecvDmaLen);
-	}
-	#endif
-}
-
-_attribute_ram_code_sec_
-void tlkdev_serial_regCB1(tlkdev_serial_recvCB cb)
-{
-	sTlkDevSerialRecvCB = cb;
-}
-_attribute_ram_code_sec_
-int tlkdev_serial_send1(uint08 *pData, uint16 dataLen)
-{
-	#if (TLKDEV_SERIAL_DMA_ENABLE)
-	uint16 count;
-	uint16 tempVar;
-	uint08 *pBuffer;
-	#endif
-#if (TLKDEV_SERIAL_DMA_ENABLE)
-	count = (dataLen+TLKPRT_COMM_FRM_EXTLEN+TLKDEV_SERIAL_SEND_BUFF_SIZE-1)/TLKDEV_SERIAL_SEND_BUFF_SIZE;
-//	tlkapi_trace(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "send 02: %d %d %d %d", count, sTlkDevSerialSendFifo.wptr,
-//		sTlkDevSerialSendFifo.rptr, tlkapi_qfifo_usedNum(&sTlkDevSerialSendFifo));
-	if(count > tlkapi_qfifo_idleNum(&sTlkDevSerialSendFifo)) return -TLK_EQUOTA;
-#endif
-#if !(TLKDEV_SERIAL_DMA_ENABLE)
-	uint16 index;
-	for(index=0; index<dataLen; index++){    
-        uart_send_byte(TLKDEV_SERIAL_PORT, pData[index]);
-    }
-#else
-//	tlkapi_trace(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "send 03: %d", count);
-	while((count--) != 0 && dataLen != 0){
-//		tlkapi_trace(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "send 04: %d", dataLen);
-		pBuffer = tlkapi_qfifo_getBuff(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr) break;
-		if(dataLen <= TLKDEV_SERIAL_SEND_BUFF_SIZE) tempVar = dataLen;
-		else tempVar = TLKDEV_SERIAL_SEND_BUFF_SIZE;
-		pBuffer[0] = (tempVar & 0x00FF);
-		pBuffer[1] = (tempVar & 0xFF00) >> 8;
-		pBuffer[2] = 0;
-		pBuffer[3] = 0;
-		tmemcpy(pBuffer+4, pData, tempVar);
-		pData   += tempVar;
-		dataLen -= tempVar;
-		tlkapi_qfifo_dropBuff(&sTlkDevSerialSendFifo);
-//		tlkapi_array(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "snd OK:", pBuffer, tempVar+4);
-	}
-	if(!sTlkDevSerialSendIsBusy && !tlkapi_qfifo_isEmpty(&sTlkDevSerialSendFifo)){
-		uint08 *pBuffer;
-		pBuffer = tlkapi_qfifo_getData(&sTlkDevSerialSendFifo);
-		if(pBuffer == nullptr){
-			
-		}else if((pBuffer[0] == 0 && pBuffer[1] == 0) || pBuffer[2] != 0 || pBuffer[3] != 0){
-			tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-		}else{
-			uint16 dataLen = ((uint16)pBuffer[1] << 8) | pBuffer[0];
-			if(dataLen == 0 || dataLen > TLKDEV_SERIAL_SEND_BUFF_SIZE){
-				tlkapi_qfifo_dropData(&sTlkDevSerialSendFifo);
-			}else{
-				sTlkDevSerialSendIsBusy = true;
-				uart_send_dma(TLKDEV_SERIAL_PORT, pBuffer+4, dataLen);
-			}
-		}
-	}
-#endif
-	
-	return TLK_ENONE;
-}
-#endif //#if (TLK_CFG_DBG_ENABLE)
-
-
-#endif

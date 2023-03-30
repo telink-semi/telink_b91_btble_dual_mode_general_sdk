@@ -33,13 +33,15 @@ void tlkdbg_reset(void);
 bool tlkdbg_isBusy(void);
 void tlkdbg_handler(void);
 
-void tlkdbg_warn(uint flags, char *pSign, const char *format, ...);
-void tlkdbg_info(uint flags, char *pSign, const char *format, ...);
-void tlkdbg_trace(uint flags, char *pSign, const char *format, ...);
-void tlkdbg_fatal(uint flags, char *pSign, const char *format, ...);
-void tlkdbg_error(uint flags, char *pSign, const char *format, ...);
-void tlkdbg_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkdbg_assert(uint flags, bool isAssert, char *pSign, const char *format, ...);
+
+void tlkdbg_warn(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+void tlkdbg_info(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+void tlkdbg_trace(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+void tlkdbg_fatal(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+void tlkdbg_error(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+void tlkdbg_array(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
+void tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+
 
 void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen);
 void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);

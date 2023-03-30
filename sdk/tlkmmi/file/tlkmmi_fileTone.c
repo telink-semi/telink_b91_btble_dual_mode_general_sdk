@@ -26,7 +26,6 @@
 #include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmdi/misc/tlkmdi_file.h"
 #include "tlkmmi_file.h"
 #include "tlkmmi_fileAdapt.h"

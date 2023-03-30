@@ -24,8 +24,10 @@
 #if (TLKMMI_PHONE_ENABLE)
 #include "tlkmmi_phone.h"
 #include "tlkmmi_phoneAdapt.h"
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
+
+static uint08 sTlkMmiPhoneProcID = 0;
 
 
 /******************************************************************************
@@ -35,9 +37,10 @@
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_phone_adaptInit(void)
+int tlkmmi_phone_adaptInit(uint08 procID)
 {
-	return tlktsk_adapt_init(TLKMMI_PHONE_PROCID);
+	sTlkMmiPhoneProcID = procID;
+	return tlksys_adapt_init(sTlkMmiPhoneProcID);
 }
 
 /******************************************************************************
@@ -50,7 +53,7 @@ int tlkmmi_phone_adaptInit(void)
 *******************************************************************************/
 void tlkmmi_phone_adaptHandler(void)
 {
-	tlktsk_adapt_handler(TLKMMI_PHONE_PROCID);
+	tlksys_adapt_handler(sTlkMmiPhoneProcID);
 }
 
 /******************************************************************************
@@ -62,7 +65,7 @@ void tlkmmi_phone_adaptHandler(void)
 *******************************************************************************/
 uint tlkmmi_phone_adaptInterval(void)
 {
-	return tlktsk_adapt_interval(TLKMMI_PHONE_PROCID);
+	return tlksys_adapt_interval(sTlkMmiPhoneProcID);
 }
 
 /******************************************************************************
@@ -81,19 +84,19 @@ uint tlkmmi_phone_adaptInterval(void)
 *******************************************************************************/
 int tlkmmi_phone_adaptInitTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
-	return tlktsk_adapt_initTimer(TLKMMI_PHONE_PROCID, pTimer, timerCB, userArg, timeout);
+	return tlksys_adapt_initTimer(sTlkMmiPhoneProcID, pTimer, timerCB, userArg, timeout);
 }
 int tlkmmi_phone_adaptInitQueue(tlkapi_queue_t *pProcs, TlkApiQueueCB queueCB, uint32 userArg)
 {
-	return tlktsk_adapt_initQueue(TLKMMI_PHONE_PROCID, pProcs, queueCB, userArg);
+	return tlksys_adapt_initQueue(sTlkMmiPhoneProcID, pProcs, queueCB, userArg);
 }
 void tlkmmi_phone_adaptDeinitTimer(tlkapi_timer_t *pTimer)
 {
-	tlktsk_adapt_deinitTimer(TLKMMI_PHONE_PROCID, pTimer);
+	tlksys_adapt_deinitTimer(sTlkMmiPhoneProcID, pTimer);
 }
 void tlkmmi_phone_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 {
-	tlktsk_adapt_deinitQueue(TLKMMI_PHONE_PROCID, pProcs);
+	tlksys_adapt_deinitQueue(sTlkMmiPhoneProcID, pProcs);
 }
 
 /******************************************************************************
@@ -107,11 +110,11 @@ void tlkmmi_phone_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 bool tlkmmi_phone_adaptIsHaveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_isHaveTimer(TLKMMI_PHONE_PROCID, pTimer);
+	return tlksys_adapt_isHaveTimer(sTlkMmiPhoneProcID, pTimer);
 }
 bool tlkmmi_phone_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_isHaveQueue(TLKMMI_PHONE_PROCID, pProcs);
+	return tlksys_adapt_isHaveQueue(sTlkMmiPhoneProcID, pProcs);
 }
 
 /******************************************************************************
@@ -124,11 +127,11 @@ bool tlkmmi_phone_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_phone_adaptAppendQueue(tlkapi_queue_t *pProcs)
 {	
-	return tlktsk_adapt_appendQueue(TLKMMI_PHONE_PROCID, pProcs);
+	return tlksys_adapt_appendQueue(sTlkMmiPhoneProcID, pProcs);
 }
 int tlkmmi_phone_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_removeQueue(TLKMMI_PHONE_PROCID, pProcs);
+	return tlksys_adapt_removeQueue(sTlkMmiPhoneProcID, pProcs);
 }
 
 /******************************************************************************
@@ -144,15 +147,15 @@ int tlkmmi_phone_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_phone_adaptUpdateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)
 {
-	return tlktsk_adapt_updateTimer(TLKMMI_PHONE_PROCID, pTimer, timeout, isInsert);
+	return tlksys_adapt_updateTimer(sTlkMmiPhoneProcID, pTimer, timeout, isInsert);
 }
 int tlkmmi_phone_adaptInsertTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_insertTimer(TLKMMI_PHONE_PROCID, pTimer, true);
+	return tlksys_adapt_insertTimer(sTlkMmiPhoneProcID, pTimer, true);
 }
 int tlkmmi_phone_adaptRemoveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_removeTimer(TLKMMI_PHONE_PROCID, pTimer);
+	return tlksys_adapt_removeTimer(sTlkMmiPhoneProcID, pTimer);
 }
 
 

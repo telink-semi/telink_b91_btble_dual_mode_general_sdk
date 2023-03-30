@@ -21,32 +21,67 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
+#include "tlksys/tlksys_stdio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkmmi_lemgr.h"
 #include "tlkmmi_lemgrAdapt.h"
 #include "tlkmmi_lemgrCtrl.h"
 #include "tlkmmi_lemgrAcl.h"
-#include "tlkmmi_lemgrTask.h"
+#include "tlkmmi_lemgrMsgInner.h"
+#include "tlkmmi_lemgrMsgOuter.h"
 
 
+TLKSYS_MMI_TASK_DEFINE(lemgr, Lemgr);
 
 
-int tlkmmi_lemgr_init(void)
+static int tlkmmi_lemgr_init(uint08 procID, uint08 taskID)
 {
-	tlkmmi_lemgr_taskInit();
-	tlkmmi_lemgr_adaptInit();
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_LE, TLKSYS_TASKID_LEMGR);
+	#endif
+	
+	tlkmmi_lemgr_adaptInit(procID);
 	tlkmmi_lemgr_ctrlInit();
 	tlkmmi_lemgr_aclInit();
-	
+	return TLK_ENONE;
+}
+static int tlkmmi_lemgr_start(void)
+{
+	tlkmmi_lemgr_startAdv(0, 0);
+	return TLK_ENONE;
+}
+static int tlkmmi_lemgr_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_lemgr_close(void)
+{
 	
 	return TLK_ENONE;
 }
+static int tlkmmi_lemgr_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	if(mtype == TLKPRT_COMM_MTYPE_NONE){
+		tlkmmi_lemgr_innerMsgHandler(msgID, pData, dataLen);
+	}else{
+		tlkmmi_lemgr_outerMsgHandler(msgID, pData, dataLen);
+	}
+	return TLK_ENONE;
+}
+static void tlkmmi_lemgr_handler(void)
+{
+#if BLE_IOS_ANCS_ENABLE
+	extern void app_ancsTask();
+	app_ancsTask();
+#endif
 
-
-
-
-
+#if BLE_IOS_AMS_ENABLE
+	extern void app_amsTask();
+	app_amsTask();
+#endif
+}
 
 
 

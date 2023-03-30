@@ -109,7 +109,7 @@
  */
 #define  clock_time  stimer_get_tick
 
-typedef unsigned char (*plic_interrupt_claim_callback_t)(void);
+typedef unsigned int (*plic_interrupt_claim_callback_t)(void);
 
 
 #endif

@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_file.h"
 #include "tlkmmi_fileMsgInner.h"
 

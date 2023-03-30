@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_STK_BT_ENABLE)
-#include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmdi_btadapt.h"
 
 

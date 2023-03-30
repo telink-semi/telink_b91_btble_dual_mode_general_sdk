@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi_btmgr.h"
 #if (TLKMMI_BTMGR_BTINQ_ENABLE)
 #include "tlkmmi_btmgrCtrl.h"

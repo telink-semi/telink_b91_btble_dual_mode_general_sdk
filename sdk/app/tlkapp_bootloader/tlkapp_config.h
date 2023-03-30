@@ -24,15 +24,22 @@
 #define TLKAPP_CONFIG_H
 
 
-
-
-#define TLKAPP_CFG_BAT_CHECK_ENABLE      0
-
-
-#define TLKAPP_BOOT_START_ADDRESS        0x8000
-
-#define TLK_MDI_FILE_ENABLE              1
-
+#define TLK_CFG_FS_ENABLE            0
+#define TLK_CFG_OS_ENABLE            0
+#define TLK_CFG_PM_ENABLE            0
+#define TLK_CFG_SYS_ENABLE           0
+#define TLK_CFG_GUI_ENABLE           0
+#define TLK_CFG_WDG_ENABLE           0 //WatchDog
+#define TLK_CFG_DEV_ENABLE           0
+#define TLK_CFG_ALG_ENABLE           1
+#define TLK_CFG_STK_ENABLE           0
+#define TLK_CFG_MDI_ENABLE           0
+#define TLK_CFG_MMI_ENABLE           0
+#define TLK_CFG_DBG_ENABLE           0
+#define TLK_CFG_USB_ENABLE           0
+#define TLK_CFG_TEST_ENABLE          0
+#define TLK_CFG_COMM_ENABLE          0
+#define TLK_CFG_VCD_ENABLE           0
 
 
 #endif //TLKAPP_CONFIG_H

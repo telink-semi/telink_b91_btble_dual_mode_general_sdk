@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_AUDIO_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/aud/tlkmdi_audio.h"
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlksys/prt/tlkpto_comm.h"
@@ -106,7 +105,7 @@ int tlkmdi_audio_sendStartEvt(uint08 audChn, uint16 handle)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (handle & 0x00FF);
 	buffer[buffLen++] = (handle & 0xFF00) >> 8;
-	return tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_START_EVT, buffer, buffLen);
+	return tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_START_EVT, buffer, buffLen);
 }
 int tlkmdi_audio_sendCloseEvt(uint08 audChn, uint16 handle)
 {
@@ -116,7 +115,7 @@ int tlkmdi_audio_sendCloseEvt(uint08 audChn, uint16 handle)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (handle & 0x00FF);
 	buffer[buffLen++] = (handle & 0xFF00) >> 8;
-	return tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_CLOSE_EVT, buffer, buffLen);
+	return tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_CLOSE_EVT, buffer, buffLen);
 }
 
 int tlkmdi_audio_sendPlayStartEvt(uint08 audChn, uint16 playIndex)
@@ -127,7 +126,7 @@ int tlkmdi_audio_sendPlayStartEvt(uint08 audChn, uint16 playIndex)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (playIndex & 0x00FF);
 	buffer[buffLen++] = (playIndex & 0xFF00) >> 8;
-	return tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_PLAY_START_EVT, buffer, buffLen);
+	return tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_PLAY_START_EVT, buffer, buffLen);
 }
 int tlkmdi_audio_sendPlayOverEvt(uint08 audChn, uint16 playIndex)
 {
@@ -137,7 +136,7 @@ int tlkmdi_audio_sendPlayOverEvt(uint08 audChn, uint16 playIndex)
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = (playIndex & 0x00FF);
 	buffer[buffLen++] = (playIndex & 0xFF00) >> 8;
-	return tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_PLAY_CLOSE_EVT, buffer, buffLen);
+	return tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_PLAY_CLOSE_EVT, buffer, buffLen);
 }
 
 int tlkmdi_audio_sendVolumeChangeEvt(uint08 audChn, uint08 volume)
@@ -147,7 +146,7 @@ int tlkmdi_audio_sendVolumeChangeEvt(uint08 audChn, uint08 volume)
 	buffLen = 0;
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = volume;
-	return tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_VOLUME_CHANGE_EVT, buffer, buffLen);
+	return tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_VOLUME_CHANGE_EVT, buffer, buffLen);
 }
 int tlkmdi_audio_sendStatusChangeEvt(uint08 audChn, uint08 status)
 {
@@ -156,7 +155,7 @@ int tlkmdi_audio_sendStatusChangeEvt(uint08 audChn, uint08 status)
 	buffLen = 0;
 	buffer[buffLen++] = audChn;
 	buffer[buffLen++] = status;
-	return tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_STATUS_CHANGE_EVT, buffer, buffLen);
+	return tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_STATUS_CHANGE_EVT, buffer, buffLen);
 }
 
 

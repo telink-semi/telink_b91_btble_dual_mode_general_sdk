@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_AUDIO_ENABLE)
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlkmmi_audio.h"

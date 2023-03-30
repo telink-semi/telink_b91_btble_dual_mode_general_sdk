@@ -66,7 +66,7 @@ int main(void)
 		#if (TLK_CFG_WDG_ENABLE)
 		wd_clear();
 		#endif
-		tlkapp_process();
+		tlkapp_handler();
 	}
     return 0;
 } 

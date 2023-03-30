@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
 #include "tlkstk/ble/ble.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgr.h"
@@ -29,6 +28,16 @@
 #include "tlkmmi/lemgr/tlkmmi_lemgrCtrl.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAcl.h"
 #include "tlkmmi/lemgr/tlkmmi_lemgrAtt.h"
+
+#if BLE_IOS_ANCS_ENABLE
+	#include "tlklib/ios_service/ancs/ancs.h"
+	#include "tlklib/ios_service/ancs/ancsDemo.h"
+#endif
+
+#if BLE_IOS_AMS_ENABLE
+	#include "tlklib/ios_service/ams/ams.h"
+	#include "tlklib/ios_service/ams/amsDemo.h"
+#endif
 
 
 ////////////////////////////////////////// slave-role ATT service concerned ///////////////////////////////////////////////
@@ -354,6 +363,75 @@ static const uint08 my_OtaCharVal[19] = {
 	TELINK_SPP_DATA_OTA,
 };
 #endif
+
+
+
+void ancsAndAmsFuncRebuild(){
+	#if BLE_IOS_ANCS_ENABLE
+	ancs_initial(ANCS_ATT_TYPE_ALL_INCLUDE);///clear parameters
+	ancs_setNewsReceivedStatus(ANCS_SET_NO_NEW_NOTICE);///clear flag
+
+	extern u32 tick_encryptionFinish;///enable ancs and ams function
+	tick_encryptionFinish = clock_time() | 1;
+	#elif (BLE_IOS_AMS_ENABLE && (!BLE_IOS_ANCS_ENABLE))
+	amsInit(1);///enable ams function
+	amsFuncSetEnable(1);///enable ams flag
+	#endif
+}
+
+int myBattValHandle(u16 connHandle, void *pData){
+	_attribute_data_retention_ static u32 tick_state = 0;
+	rf_packet_att_write_t *p = (rf_packet_att_write_t*)pData;
+	if(
+			(tick_state == 0)
+			&& (p->value == 0)
+#if BLE_IOS_ANCS_ENABLE
+			&& (ancsGetConnState() == ANCS_CONNECTION_ESTABLISHED)
+#endif
+
+#if BLE_IOS_AMS_ENABLE
+			&& (amsGetConnState() == AMS_CONNECTION_ESTABLISHED)
+#endif
+			){
+		tick_state = clock_time() | 1;
+	}else if (tick_state & 1){
+		if(!clock_time_exceed(tick_state, 4000000)){
+			if(
+					(p->value == 1)
+#if BLE_IOS_ANCS_ENABLE
+					&& (ancsGetConnState() == ANCS_CONNECTION_ESTABLISHED)
+#endif
+
+#if BLE_IOS_AMS_ENABLE
+					&& (amsGetConnState() == AMS_CONNECTION_ESTABLISHED)
+#endif
+				){
+					tick_state = 0;
+					ancsAndAmsFuncRebuild();
+			}
+		}else{
+			tick_state = 0;
+		}
+	}else{
+		if(
+				(tick_state == 0)
+				&& (p->value == 1)
+	#if BLE_IOS_ANCS_ENABLE
+				&& (ancsGetConnState() == ANCS_CONNECTION_ESTABLISHED)
+	#endif
+
+	#if BLE_IOS_AMS_ENABLE
+				&& (amsGetConnState() == AMS_CONNECTION_ESTABLISHED)
+	#endif
+				){
+			ancsAndAmsFuncRebuild();
+		}
+	}
+	return 0;
+}
+
+
+
 #if (APP_BLE_TEST_ENABLE)
 extern u32 gAppBleTestRecvCount;
 extern u32 gAppBleTestRecvLens;
@@ -477,7 +555,7 @@ static const attribute_t my_Attributes[] = {
 	{4,ATT_PERMISSIONS_READ,2,2,(uint08*)(&my_primaryServiceUUID), 	(uint08*)(&my_batServiceUUID), 0},
 	{0,ATT_PERMISSIONS_READ,2,sizeof(my_batCharVal),(uint08*)(&my_characterUUID), (uint08*)(my_batCharVal), 0},				//prop
 	{0,ATT_PERMISSIONS_READ,2,sizeof(my_batVal),(uint08*)(&my_batCharUUID), 	(uint08*)(my_batVal), 0},	//value
-	{0,ATT_PERMISSIONS_RDWR,2,sizeof(batteryValueInCCC),(uint08*)(&clientCharacterCfgUUID), 	(uint08*)(batteryValueInCCC), 0},	//value
+	{0,ATT_PERMISSIONS_RDWR,2,sizeof(batteryValueInCCC),(uint08*)(&clientCharacterCfgUUID), 	(uint08*)(batteryValueInCCC), &myBattValHandle, 0},	//value
 
 
 	// 002e - 0035 SPP for data test

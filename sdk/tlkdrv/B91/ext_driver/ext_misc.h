@@ -41,7 +41,7 @@
 #include "tlkdrv/B91/stimer.h"
 #include "tlkdrv/B91/clock.h"
 #include "tlkdrv/B91/uart.h"
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 
 
 /* for debug */

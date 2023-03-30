@@ -59,6 +59,9 @@
 #ifndef TLK_CFG_PM_ENABLE
 #define TLK_CFG_PM_ENABLE            1
 #endif
+#ifndef TLK_CFG_SYS_ENABLE
+#define TLK_CFG_SYS_ENABLE           1
+#endif
 #ifndef TLK_CFG_GUI_ENABLE
 #define TLK_CFG_GUI_ENABLE           0
 #endif
@@ -81,7 +84,7 @@
 #define TLK_CFG_MMI_ENABLE           1 
 #endif
 #ifndef TLK_CFG_DBG_ENABLE
-#define TLK_CFG_DBG_ENABLE           0
+#define TLK_CFG_DBG_ENABLE           1
 #endif
 #ifndef TLK_CFG_USB_ENABLE
 #define TLK_CFG_USB_ENABLE           1
@@ -180,7 +183,7 @@
 #define TLK_STK_BTSCO_NUMB           1
 #endif
 #ifndef TLK_STK_BTPSM_NUMB
-#define TLK_STK_BTPSM_NUMB           8
+#define TLK_STK_BTPSM_NUMB           12
 #endif
 #ifndef TLK_STK_BTCHN_NUMB
 #define TLK_STK_BTCHN_NUMB           (TLK_STK_BTACl_NUMB*8)
@@ -194,9 +197,6 @@
 *******************************************************************************/
 #ifndef TLK_DEV_SERIAL_ENABLE
 #define TLK_DEV_SERIAL_ENABLE        (1 && TLK_CFG_DEV_ENABLE)
-#endif
-#ifndef TLK_DEV_HCIUART_ENABLE
-#define TLK_DEV_HCIUART_ENABLE       (0 && TLK_CFG_DEV_ENABLE)
 #endif
 #ifndef TLK_DEV_CODEC_ENABLE
 #define TLK_DEV_CODEC_ENABLE         (1 && TLK_CFG_DEV_ENABLE)
@@ -263,22 +263,22 @@
 #define TLK_MDI_BTA2DP_ENABLE        (1 && TLK_STK_BTP_ENABLE)
 #endif
 #ifndef TLK_MDI_AUDIO_ENABLE
-#define TLK_MDI_AUDIO_ENABLE         (1)
+#define TLK_MDI_AUDIO_ENABLE         (1 && TLK_CFG_MDI_ENABLE)
 #endif
 #ifndef TLK_MDI_DEBUG_ENABLE
 #define TLK_MDI_DEBUG_ENABLE         (1 && TLK_CFG_DBG_ENABLE)
 #endif
 #ifndef TLK_MDI_FILE_ENABLE
-#define TLK_MDI_FILE_ENABLE          (1)
+#define TLK_MDI_FILE_ENABLE          (1 && TLK_CFG_MDI_ENABLE)
 #endif
 #ifndef TLK_MDI_MP3_ENABLE
 #define TLK_MDI_MP3_ENABLE           (1 && TLK_CFG_FS_ENABLE)
 #endif
 #ifndef TLK_MDI_KEY_ENABLE
-#define TLK_MDI_KEY_ENABLE           (0)
+#define TLK_MDI_KEY_ENABLE           (0 && TLK_CFG_MDI_ENABLE)
 #endif
 #ifndef TLK_MDI_LED_ENABLE
-#define TLK_MDI_LED_ENABLE           (0)
+#define TLK_MDI_LED_ENABLE           (0 && TLK_CFG_MDI_ENABLE)
 #endif
 #ifndef TLK_MDI_GUI_ENABLE
 #define TLK_MDI_GUI_ENABLE           (0 && TLK_CFG_GUI_ENABLE)
@@ -319,34 +319,34 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLKMMI_STACK_ENABLE
-#define TLKMMI_STACK_ENABLE          (1 && TLK_CFG_STK_ENABLE)
+#define TLKMMI_STACK_ENABLE          (1 && TLK_CFG_STK_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_AUDIO_ENABLE
-#define TLKMMI_AUDIO_ENABLE          (1 && TLK_MDI_AUDIO_ENABLE)
+#define TLKMMI_AUDIO_ENABLE          (1 && TLK_MDI_AUDIO_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_BTMGR_ENABLE
-#define TLKMMI_BTMGR_ENABLE          (1 && TLK_STK_BTH_ENABLE)
+#define TLKMMI_BTMGR_ENABLE          (1 && TLK_STK_BTH_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_LEMGR_ENABLE
-#define TLKMMI_LEMGR_ENABLE          (1 && TLK_STK_LE_ENABLE)
+#define TLKMMI_LEMGR_ENABLE          (1 && TLK_STK_LE_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_LEMST_ENABLE
-#define TLKMMI_LEMST_ENABLE          (1 && TLK_STK_LE_ENABLE && TLKAPP_DUALMODE_DONGLE_ENABLE && !TLKMMI_LEMGR_ENABLE)
+#define TLKMMI_LEMST_ENABLE          (1 && TLK_STK_LE_ENABLE && TLK_CFG_MMI_ENABLE && TLKAPP_DUALMODE_DONGLE_ENABLE && !TLKMMI_LEMGR_ENABLE)
 #endif
 #ifndef TLKMMI_PHONE_ENABLE
-#define TLKMMI_PHONE_ENABLE          (1 && TLK_STK_BTH_ENABLE)
+#define TLKMMI_PHONE_ENABLE          (1 && TLK_STK_BTH_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_SYSTEM_ENABLE
-#define TLKMMI_SYSTEM_ENABLE         (1)
+#define TLKMMI_SYSTEM_ENABLE         (1 && TLK_CFG_MMI_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_FILE_ENABLE
-#define TLKMMI_FILE_ENABLE           (1 && TLK_CFG_FS_ENABLE)
+#define TLKMMI_FILE_ENABLE           (1 && TLK_CFG_FS_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_VIEW_ENABLE
-#define TLKMMI_VIEW_ENABLE           (1 && TLK_CFG_GUI_ENABLE)
+#define TLKMMI_VIEW_ENABLE           (1 && TLK_CFG_GUI_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 #ifndef TLKMMI_TEST_ENABLE
-#define TLKMMI_TEST_ENABLE           (1 && TLK_CFG_TEST_ENABLE)
+#define TLKMMI_TEST_ENABLE           (1 && TLK_CFG_TEST_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
 
 /******************************************************************************

@@ -34,11 +34,11 @@
 
 //HPU - Hardware Protocol UART
 
-extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern bool tlkdev_serial_sfifoIsMore60(uint16 dataLen);
+#if (TLK_CFG_COMM_ENABLE)
+extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
-
-static void tlkdbg_hpulog_common(char *pSign, char *pHead, const char *format, va_list args);
+#endif
 
 static uint16 sTlkDbgHpuLogSerial;
 static uint08 sTlkdbgHpuLogCache[TLKDBG_HPU_LOG_CACHE_SIZE+4];
@@ -67,14 +67,22 @@ void tlkdbg_hpulog_handler(void)
 	int ret;
 	uint readLen;
 
+	#if (TLK_CFG_COMM_ENABLE)
 	readLen = tlkmdi_comm_getSingleDatPktUnitLen();
+	#else
+	readLen = TLKDBG_HPU_LOG_CACHE_SIZE;
+	#endif
 	if(readLen > TLKDBG_HPU_LOG_CACHE_SIZE) readLen = TLKDBG_HPU_LOG_CACHE_SIZE;
 	while(readLen != 0 && !tlkapi_fifo_isEmpty(&sTlkDbgHpuLogFifo)){
 		ret = tlkapi_fifo_readCommon(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache, readLen, false);
 		if(ret <= 0) break;
 		readLen = ret;
+		#if (TLK_CFG_COMM_ENABLE)
 		if(tlkdev_serial_sfifoIsMore60(readLen)) break;
 		ret = tlkmdi_comm_sendDat(TLKPRT_COMM_SYS_DAT_PORT, TLKPRT_COMM_SYS_DAT_LOG, sTlkdbgHpuLogCache, readLen);
+		#else
+		ret = -TLK_ENOSUPPORT;
+		#endif
 		if(ret == TLK_ENONE || ret == -TLK_ENOSUPPORT){
 			tlkapi_fifo_chgReadPos(&sTlkDbgHpuLogFifo, readLen);
 		}
@@ -82,27 +90,32 @@ void tlkdbg_hpulog_handler(void)
 }
 
 
-void tlkdbg_hpulog_warn(char *pSign, const char *format, va_list args)
+void tlkdbg_hpulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
 {
-	tlkdbg_hpulog_common(pSign, TLKAPI_WARN_HEAD, format, args);
+	uint16 serial;
+	uint16 dataLen;
+
+	serial = sTlkDbgHpuLogSerial ++;
+
+	tlkdbg_setPrintBuffer(sTlkdbgHpuLogCache, TLKDBG_HPU_LOG_CACHE_SIZE);
+	
+	printf("[%04x]",serial);
+	if(pSign != nullptr) printf(pSign);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
+	vprintf(format, args);
+
+	tlkdbg_setPrintBuffer(nullptr, 0);
+	
+	uint32 r = core_disable_interrupt();
+	dataLen = ((uint16)sTlkdbgHpuLogCache[1] << 8) | sTlkdbgHpuLogCache[0];
+	sTlkdbgHpuLogCache[dataLen+2+0] = '\n';
+	tlkapi_fifo_write(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache+2, dataLen+1);
+	core_restore_interrupt(r);
 }
-void tlkdbg_hpulog_info(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hpulog_common(pSign, TLKAPI_INFO_HEAD, format, args);
-}
-void tlkdbg_hpulog_trace(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hpulog_common(pSign, TLKAPI_TRACE_HEAD, format, args);
-}
-void tlkdbg_hpulog_fatal(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hpulog_common(pSign, TLKAPI_FATAL_HEAD, format, args);
-}
-void tlkdbg_hpulog_error(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hpulog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
-}
-void tlkdbg_hpulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen)
+void tlkdbg_hpulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
 	uint16 index;
 	uint16 serial;
@@ -116,8 +129,10 @@ void tlkdbg_hpulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 		
 	printf("[%04x]",serial);
 	if(pSign != nullptr) printf(pSign);
-	printf(TLKAPI_ARRAY_HEAD);
-	if(pInfo != nullptr) printf(pInfo);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
 	printf("(%d)", dataLen);
 	for(index=0; index<dataLen; index++){
 		printf("%02x ", pData[index]);
@@ -130,10 +145,6 @@ void tlkdbg_hpulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 	sTlkdbgHpuLogCache[optLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache+2, optLen+1);
 	core_restore_interrupt(r);
-}
-void tlkdbg_hpulog_assert(bool isAssert, char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hpulog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
 }
 
 
@@ -228,30 +239,6 @@ void tlkdbg_hpulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 	core_restore_interrupt(r);
 }
 
-
-
-static void tlkdbg_hpulog_common(char *pSign, char *pHead, const char *format, va_list args)
-{
-	uint16 serial;
-	uint16 dataLen;
-
-	serial = sTlkDbgHpuLogSerial ++;
-
-	tlkdbg_setPrintBuffer(sTlkdbgHpuLogCache, TLKDBG_HPU_LOG_CACHE_SIZE);
-	
-	printf("[%04x]",serial);
-	if(pSign != nullptr) printf(pSign);
-	if(pHead != nullptr) printf(pHead);
-	vprintf(format, args);
-
-	tlkdbg_setPrintBuffer(nullptr, 0);
-	
-	uint32 r = core_disable_interrupt();
-	dataLen = ((uint16)sTlkdbgHpuLogCache[1] << 8) | sTlkdbgHpuLogCache[0];
-	sTlkdbgHpuLogCache[dataLen+2+0] = '\n';
-	tlkapi_fifo_write(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache+2, dataLen+1);
-	core_restore_interrupt(r);
-}
 
 
 

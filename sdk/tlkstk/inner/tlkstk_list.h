@@ -56,7 +56,7 @@
 #include <stdint.h>         // standard definition
 #include <stdbool.h>        // boolean definition
 #include <stddef.h>         // for NULL and size_t
-#include "tlkdrv/B91/compiler.h"       // for __INLINE
+#include "compiler.h"       // for __INLINE
 
 
 /*

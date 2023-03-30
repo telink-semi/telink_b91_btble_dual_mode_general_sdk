@@ -35,8 +35,6 @@
 extern int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen);
 
 
-static void tlkdbg_usblog_common(char *pSign, char *pHead, const char *format, va_list args);
-
 
 static uint16 sTlkDbgUsbLogSerial;
 static uint16 sTlkDbgUsbLogOffset;
@@ -96,27 +94,46 @@ void tlkdbg_usblog_handler(void)
 }
 
 
-void tlkdbg_usblog_warn(char *pSign, const char *format, va_list args)
+void tlkdbg_usblog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
 {
-	tlkdbg_usblog_common(pSign, TLKAPI_WARN_HEAD, format, args);
+	uint16 serial;
+	uint16 dataLen;
+
+	serial = sTlkDbgUsbLogSerial ++;
+	
+	if(tlkapi_qfifo_isFull(&sTlkDbgUsbLogFifo)) return;
+
+	tlkdbg_setPrintBuffer(sTlkDbgUsbLogCache+5, TLKDBG_USBLOG_ITEM_SIZE-5);
+	
+	printf("[%04x]",serial);
+	if(pSign != nullptr) printf(pSign);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
+	vprintf(format, args);
+
+	tlkdbg_setPrintBuffer(nullptr, 0);
+	
+	dataLen = ((uint16)sTlkDbgUsbLogCache[6] << 8) | sTlkDbgUsbLogCache[5];
+	if(dataLen != 0){
+		dataLen += 5;
+		sTlkDbgUsbLogCache[0] = (dataLen & 0xFF);
+		sTlkDbgUsbLogCache[1] = (dataLen & 0xFF00) >> 8;
+		sTlkDbgUsbLogCache[2] = 0x82;
+		sTlkDbgUsbLogCache[3] = 0x08;
+		sTlkDbgUsbLogCache[4] = 0x22;
+		sTlkDbgUsbLogCache[5] = 0x00;
+		sTlkDbgUsbLogCache[6] = 0x00;
+//		uint32 r = core_disable_interrupt();
+		uint08 *pBuff = tlkapi_qfifo_takeBuff(&sTlkDbgUsbLogFifo);
+		if(pBuff != nullptr){
+			tmemcpy(pBuff, sTlkDbgUsbLogCache, dataLen+2);
+		}
+//		core_restore_interrupt(r);
+	}
 }
-void tlkdbg_usblog_info(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_usblog_common(pSign, TLKAPI_INFO_HEAD, format, args);
-}
-void tlkdbg_usblog_trace(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_usblog_common(pSign, TLKAPI_TRACE_HEAD, format, args);
-}
-void tlkdbg_usblog_fatal(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_usblog_common(pSign, TLKAPI_FATAL_HEAD, format, args);
-}
-void tlkdbg_usblog_error(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_usblog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
-}
-void tlkdbg_usblog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen)
+void tlkdbg_usblog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
 	uint16 index;
 	uint16 serial;
@@ -129,8 +146,10 @@ void tlkdbg_usblog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 		
 	printf("[%04x]",serial);
 	if(pSign != nullptr) printf(pSign);
-	printf(TLKAPI_ARRAY_HEAD);
-	if(pInfo != nullptr) printf(pInfo);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
 	printf("(%d)", dataLen);
 	for(index=0; index<dataLen; index++){
 		printf("%02x ", pData[index]);
@@ -155,10 +174,6 @@ void tlkdbg_usblog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 		}
 //		core_restore_interrupt(r);
 	}
-}
-void tlkdbg_usblog_assert(bool isAssert, char *pSign, const char *format, va_list args)
-{
-	tlkdbg_usblog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
 }
 
 
@@ -289,46 +304,6 @@ void tlkdbg_usblog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 	}
 	core_restore_interrupt(r);
 }
-
-
-
-static void tlkdbg_usblog_common(char *pSign, char *pHead, const char *format, va_list args)
-{
-	uint16 serial;
-	uint16 dataLen;
-
-	serial = sTlkDbgUsbLogSerial ++;
-	
-	if(tlkapi_qfifo_isFull(&sTlkDbgUsbLogFifo)) return;
-
-	tlkdbg_setPrintBuffer(sTlkDbgUsbLogCache+5, TLKDBG_USBLOG_ITEM_SIZE-5);
-	
-	printf("[%04x]",serial);
-	if(pSign != nullptr) printf(pSign);
-	if(pHead != nullptr) printf(pHead);
-	vprintf(format, args);
-
-	tlkdbg_setPrintBuffer(nullptr, 0);
-	
-	dataLen = ((uint16)sTlkDbgUsbLogCache[6] << 8) | sTlkDbgUsbLogCache[5];
-	if(dataLen != 0){
-		dataLen += 5;
-		sTlkDbgUsbLogCache[0] = (dataLen & 0xFF);
-		sTlkDbgUsbLogCache[1] = (dataLen & 0xFF00) >> 8;
-		sTlkDbgUsbLogCache[2] = 0x82;
-		sTlkDbgUsbLogCache[3] = 0x08;
-		sTlkDbgUsbLogCache[4] = 0x22;
-		sTlkDbgUsbLogCache[5] = 0x00;
-		sTlkDbgUsbLogCache[6] = 0x00;
-//		uint32 r = core_disable_interrupt();
-		uint08 *pBuff = tlkapi_qfifo_takeBuff(&sTlkDbgUsbLogFifo);
-		if(pBuff != nullptr){
-			tmemcpy(pBuff, sTlkDbgUsbLogCache, dataLen+2);
-		}
-//		core_restore_interrupt(r);
-	}
-}
-
 
 
 

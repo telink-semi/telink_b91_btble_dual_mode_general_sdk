@@ -33,8 +33,8 @@
 typedef struct{
 	uint08 isCover; //Whether overwrite is allowed
 	uint08 isParty; //Whether partial writing is allowed
-	uint16 more75L;
-	uint16 more90L;
+	uint16 more60L;
+	uint16 more85L;
 	uint16 woffset;
 	uint16 roffset;
 	uint16 buffLen;
@@ -128,17 +128,17 @@ uint16 tlkapi_fifo_dataLen(tlkapi_fifo_t *pFifo);
 uint16 tlkapi_fifo_buffLen(tlkapi_fifo_t *pFifo);
 
 /******************************************************************************
- * Function: tlkapi_fifo_isMore75,tlkapi_fifo_isMore90
+ * Function: tlkapi_fifo_isMore60,tlkapi_fifo_isMore85
  * Descript: Verify current fifo(fill data) length add the data length will 
  *           be insert is big than 75% or 90% of total fifo length.
  * Params:
  *     @fifo[IN]--Fifo management handle.
  *     @dataLen[IN]--The length of data will be insert.
- * Return: true is over the 75% or 90%, false is not.
+ * Return: true is over the 60% or 85%, false is not.
  * Others: None.
 *******************************************************************************/
-bool tlkapi_fifo_isMore75(tlkapi_fifo_t *pFifo, uint16 dataLen);
-bool tlkapi_fifo_isMore90(tlkapi_fifo_t *pFifo, uint16 dataLen);
+bool tlkapi_fifo_isMore60(tlkapi_fifo_t *pFifo, uint16 dataLen);
+bool tlkapi_fifo_isMore85(tlkapi_fifo_t *pFifo, uint16 dataLen);
 
 /******************************************************************************
  * Function: tlkapi_fifo_read

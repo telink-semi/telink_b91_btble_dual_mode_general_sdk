@@ -36,7 +36,6 @@
 #include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 
 
 

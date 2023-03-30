@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_MDI_BATTERY_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkdev/sys/tlkdev_battery.h"
 #include "tlkmdi_battery.h"
 #include "drivers.h"
@@ -157,7 +157,7 @@ void tlkmdi_battery_check(void)
 	battery[0] = sTlkMdiBatCtrl.level;
 	battery[1] = (sTlkMdiBatCtrl.voltage & 0x00FF);
 	battery[2] = (sTlkMdiBatCtrl.voltage & 0xFF00) >> 8;
-	tlktsk_sendInnerMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_BATTERY_REPORT, battery, 3);
+	tlksys_sendInnerMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_BATTERY_REPORT, battery, 3);
 	
 #if (TLKMDI_BAT_LOW_PROTECT_ENABLE)
 	if(sTlkMdiBatCtrl.voltage < TLKMDI_BAT_LOW_PROTECT_VOLTAGE){

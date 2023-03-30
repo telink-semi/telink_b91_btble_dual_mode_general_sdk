@@ -27,7 +27,6 @@
 
 
 
-#define TLKMMI_VIEW_PROCID           TLKTSK_PROCID_VIEW
 
 
 

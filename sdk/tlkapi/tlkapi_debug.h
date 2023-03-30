@@ -43,13 +43,23 @@
 #define TLKAPI_ASSERT_HEAD     "<ASSERT>"
 
 
-#define tlkapi_warn      tlkdbg_warn
-#define tlkapi_info      tlkdbg_info
-#define tlkapi_trace     tlkdbg_trace
-#define tlkapi_fatal     tlkdbg_fatal
-#define tlkapi_error     tlkdbg_error
-#define tlkapi_array     tlkdbg_array
-#define tlkapi_assert    tlkdbg_assert
+#define tlkapi_warn(flags,pSign,format,args...)      tlkdbg_warn(flags,pSign,nullptr,0,format,##args)
+#define tlkapi_info(flags,pSign,format,args...)      tlkdbg_info(flags,pSign,nullptr,0,format,##args)
+#define tlkapi_trace(flags,pSign,format,args...)     tlkdbg_trace(flags,pSign,nullptr,0,format,##args)
+#define tlkapi_fatal(flags,pSign,format,args...)     tlkdbg_fatal(flags,pSign,nullptr,0,format,##args)
+#define tlkapi_error(flags,pSign,format,args...)     tlkdbg_error(flags,pSign,nullptr,0,format,##args)
+#define tlkapi_array(flags,pSign,format,pData,dataLen)      tlkdbg_array(flags,pSign,nullptr,0,format,(uint08*)pData,dataLen)
+#define tlkapi_assert(isAssert,flags,pSign,format,args...)  tlkdbg_assert(isAssert,flags,pSign,nullptr,0,format,##args)
+
+#define tlkapi_ext_warn(flags,pSign,format,args...)      tlkdbg_warn(flags,pSign,__FILE__,__LINE__,format,##args)
+#define tlkapi_ext_info(flags,pSign,format,args...)      tlkdbg_info(flags,pSign,__FILE__,__LINE__,format,##args)
+#define tlkapi_ext_trace(flags,pSign,format,args...)     tlkdbg_trace(flags,pSign,__FILE__,__LINE__,format,##args)
+#define tlkapi_ext_fatal(flags,pSign,format,args...)     tlkdbg_fatal(flags,pSign,__FILE__,__LINE__,format,##args)
+#define tlkapi_ext_error(flags,pSign,format,args...)     tlkdbg_error(flags,pSign,__FILE__,__LINE__,format,##args)
+#define tlkapi_ext_array(flags,pSign,format,pData,dataLen)      tlkdbg_array(flags,pSign,__FILE__,__LINE__,format,(uint08*)pData,dataLen)
+#define tlkapi_ext_assert(isAssert,flags,pSign,format,args...)  tlkdbg_assert(isAssert,flags,pSign,__FILE__,__LINE__,format,##args)
+
+
 #define tlkapi_sprintf   tlkdbg_sprintf
 
 #define tlkapi_sendStr(flags,pStr)                        tlkdbg_sendData(flags,pStr,0,0)
@@ -59,13 +69,15 @@
 #define tlkapi_sendU32s(flags,pStr,val0,val1,val2,val3)   tlkdbg_sendU32s(flags,pStr,(uint32)(val0),(uint32)(val1),(uint32)(val2),(uint32)(val3))
 
 
-extern void tlkdbg_warn(uint flags, char *pSign, const char *format, ...);
-extern void tlkdbg_info(uint flags, char *pSign, const char *format, ...);
-extern void tlkdbg_trace(uint flags, char *pSign, const char *format, ...);
-extern void tlkdbg_fatal(uint flags, char *pSign, const char *format, ...);
-extern void tlkdbg_error(uint flags, char *pSign, const char *format, ...);
-extern void tlkdbg_array(uint flags, char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-extern void tlkdbg_assert(uint flags, bool isAssert, char *pSign, const char *format, ...);
+extern void tlkdbg_warn(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_info(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_trace(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_fatal(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_error(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_array(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
+extern void tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+
+
 extern int  tlkdbg_sprintf(char *pOut, const char *format, ...);
 
 extern void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen);

@@ -103,39 +103,51 @@ typedef enum{
 }BTP_AVRCP_PLAY_STATE_ENUM;
 
 typedef enum{
-	BTP_AVRCP_STATUS_CODE_NONE = 0x00,
-	BTP_AVRCP_STATUS_CODE_INVALID_PARAMTER         = 0x01,
-	BTP_AVRCP_STATUS_CODE_PARAMTER_CONTENT_ERROR   = 0x02,
-	BTP_AVRCP_STATUS_CODE_INTERNAL_ERROR           = 0x03,
-	BTP_AVRCP_STATUS_CODE_OPERATE_WITHOUT_ERROR    = 0x04,
-	BTP_AVRCP_STATUS_CODE_UID_CHANGE               = 0x05,
+	BTP_AVRCP_STATUS_CODE_INVALID_CMD              = 0x00, //Invalid command, sent if TG received a PDU that it did not understand.
+	BTP_AVRCP_STATUS_CODE_INVALID_PARAMTER         = 0x01, //Invalid parameter, sent if the TG received a PDU with a parameter ID that it did not understand.
+	BTP_AVRCP_STATUS_CODE_PARAMTER_CONTENT_ERROR   = 0x02, //Parameter content error. Sent if the parameter ID is understood, but content is wrong or corrupted.
+	BTP_AVRCP_STATUS_CODE_INTERNAL_ERROR           = 0x03, //Internal Error - sent if there are error conditions not covered by a more specific error code.
+	BTP_AVRCP_STATUS_CODE_OPERATE_WITHOUT_ERROR    = 0x04, //Operation completed without error. This is the status that should be returned if the operation was successful.
+	BTP_AVRCP_STATUS_CODE_UID_CHANGE               = 0x05, //UID Changed. The UIDs on the device have changed
 	BTP_AVRCP_STATUS_CODE_RESERVED                 = 0x06,
-	BTP_AVRCP_STATUS_CODE_INVALID_DIRECTION        = 0x07,
-	BTP_AVRCP_STATUS_CODE_NOT_A_DIRECTORY          = 0x08,
-	BTP_AVRCP_STATUS_CODE_DOES_NOT_EXIST           = 0x09,
-	BTP_AVRCP_STATUS_CODE_INVALID_SCOPE            = 0x0A,
-	BTP_AVRCP_STATUS_CODE_RANGE_OUT_OF_BOUNDS      = 0x0B,
-	BTP_AVRCP_STATUS_CODE_FOLDER_ITEM_IS_NOT_PLAYABLE = 0x0C,
-	BTP_AVRCP_STATUS_CODE_MEDIA_IN_USE             = 0x0D,
-	BTP_AVRCP_STATUS_CODE_NOW_PLAYING_LIST_FULL    = 0x0E,
-	BTP_AVRCP_STATUS_CODE_SEARCH_NOT_SUPPORTED     = 0x0F,
-	BTP_AVRCP_STATUS_CODE_SEARCH_IN_PROGRESS       = 0x10,
-	BTP_AVRCP_STATUS_CODE_INVALID_PLAYER_ID        = 0x11,
-	BTP_AVRCP_STATUS_CODE_PLAY_NOT_BROWSABLE       = 0x12,
-	BTP_AVRCP_STATUS_CODE_PLAY_NOT_ADDRESSED       = 0x13,
-	BTP_AVRCP_STATUS_CODE_NO_VALID_SEARCHRESULTS   = 0x14,
-	BTP_AVRCP_STATUS_CODE_NO_AVAILABLE_PLAYERS     = 0x15,
-	BTP_AVRCP_STATUS_CODE_ADDRESSED_PLAYER_CHANGED = 0x16,
+	BTP_AVRCP_STATUS_CODE_INVALID_DIRECTION        = 0x07, //Invalid Direction. The Direction parameter is invalid
+	BTP_AVRCP_STATUS_CODE_NOT_A_DIRECTORY          = 0x08, //Not a Directory. The UID provided does not refer to a folder item
+	BTP_AVRCP_STATUS_CODE_DOES_NOT_EXIST           = 0x09, //Does Not Exist. The UID provided does not refer to any currently valid item
+	BTP_AVRCP_STATUS_CODE_INVALID_SCOPE            = 0x0A, //Invalid Scope. The scope parameter is invalid
+	BTP_AVRCP_STATUS_CODE_RANGE_OUT_OF_BOUNDS      = 0x0B, //Range Out of Bounds. The start of range provided is not valid
+	BTP_AVRCP_STATUS_CODE_FOLDER_ITEM_IS_NOT_PLAYABLE = 0x0C, //Folder Item is not playable. The UID provided refers to a folder item which cannot be handled by this media player
+	BTP_AVRCP_STATUS_CODE_MEDIA_IN_USE             = 0x0D, //Media in Use. The media is not able to be used for this operation at this time
+	BTP_AVRCP_STATUS_CODE_NOW_PLAYING_LIST_FULL    = 0x0E, //Now Playing List Full. No more items can be added to the Now Playing List
+	BTP_AVRCP_STATUS_CODE_SEARCH_NOT_SUPPORTED     = 0x0F, //Search Not Supported. The Browsed Media Player does not support search
+	BTP_AVRCP_STATUS_CODE_SEARCH_IN_PROGRESS       = 0x10, //Search in Progress. A search operation is already in progress
+	BTP_AVRCP_STATUS_CODE_INVALID_PLAYER_ID        = 0x11, //Invalid Player Id. The specified Player Id does not refer to a valid player
+	BTP_AVRCP_STATUS_CODE_PLAY_NOT_BROWSABLE       = 0x12, //Player Not Browsable. The Player Id supplied refers to a Media Player which does not support browsing.
+	BTP_AVRCP_STATUS_CODE_PLAY_NOT_ADDRESSED       = 0x13, //Player Not Addressed. The Player Id supplied refers to a player which is not currently addressed, and the command is not able to be performed if the player is not set as addressed.
+	BTP_AVRCP_STATUS_CODE_NO_VALID_SEARCHRESULTS   = 0x14, //No valid Search Results. The Search result list does not contain valid entries, e.g. after being invalidated due to change of browsed player
+	BTP_AVRCP_STATUS_CODE_NO_AVAILABLE_PLAYERS     = 0x15, //No available players
+	BTP_AVRCP_STATUS_CODE_ADDRESSED_PLAYER_CHANGED = 0x16, //Addressed Player Changed
 }BTP_AVRCP_STATUS_CODE_ENUM;
 
+typedef enum{
+	BTP_AVRCP_ATTRID_NOT_USED          = 0x00,
+	BTP_AVRCP_ATTRID_TITLE             = 0x01, //Text field representing the title, song name or content  description coded per  specified character set.
+	BTP_AVRCP_ATTRID_ARTIST_NAME       = 0x02, //Text field representing artist(s), performer(s) or group coded per specified character set.
+	BTP_AVRCP_ATTRID_ALBUM_NAME        = 0x03, //Text field representing the title of the recording (source) from which the audio in the file is taken.
+	BTP_AVRCP_ATTRID_TRACK_NUMBER      = 0x04, //Numeric ASCII string containing the order number of the audio-file on its original recording.
+	BTP_AVRCP_ATTRID_TOTAL_NUMBER_OF_TRACKS  = 0x05, //Numeric ASCII string containing the total number of tracks or elements on the original recording.
+	BTP_AVRCP_ATTRID_GENRE             = 0x06, //Text field representing the category of the composition characterized by a particular style.
+	BTP_AVRCP_ATTRID_PLAYING_TIME      = 0x07, //Numeric ASCII string containing the length of the audio file in milliseconds. (E.g. 02:30 = 150000)
+	BTP_AVRCP_ATTRID_DEFAULT_COVER_ART = 0x08, //BIP Image Handle
+}BTP_AVRCP_ATTRID_ENUM;
 
-//#endif
-#define AVRCP_BTN_PUSHED	0x00
-#define AVRCP_BTN_RELEASED	0x80
+typedef enum{
+	BTP_AVRCP_PLAYER_APP_SET_ATTR_ILLEGAL = 0x00, //
+	BTP_AVRCP_PLAYER_APP_SET_ATTR_EQUALIZER_ON_OFF_STATUS = 0x01,
+	BTP_AVRCP_PLAYER_APP_SET_ATTR_REPEAT_MODE_STATUS = 0x02,
+	BTP_AVRCP_PLAYER_APP_SET_ATTR_SHUFFLE_ON_OFF_STATUS = 0x03,
+	BTP_AVRCP_PLAYER_APP_SET_ATTR_SCAN_ON_OFF_STATUS = 0x04,
+}BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM;
 
-#define AVRCP_EVENT_PLAYBACK_STATUS_STOPPED         0x00
-#define AVRCP_EVENT_PLAYBACK_STATUS_PLAYING         0x01
-#define AVRCP_EVENT_PLAYBACK_STATUS_PAUSE           0x02
 
 
 typedef void (*BtpAvrcpKeyChangeCallback)(uint16 aclHandle, uint08 keyID, uint08 isPress);
@@ -215,6 +227,10 @@ bool btp_avrcp_isSupportSetVolume(uint16 aclHandle);
 *******************************************************************************/
 int btp_avrcp_setVolume(uint16 aclHandle, uint08 volume, bool isSrc);
 int btp_avrcp_setDefaultVolume(uint08 volume);
+int btp_avrcp_setTrackValue(uint16 aclHandle, uint32 valueH, uint32 valudL);
+
+int btp_avrcp_sendEventNoty(uint16 aclHandle, uint08 eventID, uint08 *pData, uint16 dataLen);
+int btp_avrcp_sendRegEventNotyCmd(uint16 aclHandle, uint08 eventID);
 
 /******************************************************************************
  * Function: AVRCP Set music state interface
@@ -282,6 +298,9 @@ void btp_avrcp_regKeyChangeCB(BtpAvrcpKeyChangeCallback cb);
 *******************************************************************************/
 void btp_avrcp_regVolumeChangeCB(BtpAvrcpVolumeChangeCallback cb);
 
+
+extern int btp_avrcp_browseConnect(uint16 aclHandle);
+extern int btp_avrcp_browseDisconn(uint16 aclHandle);
 
 
 

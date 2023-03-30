@@ -31,7 +31,7 @@
 #include "tlk_config.h"
 #include "tlk_define.h"
 #include "tlk_debug.h"
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 #include "tlkapi/tlkapi_type.h"
 #include "tlkapi/tlkapi_chip.h"
 #include "tlkapi/tlkapi_char.h"

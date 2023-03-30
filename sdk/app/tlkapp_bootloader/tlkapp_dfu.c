@@ -27,25 +27,8 @@
 
 #include "drivers.h"
 #include "tlkapp_dfu.h"
-#include "tlkmdi/misc/tlkmdi_file.h"
 #include "tlkalg/digest/crc/tlkalg_crc.h"
 #include "tlkalg/digest/sha/tlkalg_sha.h"
-
-
-#define TLKAPP_DFU_SAVE_SIGN        0x3A
-#define TLKAPP_DFU_SAVE_VERS        0x03
-#define TLKAPP_DFU_SAVE_ADDR        TLK_CFG_FLASH_OTA_PARAM_ADDR
-#define TLKAPP_DFU_SAVE_SIZE        sizeof(tlkmdi_file_saveParam_t)
-
-
-typedef struct{
-	uint08 saveIsOK;
-	uint08 reserve0;
-	uint16 reserve1;
-	uint32 checkDig;
-	tlkapi_save_ctrl_t saveCtrl;
-	tlkmdi_file_saveParam_t saveParam;
-}tlkapp_dfu_ctrl_t;
 
 
 static bool tlkapp_dfu_loadData(tlkapp_dfu_ctrl_t *pCtrl);
@@ -89,7 +72,7 @@ void tlkapp_dfu_load(void)
 		if(tlkapp_dfu_loadCheck(pCtrl)){
 			tlkapp_dfu_earseData(pCtrl);
 		}else{
-			start_reboot();
+			core_reboot();
 		}
 	}
 }
@@ -195,7 +178,6 @@ static void tlkapp_dfu_earseData(tlkapp_dfu_ctrl_t *pCtrl)
 
 	}
 	tlkapi_save2_clean(&pCtrl->saveCtrl);
-	tmemset(&pCtrl->saveParam, 0, sizeof(tlkmdi_file_saveParam_t));
+	tmemset(&pCtrl->saveParam, 0, sizeof(tlkapp_file_Param_t));
 }
-
 

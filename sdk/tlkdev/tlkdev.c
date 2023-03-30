@@ -23,9 +23,6 @@
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkdev/tlkdev.h"
 #include "tlkdev/sys/tlkdev_serial.h"
-#if (TLK_DEV_HCIUART_ENABLE)
-#include "tlkdev/sys/tlkdev_hciuart.h"
-#endif
 #include "tlkdev/tlkdev.h"
 #if (TLK_DEV_STORE_ENABLE)
 #include "tlkdev/sys/tlkdev_store.h"
@@ -50,9 +47,6 @@ int tlkdev_init(void)
 {
 	#if (TLK_DEV_SERIAL_ENABLE)
 	tlkdev_serial_init();
-	#endif
-	#if (TLK_DEV_HCIUART_ENABLE)
-	tlkdev_hciuart_init();
 	#endif
 	#if (TLK_DEV_STORE_ENABLE)
 	tlkdev_store_init();

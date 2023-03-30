@@ -23,7 +23,6 @@
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_SYSTEM_ENABLE)
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #include "tlksys/prt/tlkpto_comm.h"
 #include "tlkmmi/system/tlkmmi_sys.h"
 #include "tlkmmi/system/tlkmmi_sysDbg.h"

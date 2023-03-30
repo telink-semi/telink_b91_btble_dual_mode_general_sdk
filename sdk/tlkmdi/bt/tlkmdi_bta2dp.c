@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTHFP_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/bt/tlkmdi_bta2dp.h"
 
 #include "tlkstk/bt/btp/btp_stdio.h"
@@ -68,7 +67,7 @@ static void tlkmdi_bta2dp_avrcpVolumeChangeEvt(uint16 aclHandle, uint08 volume)
 	if(btp_a2dp_isSrc(aclHandle)) buffer[buffLen++] = 0x01;
 	else buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = volume;
-	tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_AVRCP_CHG_VOLUME_EVT, buffer, buffLen);
+	tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_AVRCP_CHG_VOLUME_EVT, buffer, buffLen);
 }
 #endif
 

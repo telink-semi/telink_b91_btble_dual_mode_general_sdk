@@ -25,11 +25,12 @@
 #include "tlkdev/tlkdev.h"
 #include "tlkdrv/ext/store/tlkdrv_store.h"
 #include "tlkdev/sys/tlkdev_store.h"
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_stdio.h"
+#endif
 
 
 #define TLKDEV_STORE_DEV        TLKDRV_STORE_DEV_XTSD01G
-
-
 
 
 bool tlkdev_store_isOpen(void)
@@ -39,6 +40,9 @@ bool tlkdev_store_isOpen(void)
 
 int tlkdev_store_init(void)
 {
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendEnterSleepCB(tlkdev_store_enterSleep);
+	#endif
 	return tlkdrv_store_init(TLKDEV_STORE_DEV);
 }
 int tlkdev_store_open(void)
@@ -103,6 +107,10 @@ int tlkdev_store_getSdBlockNumb(void)
 	return tlkdrv_store_getSdBlockNumb(TLKDEV_STORE_DEV);
 }
 
+void tlkdev_store_enterSleep(uint mode)
+{
+	tlkdev_store_close();
+}
 
 
 #endif //#if (TLK_DEV_STORE_ENABLE)

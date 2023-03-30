@@ -38,14 +38,8 @@ void tlkdbg_hpulog_reset(void);
 bool tlkdbg_hpulog_isBusy(void);
 void tlkdbg_hpulog_handler(void);
 
-void tlkdbg_hpulog_warn(char *pSign, const char *format, va_list args);
-void tlkdbg_hpulog_info(char *pSign, const char *format, va_list args);
-void tlkdbg_hpulog_trace(char *pSign, const char *format, va_list args);
-void tlkdbg_hpulog_fatal(char *pSign, const char *format, va_list args);
-void tlkdbg_hpulog_error(char *pSign, const char *format, va_list args);
-void tlkdbg_hpulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkdbg_hpulog_assert(bool isAssert, char *pSign, const char *format, va_list args);
-
+void tlkdbg_hpulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args);
+void tlkdbg_hpulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
 
 void tlkdbg_hpulog_sendU08s(char *pSign, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
 void tlkdbg_hpulog_sendU16s(char *pSign, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);

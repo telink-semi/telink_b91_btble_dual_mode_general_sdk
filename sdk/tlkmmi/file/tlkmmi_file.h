@@ -40,10 +40,7 @@
 #define TLKMMI_FILE_DBG_FLAG         ((TLK_MAJOR_DBGID_MMI_FILE << 24) | (TLK_MINOR_DBGID_MMI_FILE << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMMI_FILE_DBG_SIGN         "[MMI]"
 
-#define TLKMMI_FILE_PROCID           TLKTSK_PROCID_FILEM
 
-
-int tlkmmi_file_init(void);
 
 bool tlkmmi_file_isBusy(void);
 

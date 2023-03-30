@@ -22,9 +22,9 @@
  *******************************************************************************************************/
 
 #pragma once
+#include "compiler.h"
 #include "types.h"
 
-#include "tlkdrv/B91/compiler.h"
 
 #ifndef NULL
 #define NULL  0

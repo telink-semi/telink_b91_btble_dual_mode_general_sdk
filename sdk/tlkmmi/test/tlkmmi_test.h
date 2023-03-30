@@ -48,16 +48,7 @@ typedef struct{
 
 
 
-int tlkmmi_test_init(void);
-
-
-int tlkmmi_test_start(void);
-int tlkmmi_test_pause(void);
-int tlkmmi_test_close(void);
-int tlkmmi_test_input(uint16 msgID, uint08 *pData, uint16 dataLen);
-
 void tlkmmi_test_reboot(uint16 timeout);
-void tlkmmi_test_handler(void);
 
 
 

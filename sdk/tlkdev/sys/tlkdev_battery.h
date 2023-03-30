@@ -26,11 +26,6 @@
 #if (TLK_DEV_BATTERY_ENABLE)
 
 
-// TLKAPP_CFG_BAT_CHANNEL=0: Internal battery voltage. The battery voltage sample range is 1.8~3.5V 
-// TLKAPP_CFG_BAT_CHANNEL=GPIO_Pxx: External battery voltage. if the battery voltage > 3.6V, should take some external voltage divider.
-#define TLKDEV_BATTERY_GPIO_PIN        GPIO_PB7//0//GPIO_PB0
-#define TLKDEV_BATTERY_ADC_PIN         ADC_GPIO_PB7
-
 
 int tlkdev_battery_init(void);
 int tlkdev_battery_getVoltage(uint16 *pVoltage);

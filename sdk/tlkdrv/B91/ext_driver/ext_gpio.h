@@ -25,7 +25,7 @@
 #define DRIVERS_B91_EXT_GPIO_H_
 
 #include "nds_intrinsic.h"
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 
 #include "tlkdrv/B91/analog.h"
 #include "tlkdrv/B91/dma.h"

@@ -47,7 +47,7 @@ dma_config_t pwm_tx_dma_config={
  * @param[in] pin - selected pin
  * @return	  none.
  */
-void pwm_set_pin(pwm_pin_e pin)
+void pwm_set_pin(pwm_pin_e pin, unsigned char reserve)
 {
 	unsigned char val=0;
 	unsigned char start_bit = (BIT_LOW_BIT(pin & 0xff) %4 )<<1;

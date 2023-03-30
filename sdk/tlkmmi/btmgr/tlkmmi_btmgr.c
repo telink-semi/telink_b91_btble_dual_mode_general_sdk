@@ -20,38 +20,40 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_BTMGR_ENABLE)
+#include "tlksys/tlksys_stdio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkmmi_btmgr.h"
 #include "tlkmmi_btmgrAdapt.h"
 #include "tlkmmi_btmgrCtrl.h"
 #include "tlkmmi_btmgrAcl.h"
 #include "tlkmmi_btmgrInq.h"
 #include "tlkmmi_btmgrRec.h"
-#include "tlkmmi_btmgrTask.h"
+#include "tlkmmi_btmgrMsgInner.h"
+#include "tlkmmi_btmgrMsgOuter.h"
 
 #include "tlkmdi/bt/tlkmdi_bt.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
 
 
-/******************************************************************************
- * Function: tlkmmi_btmgr_init
- * Descript: Handle bt Manager initial including register callback, and reset 
- *           control block and read the bt name and bt address and initial 
- *           the acl resource.
- * Params:
- * Return: TLK_ENONE is success, others value is failure.
- * Others: None.
-*******************************************************************************/
-int tlkmmi_btmgr_init(void)
+
+TLKSYS_MMI_TASK_DEFINE(btmgr, Btmgr);
+
+
+static int tlkmmi_btmgr_init(uint08 procID, uint08 taskID)
 {
 	bth_device_item_t *pDevice;
 
-	tlkmmi_btmgr_taskInit();
-	tlkmmi_btmgr_adaptInit();
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_BT, TLKSYS_TASKID_BTMGR);
+	#endif
+	#if (TLK_STK_BT_ENABLE)
+	tlkmdi_bt_init();
+	#endif
+	
+	tlkmmi_btmgr_adaptInit(procID);
 	tlkmmi_btmgr_ctrlInit();
 	#if (TLKMMI_BTMGR_BTACL_ENABLE)
 	tlkmmi_btmgr_aclInit();
@@ -76,11 +78,38 @@ int tlkmmi_btmgr_init(void)
 		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 		#endif
 	}
+
+	return TLK_ENONE;
+}
+static int tlkmmi_btmgr_start(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_btmgr_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_btmgr_close(void)
+{
 	
 	return TLK_ENONE;
 }
-
-
+static int tlkmmi_btmgr_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	if(mtype == TLKPRT_COMM_MTYPE_NONE){
+		return tlkmmi_btmgr_innerMsgHandler(msgID, pData, dataLen);
+	}else{
+		return tlkmmi_btmgr_outerMsgHandler(msgID, pData, dataLen);
+	}
+}
+static void tlkmmi_btmgr_handler(void)
+{
+	tlkmdi_bt_handler();
+	#if (TLK_MDI_BTIAP_ENABLE)
+	tlkmdi_btiap_handler();
+	#endif
+}
 
 
 

@@ -28,7 +28,7 @@
 
 int tlkstk_init(void);
 
-void tlkstk_process(void);
+void tlkstk_handler(void);
 
 bool tlkstk_pmIsBusy(void);
 

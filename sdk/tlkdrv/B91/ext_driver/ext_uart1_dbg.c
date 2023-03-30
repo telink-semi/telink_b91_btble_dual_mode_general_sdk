@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 
 #include "ext_uart1_dbg.h"
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 #include "string.h"
 #include "../reg_include/register_b91.h"
 #include "tlkdrv/B91/uart.h"

@@ -24,8 +24,10 @@
 #if (TLKMMI_LEMST_ENABLE)
 #include "tlkmmi_lemst.h"
 #include "tlkmmi_lemstAdapt.h"
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
+
+static uint08 sTlkMmiLemstProcID = 0;
 
 
 /******************************************************************************
@@ -35,9 +37,10 @@
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_lemst_adaptInit(void)
+int tlkmmi_lemst_adaptInit(uint08 procID)
 {
-	return tlktsk_adapt_init(TLKMMI_LEMST_PROCID);
+	sTlkMmiLemstProcID = procID;
+	return tlksys_adapt_init(sTlkMmiLemstProcID);
 }
 
 /******************************************************************************
@@ -50,7 +53,7 @@ int tlkmmi_lemst_adaptInit(void)
 *******************************************************************************/
 void tlkmmi_lemst_adaptHandler(void)
 {
-	tlktsk_adapt_handler(TLKMMI_LEMST_PROCID);
+	tlksys_adapt_handler(sTlkMmiLemstProcID);
 }
 
 /******************************************************************************
@@ -62,7 +65,7 @@ void tlkmmi_lemst_adaptHandler(void)
 *******************************************************************************/
 uint tlkmmi_lemst_adaptInterval(void)
 {
-	return tlktsk_adapt_interval(TLKMMI_LEMST_PROCID);
+	return tlksys_adapt_interval(sTlkMmiLemstProcID);
 }
 
 /******************************************************************************
@@ -81,19 +84,19 @@ uint tlkmmi_lemst_adaptInterval(void)
 *******************************************************************************/
 int tlkmmi_lemst_adaptInitTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
-	return tlktsk_adapt_initTimer(TLKMMI_LEMST_PROCID, pTimer, timerCB, userArg, timeout);
+	return tlksys_adapt_initTimer(sTlkMmiLemstProcID, pTimer, timerCB, userArg, timeout);
 }
 int tlkmmi_lemst_adaptInitQueue(tlkapi_queue_t *pProcs, TlkApiQueueCB queueCB, uint32 userArg)
 {
-	return tlktsk_adapt_initQueue(TLKMMI_LEMST_PROCID, pProcs, queueCB, userArg);
+	return tlksys_adapt_initQueue(sTlkMmiLemstProcID, pProcs, queueCB, userArg);
 }
 void tlkmmi_lemst_adaptDeinitTimer(tlkapi_timer_t *pTimer)
 {
-	tlktsk_adapt_deinitTimer(TLKMMI_LEMST_PROCID, pTimer);
+	tlksys_adapt_deinitTimer(sTlkMmiLemstProcID, pTimer);
 }
 void tlkmmi_lemst_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 {
-	tlktsk_adapt_deinitQueue(TLKMMI_LEMST_PROCID, pProcs);
+	tlksys_adapt_deinitQueue(sTlkMmiLemstProcID, pProcs);
 }
 
 /******************************************************************************
@@ -107,11 +110,11 @@ void tlkmmi_lemst_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 bool tlkmmi_lemst_adaptIsHaveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_isHaveTimer(TLKMMI_LEMST_PROCID, pTimer);
+	return tlksys_adapt_isHaveTimer(sTlkMmiLemstProcID, pTimer);
 }
 bool tlkmmi_lemst_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_isHaveQueue(TLKMMI_LEMST_PROCID, pProcs);
+	return tlksys_adapt_isHaveQueue(sTlkMmiLemstProcID, pProcs);
 }
 
 /******************************************************************************
@@ -124,11 +127,11 @@ bool tlkmmi_lemst_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_lemst_adaptAppendQueue(tlkapi_queue_t *pProcs)
 {	
-	return tlktsk_adapt_appendQueue(TLKMMI_LEMST_PROCID, pProcs);
+	return tlksys_adapt_appendQueue(sTlkMmiLemstProcID, pProcs);
 }
 int tlkmmi_lemst_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_removeQueue(TLKMMI_LEMST_PROCID, pProcs);
+	return tlksys_adapt_removeQueue(sTlkMmiLemstProcID, pProcs);
 }
 
 /******************************************************************************
@@ -144,15 +147,15 @@ int tlkmmi_lemst_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_lemst_adaptUpdateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)
 {
-	return tlktsk_adapt_updateTimer(TLKMMI_LEMST_PROCID, pTimer, timeout, isInsert);
+	return tlksys_adapt_updateTimer(sTlkMmiLemstProcID, pTimer, timeout, isInsert);
 }
 int tlkmmi_lemst_adaptInsertTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_insertTimer(TLKMMI_LEMST_PROCID, pTimer, true);
+	return tlksys_adapt_insertTimer(sTlkMmiLemstProcID, pTimer, true);
 }
 int tlkmmi_lemst_adaptRemoveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_removeTimer(TLKMMI_LEMST_PROCID, pTimer);
+	return tlksys_adapt_removeTimer(sTlkMmiLemstProcID, pTimer);
 }
 
 

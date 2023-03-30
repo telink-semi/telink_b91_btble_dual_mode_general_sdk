@@ -34,7 +34,7 @@
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int  tlkmmi_sys_adaptInit(void);
+int  tlkmmi_sys_adaptInit(uint08 procID);
 
 /******************************************************************************
  * Function: tlkmmi_sys_adaptHandler

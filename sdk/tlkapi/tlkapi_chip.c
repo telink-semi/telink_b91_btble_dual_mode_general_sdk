@@ -28,8 +28,6 @@
 #include "tlkapi/tlkapi_error.h"
 #include "tlkapi/tlkapi_chip.h"
 
-#include "tlkstk/inner/tlkstk_myudb.h"
-
 
 #define TLKAPI_CHIP_STACK_CHACK_OFFSET    256
 #define TLKAPI_CHIP_STACK_CHACK_SIGN      0xAA5533CC
@@ -45,7 +43,7 @@ void tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_ENUM clock)
 	/* HCLK & PCLK can not change, because some important peripherals clock is derive from HCLK & PCLK,
 	 * such as UART/IIC/SPI. If HCLK & PCLK are changed, make sure that peripherals clock should re_init */
 	if(clock == TLKAPI_CHIP_CLOCK_96M){
-	    CCLK_96M_HCLK_48M_PCLK_24M_48M_MSPI;
+	    CCLK_96M_HCLK_48M_PCLK_24M;
 	}else if(clock == TLKAPI_CHIP_CLOCK_48M){
 	    CCLK_48M_HCLK_48M_PCLK_24M;
 	}else if(clock == TLKAPI_CHIP_CLOCK_32M){
@@ -129,12 +127,6 @@ void tlkapi_random(uint08 *pBuff, uint16 buffLen)
 		pBuff[i] = randNums & 0xff;
 		randNums >>=8;
 	}
-}
-
-
-void core_enter_deep(uint wakeupSrc)
-{
-	cpu_sleep_wakeup(DEEPSLEEP_MODE, wakeupSrc, 0);
 }
 
 

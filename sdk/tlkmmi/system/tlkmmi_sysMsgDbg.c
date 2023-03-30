@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_SYSTEM_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkmmi/system/tlkmmi_sys.h"
 #include "tlkmmi/system/tlkmmi_sysMsgDbg.h"
@@ -80,7 +80,7 @@ static void tlkmmi_sys_recvDbgStartToneDeal(uint08 *pData, uint08 dataLen)
 	}
 	
 	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgStartToneDeal: start", pData, dataLen);
-	tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_START_TONE_CMD, pData, 3);
+	tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_START_TONE_CMD, pData, 3);
 }
 static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 {

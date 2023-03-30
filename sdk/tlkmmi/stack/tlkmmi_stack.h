@@ -26,10 +26,8 @@
 #if (TLKMMI_STACK_ENABLE)
 
 
-#define TLKMMI_STACK_PROCID         TLKTSK_PROCID_STACK
 
 
-int tlkmmi_stack_init(void);
 
 
 

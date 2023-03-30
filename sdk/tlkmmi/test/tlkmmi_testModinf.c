@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_TEST_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_testStdio.h"
 #include "tlkmmi_test.h"
 #include "tlkmmi_testModinf.h"
@@ -85,7 +84,8 @@ int tlkmmi_test_modClose(TLKMMI_TEST_MODTYPE_ENUM type)
 	if(pModinf == nullptr || pModinf->Close == nullptr) return -TLK_ENOSUPPORT;
 	return pModinf->Close();
 }
-int tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID, uint08 *pData, uint16 dataLen)
+int tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID, 
+	uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen)
 {
 	const tlkmmi_testModinf_t *pModinf = tlkmmi_test_getModinf(type);
 	if(pModinf == nullptr || pModinf->Input == nullptr) return -TLK_ENOSUPPORT;

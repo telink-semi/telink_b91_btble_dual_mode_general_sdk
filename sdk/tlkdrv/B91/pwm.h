@@ -170,7 +170,7 @@ static inline void pwm_32k_chn_en(pwm_clk_32k_en_chn_e pwm_32K_en_chn){
  * @param[in] pin - selected pin
  * @return	  none.
  */
-void pwm_set_pin(pwm_pin_e pin);
+void pwm_set_pin(pwm_pin_e pin, unsigned char reserve);
 
 
 

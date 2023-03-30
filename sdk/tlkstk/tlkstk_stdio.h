@@ -30,7 +30,7 @@
 
 
 extern int  tlkstk_init(void);
-extern void tlkstk_process(void);
+extern void tlkstk_handler(void);
 
 
 

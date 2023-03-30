@@ -35,8 +35,6 @@
 #define TLKMMI_BTMGR_DBG_FLAG         ((TLK_MAJOR_DBGID_MMI_BTMGR << 24) | (TLK_MINOR_DBGID_MMI_BTMGR << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMMI_BTMGR_DBG_SIGN         "[MMI]"
 
-#define TLKMMI_BTMGR_PROCID           TLKTSK_PROCID_STACK
-
 
 #define TLKMMI_BTMGR_DEVICE_CLASS     0x240404//0x5a020c
 #define TLKMMI_BTMGR_BDADDR_DEF       {0x2c, 0xc0, 0xc3, 0x6f, 0xbb, 0x31}
@@ -50,17 +48,6 @@ typedef void(*TlkMmiBtMgrAclDisconnCallback)(uint16 handle, uint08 reason, uint0
 typedef void(*TlkMmiBtMgrProfileConnectCallback)(uint16 handle, uint08 status, uint08 ptype, uint08 usrID);
 typedef void(*TlkMmiBtMgrProfileDisconnCallback)(uint16 handle, uint08 reason, uint08 ptype, uint08 usrID);
 
-
-/******************************************************************************
- * Function: tlkmmi_btmgr_init
- * Descript: Handle bt Manager initial including register callback, and reset 
- *           control block and read the bt name and bt address and initial 
- *           the acl resource.
- * Params:
- * Return: TLK_ENONE is success, others value is failure.
- * Others: None.
-*******************************************************************************/
-int tlkmmi_btmgr_init(void);
 
 /******************************************************************************
  * Function: tlkmdi_btmgr_regAclConnectCB

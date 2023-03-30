@@ -81,11 +81,11 @@ u16 btble_getCtlrState(void);
  * @param	sdk_mode:0--controller; 1--general .
  * @param   serial_mode::0--usb; 1--serial .
  */
-void tlksdk_mode_select(u8 sdk_mode,u8 serial_mode);
+void tlkbt_set_workMode(u8 workMode);
 /**
  * @brief	this API can get sdk mode.
  * @param	sdk_mode:0--controller; 1--general .
  */
-u8 get_sdk_mode(void);
+u8 tlkbt_get_workMode(void);
 
 #endif /* STACK_BT_CONTROLLER_BB_STACK_H_ */

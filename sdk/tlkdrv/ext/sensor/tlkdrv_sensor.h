@@ -25,7 +25,7 @@
 #define TLKDRV_SENSOR_H
 
 
-#define TLKDRV_SENSOR_DSDA217_ENABLE      1
+#define TLKDRV_SENSOR_DSDA217_ENABLE      0
 
 
 typedef enum{

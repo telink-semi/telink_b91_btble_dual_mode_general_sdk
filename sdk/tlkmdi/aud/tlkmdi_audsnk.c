@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_AUDSNK_ENABLE)
 #include "drivers.h"
 #include "tlkmdi/aud/tlkmdi_audio.h"
@@ -35,7 +34,7 @@
 #include "tlkdev/sys/tlkdev_codec.h"
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlksys/prt/tlkpto_comm.h"
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
 #if (TLK_ALG_EQ_ENABLE)
 #include "tlkalg/audio/eq/tlkalg_eq.h"
@@ -124,8 +123,10 @@ static int tlkmdi_audsnk_statusChangedEvt(uint08 *pData, uint16 dataLen)
 	btp_a2dpStatusChangeEvt_t *pEvt;
 	pEvt = (btp_a2dpStatusChangeEvt_t*)pData;
 	if(pEvt->status == BTP_A2DP_STATUS_STREAM){
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PLAYING);
 		tlkmdi_audio_sendStartEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
 	}else{
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PAUSED);
 		tlkmdi_audsnk_switch(pEvt->handle, TLK_STATE_CLOSED);
 		tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
 	}

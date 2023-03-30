@@ -39,7 +39,7 @@ typedef void(*RdtBtScoConnectCB)(uint16 handle, uint08 status);
 typedef void(*RdtBtScoDisconnCB)(uint16 handle, uint08 reason);
 typedef void(*RdtBtPrfConnectCB)(uint16 handle, uint08 ptype, uint08 status);
 typedef void(*RdtBtPrfDisconnCB)(uint16 handle, uint08 ptype, uint08 reason);
-
+typedef void(*RdtBtPrfSPPsendCB)(uint16 aclHandle, uint08 *pHead, uint08 headLen, uint08 *pData, uint16 dataLen);
 
 int tlkmmi_rdt_btInit(void);
 

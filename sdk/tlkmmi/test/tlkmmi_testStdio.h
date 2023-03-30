@@ -38,8 +38,6 @@ typedef struct
 }tlkmmi_testModinf_t;
 
 
-#define TLKMMI_TEST_PROCID           TLKTSK_PROCID_TEST
-
 
 
 

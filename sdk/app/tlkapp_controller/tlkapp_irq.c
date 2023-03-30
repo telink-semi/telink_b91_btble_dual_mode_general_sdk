@@ -20,7 +20,7 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
+#include "tlkapi/tlkapi_stdio.h"
 #include "types.h"
 #include "drivers.h"
 #include "tlkapp_config.h"
@@ -67,7 +67,6 @@ void dma_irq_handler(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-extern void default_irq_entry(void);
 extern void trap_entry(void);
 
 void  entry_null(void) __attribute__ ((interrupt ("machine") , aligned(4)));
@@ -151,15 +150,6 @@ void  entry_irq19(void) __attribute__ ((interrupt ("machine") , aligned(4)));
 _attribute_retention_code_ void  entry_irq19(void)
 {
 	plic_isr (uart0_irq_handler, IRQ19_UART0);
-}
-
-extern void pspi_irq_handler(void);
-void  entry_irq23(void) __attribute__ ((interrupt ("machine") , aligned(4)));
-_attribute_retention_code_ void  entry_irq23(void)
-{
-	plic_isr (pspi_irq_handler, IRQ23_SPI_APB);
-
-
 }
 
 extern void gpio_irq_handler(void);

@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_AUDTONE_ENABLE)
 #include "tlkmdi/aud/tlkmdi_audio.h"
 #if (TLKMDI_AUDTONE_DECODE_MP3)

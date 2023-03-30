@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_VIEW_ENABLE)
 #include "tlkmmi/view/tlkmmi_view.h"
 #include "tlkmmi/view/tlkmmi_viewTask.h"
@@ -31,18 +30,45 @@
 
 
 
+TLKSYS_MMI_TASK_DEFINE(view, View);
 
-int tlkmmi_view_init(void)
+
+static int tlkmmi_view_init(uint08 procID, uint08 taskID)
 {
-	tlkmmi_view_taskInit();
+	tlkmmi_view_adaptInit(procID);
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_VIEW, TLKSYS_TASKID_VIEW);
+	#endif
 	#if (TLK_MDI_GUI_ENABLE)
 	tlkmdi_gui_init();
 	#endif
 	
 	return TLK_ENONE;
 }
-
-
+static int tlkmmi_view_start(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_view_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_view_close(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_view_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	
+	return -TLK_ENOSUPPORT;
+}
+static void tlkmmi_view_handler(void)
+{
+	tlkmdi_gui_handler();
+}
 
 
 

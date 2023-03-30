@@ -223,7 +223,7 @@ int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout); //ti
  * Return: Return TLK_ENONE is success/other value is failure.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_btacl_disconn(uint16 handle, uint08 reaosn);
+int tlkmdi_btacl_disconn(uint16 handle, uint08 reason);
 
 
 /******************************************************************************

@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_SYSTEM_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkmmi/system/tlkmmi_sys.h"
 #include "tlkmmi/system/tlkmmi_sysMsgInner.h"
@@ -72,18 +72,11 @@ int tlkmmi_sys_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 
 
 
-int tlkmmi_sys_innerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
+int tlkmmi_sys_innerMsgHandler(uint08 msgID, uint08 *pHead, uint08 headLen, uint08 *pData, uint08 dataLen)
 {
 	if(msgID == TLKPTI_SYS_MSGID_BATTERY_REPORT){
 		return tlkmmi_sys_batteryReportMsgDeal(pData, dataLen);
-	}
-	return -TLK_ENOSUPPORT;
-}
-
-int tlkmmi_sys_innerExtMsgHandler(uint08 msgID, uint08 *pHead, uint08 headLen, uint08 *pData, uint08 dataLen)
-{
-	tlkapi_trace(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_innerExtMsgHandler: msgID[%d]", msgID);
-	if(msgID == TLKPTI_SYS_MSGID_SERIAL_SEND){
+	}else if(msgID == TLKPTI_SYS_MSGID_SERIAL_SEND){
 		return tlkmmi_sys_serialSendMsgDeal(pHead, headLen, pData, dataLen);
 	}else if(msgID == TLKPTI_SYS_MSGID_SERIAL_SEND_FOR_FILE){
 		return tlkmmi_sys_serialSendForFileMsgDeal(pHead, headLen, pData, dataLen);

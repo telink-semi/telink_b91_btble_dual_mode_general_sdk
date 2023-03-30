@@ -22,9 +22,9 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_AUDIO_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
-#include "tlkmdi/aud/tlkmdi_audmp3.h"
+#include "tlksys/tlksys_stdio.h"
+#include "tlkmdi/aud/tlkmdi_audio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkmmi_audio.h"
@@ -33,7 +33,8 @@
 #include "tlkmmi_audioInfo.h"
 #include "tlkmmi_audioSch.h"
 #include "tlkmmi_audioModinf.h"
-#include "tlkmmi_audioTask.h"
+#include "tlkmmi_audioMsgInner.h"
+#include "tlkmmi_audioMsgOuter.h"
 #include "drivers.h"
 
 #include "tlkdev/sys/tlkdev_codec.h"
@@ -56,30 +57,75 @@ tlkapi_timer_t gTlkMmiAudioIrqTimer;
 static uint08 sTlkMmiAudioCodecIdleTmrCount = 0;
 
 
-/******************************************************************************
- * Function: tlkmmi_audio_init
- * Descript: Initial the audio path and audio ctrl flow, set the audio paramter.
- * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
- * Others: None.
-*******************************************************************************/
-int tlkmmi_audio_init(void)
+
+TLKSYS_MMI_TASK_DEFINE(audio, Audio);
+
+
+static int tlkmmi_audio_init(uint08 procID, uint08 taskID)
 {
 	#if (TLK_ALG_EQ_ENABLE)
 	tlkalg_eq_loadParam(TLK_CFG_FLASH_EQ_TEST_ADDR, 0xffff, 0);
 	#endif
 	tlkdev_codec_init();
 
-	tlkmmi_audio_taskInit();
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_AUDIO, TLKSYS_TASKID_AUDIO);
+	#endif
+	#if (TLK_MDI_AUDIO_ENABLE)
+	tlkmdi_audio_init();
+	#endif
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendBusyCheckCB(tlkmmi_audio_isBusy);
+	#endif
+	
+	tlkmmi_audio_adaptInit(procID);
 	tlkmmi_audio_infoInit();
 	tlkmmi_audio_ctrlInit();
 	tlkmmi_audio_schInit();
 	tlkmmi_audio_adaptInitTimer(&gTlkMmiAudioCurTimer, tlkmmi_audio_timer, NULL, TLKMMI_AUDIO_TIMEOUT);
 	tlkapi_timer_initNode(&gTlkMmiAudioIrqTimer, tlkmmi_audio_irqTimer, NULL, TLKMMI_AUDIO_TIMEOUT);
 	gTlkMmiAudioCurOptype = TLKPTI_AUD_OPTYPE_NONE;
+
+	return TLK_ENONE;
+}
+static int tlkmmi_audio_start(void)
+{
+	uint08 volume;
+
+	#if (TLK_MDI_MP3_ENABLE)
+	tlkmdi_mp3_init();
+	#endif
+	volume = tlkmdi_audio_getVoiceBtpVolume();
+	tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
+	volume = tlkmdi_audio_getMusicBtpVolume(false);
+	tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_DEF_VOL, &volume, 1);
+	return TLK_ENONE;
+}
+static int tlkmmi_audio_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_audio_close(void)
+{
 	
 	return TLK_ENONE;
 }
+static int tlkmmi_audio_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	if(mtype == TLKPRT_COMM_MTYPE_NONE){
+		return tlkmmi_audio_innerMsgHandler(msgID, pData, dataLen);
+	}else{
+		return tlkmmi_audio_outerMsgHandler(msgID, pData, dataLen);
+	}
+}
+static void tlkmmi_audio_handler(void)
+{
+	
+}
+
+
+
 
 /******************************************************************************
  * Function: tlkmmi_audio_isBusy
@@ -107,7 +153,7 @@ void tlkmmi_audio_disconn(uint16 handle)
 	tlkmmi_audio_removeItemByHandle(handle);
 }
 
-void tlkmmi_audio_start(void)
+void tlkmmi_audio_startHandler(void)
 {
 	tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, 1000, true);
 	gTlkMmiAudioTmrState = 2;
@@ -119,7 +165,7 @@ void tlkmmi_audio_start(void)
 	}
 	tlkmmi_audio_adaptInsertTimer(&gTlkMmiAudioCurTimer);
 }
-void tlkmmi_audio_close(void)
+void tlkmmi_audio_closeHandler(void)
 {
 	uint08 optype = gTlkMmiAudioCurOptype;
 	uint16 handle = gTlkMmiAudioCurHandle;
@@ -147,11 +193,11 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 				sTlkMmiAudioCodecIdleTmrCount--;
 			}else{
 				tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler close: optype = %d", gTlkMmiAudioCurOptype);
-				tlkmmi_audio_close();
+				tlkmmi_audio_closeHandler();
 			}
 		}else if(gTlkMmiAudioTmrState == 0){
 			tlkapi_info(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: start timer");
-			tlkmmi_audio_start();
+			tlkmmi_audio_startHandler();
 		}else if(gTlkMmiAudioTmrCount == 0){
 			tlkapi_fatal(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_handler: timer fault");
 			tlkapi_timer_updateNode(&gTlkMmiAudioIrqTimer, 3000, true);

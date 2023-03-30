@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_AUDIO_ENABLE)
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlkmmi_audioAdapt.h"
@@ -53,7 +52,7 @@
 #include "tlkstk/bt/btp/hfp/btp_hfp.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
 
 static bool tlkmmi_audio_ctrlTimer(tlkapi_timer_t *pTimer, uint32 userArg);
@@ -405,7 +404,7 @@ void tlkmmi_audio_volumeInc(uint08 voltype)
 		uint08 volume;
 		tlkmdi_audio_voiceVolumeInc();
 		volume = tlkmdi_audio_getVoiceBtpVolume();
-		tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
+		tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		tlkmdi_audio_headsetVolumeInc();
 		if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC){
@@ -418,7 +417,7 @@ void tlkmmi_audio_volumeInc(uint08 voltype)
 			buffer[buffLen++] = tlkmdi_audio_getHeadsetBtpVolume(); //Android Volume
 			tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_volumeInc: %d, %d", 
 				buffer[3], buffer[4]);
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
 		}
 	}else{
 		tlkmdi_audio_musicVolumeInc();
@@ -432,7 +431,7 @@ void tlkmmi_audio_volumeInc(uint08 voltype)
 			buffer[buffLen++] = tlkmdi_audio_getMusicBtpVolume(false); //Android Volume
 			tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_volumeInc: %d, %d", 
 				buffer[3], buffer[4]);
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
 		}
 	}
 }
@@ -454,7 +453,7 @@ void tlkmmi_audio_volumeDec(uint08 voltype)
 		uint08 volume;
 		tlkmdi_audio_voiceVolumeDec();
 		volume = tlkmdi_audio_getVoiceBtpVolume();
-		tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
+		tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		tlkmdi_audio_headsetVolumeDec();
 		if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC){
@@ -467,7 +466,7 @@ void tlkmmi_audio_volumeDec(uint08 voltype)
 			buffer[buffLen++] = tlkmdi_audio_getHeadsetBtpVolume();
 			tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_volumeDec: %d, %d", 
 				buffer[3], buffer[4]);
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
 		}
 	}else{
 		tlkmdi_audio_musicVolumeDec();
@@ -481,7 +480,7 @@ void tlkmmi_audio_volumeDec(uint08 voltype)
 			buffer[buffLen++] = tlkmdi_audio_getMusicBtpVolume(false);
 			tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_volumeDec: %d, %d", 
 				buffer[3], buffer[4]);
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
 		}
 	}
 }
@@ -504,7 +503,7 @@ void tlkmmi_audio_setVolume(uint08 voltype, uint08 volume)
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_VOICE){
 		tlkmdi_audio_setVoiceVolume(volume);
 		volume = tlkmdi_audio_getVoiceBtpVolume();
-		tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
+		tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_HFP_VOLUME, &volume, 1);
 	}else if(voltype == TLKPRT_COMM_VOLUME_TYPE_HEADSET){
 		tlkmdi_audio_setHeadsetVolume(volume);
 		if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC){
@@ -515,7 +514,7 @@ void tlkmmi_audio_setVolume(uint08 voltype, uint08 volume)
 			buffer[buffLen++] = 0x01;
 			buffer[buffLen++] = tlkmdi_audio_getHeadsetBtpVolume();
 			buffer[buffLen++] = tlkmdi_audio_getHeadsetBtpVolume();
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
 		}
 	}else{
 		tlkmdi_audio_setMusicVolume(volume);
@@ -527,7 +526,7 @@ void tlkmmi_audio_setVolume(uint08 voltype, uint08 volume)
 			buffer[buffLen++] = 0x00;
 			buffer[buffLen++] = tlkmdi_audio_getMusicBtpVolume(true);
 			buffer[buffLen++] = tlkmdi_audio_getMusicBtpVolume(false);
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_BTMGR, TLKPTI_BT_MSGID_SET_AVRCP_VOLUME, buffer, buffLen);
 		}
 	}
 }
@@ -650,7 +649,7 @@ void tlkmmi_audio_optypeChanged(uint08 newOptype, uint16 newHandle, uint08 oldOp
 {
 	gTlkMmiAudioCurHandle = newHandle;
 	gTlkMmiAudioCurOptype = newOptype;
-	tlkmmi_audio_start();
+	tlkmmi_audio_startHandler();
 	tlkmmi_audio_adaptInsertTimer(&gTlkMmiAudioCtrl.timer);
 	tlkapi_trace(TLKMMI_AUDIO_DBG_FLAG, TLKMMI_AUDIO_DBG_SIGN, "tlkmmi_audio_optypeChanged: gTlkMmiAudioCurOptype -%d", gTlkMmiAudioCurOptype);
 

@@ -48,6 +48,7 @@ int tlkdev_store_getSectorNumb(void);
 int tlkdev_store_getSdBlockSize(void);
 int tlkdev_store_getSdBlockNumb(void);
 
+void tlkdev_store_enterSleep(uint mode);
 
 
 #endif //TLK_DEV_STORE_ENABLE

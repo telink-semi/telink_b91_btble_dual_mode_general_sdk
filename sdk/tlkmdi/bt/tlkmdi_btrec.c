@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTREC_ENABLE)
 #include "tlkmdi/bt/tlkmdi_btadapt.h"
 #include "tlkdev/sys/tlkdev_serial.h"

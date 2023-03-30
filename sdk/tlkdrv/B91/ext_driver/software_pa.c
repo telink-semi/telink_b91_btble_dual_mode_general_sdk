@@ -21,7 +21,7 @@
  *          limitations under the License.
  *******************************************************************************************************/
 
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 #include "software_pa.h"
 #include "tlkdrv/B91/gpio.h"
 

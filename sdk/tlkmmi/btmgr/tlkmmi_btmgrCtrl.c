@@ -20,10 +20,7 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_BTMGR_ENABLE)
 #include "tlkmdi/bt/tlkmdi_btacl.h"
 #include "tlkmdi/bt/tlkmdi_btinq.h"

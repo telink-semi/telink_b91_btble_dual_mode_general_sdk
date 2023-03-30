@@ -26,7 +26,10 @@
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk.h"
 #include "tlkstk/hci/bt_hci.h"
-
+#include "tlkstk/ble/ble.h"
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_pm.h"
+#endif
 
 extern int  btble_init(void);
 extern uint16 btc_state(void);
@@ -45,17 +48,21 @@ int tlkstk_init(void)
 	btble_init();
 
 	btc_init();
+
 #if TLK_STK_BTH_ENABLE
 	bth_init();
 #endif
 #if TLK_STK_BTP_ENABLE
 	btp_init();
 #endif
+#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendBusyCheckCB(tlkstk_pmIsBusy);
+#endif
 
 	return TLK_ENONE;
 }
 
-void tlkstk_process(void)
+void tlkstk_handler(void)
 {
 	btble_sdk_main_loop();
 	
@@ -70,7 +77,7 @@ void tlkstk_process(void)
 
 bool tlkstk_pmIsBusy(void)
 {
-	return bth_pmIsBusy()||(!hci_txfifo_is_empty());
+	return bth_pmIsBusy()||(!tlkbt_hci_c2hFifoIsEmpty());
 }
 
 

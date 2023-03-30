@@ -25,6 +25,9 @@
 #define TLKAPP_H
 
 
+#define TLKAPP_DBG_FLAG         ((TLK_MAJOR_DBGID_APP << 24) | (TLK_MINOR_DBGID_APP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKAPP_DBG_SIGN         "[APP]"
+
 
 /******************************************************************************
  * Function: tlkapp_init
@@ -45,13 +48,13 @@ int tlkapp_init(void);
 //void tlkapp_deepInit(void);
 
 /******************************************************************************
- * Function: tlkapp_process
+ * Function: tlkapp_handler
  * Descript: BTBLE SDK main loop.
  * Params: None.
  * Return: None.
  * Others: None.
 *******************************************************************************/
-void tlkapp_process(void);
+void tlkapp_handler(void);
 
 
 /******************************************************************************

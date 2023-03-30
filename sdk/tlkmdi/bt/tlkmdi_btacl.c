@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTACL_ENABLE)
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/btp/btp_stdio.h"
@@ -312,7 +311,7 @@ int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout)
  * Return: Return TLK_ENONE is success/other value is failure.
  * Others: None.
 *******************************************************************************/
-int tlkmdi_btacl_disconn(uint16 handle, uint08 reaosn)
+int tlkmdi_btacl_disconn(uint16 handle, uint08 reason)
 {
 	int ret;
 	tlkmdi_btacl_item_t *pItem;
@@ -323,7 +322,7 @@ int tlkmdi_btacl_disconn(uint16 handle, uint08 reaosn)
 		return -TLK_EHANDLE;
 	}
 
-	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_disconn: 0x%x %d", handle, reaosn);
+	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_disconn: 0x%x %d", handle, reason);
 	if(pItem->state == TLK_STATE_OPENED){
 		tlkmdi_btacl_resetItem(pItem);
 	}else if(pItem->state == TLK_STATE_CONNING){

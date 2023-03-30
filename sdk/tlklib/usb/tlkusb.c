@@ -44,7 +44,9 @@
 #if (TLK_USB_USR_ENABLE)
 #include "tlklib/usb/usr/tlkusb_usr.h"
 #endif
-
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_pm.h"
+#endif
 
 extern uint08 gTlkUsbCurModType;
 
@@ -87,18 +89,22 @@ int tlkusb_init(uint16 usbID)
 	#if (TLK_USB_MSC_ENABLE)
 	tlkusb_msc_init();
 	#endif
+
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendEnterSleepCB(tlkusb_enterSleep);
+	#endif
 	
 	return TLK_ENONE;
 }
 
 /******************************************************************************
- * Function: tlkusb_process
+ * Function: tlkusb_handler
  * Descript: This function use to loop through usb devices.
  * Params: None
  * Return: None.
  * Others: None.
 *******************************************************************************/
-void tlkusb_process(void)
+void tlkusb_handler(void)
 {
 	tlkusb_core_handler();
 }
@@ -131,6 +137,11 @@ bool tlkusb_mount(uint08 modtype)
 	return tlkusb_setModule(modtype);
 }
 
+void tlkusb_enterSleep(uint mode)
+{
+	gpio_input_dis(GPIO_PA5|GPIO_PA6);//DP/DM must set input enable
+	usb_dp_pullup_en(0);
+}
 
 
 

@@ -28,7 +28,7 @@
 #define TLKAPI_TIMER_ID     TIMER0
 
 
-extern void hci_host_to_controller(void);
+extern void tlkbt_hci_h2cHandler(void);
 
 
 //static tlkapi_timer_t *tlkmdi_timer_takeFirst(void);
@@ -95,7 +95,7 @@ void tlkapi_timer_handler(void)
 	timeIntval = tlkapi_adapt_timerInterval(&sTlkMdiTimerAdapt);
 	if(timeIntval < 50) timeIntval = 50;
 	sTlkMdiTimerIsBusy = false;
-	hci_host_to_controller();
+	tlkbt_hci_h2cHandler();
 	if(timeIntval != 0xFFFFFFFF){
 		tlkapi_timer_start(timeIntval);
 	}

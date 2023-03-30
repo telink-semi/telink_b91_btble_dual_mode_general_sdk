@@ -29,7 +29,7 @@
 
 int tlkusb_init(uint16 usbID);
 
-void tlkusb_process(void);
+void tlkusb_handler(void);
 
 
 #if (TLK_USB_MSC_ENABLE)
@@ -38,6 +38,9 @@ void tlkusb_irq_handler(void);
 bool tlkusb_setModule(uint08 modtype);
 
 bool tlkusb_mount(uint08 modtype);
+
+
+void tlkusb_enterSleep(uint mode);
 
 
 #endif //#if (TLK_CFG_USB_ENABLE)

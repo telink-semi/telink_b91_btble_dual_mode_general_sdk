@@ -28,7 +28,7 @@
 #define TLKAPI_QFIFO_NEED_SIZE(numb, size)     ((size)*(numb))
 
 #define tlkapi_qfifo_size(pFifo)               ((pFifo)->size)
-#define tlkapi_qfifo_count(pFifo)              ((pFifo)->numb)
+#define tlkapi_qfifo_numb(pFifo)               ((pFifo)->numb)
 #define tlkapi_qfifo_isFull(pFifo)             ((pFifo)->full || (pFifo)->numb == 0)
 #define tlkapi_qfifo_isEmpty(pFifo)            (!(pFifo)->full && (pFifo)->wptr == (pFifo)->rptr)
 

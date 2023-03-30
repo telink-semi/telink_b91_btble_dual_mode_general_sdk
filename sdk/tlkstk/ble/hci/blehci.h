@@ -44,18 +44,6 @@ typedef int (*blc_hci_app_handler_t) (unsigned char *p);
 
 
 
-/**
- *  @brief  Definition for HCI packet type & HCI packet indicator
- */
-#if 0
-typedef enum{
-	HCI_TYPE_CMD 		= 0x01,
-	HCI_TYPE_ACL_DATA	= 0x02,
-	HCI_TYPE_SCO_DATA	= 0x03,
-	HCI_TYPE_EVENT  	= 0x04,
-	HCI_TYPE_ISO_DATA 	= 0x05,  //core_5.2
-} hci_type_t;
-#endif
 
 /**
  *  @brief  Definition for HCI ACL Data packets Packet_Boundary_Flag

@@ -163,7 +163,7 @@ int  tlkapi_adapt_insertTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer, bo
 int  tlkapi_adapt_removeTimer(tlkapi_adapt_t *pAdapt, tlkapi_timer_t *pTimer);
 
 /******************************************************************************
- * Function: tlktsk_adapt_interval
+ * Function: tlkapi_adapt_timerInterval
  * Descript: Gets the execution time of the next task in the process.
  * Params:
  *     @adapt[IN]--Responsible for integrated management of adapter nodes.

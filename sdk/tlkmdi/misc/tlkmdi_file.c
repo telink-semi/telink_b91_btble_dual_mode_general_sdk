@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_FILE_ENABLE)
 #include "tlkmdi/misc/tlkmdi_file.h"
 #include "tlksys/prt/tlkpto_comm.h"

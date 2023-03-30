@@ -24,9 +24,10 @@
 #if (TLKMMI_AUDIO_ENABLE)
 #include "tlkmmi_audio.h"
 #include "tlkmmi_audioAdapt.h"
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
 
+static uint08 sTlkMmiAudioProcID = 0;
 
 /******************************************************************************
  * Function: tlkmmi_audio_adaptInit
@@ -35,9 +36,10 @@
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int tlkmmi_audio_adaptInit(void)
+int tlkmmi_audio_adaptInit(uint08 procID)
 {
-	return tlktsk_adapt_init(TLKMMI_AUDIO_PROCID);
+	sTlkMmiAudioProcID = procID;
+	return tlksys_adapt_init(sTlkMmiAudioProcID);
 }
 
 /******************************************************************************
@@ -50,7 +52,7 @@ int tlkmmi_audio_adaptInit(void)
 *******************************************************************************/
 void tlkmmi_audio_adaptHandler(void)
 {
-	tlktsk_adapt_handler(TLKMMI_AUDIO_PROCID);
+	tlksys_adapt_handler(sTlkMmiAudioProcID);
 }
 
 /******************************************************************************
@@ -62,7 +64,7 @@ void tlkmmi_audio_adaptHandler(void)
 *******************************************************************************/
 uint tlkmmi_audio_adaptInterval(void)
 {
-	return tlktsk_adapt_interval(TLKMMI_AUDIO_PROCID);
+	return tlksys_adapt_interval(sTlkMmiAudioProcID);
 }
 
 /******************************************************************************
@@ -81,19 +83,19 @@ uint tlkmmi_audio_adaptInterval(void)
 *******************************************************************************/
 int tlkmmi_audio_adaptInitTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
 {
-	return tlktsk_adapt_initTimer(TLKMMI_AUDIO_PROCID, pTimer, timerCB, userArg, timeout);
+	return tlksys_adapt_initTimer(sTlkMmiAudioProcID, pTimer, timerCB, userArg, timeout);
 }
 int tlkmmi_audio_adaptInitQueue(tlkapi_queue_t *pProcs, TlkApiQueueCB queueCB, uint32 userArg)
 {
-	return tlktsk_adapt_initQueue(TLKMMI_AUDIO_PROCID, pProcs, queueCB, userArg);
+	return tlksys_adapt_initQueue(sTlkMmiAudioProcID, pProcs, queueCB, userArg);
 }
 void tlkmmi_audio_adaptDeinitTimer(tlkapi_timer_t *pTimer)
 {
-	tlktsk_adapt_deinitTimer(TLKMMI_AUDIO_PROCID, pTimer);
+	tlksys_adapt_deinitTimer(sTlkMmiAudioProcID, pTimer);
 }
 void tlkmmi_audio_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 {
-	tlktsk_adapt_deinitQueue(TLKMMI_AUDIO_PROCID, pProcs);
+	tlksys_adapt_deinitQueue(sTlkMmiAudioProcID, pProcs);
 }
 
 /******************************************************************************
@@ -107,11 +109,11 @@ void tlkmmi_audio_adaptDeinitQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 bool tlkmmi_audio_adaptIsHaveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_isHaveTimer(TLKMMI_AUDIO_PROCID, pTimer);
+	return tlksys_adapt_isHaveTimer(sTlkMmiAudioProcID, pTimer);
 }
 bool tlkmmi_audio_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_isHaveQueue(TLKMMI_AUDIO_PROCID, pProcs);
+	return tlksys_adapt_isHaveQueue(sTlkMmiAudioProcID, pProcs);
 }
 
 /******************************************************************************
@@ -124,11 +126,11 @@ bool tlkmmi_audio_adaptIsHaveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_audio_adaptAppendQueue(tlkapi_queue_t *pProcs)
 {	
-	return tlktsk_adapt_appendQueue(TLKMMI_AUDIO_PROCID, pProcs);
+	return tlksys_adapt_appendQueue(sTlkMmiAudioProcID, pProcs);
 }
 int tlkmmi_audio_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 {
-	return tlktsk_adapt_removeQueue(TLKMMI_AUDIO_PROCID, pProcs);
+	return tlksys_adapt_removeQueue(sTlkMmiAudioProcID, pProcs);
 }
 
 /******************************************************************************
@@ -144,15 +146,15 @@ int tlkmmi_audio_adaptRemoveQueue(tlkapi_queue_t *pProcs)
 *******************************************************************************/
 int tlkmmi_audio_adaptUpdateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)
 {
-	return tlktsk_adapt_updateTimer(TLKMMI_AUDIO_PROCID, pTimer, timeout, isInsert);
+	return tlksys_adapt_updateTimer(sTlkMmiAudioProcID, pTimer, timeout, isInsert);
 }
 int tlkmmi_audio_adaptInsertTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_insertTimer(TLKMMI_AUDIO_PROCID, pTimer, true);
+	return tlksys_adapt_insertTimer(sTlkMmiAudioProcID, pTimer, true);
 }
 int tlkmmi_audio_adaptRemoveTimer(tlkapi_timer_t *pTimer)
 {
-	return tlktsk_adapt_removeTimer(TLKMMI_AUDIO_PROCID, pTimer);
+	return tlksys_adapt_removeTimer(sTlkMmiAudioProcID, pTimer);
 }
 
 

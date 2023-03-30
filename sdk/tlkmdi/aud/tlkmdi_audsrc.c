@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_AUDSRC_ENABLE)
 #include "drivers.h"
 #include "tlkmdi/aud/tlkmdi_audio.h"
@@ -35,7 +34,7 @@
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 
 
 #define TLKMDI_AUDSRC_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SRC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
@@ -51,7 +50,7 @@ static void tlkmdi_audsrc_keyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 i
 
 #if (TLKBTP_CFG_A2DPSRC_ENABLE)
 //extern void btp_avrcp_setvolume(uint16 handle, uint08 volume);
-extern int  hci_rxfifo_half_full(void);
+extern bool tlkbt_hci_h2cFifoIsHalfFull(void);
 //extern bool btp_a2dpsrc_isInStream(uint16 handle);
 extern int  btp_a2dpsrc_setSampleRate(uint16 aclHandle, uint32 sampleRate);
 #endif
@@ -550,7 +549,7 @@ static void tlkmdi_audsrc_fillHandler(void)
 		sTlkMdiSrcCtrl.sndFrame ++;
 	}
 	#if (TLKBTP_CFG_A2DPSRC_ENABLE)
-	if(sTlkMdiSrcCtrl.sndFrame >= TLKMDI_SRC_FRAME_NUMB && !hci_rxfifo_half_full()){// retry send last send fail pkt;
+	if(sTlkMdiSrcCtrl.sndFrame >= TLKMDI_SRC_FRAME_NUMB && !tlkbt_hci_h2cFifoIsHalfFull()){// retry send last send fail pkt;
 		int ret;
 		uint16 pktLen;
 		pktLen = 1+frameSize*TLKMDI_SRC_FRAME_NUMB;
@@ -559,7 +558,7 @@ static void tlkmdi_audsrc_fillHandler(void)
 		if(ret == TLK_ENONE){
 			sTlkMdiSrcCtrl.sndFrame = 0;
 			sTlkMdiSrcCtrl.seqNumber ++;
-			sTlkMdiSrcCtrl.timeStamp += 8;
+			sTlkMdiSrcCtrl.timeStamp += 896;	//7*128=896
 //			tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "=== app_audio_a2dpSrcPlayProcs 005");
 		}
 	}

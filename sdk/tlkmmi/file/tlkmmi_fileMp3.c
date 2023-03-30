@@ -33,7 +33,6 @@
 #include "tlksys/prt/tlkpto_file.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 
 
 static int tlkmmi_file_mp3Init(void);

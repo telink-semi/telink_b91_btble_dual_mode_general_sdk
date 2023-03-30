@@ -37,8 +37,6 @@
 
 //HPU - Hardware Protocol UART
 
-extern int  tlkdev_serial_send1(uint08 *pData, uint16 dataLen);
-extern void tlkdev_serial_setRecvFifo(tlkapi_qfifo_t *pFifo);;
 
 static void tlkdbg_hpudwn_input(uint08 *pData, uint16 dataLen);
 static void tlkdbg_hpudwn_makeRecvFrame(uint08 rbyte);
@@ -137,14 +135,12 @@ void tlkdbg_hpudbg_recvCmd(uint08 *pData, uint16 dataLen)
 	}
 }
 
-extern void tlkdev_serial_handler1(void);
-
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpudwn_handler(void)
 {
 	if(!sTlkDbgHpuDwnCtrl.isStart) return;
 	if(sTlkDbgHpuDwnCtrl.isStart){
-		tlkdev_serial_handler1();
+		tlkdev_serial_handler();
 	}
 	if(sTlkDbgHpuDwnCtrl.isStart != 0 && clock_time_exceed(sTlkDbgHpuDwnCtrl.startTimer, 3000000)){
 		
@@ -174,7 +170,7 @@ static void tlkdbg_hpudwn_sendStartRspDeal(void)
 	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
-		tlkdev_serial_send1(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
 	}
 }
 _attribute_ram_code_sec_noinline_
@@ -196,7 +192,7 @@ static void tlkdbg_hpudwn_sendFlashRspDeal(void)
 	head[headLen++] = bodyLen; //Lens	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
-		tlkdev_serial_send1(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
 	}
 }
 _attribute_ram_code_sec_noinline_
@@ -204,7 +200,7 @@ static void tlkdbg_hpudwn_sendFSyncRspDeal(void)
 {
 	int ret;
 	uint08 head[4];
-	uint08 body[8];
+	uint08 body[12];
 	uint08 headLen = 0;
 	uint08 bodyLen = 0;
 	
@@ -227,7 +223,7 @@ static void tlkdbg_hpudwn_sendFSyncRspDeal(void)
 	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
-		tlkdev_serial_send1(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
 	}
 }
 _attribute_ram_code_sec_noinline_
@@ -250,7 +246,7 @@ static void tlkdbg_hpudwn_sendCloseRspDeal(void)
 	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
-		tlkdev_serial_send1(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
 	}
 }
 
@@ -305,9 +301,6 @@ void tlkdbg_hpudbg_recvDatDeal(uint16 numb, uint08 *pData, uint16 dataLen)
 	tlkdbg_hpudwn_sendFSyncRspDeal();
 }
 
-extern void tlkdev_serial_clear1(void);
-extern void tlkdev_serial_regCB1(tlkdev_serial_recvCB cb);
-
 _attribute_ram_code_sec_noinline_
 static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen)
 {
@@ -321,12 +314,15 @@ static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen)
 		plic_interrupt_disable(IRQ14_ZB_BT);
 		plic_interrupt_disable(IRQ15_ZB_RT);
 		plic_interrupt_disable(IRQ28_SOFT);
-		tlkdev_serial_clear1();
-		tlkdev_serial_regCB1(tlkdbg_hpudwn_input);
+		tlkdev_serial_clear();
+		tlkdev_serial_regCB(tlkdbg_hpudwn_input);
+		tlkdev_serial_close();
 		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
 		#if (TLKDBG_HPUDWN_FAST_SPEED_ENABLE)
-		tlkdev_serial_setRecvFifo(&sTlkDbgHpuDwnFifo);
+		tlkdev_serial_setRxQFifo(TLKDBG_HPUDWN_RECV_ITEM_NUMB, TLKDBG_HPUDWN_RECV_ITEM_SIZE, 
+			sTlkDbgHpuDwnRecvBuff, TLKDBG_HPUDWN_RECV_ITEM_NUMB*TLKDBG_HPUDWN_RECV_ITEM_SIZE);
 		#endif
+		tlkdev_serial_open();
 	}
 	
 	sTlkDbgHpuDwnCtrl.isStart = 1;

@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTHID_ENABLE)
 #include "tlkmdi/bt/tlkmdi_bthid.h"
 #include "tlkstk/bt/btp/btp_stdio.h"

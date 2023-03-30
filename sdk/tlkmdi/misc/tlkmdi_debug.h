@@ -31,8 +31,6 @@
 
 int  tlkmdi_debug_init(void);
 
-bool tlkmdi_debug_pmIsBusy(void);
-
 void tlkmdi_debug_handler(void);
 
 

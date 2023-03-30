@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTIAP_ENABLE)
 #include <stdint.h>
 #include "tlkmdi/bt/tlkmdi_btiap.h"

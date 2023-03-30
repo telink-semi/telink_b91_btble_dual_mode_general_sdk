@@ -235,7 +235,7 @@ TLKA_AEC_Error tlka_aec_process_frame(void *st,
  * @param pScratch Point to the scratch buffer which was alloced by caller
  * @return error code defined by TLKA_NS_Error
  */
-TLKA_NS_Error tlka_ns_init(void *state, NS_CFG_PARAS *param, void *pScratch);
+TLKA_NS_Error tlka_ns_init(void *state, void *param, void *pScratch);
 
 /** Preprocess a frame
  * @param st Preprocessor state

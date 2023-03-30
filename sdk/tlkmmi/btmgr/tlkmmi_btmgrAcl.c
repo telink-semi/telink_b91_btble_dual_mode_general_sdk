@@ -23,7 +23,6 @@
 
 #include "string.h"
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi_btmgr.h"
 #if (TLKMMI_BTMGR_BTACL_ENABLE)
 #include "tlkmmi_btmgrAdapt.h"
@@ -32,7 +31,7 @@
 #include "tlkmmi_btmgrRec.h"
 #include "tlkmmi_btmgrMsgOuter.h"
 
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/bt/tlkmdi_btacl.h"
 #include "tlkmdi/bt/tlkmdi_btinq.h"
 #include "tlkmdi/bt/tlkmdi_btrec.h"
@@ -405,7 +404,7 @@ static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtA
 		uint08 data[4];
 		data[0] = (handle) & 0xFF;
 		data[1] = (handle >> 8) & 0xFF;
-		tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_DISCONN_EVT, data, 2);
+		tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_DISCONN_EVT, data, 2);
 	}
 	
 	#if TLKMMI_BTMGR_BTREC_ENABLE
@@ -451,14 +450,14 @@ static void tlkmmi_btmgr_aclProfConnCB(uint16 handle, uint08 status, uint08 ptyp
 			data[6] = (handle) & 0xFF;
 			data[7] = (handle >> 8) & 0xFF;
 			data[8] = false; //IsForce
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_PHONE, TLKPTI_PHONE_MSGID_SYNC_BOOK_CMD, data, 9);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE, TLKPTI_PHONE_MSGID_SYNC_BOOK_CMD, data, 9);
 		}
 		uint08 data[4];
 		data[0] = (handle) & 0xFF;
 		data[1] = (handle >> 8) & 0xFF;
 		data[2] = ptype;
 		data[3] = usrID;
-		tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_CONNECT_EVT, data, 4);
+		tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_BT_CONNECT_EVT, data, 4);
 		#if (TLK_MDI_BTIAP_ENABLE)
 		if(ptype == BTP_PTYPE_IAP){
 			tlkmdi_btiap_setAclHandle(true, handle);
@@ -480,7 +479,7 @@ static void tlkmmi_btmgr_aclProfDiscCB(uint16 handle, uint08 reason, uint08 ptyp
 			uint08 data[4];
 			data[0] = (handle) & 0xFF;
 			data[1] = (handle >> 8) & 0xFF;
-			tlktsk_sendInnerMsg(TLKTSK_TASKID_PHONE, TLKPTI_PHONE_MSGID_CANCEL_SYNC_CMD, data, 2);
+			tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE, TLKPTI_PHONE_MSGID_CANCEL_SYNC_CMD, data, 2);
 		}
 		#if (TLK_MDI_BTIAP_ENABLE)
 		if(ptype == BTP_PTYPE_IAP){

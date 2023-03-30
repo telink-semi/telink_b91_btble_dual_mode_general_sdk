@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_AUDSCO_ENABLE)
 #include "drivers.h"
 #include "tlkmdi/aud/tlkmdi_audio.h"

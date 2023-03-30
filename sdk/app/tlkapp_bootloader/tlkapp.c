@@ -59,7 +59,7 @@ volatile uint32 AAAA_trace02 = 0;
 volatile uint32 AAAA_trace03 = 0;
 volatile uint32 AAAA_trace04 = 0;
 
-void tlkapp_process(void)
+void tlkapp_handler(void)
 {
 	AAAA_trace01 ++;
 	AAAA_trace03 ++;

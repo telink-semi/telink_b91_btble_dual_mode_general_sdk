@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_LEMGR_ENABLE)
 #include "tlkstk/ble/ble.h"
 #include "tlkmdi/le/tlkmdi_le_common.h"

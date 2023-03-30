@@ -25,83 +25,37 @@
 
 
 
+#define TLK_CFG_FS_ENABLE            0
+#define TLK_CFG_OS_ENABLE            0
+#define TLK_CFG_PM_ENABLE            0
+#define TLK_CFG_SYS_ENABLE           0
+#define TLK_CFG_GUI_ENABLE           0
+#define TLK_CFG_WDG_ENABLE           0 //WatchDog
+#define TLK_CFG_DEV_ENABLE           1
+#define TLK_CFG_ALG_ENABLE           0
+#define TLK_CFG_STK_ENABLE           1
+#define TLK_CFG_MDI_ENABLE           0
+#define TLK_CFG_MMI_ENABLE           0
+#define TLK_CFG_DBG_ENABLE           1
+#define TLK_CFG_USB_ENABLE           1
+#define TLK_CFG_TEST_ENABLE          0
+#define TLK_CFG_COMM_ENABLE          0
+#define TLK_CFG_VCD_ENABLE           0
 
-#define TLKAPP_DBG_ENABLE       1
-#define TLKAPP_DBG_FLAG         (TLKAPP_DBG_ENABLE | TLKAPI_DBG_FLAG_ALL)
-#define TLKAPP_DBG_SIGN         "[APP]"
+#define TLK_STK_BT_ENABLE            1
+#define TLK_STK_BTH_ENABLE           0
+#define TLK_STK_BTP_ENABLE           0
 
-
-#define TLKAPP_WAKEUP_PIN        GPIO_PE1
-
-
-#define TLKAPP_MEM_TOTAL_SIZE         (40*1024) //MP3(36740)+SrcEnc(4048) = 36740+4048=40788  -- Worst scenario: Music playing on the headphone
-
-
-
-
-
-
-
-#define TLK_STK_BT_ENABLE        1
-
-
-/******************************************************************************
- * Macro: TLKAPP_ENABLE
- * Descr: WON'T CHANGE
-*******************************************************************************/
-#ifndef TLKAPP_GENERAL_ENABLE
-#define TLKAPP_GENERAL_ENABLE    0
-#endif
-#ifndef TLKAPP_CONTROLLER_ENABLE
-#define TLKAPP_CONTROLLER_ENABLE 0
-#endif
-/******************************************************************************
- * Macro: TLK_CONTROLLER_ENABLE
- * Descr:
-*******************************************************************************/
-#define TLKAPP_HCI_UART_MODE      1
-#define TLKAPP_HCI_USB_MODE       0
-
-#if TLKAPP_HCI_UART_MODE
-#define TLK_DEV_SERIAL_ENABLE        (0)
-#define TLK_DEV_HCIUART_ENABLE       (0)
-//baudrate of UART
-#define UART_BAUDRATE   115200
-/*! HCI Transport configuration  */
-#if 0//UART0
-#define UART_ID         UART0
-#define UART_TX_PIN     UART0_TX_PD2
-#define UART_RX_PIN     UART0_RX_PD3
-#define UART_CTS_PIN    UART0_CTS_PA1
-#define UART_RTS_PIN    UART0_RTS_PA2
-#define UART_IRQ        IRQ19_UART0
-#define UART_IRQHandler uart0_irq_handler
-#else
-#define UART_ID         UART1
-#define UART_TX_PIN     UART1_TX_PE0
-#define UART_RX_PIN     UART1_RX_PE2
-#define UART_CTS_PIN    UART1_CTS_PE1
-#define UART_RTS_PIN    UART1_RTS_PE3
-#define UART_IRQ        IRQ18_UART1
-#define UART_IRQHandler uart1_irq_handler
-#endif
-/////////////////////  FLOW CONTROL //////////////////////////////////
-#define	UART_FLOW_CTR				0
-#define CTS_STOP_VOLT               1 //0 :Low level stops TX.  1 :High level stops TX.
-#endif
-
-/******************************************************************************
- * Macro: CONTROLLER MOUDLE CONFIGE
- * Descr:
-*******************************************************************************/
-#define TLK_AFH_ENABLE                        (1&&TLK_STK_BT_ENABLE)
-#define TLK_AFH_CLS_ENABLE                    (1&&TLK_STK_BT_ENABLE)
-#define TLK_PWC_ENABLE                        (1&&TLK_STK_BT_ENABLE)
-#define TLK_SNIFF_ENABLE                      (1&&TLK_STK_BT_ENABLE)
-#define TLK_SCO_ENABLE                        (1&&TLK_STK_BT_ENABLE)
-
-
-
+#define TLK_DEV_SERIAL_ENABLE        1
+#define TLK_DEV_CODEC_ENABLE         0
+#define TLK_DEV_STORE_ENABLE         0
+#define TLK_DEV_SRAM_ENABLE          0
+#define TLK_DEV_LCD_ENABLE           0
+#define TLK_DEV_SENSOR_ENABLE        0
+#define TLK_DEV_TOUCH_ENABLE         0
+#define TLK_DEV_CHARGE_ENABLE        0
+#define TLK_DEV_BATTERY_ENABLE       0
+#define TLK_DEV_MFI_ENABLE           0
 
 
 #endif //TLKAPP_CONFIG_H

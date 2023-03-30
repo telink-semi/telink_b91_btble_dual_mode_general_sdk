@@ -39,18 +39,6 @@
 	#include "app/tlkapp_bqb/tlkapp_config.h"
 #endif
 
-#ifndef JTAG_DEBUG_ENABLE
-	//PE4 ~ PE7 as JTAG will cost some power
-	#define PE4_FUNC			AS_GPIO
-	#define PE5_FUNC			AS_GPIO  //save 120 uA
-	#define PE6_FUNC			AS_GPIO
-	#define PE7_FUNC			AS_GPIO
-
-	#define PE4_INPUT_ENABLE	0
-	#define PE5_INPUT_ENABLE	0
-	#define PE6_INPUT_ENABLE	0
-	#define PE7_INPUT_ENABLE	0
-#endif
 
 
 #endif /* APP_CONFIG_H */

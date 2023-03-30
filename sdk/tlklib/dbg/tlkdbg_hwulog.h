@@ -28,8 +28,9 @@
 
 //HWU - GPIO simulate UART
 
-#define TLKDBG_HWU_LOG_GPIO_PIN        GPIO_PA2
-#define TLKDBG_HWU_LOG_BAUD_RATE       1000000
+#define TLKDBG_HWULOG_UART_PORT        UART0
+#define TLKDBG_HWULOG_UART_TX_PIN      GPIO_PA2
+#define TLKDBG_HWULOG_UART_BAUDRATE    2000000
 
 #define TLKDBG_HWU_LOG_CACHE_SIZE        256
 #define TLKDBG_HWU_LOG_BUFFER_SIZE       2048
@@ -44,13 +45,8 @@ void tlkdbg_hwulog_reset(void);
 bool tlkdbg_hwulog_isBusy(void);
 void tlkdbg_hwulog_handler(void);
 
-void tlkdbg_hwulog_warn(char *pSign, const char *format, va_list args);
-void tlkdbg_hwulog_info(char *pSign, const char *format, va_list args);
-void tlkdbg_hwulog_trace(char *pSign, const char *format, va_list args);
-void tlkdbg_hwulog_fatal(char *pSign, const char *format, va_list args);
-void tlkdbg_hwulog_error(char *pSign, const char *format, va_list args);
-void tlkdbg_hwulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkdbg_hwulog_assert(bool isAssert, char *pSign, const char *format, va_list args);
+void tlkdbg_hwulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args);
+void tlkdbg_hwulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
 
 
 void tlkdbg_hwulog_sendU08s(char *pSign, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);

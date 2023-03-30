@@ -35,7 +35,7 @@
  * Return: Operating results. LSLP_ENONE means success, others means failture.
  * Others: None.
 *******************************************************************************/
-int  tlkmmi_audio_adaptInit(void);
+int  tlkmmi_audio_adaptInit(uint08 procID);
 
 /******************************************************************************
  * Function: tlkmmi_audio_adaptHandler

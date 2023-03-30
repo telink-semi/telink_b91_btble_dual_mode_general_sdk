@@ -204,6 +204,9 @@ uint08 tlkmmi_btmgr_ptypeToCtype(uint08 ptype, uint08 usrID)
 		case BTP_PTYPE_PBAP:
 			ctype = TLKPRT_COMM_BT_CHN_PBAP;
 			break;
+		case BTP_PTYPE_AVRCP_BROWSING:
+			ctype = TLKPRT_COMM_BT_CHN_AVRCP_BROWSING;
+			break;
 	}
 	return ctype;
 }

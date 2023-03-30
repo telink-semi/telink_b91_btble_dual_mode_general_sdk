@@ -23,7 +23,7 @@
 #include "tlk_config.h" 
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_FILE_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkalg/digest/md5/tlkalg_md5.h"
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"
@@ -121,7 +121,7 @@ static int tlkmmi_file_serialSendProc(uint08 *pHead, uint08 headLen, uint08 *pDa
 	tlkmdi_comm_getSendNumb(&value);
 	pHead[3] = value;
 #endif
-	ret = tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND_FOR_FILE, pHead, headLen, pData, dataLen);
+	ret = tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND_FOR_FILE, pHead, headLen, pData, dataLen);
 #if (TLK_CFG_COMM_ENABLE)
 	if(ret == TLK_ENONE) tlkmdi_comm_incSendNumb();
 #endif

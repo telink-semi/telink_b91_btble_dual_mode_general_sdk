@@ -21,9 +21,8 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTHFP_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/bt/tlkmdi_bthfp.h"
 
 
@@ -183,7 +182,7 @@ static void tlkmdi_bthfp_hfSendStatusEvt(uint08 evtID, uint16 handle, uint08 cal
 	evt.callNum = callNum;
 	evt.callDir = callDir;
 	evt.numbLen = numbLen;
-	tlktsk_sendInnerMsg(TLKTSK_TASKID_PHONE, evtID, (uint08*)&evt, sizeof(tlkmdi_hfphf_statusEvt_t));
+	tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE, evtID, (uint08*)&evt, sizeof(tlkmdi_hfphf_statusEvt_t));
 }
 static int tlkmdi_bthfp_hfCodecChangedEvt(uint08 *pData, uint16 dataLen)
 {
@@ -198,7 +197,7 @@ static int tlkmdi_bthfp_hfVolumeChangedEvt(uint08 *pData, uint16 dataLen)
 	pEvt = (btp_hfpVolumeChangedEvt_t*)pData;
 	if(pEvt->volType == BTP_HFP_VOLUME_TYPE_SPK){
 		tlkapi_trace(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "tlkmdi_bthfp_hfVolumeChangedEvt: %d", pEvt->volume);
-		tlktsk_sendInnerMsg(TLKTSK_TASKID_AUDIO, TLKPTI_AUD_MSGID_HFP_CHG_VOLUME_EVT, &pEvt->volume, 1);
+		tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_HFP_CHG_VOLUME_EVT, &pEvt->volume, 1);
 	}
 	return TLK_ENONE;
 }

@@ -21,17 +21,19 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_TEST_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi_test.h"
 #include "tlkmmi_testMsg.h"
-
+#include "tlkmmi_testModinf.h"
 
 static void tlkmmi_test_recvStartDeal(uint08 *pData, uint16 dataLen);
 static void tlkmmi_test_recvPauseDeal(uint08 *pData, uint16 dataLen);
 static void tlkmmi_test_recvCloseDeal(uint08 *pData, uint16 dataLen);
 static void tlkmmi_test_recvRebootDeal(void);
+
+
+extern tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
 
 
 int tlkmmi_test_recvMsgHandler(uint16 msgID, uint08 *pData, uint16 dataLen)
@@ -70,7 +72,7 @@ int tlkmmi_test_sendCommCmd(uint08 cmdID, uint08 *pData, uint08 dataLen)
 	head[headLen++] = TLKPRT_COMM_PTYPE_CMD; //Cmd
 	head[headLen++] = TLKPRT_COMM_MTYPE_TEST;
 	head[headLen++] = cmdID;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 int tlkmmi_test_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen)
 {
@@ -81,7 +83,7 @@ int tlkmmi_test_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 *
 	head[headLen++] = cmdID;
 	head[headLen++] = status;
 	head[headLen++] = reason;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 int tlkmmi_test_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 {
@@ -90,12 +92,12 @@ int tlkmmi_test_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 	head[headLen++] = TLKPRT_COMM_PTYPE_EVT; //Cmd
 	head[headLen++] = TLKPRT_COMM_MTYPE_TEST;
 	head[headLen++] = evtID;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 
 static void tlkmmi_test_recvStartDeal(uint08 *pData, uint16 dataLen)
 {
-	int ret = tlkmmi_test_start();
+	int ret = tlkmmi_test_modStart(sTlkMmiTestCtrl.wmode);
 	if(ret < 0) ret = -ret;
 	if(ret == TLK_ENONE){
 		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_START, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
@@ -105,7 +107,7 @@ static void tlkmmi_test_recvStartDeal(uint08 *pData, uint16 dataLen)
 }
 static void tlkmmi_test_recvPauseDeal(uint08 *pData, uint16 dataLen)
 {
-	int ret = tlkmmi_test_pause();
+	int ret = tlkmmi_test_modPause(sTlkMmiTestCtrl.wmode);
 	if(ret < 0) ret = -ret;
 	if(ret == TLK_ENONE){
 		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_PAUSE, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
@@ -115,7 +117,7 @@ static void tlkmmi_test_recvPauseDeal(uint08 *pData, uint16 dataLen)
 }
 static void tlkmmi_test_recvCloseDeal(uint08 *pData, uint16 dataLen)
 {
-	int ret = tlkmmi_test_close();
+	int ret = tlkmmi_test_modClose(sTlkMmiTestCtrl.wmode);
 	if(ret < 0) ret = -ret;
 	if(ret == TLK_ENONE){
 		tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_CLOSE, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);

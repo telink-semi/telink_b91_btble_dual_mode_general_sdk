@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_BTINQ_ENABLE)
 #include "tlkmdi/bt/tlkmdi_btadapt.h"
 #include "tlkmdi/bt/tlkmdi_btinq.h"

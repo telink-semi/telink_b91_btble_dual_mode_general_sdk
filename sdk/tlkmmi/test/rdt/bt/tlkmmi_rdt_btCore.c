@@ -64,7 +64,7 @@ static RdtBtScoConnectCB sTlkMmiRdtBtScoConnectCB = nullptr;
 static RdtBtScoDisconnCB sTlkMmiRdtBtScoDisconnCB = nullptr;
 static RdtBtPrfConnectCB sTlkMmiRdtBtPrfConnectCB = nullptr;
 static RdtBtPrfDisconnCB sTlkMmiRdtBtPrfDisconnCB = nullptr;
-
+static RdtBtPrfSPPsendCB sTlkMmiRdtBtSPPsendCB = nullptr;
 
 
 int tlkmmi_rdt_btCoreInit(void)
@@ -141,6 +141,10 @@ void tlkmmi_rdt_btRegPrfConnectCB(RdtBtPrfConnectCB connectCB)
 void tlkmmi_rdt_btRegPrfDisconnCB(RdtBtPrfDisconnCB disconnCB)
 {
 	sTlkMmiRdtBtPrfDisconnCB = disconnCB;
+}
+void tlkmmi_rdt_btRegsppsendCB(RdtBtPrfSPPsendCB sppsendCB)
+{
+	sTlkMmiRdtBtSPPsendCB = sppsendCB;
 }
 
 int tlkmmi_rdt_btStartScan(bool enInqScan, bool enPageScan)
@@ -311,6 +315,8 @@ static int tlkmmi_rdt_btProfileChannelEvt(uint08 *pData, uint16 dataLen)
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_HANDSFREE_AGW){
 		btp_func_setSppHfpAgChn(pEvt->channel);
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_SERIAL_PORT){
+		tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "BTP_SDP_SRVCLASS_ID_SERIAL_PORT:{handle-0x%x,service-%d,channel-%d}",
+			pEvt->handle, pEvt->service, pEvt->channel);
 		btp_func_setSppRfcChn(pEvt->channel);
 	}else if(pEvt->service == BTP_SDP_SRVCLASS_ID_PBAP_PSE){
 		

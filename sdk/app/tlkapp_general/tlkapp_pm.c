@@ -21,15 +21,17 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkdev/tlkdev.h"
-#include "tlkmmi/tlkmmi.h"
-#include "tlkmmi/audio/tlkmmi_audio.h"
-#include "tlkdev/sys/tlkdev_serial.h"
-#include "tlkapp_config.h"
-#include "tlkapp_pm.h"
-
-
 #if (TLK_CFG_PM_ENABLE)
+#include "tlkdev/tlkdev.h"
+#include "tlkmmi/audio/tlkmmi_audio.h"
+#include "tlkapp_config.h"
+#include "tlkapp.h"
+#include "tlkapp_pm.h"
+#include "tlkmmi/btmgr/tlkmmi_btmgr.h"
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_pm.h"
+#endif
+
 
 #include "drivers.h"
 #include "tlkstk/hci/hci_cmd.h"
@@ -39,7 +41,6 @@
 #include "tlkstk/tlkstk.h"
 
 extern bool tlkstk_pmIsBusy(void);
-extern bool tlkmdi_pmIsbusy(void);
 extern bool tlkapp_pmIsBusy(void);
 
 extern void btc_context_restore(unsigned long * bt_reg, unsigned long * ip_reg, unsigned long * modem_reg, unsigned long * radio_reg, unsigned long * pdzb_reg);
@@ -47,8 +48,9 @@ extern void btc_set_sniff_req_enable(uint8_t enable);// 1 : enable, 0 :disable
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
 extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
-extern void tlkdrv_xtsd01g_shutDown(void);
 extern uint bth_getAclCount(void);
+extern bool tlkmmi_btmgr_recIsBusy(void);
+extern void tlkmdi_btmgr_regAclDisconnCB(TlkMmiBtMgrAclDisconnCallback discCB);
 
 static void tlkapp_pm_btaclDisconnCb(uint16 handle, uint08 reason, uint08 *pBtAddr);
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
@@ -109,15 +111,15 @@ void tlkapp_pm_handler(void)
 	
 	if(!gpio_read(TLKAPP_WAKEUP_PIN)){
 		isBusy = true;
-	}else if(tlkmdi_pmIsbusy() || tlkmmi_pmIsbusy() || tlkstk_pmIsBusy() || tlkapp_pmIsBusy()){
-		isBusy = true;
 	}
-
+	#if (TLK_CFG_SYS_ENABLE)
+	if(!isBusy && tlksys_pm_isBusy()) isBusy = true;
+	#endif
+	
 	if(sTlkAppPmTraceTimer == 0 || clock_time_exceed(sTlkAppPmTraceTimer, 1000000)){
 		sTlkAppPmTraceTimer = clock_time()|1;
-		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d %d", 
-			tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), tlkmdi_pmIsbusy(), 
-			tlkmmi_pmIsbusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
+		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d", 
+			isBusy, tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
 	}
 	
 	if(isBusy){
@@ -162,13 +164,8 @@ static void tlkapp_pm_btaclDisconnCb(uint16 handle, uint08 reason, uint08 *pBtAd
 *******************************************************************************/  
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen)
 {
-	#if (TLK_CFG_USB_ENABLE)
-	    /*remove USB pin current leakage*/
-		usb_set_pin_dis();
-	#endif
-	
-	#if (TLK_DEV_STORE_ENABLE)
-	tlkdrv_xtsd01g_shutDown();
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_enterSleep(SUSPEND_MODE);
 	#endif
 	
 	sTlkAppPmState = TLKAPP_PM_STATE_SLEEP;
@@ -187,10 +184,12 @@ static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen
 *******************************************************************************/ 
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen)
 {
-	tlkdev_serial_wakeup();
 	sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
 	gTlkAppPmSysIdleTimer = clock_time();
 	gTlkAppPmSchIdleCount = 0;
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_leaveSleep(evtID);
+	#endif
 }
 
 

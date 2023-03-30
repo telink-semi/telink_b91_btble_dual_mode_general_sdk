@@ -22,7 +22,7 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_BTMGR_ENABLE)
-#include "tlksys/tsk/tlktsk_stdio.h"
+#include "tlksys/tlksys_stdio.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgr.h"
 #include "tlkmmi/btmgr/tlkmmi_btmgrMsgInner.h"
 //#include "tlkstk/bt/bth/bth_stdio.h"
@@ -57,7 +57,7 @@ int tlkmmi_btmgr_sendCommCmd(uint08 cmdID, uint08 *pData, uint08 dataLen)
 	head[headLen++] = TLKPRT_COMM_PTYPE_CMD; //Cmd
 	head[headLen++] = TLKPRT_COMM_MTYPE_BT;
 	head[headLen++] = cmdID;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 int tlkmmi_btmgr_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 *pData, uint08 dataLen)
 {
@@ -68,7 +68,7 @@ int tlkmmi_btmgr_sendCommRsp(uint08 cmdID, uint08 status, uint08 reason, uint08 
 	head[headLen++] = cmdID;
 	head[headLen++] = status;
 	head[headLen++] = reason;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 int tlkmmi_btmgr_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 {
@@ -77,7 +77,7 @@ int tlkmmi_btmgr_sendCommEvt(uint08 evtID, uint08 *pData, uint08 dataLen)
 	head[headLen++] = TLKPRT_COMM_PTYPE_EVT; //Cmd
 	head[headLen++] = TLKPRT_COMM_MTYPE_BT;
 	head[headLen++] = evtID;
-	return tlktsk_sendInnerExtMsg(TLKTSK_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
+	return tlksys_sendInnerExtMsg(TLKSYS_TASKID_SYSTEM, TLKPTI_SYS_MSGID_SERIAL_SEND, head, headLen, pData, dataLen);
 }
 
 

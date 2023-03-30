@@ -66,7 +66,7 @@ extern void trap_entry(void);
 void  entry_null(void) __attribute__ ((interrupt ("machine") , aligned(4)));
 _attribute_retention_code_ void  entry_null(void)
 {
-	trap_entry ();
+//	trap_entry ();
 }
 
 void stimer_irq_handler();

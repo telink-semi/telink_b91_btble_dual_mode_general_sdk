@@ -22,7 +22,6 @@
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_SYSTEM_ENABLE)
-#include "tlkmdi/tlkmdi_stdio.h"
 #include "tlkmmi/system/tlkmmi_sys.h"
 #include "tlkmmi/system/tlkmmi_sysDev.h"
 #include "drivers.h"

@@ -55,6 +55,10 @@ void core_reboot(void)
 {
 	start_reboot();
 }
+void core_enter_deep(uint wakeupSrc)
+{
+	cpu_sleep_wakeup(DEEPSLEEP_MODE, wakeupSrc, 0);
+}
 
 _attribute_ram_code_sec_noinline_
 void core_enter_critical(void)

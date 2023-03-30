@@ -37,13 +37,9 @@ void tlkdbg_usblog_reset(void);
 bool tlkdbg_usblog_isBusy(void);
 void tlkdbg_usblog_handler(void);
 
-void tlkdbg_usblog_warn(char *pSign, const char *format, va_list args);
-void tlkdbg_usblog_info(char *pSign, const char *format, va_list args);
-void tlkdbg_usblog_trace(char *pSign, const char *format, va_list args);
-void tlkdbg_usblog_fatal(char *pSign, const char *format, va_list args);
-void tlkdbg_usblog_error(char *pSign, const char *format, va_list args);
-void tlkdbg_usblog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen);
-void tlkdbg_usblog_assert(bool isAssert, char *pSign, const char *format, va_list args);
+
+void tlkdbg_usblog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args);
+void tlkdbg_usblog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
 
 
 void tlkdbg_usblog_sendU08s(char *pSign, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);

@@ -21,7 +21,6 @@
  *          limitations under the License.
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLK_MDI_FS_ENABLE)
 #include "tlklib/fs/tlkfs.h"
 #include "tlkapi/tlkapi_file.h"

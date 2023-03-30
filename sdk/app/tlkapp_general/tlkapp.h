@@ -26,6 +26,15 @@
 
 
 
+#define TLKAPP_DBG_FLAG         ((TLK_MAJOR_DBGID_APP << 24) | (TLK_MINOR_DBGID_APP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKAPP_DBG_SIGN         "[APP]"
+
+#define TLKAPP_WAKEUP_PIN       GPIO_PA2
+
+#define TLKAPP_MEM_TOTAL_SIZE   (40*1024) //MP3(36740)+SrcEnc(4048) = 36740+4048=40788  -- Worst scenario: Music playing on the headphone
+
+
+
 /******************************************************************************
  * Function: tlkapp_init
  * Descript: user initialization when MCU power on or wake_up from deepSleep mode.
@@ -45,13 +54,13 @@ int tlkapp_init(void);
 void tlkapp_deepInit(void);
 
 /******************************************************************************
- * Function: tlkapp_process
+ * Function: tlkapp_handler
  * Descript: BTBLE SDK main loop.
  * Params: None.
  * Return: None.
  * Others: None.
 *******************************************************************************/ 
-void tlkapp_process(void);
+void tlkapp_handler(void);
 
 /******************************************************************************
  * Function: tlkapp_pmIsBusy

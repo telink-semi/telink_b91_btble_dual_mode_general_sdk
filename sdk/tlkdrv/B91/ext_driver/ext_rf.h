@@ -24,7 +24,7 @@
 #ifndef DRIVERS_B91_DRIVER_EXT_EXT_RF_H_
 #define DRIVERS_B91_DRIVER_EXT_EXT_RF_H_
 
-#include "tlkdrv/B91/compiler.h"
+#include "compiler.h"
 #include "types.h"
 
 #define DMA_RFRX_LEN_HW_INFO				0	// 826x: 8

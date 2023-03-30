@@ -36,8 +36,6 @@
 
 #define TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE         1
 
-static void tlkdbg_hwulog_common(char *pSign, char *pHead, const char *format, va_list args);
-
 
 static uint08 sTlkDbgHwuLogIsBusy;
 static uint16 sTlkDbgHwuLogSerial;
@@ -46,12 +44,6 @@ static uint08 sTlkDbgHwuLogBuffer[TLKDBG_HWU_LOG_BUFFER_SIZE];
 __attribute__((aligned(4)))
 static uint08 sTlkDbgHwuLogSendBuff[TLKDBG_HWU_LOG_SND_CACHE_SIZE+4];
 static tlkapi_fifo_t sTlkDbgHwuLogFifo;
-
-#define TLKDBG_HWULOG_UART_PORT        UART0
-#define TLKDBG_HWULOG_UART_IRQ         IRQ19_UART0
-#define TLKDBG_HWULOG_UART_TX_DMA      DMA7
-#define TLKDBG_HWULOG_UART_TX_PIN      GPIO_PA2
-#define TLKDBG_HWULOG_UART_BAUDRATE    2000000
 
 
 void tlkdbg_hwulog_init(void)
@@ -69,14 +61,9 @@ void tlkdbg_hwulog_init(void)
 	uart_cal_div_and_bwpc(TLKDBG_HWULOG_UART_BAUDRATE, sys_clk.pclk*1000*1000, &div, &bwpc);
 	uart_init(TLKDBG_HWULOG_UART_PORT, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);	
 	
-	uart_set_tx_dma_config(TLKDBG_HWULOG_UART_PORT, TLKDBG_HWULOG_UART_TX_DMA);
 	uart_clr_irq_status(TLKDBG_HWULOG_UART_PORT, UART_TXDONE_IRQ_STATUS);
-	dma_clr_irq_mask(TLKDBG_HWULOG_UART_TX_DMA, TC_MASK|ABT_MASK|ERR_MASK);
 	uart_set_irq_mask(TLKDBG_HWULOG_UART_PORT, UART_TXDONE_MASK); 
 	uart_set_irq_mask(TLKDBG_HWULOG_UART_PORT, UART_ERR_IRQ_MASK);
-	
-	plic_interrupt_enable(TLKDBG_HWULOG_UART_IRQ);
-	plic_set_priority(TLKDBG_HWULOG_UART_IRQ, IRQ_PRI_LEV1);
 }
 
 void tlkdbg_hwulog_reset(void)
@@ -96,62 +83,48 @@ bool tlkdbg_hwulog_isBusy(void)
 void tlkdbg_hwulog_handler(void)
 {
 	int ret;
-	if(!sTlkDbgHwuLogIsBusy && !tlkapi_fifo_isEmpty(&sTlkDbgHwuLogFifo)){
+	if(!tlkapi_fifo_isEmpty(&sTlkDbgHwuLogFifo)){
 		ret = tlkapi_fifo_read(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogSendBuff, TLKDBG_HWU_LOG_SND_CACHE_SIZE);
 		if(ret > 0){
-			sTlkDbgHwuLogIsBusy = true;
-			uart_send_dma(TLKDBG_HWULOG_UART_PORT, sTlkDbgHwuLogSendBuff, ret);
+			uart_send(TLKDBG_HWULOG_UART_PORT, sTlkDbgHwuLogSendBuff, ret);
 		}
-	}
-}
- 
-void uart0_irq_handler(void)
-{
-	if(uart_get_irq_status(TLKDBG_HWULOG_UART_PORT, UART_TXDONE_IRQ_STATUS)){
-    	uart_clr_irq_status(TLKDBG_HWULOG_UART_PORT, UART_TXDONE_IRQ_STATUS);
-//		sTlkDbgHwuLogIsBusy = false;
-		if(tlkapi_fifo_isEmpty(&sTlkDbgHwuLogFifo)){
-			sTlkDbgHwuLogIsBusy = false;
-		}else{
-			int ret = tlkapi_fifo_read(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogSendBuff, TLKDBG_HWU_LOG_SND_CACHE_SIZE);
-			if(ret <= 0){
-				sTlkDbgHwuLogIsBusy = false;
-			}else{
-				uart_send_dma(TLKDBG_HWULOG_UART_PORT, sTlkDbgHwuLogSendBuff, ret);
-			}
-		}
-	}
-	if(uart_get_irq_status(TLKDBG_HWULOG_UART_PORT, UART_TXBUF_IRQ_STATUS)){
-		
-	}
-	if(uart_get_irq_status(TLKDBG_HWULOG_UART_PORT, UART_RX_ERR)){
-		uart_clr_irq_status(TLKDBG_HWULOG_UART_PORT, UART_RXBUF_IRQ_STATUS);
-		sTlkDbgHwuLogIsBusy = false;
 	}
 }
 
 
-void tlkdbg_hwulog_warn(char *pSign, const char *format, va_list args)
+void tlkdbg_hwulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
 {
-	tlkdbg_hwulog_common(pSign, TLKAPI_WARN_HEAD, format, args);
+	uint16 serial;
+	uint16 dataLen;
+
+	serial = sTlkDbgHwuLogSerial ++;
+
+	tlkdbg_setPrintBuffer(sTlkDbgHwuLogCache, TLKDBG_HWU_LOG_CACHE_SIZE);
+	
+	printf("[%04x]",serial);
+	if(pSign != nullptr) printf(pSign);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
+	vprintf(format, args);
+
+	tlkdbg_setPrintBuffer(nullptr, 0);
+	
+	uint32 r = core_disable_interrupt();
+	dataLen = ((uint16)sTlkDbgHwuLogCache[1] << 8) | sTlkDbgHwuLogCache[0];
+	#if (TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE)
+	sTlkDbgHwuLogCache[dataLen+2+0] = '\r';
+	sTlkDbgHwuLogCache[dataLen+2+1] = '\n';
+	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogCache+2, dataLen+2);
+	#else
+	sTlkDbgHwuLogCache[dataLen+2+0] = '\n';
+	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogCache+2, dataLen+1);
+	#endif
+	core_restore_interrupt(r);
 }
-void tlkdbg_hwulog_info(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hwulog_common(pSign, TLKAPI_INFO_HEAD, format, args);
-}
-void tlkdbg_hwulog_trace(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hwulog_common(pSign, TLKAPI_TRACE_HEAD, format, args);
-}
-void tlkdbg_hwulog_fatal(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hwulog_common(pSign, TLKAPI_FATAL_HEAD, format, args);
-}
-void tlkdbg_hwulog_error(char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hwulog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
-}
-void tlkdbg_hwulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen)
+
+void tlkdbg_hwulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
 	uint16 index;
 	uint16 serial;
@@ -165,8 +138,10 @@ void tlkdbg_hwulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 		
 	printf("[%04x]",serial);
 	if(pSign != nullptr) printf(pSign);
-	printf(TLKAPI_ARRAY_HEAD);
-	if(pInfo != nullptr) printf(pInfo);
+	if(pHead != nullptr) printf(pHead);
+	if(fileName != nullptr){
+		printf("(%s//%03d)", fileName, lineNumb);
+	}
 	printf("(%d)", dataLen);
 	for(index=0; index<dataLen; index++){
 		printf("%02x ", pData[index]);
@@ -186,10 +161,8 @@ void tlkdbg_hwulog_array(char *pSign, char *pInfo, uint08 *pData, uint16 dataLen
 	#endif
 	core_restore_interrupt(r);
 }
-void tlkdbg_hwulog_assert(bool isAssert, char *pSign, const char *format, va_list args)
-{
-	tlkdbg_hwulog_common(pSign, TLKAPI_ERROR_HEAD, format, args);
-}
+
+
 
 
 _attribute_ram_code_sec_noinline_ 
@@ -285,39 +258,6 @@ void tlkdbg_hwulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, pBuff, buffLen);	
 	core_restore_interrupt(r);
 }
-
-
-static void tlkdbg_hwulog_common(char *pSign, char *pHead, const char *format, va_list args)
-{
-	uint16 serial;
-	uint16 dataLen;
-
-	serial = sTlkDbgHwuLogSerial ++;
-
-	tlkdbg_setPrintBuffer(sTlkDbgHwuLogCache, TLKDBG_HWU_LOG_CACHE_SIZE);
-	
-	printf("[%04x]",serial);
-	if(pSign != nullptr) printf(pSign);
-	if(pHead != nullptr) printf(pHead);
-	vprintf(format, args);
-
-	tlkdbg_setPrintBuffer(nullptr, 0);
-	
-	uint32 r = core_disable_interrupt();
-	dataLen = ((uint16)sTlkDbgHwuLogCache[1] << 8) | sTlkDbgHwuLogCache[0];
-	#if (TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE)
-	sTlkDbgHwuLogCache[dataLen+2+0] = '\r';
-	sTlkDbgHwuLogCache[dataLen+2+1] = '\n';
-	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogCache+2, dataLen+2);
-	#else
-	sTlkDbgHwuLogCache[dataLen+2+0] = '\n';
-	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogCache+2, dataLen+1);
-	#endif
-	core_restore_interrupt(r);
-}
-
-
-
 
 
 

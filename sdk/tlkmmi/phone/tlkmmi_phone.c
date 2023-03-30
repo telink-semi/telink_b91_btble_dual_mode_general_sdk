@@ -22,36 +22,59 @@
  *******************************************************************************************************/
 
 #include "tlkapi/tlkapi_stdio.h"
-#include "tlkmdi/tlkmdi_stdio.h"
 #if (TLKMMI_PHONE_ENABLE)
+#include "tlksys/tlksys_stdio.h"
+#include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlkmmi_phone.h"
 #include "tlkmmi_phoneAdapt.h"
 #include "tlkmmi_phoneCtrl.h"
 #include "tlkmmi_phoneBook.h"
-#include "tlkmmi_phoneTask.h"
+#include "tlkmmi_phoneMsgInner.h"
+#include "tlkmmi_phoneMsgOuter.h"
 
 
+TLKSYS_MMI_TASK_DEFINE(phone, Phone);
 
 
-/******************************************************************************
- * Function: tlkmmi_phone_init
- * Descript: Trigger the phone to initial, including the phone control block, 
- *           and phone status,phone book and comm. 
- * Params:
- * Return: Return TLK_ENONE is success, other value is failure.
- * Others: None.
-*******************************************************************************/
-int tlkmmi_phone_init(void)
+static int tlkmmi_phone_init(uint08 procID, uint08 taskID)
 {
-	tlkmmi_phone_taskInit();
-	tlkmmi_phone_adaptInit();
+	#if (TLK_CFG_COMM_ENABLE)
+	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_CALL, TLKSYS_TASKID_PHONE);
+	#endif
+
+	tlkmmi_phone_adaptInit(procID);
 	tlkmmi_phone_ctrlInit();
 	tlkmmi_phone_bookInit();
 	
-
 	return TLK_ENONE;
 }
-
+static int tlkmmi_phone_start(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_phone_pause(void)
+{
+	return TLK_ENONE;
+}
+static int tlkmmi_phone_close(void)
+{
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_phone_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 headLen,
+	uint08 *pData, uint16 dataLen)
+{
+	if(mtype == TLKPRT_COMM_MTYPE_NONE){
+		return tlkmmi_phone_innerMsgHandler(msgID, pData, dataLen);
+	}else{
+		return tlkmmi_phone_outerMsgHandler(msgID, pData, dataLen);
+	}
+}
+static void tlkmmi_phone_handler(void)
+{
+	
+}
 
 
 
