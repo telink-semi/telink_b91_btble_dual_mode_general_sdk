@@ -94,8 +94,6 @@ static void tlkmmi_sys_dbgInput(uint08 *pData, uint16 dataLen)
 			#endif
 			break;
 	    case 0xfe:
-	    	bth_hci_sendSniffModeCmd(0x0010, 8,
-	    						8, 2, 0);
 	        break;
 
 		case 0xFF:

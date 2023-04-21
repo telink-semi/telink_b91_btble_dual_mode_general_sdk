@@ -75,6 +75,8 @@
 									<listOptionValue builtIn="false" value="B91_mp3_dec"/>
 									<listOptionValue builtIn="false" value="B91_aec_ns"/>
 									<listOptionValue builtIn="false" value="tlka_agc"/>
+									<listOptionValue builtIn="false" value="B91_bt_ble_ams"/>
+									<listOptionValue builtIn="false" value="B91_bt_ble_ancs"/>
 								</option>
 								<option id="nds.c.link.option.ldflags.1740369406" name="Linker flags" superClass="nds.c.link.option.ldflags" value="-mext-dsp" valueType="string"/>
 								<option id="nds.c.link.option.paths.1731859374" name="Library search path (-L)" superClass="nds.c.link.option.paths" valueType="libPaths">
