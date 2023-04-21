@@ -93,6 +93,7 @@ static int tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen)
 		if(pEvt->status == BTP_A2DP_STATUS_STREAM) btp_a2dpsrc_suspend(pEvt->handle);
 		#endif
 		btp_avrcp_notifyPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PAUSED);
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PAUSED);
 		return -TLK_EFAIL;
 	}
 
@@ -108,7 +109,9 @@ static int tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen)
 			#endif
 			return -TLK_EFAIL;
 		}
+		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_a2dpStatusEvt: 001");
 		btp_avrcp_notifyPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PLAYING);
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PLAYING);
 		sTlkMdiSrcCtrl.isSuppSet = btp_avrcp_isSupportSetVolume(pEvt->handle);
 		sTlkMdiSrcCtrl.sampleRate = sampleRate;
 		tlkmdi_audsrc_resetParam(sTlkMdiSrcCtrl.sampleRate);
@@ -119,7 +122,9 @@ static int tlkmdi_audsrc_a2dpStatusEvt(uint08 *pData, uint16 dataLen)
 		sTlkMdiSrcCtrl.waitTimer = 0;
 	}
 	else{
+		tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_a2dpStatusEvt: 002");
 		btp_avrcp_notifyPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PAUSED);
+		btp_avrcp_setPlayState(pEvt->handle, BTP_AVRCP_PLAY_STATE_PAUSED);
 		if(!sTlkMdiSrcCtrl.isPause){
 			tlkmdi_audsrc_switch(pEvt->handle, TLK_STATE_CLOSED);
 			tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SRC, pEvt->handle);
@@ -165,9 +170,11 @@ int tlkmdi_audsrc_start(uint16 handle, uint32 param)
 	int ret;
 
 	btp_avrcp_notifyPlayState(handle, BTP_AVRCP_PLAY_STATE_PLAYING); //start
+	btp_avrcp_setPlayState(handle, BTP_AVRCP_PLAY_STATE_PLAYING);
 	ret = btp_a2dpsrc_start(handle);
 	if(ret != TLK_ENONE){
 		btp_avrcp_notifyPlayState(handle, BTP_AVRCP_PLAY_STATE_PAUSED);
+		btp_avrcp_setPlayState(handle, BTP_AVRCP_PLAY_STATE_PAUSED);
 		return ret;
 	}
 	if((param & 0x80000000) != 0) sTlkMdiSrcCtrl.playIndex = tlkmdi_mp3_getNextIndex();
@@ -204,6 +211,7 @@ int tlkmdi_audsrc_close(uint16 handle)
 	}
 	tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "tlkmdi_audsrc_close start: enable handle");
 	sTlkMdiSrcCtrl.waitStart = 0;
+	btp_avrcp_notifyPlayState(sTlkMdiSrcCtrl.handle, BTP_AVRCP_PLAY_STATE_PAUSED);
 	tlkmdi_audsrc_switch(sTlkMdiSrcCtrl.handle, TLK_STATE_CLOSED);
 	return btp_a2dpsrc_suspend(sTlkMdiSrcCtrl.handle);
 	#else
@@ -558,7 +566,7 @@ static void tlkmdi_audsrc_fillHandler(void)
 		if(ret == TLK_ENONE){
 			sTlkMdiSrcCtrl.sndFrame = 0;
 			sTlkMdiSrcCtrl.seqNumber ++;
-			sTlkMdiSrcCtrl.timeStamp += 896;	//7*128=896
+			sTlkMdiSrcCtrl.timeStamp += 896; //7*128=896
 //			tlkapi_trace(TLKMDI_AUDSRC_DBG_FLAG, TLKMDI_AUDSRC_DBG_SIGN, "=== app_audio_a2dpSrcPlayProcs 005");
 		}
 	}

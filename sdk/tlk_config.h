@@ -57,7 +57,7 @@
 #define TLK_CFG_OS_ENABLE            0
 #endif
 #ifndef TLK_CFG_PM_ENABLE
-#define TLK_CFG_PM_ENABLE            1
+#define TLK_CFG_PM_ENABLE            0
 #endif
 #ifndef TLK_CFG_SYS_ENABLE
 #define TLK_CFG_SYS_ENABLE           1

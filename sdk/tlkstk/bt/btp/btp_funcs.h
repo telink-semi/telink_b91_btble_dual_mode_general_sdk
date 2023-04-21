@@ -81,9 +81,14 @@ enum BTP_FUNCID_SET_ENUM{
 	BTP_FUNCID_HFP_HF_REJECT_WAIT_AND_KEEP_ACTIVE  = 0x15+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_HF_ACCEPT_WAIT_AND_HOLD_ACTIVE  = 0x16+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_HF_HUNGUP_ACTIVE_AND_RESUME_HOLD  = 0x17+BTP_FUNCID_HFP_START,
+	BTP_FUNCID_HFP_HF_ACTIVATE_VOICE_RECOG  = 0x18+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_AG_CONNECT = 0x51+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_AG_DISCONN = 0x52+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_AG_SET_FEATURE = 0x53+BTP_FUNCID_HFP_START,
+	BTP_FUNCID_HFP_AG_PALCE_CALL = 0x54+BTP_FUNCID_HFP_START,
+	BTP_FUNCID_HFP_AG_REMOVE_CALL = 0x55+BTP_FUNCID_HFP_START,
+	BTP_FUNCID_HFP_AG_ACTIVE_CALL = 0x56+BTP_FUNCID_HFP_START,
+	
 	//AVRCP Start
 	BTP_FUNCID_AVRCP_START = 0x0900,
 	BTP_FUNCID_AVRCP_CONNECT = 0x01+BTP_FUNCID_AVRCP_START,
@@ -100,6 +105,9 @@ enum BTP_FUNCID_SET_ENUM{
 
 	//PBAP Start
 	BTP_FUNCID_PBAP_START = 0x0B00,
+	BTP_FUNCID_PBAP_CONNECT = 0x01+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_DISCONN = 0x02+BTP_FUNCID_PBAP_START,
+
 };
 
 
@@ -162,14 +170,19 @@ static int btp_func_hfpHfRedial(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfDail(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfHUngup(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfReject(uint08 *pData, uint16 dataLen);
+static int btp_func_hfpHfActivateVoiceRecog(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfRejectWaitAndKeepActive(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfAcceptWaitAndHoldActive(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfHungupActiveAndResumeHold(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpAgConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpAgDisconn(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpAgSetFeature(uint08 *pData, uint16 dataLen);
+static int btp_func_hfpAgPlaceCall(uint08 *pData, uint16 dataLen);
+static int btp_func_hfpAgRemoveCall(uint08 *pData, uint16 dataLen);
+static int btp_func_hfpAgActiveCall(uint08 *pData, uint16 dataLen);
 
-
+static int btp_func_pbapConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapDisconn(uint08 *pData, uint16 dataLen);
 
 #endif //#if (TLK_STK_BTP_ENABLE)
 

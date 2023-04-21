@@ -34,6 +34,8 @@
 static uint08 sTlkDevSerialPort = 0xFF;
 static uint08 sTlkDevSerialIsOpen = false;
 
+extern void tlkcfg_setSerialBaudrate(uint32 baudrate);
+
 
 int tlkdev_serial_init(void)
 {
@@ -90,6 +92,14 @@ int tlkdev_serial_setBaudrate(uint32 baudRate)
 	}
 	return tlkdrv_serial_setBaudrate(sTlkDevSerialPort, baudRate);
 }
+uint32 tlkdev_serial_getBuadrate()
+{
+	if(sTlkDevSerialPort == 0xFF){
+		tlkapi_error(TLKDEV_SYS_DBG_FLAG, TLKDEV_SYS_DBG_SIGN, "tlkDev_serial_getBaudrate: failure - not mount");
+		return -TLK_EBUSY;
+	}
+	return tlkdrv_serial_getBaudrate(sTlkDevSerialPort);
+}
 
 int tlkdev_serial_setRxFifo(uint08 *pBuffer, uint16 buffLen)
 {
@@ -132,6 +142,9 @@ int tlkdev_serial_open(void)
 	ret = tlkdrv_serial_open(sTlkDevSerialPort);
 	if(ret == TLK_ENONE){
 		sTlkDevSerialIsOpen = true;
+	}
+	if(sTlkDevSerialIsOpen == true){
+		tlkcfg_setSerialBaudrate(tlkdrv_serial_getBaudrate(sTlkDevSerialPort));
 	}
 	return ret;
 }

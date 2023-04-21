@@ -38,6 +38,7 @@
 #include "tlkmdi/bt/tlkmdi_btadapt.h"
 #include "tlkmdi/bt/tlkmdi_btacl.h"
 #include "tlkmdi/aud/tlkmdi_audio.h"
+#include "tlkmdi/bt/tlkmdi_bta2dp.h"
 
 
 
@@ -746,6 +747,9 @@ static int tlkmdi_btacl_profileConnectEvt(uint08 *pData, uint16 dataLen)
 		pItem->connFlag |= (1 << pEvt->ptype);
 		if(pEvt->ptype != BTP_PTYPE_SDP && pEvt->ptype != BTP_PTYPE_RFC){
 			pItem->busys &= ~TLKMDI_BTACL_WAIT_DISC_ACL;
+		}
+		if(pEvt->ptype == BTP_PTYPE_A2DP){
+			tlkmdi_bta2dp_connectEvt(pEvt->handle, pEvt->usrID);
 		}
 	}
 	if(sTlkMdiBtAclProfConnCB != nullptr){

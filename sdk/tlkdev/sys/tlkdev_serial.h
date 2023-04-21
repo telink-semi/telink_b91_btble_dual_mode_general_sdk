@@ -37,6 +37,7 @@ int tlkdev_serial_mount(uint08 port, uint32 baudRate, uint16 txPin,
 int tlkdev_serial_unmount(void);
 
 int tlkdev_serial_setBaudrate(uint32 baudRate);
+uint32 tlkdev_serial_getBuadrate();
 
 int tlkdev_serial_setRxFifo(uint08 *pBuffer, uint16 buffLen);
 int tlkdev_serial_setTxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen);

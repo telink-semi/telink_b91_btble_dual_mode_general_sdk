@@ -24,12 +24,12 @@
 #define TLKDRV_MFI_H
 
 
-#define TLKDRV_MFI_DBG_FLAG        0//((TLK_MAJOR_DBGID_DRV << 24) | (TLK_MINOR_DBGID_DRV_EXT << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define TLKDRV_MFI_DBG_FLAG        ((TLK_MAJOR_DBGID_DRV << 24) | (TLK_MINOR_DBGID_DRV_EXT << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKDRV_MFI_DBG_SIGN        "[CODEC]"
 
 #define TLKDRV_MFI_I2C_ADDR        0x20
-#define TLKDRV_MFI_I2C_SCL_PIN     GPIO_PB0
-#define TLKDRV_MFI_I2C_SDA_PIN     GPIO_PB1
+#define TLKDRV_MFI_I2C_SCL_PIN     GPIO_PD2
+#define TLKDRV_MFI_I2C_SDA_PIN     GPIO_PD3
 
 #define TLKDRV_MFI_CHIP_ID	       0x00000300
 
@@ -427,6 +427,8 @@ typedef struct{
 
 
 int tlkdrv_mfi_init(void);
+
+bool tlkdrv_mfi_isOpen(void);
 
 int tlkdrv_mfi_open(void);
 int tlkdrv_mfi_close(void);

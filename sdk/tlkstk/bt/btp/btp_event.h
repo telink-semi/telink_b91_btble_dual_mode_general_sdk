@@ -65,6 +65,7 @@ typedef enum{
     BTP_EVTID_AVRCP_KEY_CHANGED,
     BTP_EVTID_AVRCP_VOLUME_CHANGED,
     BTP_EVTID_AVRCP_STATUS_CHANGED,
+    BTP_EVTID_AVRCP_PEER_EVT_MASK,
 	
 	BTP_EVTID_MAX,
 }BTP_EVTID_ENUM;
@@ -168,6 +169,10 @@ typedef struct{
 	uint08 isNoty;
 	uint08 status; // 0-Stoped, 1-PLAYING, 2-PAUSED, 3-FWD_SEEK, 4-REV_SEEK, Refer to BTP_AVRCP_PLAY_STATE_ENUM.
 }btp_avrcpStatusChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint32 evtMask;
+}btp_avrcpPeerEvtMaskEvt_t;
 
 
 int  btp_event_init(void);
@@ -202,6 +207,7 @@ int btp_send_a2dpSnkStatusChangedEvt(uint16 aclHandle, uint08 status);
 int btp_send_avrcpKeyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 isPress);
 int btp_send_avrcpVolumeChangedEvt(uint16 aclHandle, uint08 volume);
 int btp_send_avrcpStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 isNoty);
+int btp_send_avrcpPeerEvtMaskEvt(uint16 aclHandle, uint32 evtMask);
 
 
 

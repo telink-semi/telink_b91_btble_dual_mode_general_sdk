@@ -148,6 +148,38 @@ typedef enum{
 	BTP_AVRCP_PLAYER_APP_SET_ATTR_SCAN_ON_OFF_STATUS = 0x04,
 }BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM;
 
+typedef enum{
+	BTP_AVRCP_EVTID_PLAYBACK_STATUS_CHANGED     = 0x01,
+	BTP_AVRCP_EVTID_TRACK_CHANGED               = 0x02,
+	BTP_AVRCP_EVTID_TRACK_REACHED_END           = 0x03,
+	BTP_AVRCP_EVTID_TRACK_REACHED_START         = 0x04,
+	BTP_AVRCP_EVTID_PLAYBACK_POS_CHANGED        = 0x05,
+	BTP_AVRCP_EVTID_BATT_STATUS_CHANGED         = 0x06,
+	BTP_AVRCP_EVTID_SYSTEM_STATUS_CHANGED       = 0x07,
+	BTP_AVRCP_EVTID_PLAYER_APP_SETTING_CHANGED  = 0x08,
+	BTP_AVRCP_EVTID_NOW_PLAYING_CONTENT_CHANGED = 0x09,
+	BTP_AVRCP_EVTID_ADDRESSED_PLAYER_CHANGED    = 0x0A,
+	BTP_AVRCP_EVTID_AVAILABLE_PLAYERS_CHANGED   = 0x0B,
+	BTP_AVRCP_EVTID_UIDS_CHANGED                = 0x0C,
+	BTP_AVRCP_EVTID_VOLUME_CHANGED              = 0x0D,
+}BTP_AVRCP_EVTID_ENUM;
+typedef enum{
+	BTP_AVRCP_EVTMSK_PLAYBACK_STATUS_CHANGED     = 1 << (BTP_AVRCP_EVTID_PLAYBACK_STATUS_CHANGED-1),
+	BTP_AVRCP_EVTMSK_TRACK_CHANGED               = 1 << (BTP_AVRCP_EVTID_TRACK_CHANGED-1),
+	BTP_AVRCP_EVTMSK_TRACK_REACHED_END           = 1 << (BTP_AVRCP_EVTID_TRACK_REACHED_END-1),
+	BTP_AVRCP_EVTMSK_TRACK_REACHED_START         = 1 << (BTP_AVRCP_EVTID_TRACK_REACHED_START-1),
+	BTP_AVRCP_EVTMSK_PLAYBACK_POS_CHANGED        = 1 << (BTP_AVRCP_EVTID_PLAYBACK_POS_CHANGED-1),
+	BTP_AVRCP_EVTMSK_BATT_STATUS_CHANGED         = 1 << (BTP_AVRCP_EVTID_BATT_STATUS_CHANGED-1),
+	BTP_AVRCP_EVTMSK_SYSTEM_STATUS_CHANGED       = 1 << (BTP_AVRCP_EVTID_SYSTEM_STATUS_CHANGED-1),
+	BTP_AVRCP_EVTMSK_PLAYER_APP_SETTING_CHANGED  = 1 << (BTP_AVRCP_EVTID_PLAYER_APP_SETTING_CHANGED-1),
+	BTP_AVRCP_EVTMSK_NOW_PLAYING_CONTENT_CHANGED = 1 << (BTP_AVRCP_EVTID_NOW_PLAYING_CONTENT_CHANGED-1),
+	BTP_AVRCP_EVTMSK_ADDRESSED_PLAYER_CHANGED    = 1 << (BTP_AVRCP_EVTID_ADDRESSED_PLAYER_CHANGED-1),
+	BTP_AVRCP_EVTMSK_AVAILABLE_PLAYERS_CHANGED   = 1 << (BTP_AVRCP_EVTID_AVAILABLE_PLAYERS_CHANGED-1),
+	BTP_AVRCP_EVTMSK_UIDS_CHANGED                = 1 << (BTP_AVRCP_EVTID_UIDS_CHANGED-1),
+	BTP_AVRCP_EVTMSK_VOLUME_CHANGED              = 1 << (BTP_AVRCP_EVTID_VOLUME_CHANGED-1),
+	BTP_AVRCP_EVTMSK_DEFAULT = BTP_AVRCP_EVTMSK_PLAYBACK_STATUS_CHANGED | BTP_AVRCP_EVTMSK_VOLUME_CHANGED,
+	BTP_AVRCP_EVTMSK_ALL     = 0x1FFF,
+}BTP_AVRCP_EVTMSK_ENUM;
 
 
 typedef void (*BtpAvrcpKeyChangeCallback)(uint16 aclHandle, uint08 keyID, uint08 isPress);
@@ -193,7 +225,7 @@ int  btp_avrcp_disconn(uint16 aclHandle, uint08 usrID);
  * Function: AVRCP Send destroy interface
  * Descript: Defines trigger to release the resource which allocated.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
+ *     @aclHandle--The Acl Handle identifier.
  * Return: null
 *******************************************************************************/
 void btp_avrcp_destroy(uint16 aclHandle);
@@ -203,7 +235,7 @@ void btp_avrcp_destroy(uint16 aclHandle);
  * Function: AVRCP get play/stop status interface
  * Descript: Defines trigger the avrcp cmd check the music status of peer avrcp entity.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
+ *     @aclHandle--The Acl Handle identifier.
  * Return: true(success)/false(fail)
 *******************************************************************************/
 bool btp_avrcp_remoteIsPlaying(uint16 aclHandle);
@@ -218,19 +250,57 @@ bool btp_avrcp_remoteIsPlaying(uint16 aclHandle);
 bool btp_avrcp_isSupportSetVolume(uint16 aclHandle);
 
 /******************************************************************************
- * Function: AVRCP set Volume Command interface
+ * Function: btp_avrcp_setVolume
  * Descript: Defines trigger the avrcp change the music volume to peer entity.
  * Params:
- *        @volume--The volume value.
+ *     @volume--The volume value.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int btp_avrcp_setVolume(uint16 aclHandle, uint08 volume, bool isSrc);
+
+/******************************************************************************
+ * Function: btp_avrcp_setDefaultVolume
+ * Descript: Defines trigger the avrcp change the music volume to peer entity.
+ * Params:
+ *     @volume--The volume value.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
 int btp_avrcp_setDefaultVolume(uint08 volume);
+
+/******************************************************************************
+ * Function: btp_avrcp_setTrackValue
+ * Descript: .
+ * Params:
+ *     @volume--The volume value.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
 int btp_avrcp_setTrackValue(uint16 aclHandle, uint32 valueH, uint32 valudL);
 
-int btp_avrcp_sendEventNoty(uint16 aclHandle, uint08 eventID, uint08 *pData, uint16 dataLen);
-int btp_avrcp_sendRegEventNotyCmd(uint16 aclHandle, uint08 eventID);
+/******************************************************************************
+ * Function: btp_avrcp_notifyStatusChange
+ * Descript: .
+ * Params:
+ *     @eventID--refer BTP_AVRCP_EVTID_ENUM
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+int btp_avrcp_notifyStatusChange(uint16 aclHandle, uint08 eventID, uint08 *pData, uint16 dataLen);
+int btp_avrcp_regEventNotify(uint16 aclHandle, uint08 eventID);
+bool btp_avrcp_eventIsSupport(uint16 aclHandle, uint08 eventID);
+
+/******************************************************************************
+ * Function: btp_avrcp_setLocalEventMask
+ * Descript: 
+ * Params:
+ *     @evtMask--Refer to BTP_AVRCP_EVTMSK_ENUM.
+ * Return: None.
+*******************************************************************************/
+void btp_avrcp_setLocalEventMask(uint32 evtMask);
+uint btp_avrcp_getLocalEventMask(void);
+uint btp_avrcp_getPeerEventMask(uint16 aclHandle);
 
 /******************************************************************************
  * Function: AVRCP Set music state interface

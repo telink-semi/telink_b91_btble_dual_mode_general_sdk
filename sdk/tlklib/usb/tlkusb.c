@@ -143,6 +143,21 @@ void tlkusb_enterSleep(uint mode)
 	usb_dp_pullup_en(0);
 }
 
+_attribute_retention_code_ 
+void tlkusb_irqHandler(void)
+{
+	#if (TLK_USB_UAC_ENABLE)
+	if(gTlkUsbCurModType == TLKUSB_MODTYPE_UAC){
+		tlkusb_uacirq_handler();
+	}
+	#endif
+	#if (TLK_USB_UDB_ENABLE)
+	if(gTlkUsbCurModType == TLKUSB_MODTYPE_UDB){
+		
+	}
+	#endif
+}
+
 
 
 #endif //#if (TLK_CFG_USB_ENABLE)

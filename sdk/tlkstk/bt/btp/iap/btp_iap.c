@@ -146,7 +146,11 @@ int btp_iap_sendData(uint16 aclHandle, uint08 *pHead, uint08 headLen, uint08 *pD
 
 	if(pHead == nullptr && headLen != 0) headLen = 0;
 	if(pData == nullptr && dataLen != 0) dataLen = 0;
-	if(aclHandle == 0 || (headLen+dataLen) == 0){
+	if(aclHandle == 0){
+		tlkapi_error(BTP_IAP_DBG_FLAG, BTP_IAP_DBG_SIGN, "btp_iap_sendData: failure - invalid handle");
+		return -TLK_EHANDLE;
+	}
+	if((headLen+dataLen) == 0){
 		tlkapi_error(BTP_IAP_DBG_FLAG, BTP_IAP_DBG_SIGN, "btp_iap_sendData: failure - invalid param");
 		return -TLK_EPARAM;
 	}

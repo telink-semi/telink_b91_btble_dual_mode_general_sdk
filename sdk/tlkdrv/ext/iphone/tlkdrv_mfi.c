@@ -49,6 +49,11 @@ int tlkdrv_mfi_init(void)
     return TLK_ENONE;
 }
 
+bool tlkdrv_mfi_isOpen(void)
+{
+	return sTlkdrvMfiCtrl.isOpen;
+}
+
 int tlkdrv_mfi_open(void)
 {
 	if(!sTlkdrvMfiCtrl.isInit) return -TLK_ENOREADY;
@@ -143,10 +148,10 @@ static inline void tlkdrv_mfi_i2cSclOut(int v)
 	gpio_set_output_en(TLKDRV_MFI_I2C_SCL_PIN,(!v));
 }
 
-static inline int tlkdrv_mfi_i2cSclIn(void)
-{
-	return gpio_read(TLKDRV_MFI_I2C_SCL_PIN);
-}
+//static inline int tlkdrv_mfi_i2cSclIn(void)
+//{
+//	return gpio_read(TLKDRV_MFI_I2C_SCL_PIN);
+//}
 
 // Pulling the line to ground is considered a logical zero while letting the line float is a logical one.   http://en.wikipedia.org/wiki/I%C2%B2C
 static inline void tlkdrv_mfi_i2cSdaOut(int v)

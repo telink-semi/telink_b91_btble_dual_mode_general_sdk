@@ -230,6 +230,7 @@ int tlkmdi_btrec_setKeepMode(TLKMDI_BTREC_KEEP_MODE_ENUM keepMode, uint16 keepTi
 int tlkmdi_btrec_setPageParam(uint16 pageTime, uint08 pageCount); //pageTime: unit-ms;
 int tlkmdi_btrec_setScanParam(uint16 scanTime, uint16 scanStep, bool enInqScan, bool enPageScan); //scanTime-scanStep: unit-ms;
 
+int tlkmdi_btrec_connectCancel(uint08 btAddr[6]);
 
 
 

@@ -354,6 +354,15 @@ int tlkmdi_btrec_setScanParam(uint16 scanTime, uint16 scanStep, bool enInqScan, 
 	return TLK_ENONE;
 }
 
+int tlkmdi_btrec_connectCancel(uint08 btAddr[6])
+{
+	if(!tlkmdi_btrec_isInPage() || tmemcmp(sTlkMdiBtRecCtrl.pageAddr, btAddr, 6) != 0){
+		return -TLK_ESTATUS;
+	}
+	sTlkMdiBtRecCtrl.stage = TLKMDI_BTREC_STAGE_PAGE_WAIT1;
+	sTlkMdiBtRecCtrl.timeout = 0;
+	return TLK_ENONE;
+}
 
 static void tlkmdi_btrec_initProc(tlkmdi_btrec_t *pCtrl);
 static void tlkmdi_btrec_pageProc(tlkmdi_btrec_t *pCtrl);

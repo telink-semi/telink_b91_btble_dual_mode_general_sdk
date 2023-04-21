@@ -389,10 +389,6 @@ int tlkapi_file_mount(const FCHAR* path, uint08 opt)
 	core_enter_critical();
 	#if (TLK_FS_FAT_ENABLE)
 		ret = f_mount(&gTlkFileFatFs, path, opt);
-		if(ret == FR_NOT_READY){
-			ret = f_mount(&gTlkFileFatFs, path, opt);
-			ret = f_mount(&gTlkFileFatFs, path, opt);
-		}
 	#else
 		ret = -TLK_ENOSUPPORT;
 	#endif

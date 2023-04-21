@@ -56,6 +56,7 @@
 #define IPA2_CONTROL_SESSION_VERSION                  1
 #define IAP2_RequestAuthenticationCertificate         0xAA00
 #define IAP2_RequestAuthenticationChallengeResponse   0xAA02
+#define IAP2_AuthenticationFailed					  0xAA04
 #define IAP2_AuthenticationSucceeded                  0xAA05
 
 #define IAP2_StartIdentification                      0x1D00
@@ -82,10 +83,10 @@ static uint08 tlkmdi_btiap_calcChecksum(uint08 *pData, uint32 dataLen);
 
 #if IAP2_STACK_EN
 static iAP2Packet_t sTlkMdiBtIapPacket;
-static uint08 sTlkMdiBtIapTestLink[5053]={0};
+static iAP2LinkRunLoop_t *sTlkMdiBtIapRanLoop = nullptr;
 #endif    
 
-uint08 certificateBytes[608];
+uint08 certificateBytes[640];
 uint16 eap_session_id=0;
 uint16 eap_flag=0; 
 
@@ -111,7 +112,32 @@ const uint08 identification_information_part2[] = {
 };
 
 static tlkmdi_btiap_t sTlkMdiBtIapCtrl;
-iAP2PacketSYNData_t test_synParam = {1,5,3,3,4096,1035,0xc8,2,5,256,{{0xa,0,1},{0x0b,2,1}}};
+//iAP2PacketSYNData_t test_synParam = {
+//	1, //version
+//	5, //maxOutstandingPackets
+//	3, //maxRetransmissions
+//	3, //maxCumAck
+//	4096, //maxPacketSize
+//	1035, //retransmitTimeout
+//	0xc8, //cumAckTimeout
+//	2, //numSessionInfo
+//	5, //peerMaxOutstandingPackets
+//	256, //peerMaxPacketSize
+//	{{0xa,0,1},{0x0b,2,1}}
+//};
+iAP2PacketSYNData_t test_synParam = { //<Accessory Interface Specification R36.pdf> P394
+	1, //version
+	5, //maxOutstandingPackets
+	30, //maxRetransmissions
+	3, //maxCumAck
+	650, //maxPacketSize
+	1500, //retransmitTimeout
+	73, //cumAckTimeout
+	2, //numSessionInfo
+	5, //peerMaxOutstandingPackets
+	650, //peerMaxPacketSize
+	{{0xa,0,1},{0x0b,2,1}}
+};
 
 
 
@@ -127,7 +153,7 @@ int tlkmdi_btiap_init(void)
 		ret = tlkdev_mfi_open();
 	}
 	if(ret == TLK_ENONE){
-		ret = tlkdev_mfi_loadCertificateData(certificateBytes, 608);
+		ret = tlkdev_mfi_loadCertificateData(certificateBytes, 640);
 	}
 	if(ret != TLK_ENONE){
 		tlkdev_mfi_close();
@@ -142,12 +168,11 @@ int tlkmdi_btiap_init(void)
 	
 	btp_iap_regDataCB(tlkmdi_btiap_dataRecv);
 	#if IAP2_STACK_EN
-	memset(&sTlkMdiBtIapTestLink, 0, sizeof(sTlkMdiBtIapTestLink));
     memset(&sTlkMdiBtIapPacket, 0, sizeof(iAP2Packet_t));
-    iAP2LinkRunLoopCreateAccessory(&test_synParam, (void *)0, 
+    sTlkMdiBtIapRanLoop = iAP2LinkRunLoopCreateAccessory(&test_synParam, (void *)0, 
     	(iAP2LinkSendPacketCB_t)tlkmdi_btiap_eap2SendDeal,
 		(iAP2LinkDataReadyCB_t)tlkmdi_btiap_eap2RecvDeal,
-		(void *)0, (void *)0, 0, 1, sTlkMdiBtIapTestLink);
+		(void *)0, (void *)0, 0, 1, nullptr);
 	#endif
 	
 	return TLK_ENONE;
@@ -166,6 +191,9 @@ void tlkmdi_btiap_setName(uint08 *pName, uint08 nameLen)
 }
 void tlkmdi_btiap_setAclHandle(bool isConn, uint16 aclHandle)
 {
+	tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_setAclHandle: %d 0x%x",
+		isConn, aclHandle);
+	tmemset(&sTlkMdiBtIapPacket, 0, sizeof(iAP2Packet_t));
 	if(isConn && sTlkMdiBtIapCtrl.aclHandle == 0){
 		sTlkMdiBtIapCtrl.aclHandle = aclHandle;
 		sTlkMdiBtIapCtrl.detFlag = 0x55;
@@ -179,22 +207,26 @@ void tlkmdi_btiap_setAclHandle(bool isConn, uint16 aclHandle)
 void tlkmdi_btiap_handler(void)
 {
 #if IAP2_STACK_EN
+	if(sTlkMdiBtIapCtrl.aclHandle == 0 || sTlkMdiBtIapRanLoop == nullptr) return;
+
     if(sTlkMdiBtIapCtrl.detFlag == 0x55)
     {
 		uint08 kIap2PacketDetectData1[] = { 0xFF, 0x55, 0x02, 0x00, 0xEE, 0x10 };
-		btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, kIap2PacketDetectData1, 6);
-    	tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "app_iap2_send_detect");
-        sTlkMdiBtIapCtrl.detFlag = 0;
+		if(btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, kIap2PacketDetectData1, 6) == TLK_ENONE){
+			tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_handler: send_detect");
+        	sTlkMdiBtIapCtrl.detFlag = 0;
+		}
     }
     else if(sTlkMdiBtIapCtrl.detFlag == 0xaa)
     {
-        iAP2LinkRunLoopDetached((iAP2LinkRunLoop_t *)sTlkMdiBtIapTestLink);
+        iAP2LinkRunLoopDetached(sTlkMdiBtIapRanLoop);
         sTlkMdiBtIapCtrl.detFlag = 0;
     }
+
     
 //    uint32 iap2_curTime = iAP2TimeGetCurTimeMs();
-//    _iAP2TimeHandleExpired((((iAP2LinkRunLoop_t *)sTlkMdiBtIapTestLink)->link)->mainTimer, iap2_curTime);
-	iAP2LinkRunLoopRunOnce((iAP2LinkRunLoop_t *)sTlkMdiBtIapTestLink, (void *)(&sTlkMdiBtIapPacket));
+//    _iAP2TimeHandleExpired(sTlkMdiBtIapRanLoop->link->mainTimer, iap2_curTime);
+	iAP2LinkRunLoopRunOnce(sTlkMdiBtIapRanLoop, (void *)(&sTlkMdiBtIapPacket));
 #endif
 }
 
@@ -205,12 +237,14 @@ static void tlkmdi_btiap_dataRecv(uint16 aclHandle, uint08 rfcHandle, uint08 *pD
     uint32 failedChecksums;
     uint32 sopdetect;
 
-    tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "iap_rfcomm_dataRecvCallback");
-    iAP2PacketParseBuffer(pData, dataLen, &sTlkMdiBtIapPacket, 670, (BOOL*)&detect, &failedChecksums, &sopdetect);
+    if(sTlkMdiBtIapRanLoop == nullptr) return;
+
+    tlkapi_array(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_dataRecv", pData, dataLen);
+    iAP2PacketParseBuffer(pData, dataLen, &sTlkMdiBtIapPacket, 650, (BOOL*)&detect, &failedChecksums, &sopdetect);
     
     if(detect == 1){
         tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "detect device");
-        iAP2LinkRunLoopAttached((iAP2LinkRunLoop_t*)(&sTlkMdiBtIapTestLink));
+        iAP2LinkRunLoopAttached(sTlkMdiBtIapRanLoop);
         tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "sTlkMdiBtIapPacket.bufferLen=%d", sTlkMdiBtIapPacket.bufferLen);
     }
 #else
@@ -236,7 +270,7 @@ static void tlkmdi_btiap_eap2SendDeal(struct iAP2Link_st* link, iAP2Packet_t*pac
 		*(uint08 *)((uint08 *)packet->pckData + packet->packetLen-1) = iAP2PacketCalcPayloadChecksum(packet);//packet->dataChecksum;
 	}
 	tlkapi_array(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_eap2SendDeal data=", (uint08 *)packet->pckData, packet->packetLen);
-	btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, (uint08 *)packet->pckData,packet->packetLen);  
+	btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, (uint08 *)packet->pckData, packet->packetLen);  
 }
 static BOOL tlkmdi_btiap_eap2RecvDeal(struct iAP2Link_st* link, uint08* data, uint32 dataLen, uint08 session)
 {
@@ -245,8 +279,9 @@ static BOOL tlkmdi_btiap_eap2RecvDeal(struct iAP2Link_st* link, uint08* data, ui
 	uint16 pos=0;
 	uint08 buffer[628] = {0xff, 0x5a, 2, 0x74, 0x40, 0x2d, 6,0x0a,0x2b,0x40,0x40,0x02,0x6a,0xaa,0x1,2,0x64,0,0};
 	uint08 ack[] = {0xff, 0x5a, 0, 0x9, 0x40, 0x2b, 0xdc, 0, 0x2c};
-    uint16 command = (uint16)((data[4] <<8) | data[5]);
-    
+    uint16 command = (uint16)((data[4] << 8) | data[5]);
+	
+    tlkapi_array(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_eap2RecvDeal data=", data, dataLen);
 	ret = true;
 	if(command == IAP2_RequestAuthenticationCertificate && data[0] == IAP2_SESSION_START_MSB)
 	{
@@ -401,7 +436,7 @@ static void tlkmdi_btiap_eapRecvDeal(uint16 aclHandle, uint08 rfcHandle, uint08 
 		ack[6] = pData[5];
 		ack[8] = tlkmdi_btiap_calcChecksum(ack,8);
 		tlkapi_array(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "ack data=", (uint08 *)ack, 9);
-		btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, (uint08 *)ack,sizeof(ack));
+		btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, (uint08 *)ack, sizeof(ack));
 	}
 	if(pData[4] == IAP2_PACKET_CONTROL_ACK && pData[9] == IAP2_SESSION_START_MSB && pData[10] == IAP2_SESSION_START_LSB)
 	{

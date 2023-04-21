@@ -35,10 +35,12 @@
 #ifdef TLKAPP_BOOTLOADER_ENABLE
 	#include "app/tlkapp_bootloader/tlkapp_config.h"
 #endif
-#ifdef TLKAPP_BQB_ENABLE
-	#include "app/tlkapp_bqb/tlkapp_config.h"
+#ifdef TLKAPP_BQB_EMI_ENABLE
+	#include "app/tlkapp_bqb_emi/tlkapp_config.h"
 #endif
-
+#ifdef TLKAPP_DUALMODE_DONGLE_ENABLE
+	#include "app/tlkapp_general/tlkapp_config.h"		//Reuse general app code, diff on MMI lager.
+#endif
 
 
 #endif /* APP_CONFIG_H */

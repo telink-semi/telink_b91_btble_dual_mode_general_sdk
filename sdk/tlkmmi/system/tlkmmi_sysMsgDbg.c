@@ -40,6 +40,7 @@
 
 #if (TLK_CFG_USB_ENABLE)
 extern bool tlkusb_setModule(uint08 modtype); //TLKUSB_MODTYPE_ENUM
+extern void tklcfg_setUsbMode(uint08 umode);
 #endif
 extern int tlkmmi_phone_bookSetParam(uint08 posi, uint08 type, uint08 sort, uint16 offset, uint16 number);
 extern int tlkmmi_phone_startSyncBook(uint16 aclHandle, uint08 *pBtAddr, bool isForce);
@@ -50,6 +51,7 @@ static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgFirmwareUpdateDeal(uint08 *pData, uint08 dataLen);
+
 
 
 int tlkmmi_sys_dbgMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
@@ -130,6 +132,7 @@ static void tlkmmi_sys_recvDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen)
 	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgSetUSBModeDeal: ", pData, dataLen);
 	#if (TLK_CFG_USB_ENABLE)
 	tlkusb_setModule(pData[0]);
+	tklcfg_setUsbMode(pData[0]);
 	#endif
 }
 static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen)

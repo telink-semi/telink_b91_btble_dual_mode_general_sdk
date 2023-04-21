@@ -150,6 +150,7 @@ void tlkdbg_usblog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 	if(fileName != nullptr){
 		printf("(%s//%03d)", fileName, lineNumb);
 	}
+	if(format != nullptr) printf("%s", format);
 	printf("(%d)", dataLen);
 	for(index=0; index<dataLen; index++){
 		printf("%02x ", pData[index]);

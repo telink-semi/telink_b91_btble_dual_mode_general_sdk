@@ -35,6 +35,7 @@
 
 
 //HPU - Hardware Protocol UART
+bool sTlkHpuVcdIsOpen = false;
 
 extern bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
 #if (TLK_CFG_COMM_ENABLE)
@@ -63,7 +64,7 @@ void tlkdbg_hpuvcd_reset(void)
 }
 bool tlkdbg_hpuvcd_isBusy(void)
 {
-	if(tlkapi_fifo_isEmpty(&sTlkDbgHpuVcdFifo)) return false;
+	if(sTlkHpuVcdIsOpen == false || tlkapi_fifo_isEmpty(&sTlkDbgHpuVcdFifo)) return false;
 	else return true;
 }
 void tlkdbg_hpuvcd_handler(void)
@@ -71,6 +72,8 @@ void tlkdbg_hpuvcd_handler(void)
 	int ret;
 	uint readLen;
 	uint08 buffer[TLKDBG_HPU_VCD_CACHE_SIZE];
+
+	if(sTlkHpuVcdIsOpen == false) return;
 
 	if(sTlkDbgHpuVcdTicks == 0 || clock_time_exceed(sTlkDbgHpuVcdTicks, 10000)){
 		sTlkDbgHpuVcdTicks = clock_time() | 1;
@@ -110,6 +113,8 @@ bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_ref(void)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+	
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -126,6 +131,8 @@ void tlkdbg_hpuvcd_ref(void)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_sync(bool enable)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -141,6 +148,8 @@ void tlkdbg_hpuvcd_sync(bool enable)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_tick(uint08 id)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -157,6 +166,8 @@ void tlkdbg_hpuvcd_tick(uint08 id)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_level(uint08 id, uint08 level)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -173,6 +184,8 @@ void tlkdbg_hpuvcd_level(uint08 id, uint08 level)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_event(uint08 id)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -188,6 +201,8 @@ void tlkdbg_hpuvcd_event(uint08 id)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_byte(uint08 id, uint08 value)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -203,6 +218,8 @@ void tlkdbg_hpuvcd_byte(uint08 id, uint08 value)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_word(uint08 id, uint16 value)
 {
+	if(sTlkHpuVcdIsOpen == false) return;
+
 	uint08 buffLen = 0;
 	uint08 buffer[5];
 	uint32 r = core_disable_interrupt();
@@ -215,8 +232,10 @@ void tlkdbg_hpuvcd_word(uint08 id, uint16 value)
 	core_restore_interrupt(r);
 }
 
-
-
+void tlkdbg_hpuvcd_setOpen(bool isOpen)
+{
+	sTlkHpuVcdIsOpen = isOpen;
+}
 
 
 #endif //#if (TLKDBG_CFG_HPU_VCD_ENABLE)

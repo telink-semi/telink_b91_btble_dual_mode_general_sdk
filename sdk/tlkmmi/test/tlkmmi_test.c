@@ -60,7 +60,7 @@ static int tlkmmi_test_init(uint08 procID, uint08 taskID)
 	#endif
 	tlkstk_init();
 	tlkmmi_test_adaptInit(procID);
-
+	
 	tlkmmi_test_adaptInitTimer(&sTlkMmiTestCtrl.timer, tlkmmi_test_timer, NULL, TLKMMI_TEST_TIMEOUT);
 
 	return TLK_ENONE;

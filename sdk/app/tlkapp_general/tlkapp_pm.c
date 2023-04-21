@@ -44,7 +44,6 @@ extern bool tlkstk_pmIsBusy(void);
 extern bool tlkapp_pmIsBusy(void);
 
 extern void btc_context_restore(unsigned long * bt_reg, unsigned long * ip_reg, unsigned long * modem_reg, unsigned long * radio_reg, unsigned long * pdzb_reg);
-extern void btc_set_sniff_req_enable(uint8_t enable);// 1 : enable, 0 :disable
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
 extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
@@ -90,7 +89,6 @@ int tlkapp_pm_init(void)
 	gpio_set_up_down_res(TLKAPP_WAKEUP_PIN,GPIO_PIN_PULLUP_1M);
 	gpio_set_input(TLKAPP_WAKEUP_PIN, 1);
 	
-	btc_set_sniff_req_enable(1);//enable
 	btc_ll_set_sniff_lp_mode(BT_SNIFF_LP_MODE_SUSPEND);
 	gTlkAppPmSysIdleTimer = clock_time();
 	
@@ -124,7 +122,6 @@ void tlkapp_pm_handler(void)
 	
 	if(isBusy){
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
-		btc_set_sniff_req_enable(0);//disable
 		bth_sendLeaveSleepCmd();
 		gTlkAppPmSysIdleTimer = clock_time()|1;
 	}else{		
@@ -136,7 +133,6 @@ void tlkapp_pm_handler(void)
 		if(gTlkAppPmSysIdleTimer != 0 && clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000)){
 			gTlkAppPmSysIdleTimer =  0;
 		}else{
-			btc_set_sniff_req_enable(1);//enable
 			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);
 			btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
 			btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);

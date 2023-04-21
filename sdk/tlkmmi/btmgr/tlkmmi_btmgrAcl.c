@@ -348,7 +348,11 @@ static void tlkmmi_btmgr_aclConnectCB(uint16 handle, uint08 status, uint08 *pBtA
 		sTlkMmiBtMgrAcl.busys = TLKMMI_BTMGR_BUSY_NONE;
 		tlkmmi_btmgr_aclReset();
 	}
-	
+
+	if(status == BTH_HCI_ERROR_OPERATION_CANCELED_BY_HOST
+		&& tlkmdi_btrec_connectCancel(pBtAddr) == TLK_ENONE){
+		return;
+	}
 	tlkmmi_btmgr_sendAclConnectEvt(handle, status, pBtAddr);
 	if(sTlkMmiBtMgrAclConnCB != nullptr){
 		sTlkMmiBtMgrAclConnCB(handle, status, pBtAddr);

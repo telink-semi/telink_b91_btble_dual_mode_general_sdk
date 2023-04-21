@@ -31,7 +31,7 @@
 #if (TLK_DEV_STORE_ENABLE)
 #include "tlkdev/sys/tlkdev_store.h"
 #endif
-
+#include "tlklib/dbg/tlkdbg_config.h"
 
 extern int bth_hci_sendResetCmd(void);
 extern uint tlkcfg_getWorkMode(void);
@@ -49,6 +49,7 @@ static void tlkmmi_sys_commGetWorkMode(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_commSetWorkMode(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_commFormatUDisk(uint08 *pData, uint08 dataLen);
 static bool tlkmmi_dbgload_timer(tlkapi_timer_t *pTimer,uint32 userArg);
+static void tlkmmi_sys_commHpuVcdUpdateDeal(uint08 *pData, uint08 dataLen);
 
 
 #if (TLK_CFG_DBG_ENABLE)
@@ -58,8 +59,12 @@ int tlkmmi_sys_commDbgItemEvtSend(TLK_DEBUG_MAJOR_ID_ENUM majorId,uint32 sign);
 extern unsigned long *tlk_debug_get_dbgMask();
 extern unsigned long *tlk_debug_get_vcdMask();
 extern tlk_debug_info_t **tlk_debug_get_dbgInfo();
+
 #endif
 
+#if (TLKDBG_CFG_HPU_VCD_ENABLE)
+extern void tlkdbg_hpuvcd_setOpen(bool isOpen);
+#endif
 int tlkmmi_sys_sysMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 {
 	tlkapi_trace(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_sysMsgHandler:msgID-%d", msgID);
@@ -77,6 +82,8 @@ int tlkmmi_sys_sysMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		tlkmmi_sys_commDbgMajorUpdate(pData,dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_SYS_DBG_MINOR_UPDATE){
 		tlkmmi_sys_commDbgMinorUpdate(pData, dataLen);
+	}else if(msgID == TLKPRT_COMM_CMDID_SYS_VCD_CFG){
+		tlkmmi_sys_commHpuVcdUpdateDeal(pData,dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_SYS_GET_WORK_MODE){
 		tlkmmi_sys_commGetWorkMode(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_SYS_SET_WORK_MODE){
@@ -311,6 +318,17 @@ static void tlkmmi_sys_commFormatUDisk(uint08 *pData, uint08 dataLen)
 	tlkmmi_sys_sendCommRsp(TLKPRT_COMM_CMDID_SYS_FORMAT_U_DISK, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 }
 
+static void tlkmmi_sys_commHpuVcdUpdateDeal(uint08 *pData, uint08 dataLen)
+{
+#if (TLKDBG_CFG_HPU_VCD_ENABLE)
+	if(dataLen < 1)
+	{
+		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgHpuVcdUpdateDeal: length error - %d", dataLen);
+		return;
+	}
+	tlkdbg_hpuvcd_setOpen(pData[0]);
+#endif
+}
 
 
 #endif //#if (TLKMMI_SYSTEM_ENABLE)

@@ -20,20 +20,23 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-#include "tlkstk/inner/tlkstk_inner.h"
 #include "tlkapi/tlkapi_stdio.h"
-
-#include "drivers.h"
-#include "tlkstk/ble/ble.h"
-
 #include "tlkapp_config.h"
 #include "tlkapp.h"
+#include "drivers.h"
 
 
-
+#if (TLK_STK_BT_ENABLE)
 extern void btc_ll_system_tick_isr(void);
 extern void btc_core_isr(void);
-
+#endif
+#if (TLK_CFG_USB_ENABLE)
+extern void tlkusb_irqHandler(void);
+#endif
+#if (TLK_STK_LE_ENABLE)
+extern void ble_sdk_rf_irq_handler(void);
+extern void ble_ll_system_tick_isr(void);
+#endif
 
 
 /******************************************************************************
@@ -78,13 +81,15 @@ int main(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/
-_attribute_retention_code_ void stimer_irq_handler(void)
+_attribute_retention_code_ 
+void stimer_irq_handler(void)
 {
 	#if (TLK_STK_BT_ENABLE)
     btc_ll_system_tick_isr();
 	#endif
+	#if (TLK_STK_LE_ENABLE)
     ble_ll_system_tick_isr();
-	
+	#endif
 //	systimer_clr_irq_status();
 }
 
@@ -95,9 +100,12 @@ _attribute_retention_code_ void stimer_irq_handler(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/ 
-_attribute_retention_code_ void rf_irq_handler(void)
+_attribute_retention_code_ 
+void rf_irq_handler(void)
 {
+	#if (TLK_STK_LE_ENABLE)
 	ble_sdk_rf_irq_handler();
+	#endif
 }
 
 /******************************************************************************
@@ -107,15 +115,14 @@ _attribute_retention_code_ void rf_irq_handler(void)
  * Return: None.
  * Others: None.
 *******************************************************************************/ 
-_attribute_retention_code_ void zb_bt_irq_handler(void)
+_attribute_retention_code_ 
+void zb_bt_irq_handler(void)
 {
+	#if (TLK_STK_BT_ENABLE)
     btc_core_isr();
+	#endif
 }
 
-
-#if (TLK_USB_UAC_ENABLE)
-extern void tlkusb_uacirq_handler(void);
-#endif
 /******************************************************************************
  * Function: usb_endpoint_irq_handler
  * Descript: This function for audio interrupt handler 
@@ -127,8 +134,8 @@ extern void tlkusb_uacirq_handler(void);
 _attribute_retention_code_ 
 void usb_endpoint_irq_handler(void)
 {
-	#if (TLK_USB_UAC_ENABLE)
-	tlkusb_uacirq_handler();
+	#if (TLK_CFG_USB_ENABLE)
+	tlkusb_irqHandler();
 	#endif
 }
 

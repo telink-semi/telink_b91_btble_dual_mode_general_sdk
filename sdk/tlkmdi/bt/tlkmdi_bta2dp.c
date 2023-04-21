@@ -25,18 +25,20 @@
 #include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/bt/tlkmdi_bta2dp.h"
 
+#if (TLK_STK_BTP_ENABLE)
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/hfp/btp_hfp.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
-#include "tlksys/prt/tlkpto_comm.h"
+#endif
 
 
 #define TLKMDI_BTA2DP_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_A2DP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_BTA2DP_DBG_SIGN       "[MHFP]"
 
 #if (TLK_STK_BTP_ENABLE)
-static void tlkmdi_bta2dp_avrcpVolumeChangeEvt(uint16 aclHandle, uint08 volume);
+static int tlkmdi_btavrcp_volumeChangeEvt(uint08 *pData, uint16 dataLen);
+static int tlkmdi_btavrcp_peerEvtMaskEvt(uint08 *pData, uint16 dataLen);
 #endif
 
 
@@ -50,24 +52,52 @@ static void tlkmdi_bta2dp_avrcpVolumeChangeEvt(uint16 aclHandle, uint08 volume);
 int tlkmdi_bta2dp_init(void)
 {	
 	#if (TLK_STK_BTP_ENABLE)
-    btp_avrcp_regVolumeChangeCB(tlkmdi_bta2dp_avrcpVolumeChangeEvt);
+	btp_event_regCB(BTP_EVTID_AVRCP_VOLUME_CHANGED, tlkmdi_btavrcp_volumeChangeEvt);
+	btp_event_regCB(BTP_EVTID_AVRCP_PEER_EVT_MASK,  tlkmdi_btavrcp_peerEvtMaskEvt);
 	#endif
-		
+	
 	return TLK_ENONE;
 }
 
-#if (TLK_STK_BTP_ENABLE)
-static void tlkmdi_bta2dp_avrcpVolumeChangeEvt(uint16 aclHandle, uint08 volume)
+void tlkmdi_bta2dp_connectEvt(uint16 aclHandle, uint08 usrID)
 {
-	uint08 buffLen = 0;
+#if (TLK_STK_BTP_ENABLE)
+	if(usrID == BTP_USRID_SERVER){
+		btp_avrcp_regEventNotify(aclHandle, BTP_AVRCP_EVTID_VOLUME_CHANGED);
+	}else if(usrID == BTP_USRID_CLIENT){
+		btp_avrcp_regEventNotify(aclHandle, BTP_AVRCP_EVTID_PLAYBACK_STATUS_CHANGED);
+	}
+#endif
+}
+
+#if (TLK_STK_BTP_ENABLE)
+static int tlkmdi_btavrcp_volumeChangeEvt(uint08 *pData, uint16 dataLen)
+{
 	uint08 buffer[6];
-	buffer[buffLen++] = (aclHandle & 0xFF);
-	buffer[buffLen++] = (aclHandle & 0xFF00) >> 8;
-	buffer[buffLen++] = btp_hfphf_isIosDev(aclHandle);
-	if(btp_a2dp_isSrc(aclHandle)) buffer[buffLen++] = 0x01;
+	uint08 buffLen = 0;
+	btp_avrcpVolumeChangeEvt_t *pEvt;
+	
+	pEvt = (btp_avrcpVolumeChangeEvt_t*)pData;
+	buffer[buffLen++] = (pEvt->handle & 0xFF);
+	buffer[buffLen++] = (pEvt->handle & 0xFF00) >> 8;
+	buffer[buffLen++] = btp_hfphf_isIosDev(pEvt->handle);
+	if(btp_a2dp_isSrc(pEvt->handle)) buffer[buffLen++] = 0x01;
 	else buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = volume;
+	buffer[buffLen++] = pEvt->volume;
 	tlksys_sendInnerMsg(TLKSYS_TASKID_AUDIO, TLKPTI_AUD_MSGID_AVRCP_CHG_VOLUME_EVT, buffer, buffLen);
+
+	return TLK_ENONE;
+}
+static int tlkmdi_btavrcp_peerEvtMaskEvt(uint08 *pData, uint16 dataLen)
+{
+	btp_avrcpPeerEvtMaskEvt_t *pEvt = (btp_avrcpPeerEvtMaskEvt_t*)pData;
+	if(btp_a2dp_isSrc(pEvt->handle)){
+		btp_avrcp_regEventNotify(pEvt->handle, BTP_AVRCP_EVTID_VOLUME_CHANGED);
+	}else if(btp_a2dp_isSnk(pEvt->handle)){
+		btp_avrcp_regEventNotify(pEvt->handle, BTP_AVRCP_EVTID_PLAYBACK_STATUS_CHANGED);
+	}
+
+	return TLK_ENONE;
 }
 #endif
 

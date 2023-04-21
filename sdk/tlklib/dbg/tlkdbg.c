@@ -353,6 +353,154 @@ void tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint 
 	va_end(args);
 }
 
+_attribute_noinline_
+void tlkdbg_warn1(uint flags, char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_WARN)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_print(pSign, TLKAPI_WARN_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_print(pSign, TLKAPI_WARN_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_print(pSign, TLKAPI_WARN_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_print(pSign, TLKAPI_WARN_HEAD, fileName, lineNumb, format, args);
+	#endif
+}
+_attribute_noinline_
+void tlkdbg_info1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_INFO)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_print(pSign, TLKAPI_INFO_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_print(pSign, TLKAPI_INFO_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_print(pSign, TLKAPI_INFO_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_print(pSign, TLKAPI_INFO_HEAD, fileName, lineNumb, format, args);
+	#endif
+}
+_attribute_noinline_
+void tlkdbg_trace1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_TRACE)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_print(pSign, TLKAPI_TRACE_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_print(pSign, TLKAPI_TRACE_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_print(pSign, TLKAPI_TRACE_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_print(pSign, TLKAPI_TRACE_HEAD, fileName, lineNumb, format, args);
+	#endif
+}
+_attribute_noinline_
+void tlkdbg_fatal1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_FATAL)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_print(pSign, TLKAPI_FATAL_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_print(pSign, TLKAPI_FATAL_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_print(pSign, TLKAPI_FATAL_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_print(pSign, TLKAPI_FATAL_HEAD, fileName, lineNumb, format, args);
+	#endif
+}
+_attribute_noinline_
+void tlkdbg_error1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ERROR)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_print(pSign, TLKAPI_ERROR_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_print(pSign, TLKAPI_ERROR_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_print(pSign, TLKAPI_ERROR_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_print(pSign, TLKAPI_ERROR_HEAD, fileName, lineNumb, format, args);
+	#endif
+}
+_attribute_noinline_
+void tlkdbg_array1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ARRAY)) return;
+	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_array(pSign, TLKAPI_ARRAY_HEAD, fileName, lineNumb, format, pData, dataLen);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_array(pSign, TLKAPI_ARRAY_HEAD, fileName, lineNumb, format, pData, dataLen);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_array(pSign, TLKAPI_ARRAY_HEAD, fileName, lineNumb, format, pData, dataLen);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_array(pSign, TLKAPI_ARRAY_HEAD, fileName, lineNumb, format, pData, dataLen);
+	#endif
+}
+_attribute_noinline_
+void tlkdbg_assert1(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+{
+	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ASSERT)) return;
+	if(!isAssert) return;
+	if(fileName != nullptr){
+		fileName = strrchr(fileName,'/')?strrchr(fileName,'/')+1:fileName;
+	}
+	#if (TLKDBG_CFG_USB_LOG_ENABLE)
+	tlkdbg_usblog_print(pSign, TLKAPI_ASSERT_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_GSU_LOG_ENABLE)
+	tlkdbg_gsulog_print(pSign, TLKAPI_ASSERT_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HPU_LOG_ENABLE)
+	tlkdbg_hpulog_print(pSign, TLKAPI_ASSERT_HEAD, fileName, lineNumb, format, args);
+	#endif
+	#if (TLKDBG_CFG_HWU_LOG_ENABLE)
+	tlkdbg_hwulog_print(pSign, TLKAPI_ASSERT_HEAD, fileName, lineNumb, format, args);
+	#endif
+}
+
 
 _attribute_ram_code_sec_noinline_ 
 void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3)

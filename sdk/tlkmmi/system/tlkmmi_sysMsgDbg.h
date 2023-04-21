@@ -26,7 +26,6 @@
 #if (TLKMMI_SYSTEM_ENABLE)
 
 
-
 int tlkmmi_sys_dbgMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen);
 
 

@@ -66,6 +66,8 @@ typedef struct {
 	unsigned char pclk;			/**< pclk */
 	unsigned char mspi_clk;		/**< mspi_clk */
 }sys_clk_st;
+#define	TICK_PER_US					16
+#define TICK_PER_HALF_US            (TICK_PER_US/2)
 
 
 /**

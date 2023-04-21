@@ -26,17 +26,18 @@
 #include "tlkmdi/misc/tlkmdi_comm.h"
 #include "tlksys/tlksys_stdio.h"
 
-#include "tlkstk/ble/ble.h"
 #include "tlkapp_config.h"
 #include "tlkapp_irq.h"
 #include "tlkapp.h"
 #include "tlkapp_pm.h"
+#include "drivers.h"
 
 
 
 extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 extern void trng_init(void);
 extern uint tlkcfg_getWorkMode(void);
+extern void tlkbt_set_workMode(u8 workMode);
 
 extern int tlkdev_init(void);
 extern int tlksys_init(void);

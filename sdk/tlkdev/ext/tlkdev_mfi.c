@@ -50,7 +50,7 @@ int tlkdev_mfi_close(void)
 	return tlkdrv_mfi_close();
 }
 
-
+//<Accessory Interface Specification R36.pdf> P665
 
 int tlkdev_mfi_loadCertificateData(uint08 *pBuffer, uint16 buffLen)
 {
@@ -59,7 +59,10 @@ int tlkdev_mfi_loadCertificateData(uint08 *pBuffer, uint16 buffLen)
     uint08 protocolVersionMajor;
     uint16 accessoryCertificateDataLength,numCertificateBytes;
 
-	if(buffLen < 608) return -TLK_EOVERFLOW;
+	if(!tlkdrv_mfi_isOpen()){
+		tlkapi_error(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "loadCertificateData: Device is not open!");
+		return -TLK_ENOREADY;
+	}
 
     tlkdrv_mfi_read(kHAPMFiHWAuthRegister_ErrorCode, bytes, 1);
     tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "ErrorCode=%d", bytes[0]);
@@ -88,14 +91,18 @@ int tlkdev_mfi_loadCertificateData(uint08 *pBuffer, uint16 buffLen)
     for(index = 0; accessoryCertificateDataLength != 0; index++) 
     {
         uint16 numBytes = tlkapi_min(accessoryCertificateDataLength, (uint16)128);
+		if(numCertificateBytes+numBytes > buffLen){
+			tlkapi_fatal(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "loadCertificateData: overflow ! [%d-%d]",
+				numCertificateBytes, numBytes);
+			break;
+		}
         tlkdrv_mfi_read(kHAPMFiHWAuthRegister_AccessoryCertificateData1+index, &((uint08*)pBuffer)[numCertificateBytes], numBytes);
         accessoryCertificateDataLength -= numBytes;
         numCertificateBytes += numBytes;
     }
-    tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "numCertificateBytes=%d", numCertificateBytes);  
-    tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "Certificate data=", pBuffer, 256); 
-    tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "Certificate data2=", &pBuffer[256],256); 
-    tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "Certificate data3=", &pBuffer[512], 96); 
+    tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "Certificate data=", pBuffer, numCertificateBytes); 
+//    tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "Certificate data2=", &pBuffer[256],256); 
+//    tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "Certificate data3=", &pBuffer[512], 96); 
     tlkdrv_mfi_read(kHAPMFiHWAuthRegister_ErrorCode, bytes, 1);
     tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "ErrorCode=%d", bytes[0]);
 
@@ -108,23 +115,36 @@ int tlkdev_mfi_loadChallengeData(uint08 *pData, uint16 dataLen, uint08 *pBuff, u
 	uint16 nc;
 	uint08 length;
 
+	if(!tlkdrv_mfi_isOpen()){
+		tlkapi_error(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "loadCertificateData: Device is not open!");
+		return -TLK_ENOREADY;
+	}
+	
 	tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_mfi_loadChallengeData=", pData, dataLen);  
 	tlkdrv_mfi_write(kHAPMFiHWAuthRegister_ChallengeData, pData, dataLen);
+	delay_ms(200);
 	
 	nc = 1;
 	tlkdrv_mfi_write(kHAPMFiHWAuthRegister_AuthenticationControlAndStatus, (uint08*)&nc, 1);
+	delay_ms(200);
 
 	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_AuthenticationControlAndStatus, (uint08*)&nc, 1); 
+	delay_ms(200);
 	tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "kHAPMFiHWAuthRegister_AuthenticationControlAndStatus=%d", nc);  
 
 	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_ChallengeResponseDataLength, (uint08*)&nc, 2);
+	delay_ms(200);
 	tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "kHAPMFiHWAuthRegister_ChallengeResponseDataLength=%d", nc);
 
 	length = nc>>8;
 	if(length > buffLen) length = buffLen;
 	
 	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_ChallengeResponseData, pBuff, length);
+	tlkapi_trace(TLKDEV_EXT_DBG_FLAG,TLKDEV_EXT_DBG_SIGN,"length = %d",length);
 	tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "ChallengeResponseData=", pBuff, length);
+	
+	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_ErrorCode, (uint08*)&nc, 1);
+    tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, ">>> ErrorCode=%d", nc);
 	
 	return TLK_ENONE;
 }

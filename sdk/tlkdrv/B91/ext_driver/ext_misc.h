@@ -128,7 +128,10 @@ static inline int tick1_exceed_tick2(unsigned int tick1, unsigned int tick2)
 {
 	return (unsigned int)(tick1 - tick2) < 0xc0000000; // 3/4 of max, about 201 second
 }
-
+static inline int tick1_exceed_tick2_half(unsigned int tick1, unsigned int tick2)//tick2 if too far of tick1,1/4 of max is not enough
+{
+	return (unsigned int)(tick1 - tick2) < 0x7fffffff; // 1/2 of max, about 89 second
+}
 
 
 /******************************* aes_start ******************************************************************/

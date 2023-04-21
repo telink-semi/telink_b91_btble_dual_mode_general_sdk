@@ -38,6 +38,18 @@ typedef enum{
 	TLK_SCO_BUSY_SEND_DISC_REQUEST = 0x04,
 }TLK_SCO_BUSYS_ENUM;
 
+typedef enum{
+	TLK_SCO_LINK_TYPE_SCO   = 0x00,
+	TLK_SCO_LINK_TYPE_ESCO  = 0x02,
+}TLK_SCO_LINK_TYPE_ENUM;
+
+typedef enum{
+	TLK_SCO_AIRMODE_CVSD   = 0x00,
+	TLK_SCO_AIRMODE_U_LAW  = 0x01,
+	TLK_SCO_AIRMODE_A_LAW  = 0x02,
+	TLK_SCO_AIRMODE_TRANS  = 0x03,
+}TLK_SCO_AIRMODE_ENUM;
+
 
 /******************************************************************************
  * Function: bth_sco_setConnTimeout
@@ -71,9 +83,12 @@ int bth_sco_setCodec(uint08 codec);
  * Function: bth_sco_connect
  * Descript: This interface be used to connect the SCO link which
  *           specify by aclHandle.
- * Params: @aclHandle[IN]--The acl link handle.
- *         @linkType[IN]--it is a scl or sco link type.
- *         @airMode[IN]--The air mode(cvsd or else).
+ * Params:
+ *     @aclHandle[IN]--The acl link handle.
+ *     @linkType[IN]--it is a sco or esco link type. Refer to
+ *        TLK_SCO_LINK_TYPE_ENUM.
+ *     @airMode[IN]--The air mode(cvsd or else). Rerfer to
+ *        TLK_SCO_AIRMODE_ENUM
  * Reutrn: TLK_ENONE is set sucess, others means failure.
 *******************************************************************************/
 int  bth_sco_connect(uint16 aclHandle, uint16 linkType, uint08 airMode);

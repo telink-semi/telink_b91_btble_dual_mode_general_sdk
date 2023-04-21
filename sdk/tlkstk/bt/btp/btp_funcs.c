@@ -40,8 +40,14 @@
 #include "a2dp/btp_a2dpSrc.h"
 #include "avrcp/btp_avrcpInner.h"
 
+
 #define BTP_FUNC_DBG_FLAG       ((TLK_MAJOR_DBGID_BTH << 24) | (TLK_MINOR_DBGID_BTH_FUNC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define BTP_FUNC_DBG_SIGN       nullptr
+
+extern int btp_hfphf_connect(uint16 aclHandle, uint08 channel);
+extern int btp_hfphf_disconn(uint16 aclHandle);
+extern int btp_hfpag_connect(uint16 aclHandle, uint08 channel);
+extern int btp_hfpag_disconn(uint16 aclHandle);
 
 
 static uint16 sBtpFuncAclHandle = 0;
@@ -95,12 +101,19 @@ static const btp_func_item_t scBtpFunSet[] = {
 	{BTP_FUNCID_HFP_HF_DAIL, btp_func_hfpHfDail},
 	{BTP_FUNCID_HFP_HF_HUNGUP, btp_func_hfpHfHUngup},
 	{BTP_FUNCID_HFP_HF_REJECT, btp_func_hfpHfReject},
+	{BTP_FUNCID_HFP_HF_ACTIVATE_VOICE_RECOG, btp_func_hfpHfActivateVoiceRecog},
 	{BTP_FUNCID_HFP_HF_REJECT_WAIT_AND_KEEP_ACTIVE, btp_func_hfpHfRejectWaitAndKeepActive},
 	{BTP_FUNCID_HFP_HF_ACCEPT_WAIT_AND_HOLD_ACTIVE, btp_func_hfpHfAcceptWaitAndHoldActive},
 	{BTP_FUNCID_HFP_HF_HUNGUP_ACTIVE_AND_RESUME_HOLD, btp_func_hfpHfHungupActiveAndResumeHold},
 	{BTP_FUNCID_HFP_AG_CONNECT, btp_func_hfpAgConnect},
 	{BTP_FUNCID_HFP_AG_DISCONN, btp_func_hfpAgDisconn},
 	{BTP_FUNCID_HFP_AG_SET_FEATURE, btp_func_hfpAgSetFeature},
+	{BTP_FUNCID_HFP_AG_PALCE_CALL, btp_func_hfpAgPlaceCall},
+	{BTP_FUNCID_HFP_AG_REMOVE_CALL, btp_func_hfpAgRemoveCall},
+	{BTP_FUNCID_HFP_AG_ACTIVE_CALL, btp_func_hfpAgActiveCall},
+	//PBAP
+	{BTP_FUNCID_PBAP_CONNECT, btp_func_pbapConnect},
+	{BTP_FUNCID_PBAP_DISCONN, btp_func_pbapDisconn},
 	
 };
 
@@ -416,7 +429,19 @@ static int btp_func_a2dpSrcSendMediaData(uint08 *pData, uint16 dataLen)
 	if(handle == 0) handle = sBtpFuncAclHandle;
 	return btp_a2dpsrc_sendMediaData(handle, 0, 0, SBCBuffer, sizeof(SBCBuffer));
 }
-
+static int btp_func_a2dpSendAbort(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+		
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_a2dpSendAbort: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_a2dpSendAbort: handle[0x%x]", handle);
+	return btp_a2dpsrc_abort(handle);
+}
 
 
 static int btp_func_avrcpConnect(uint08 *pData, uint16 dataLen)
@@ -496,7 +521,7 @@ static int btp_func_avrcpSendRegEvtNotyCmd(uint08 *pData, uint16 dataLen)
 	if(handle == 0) handle = sBtpFuncAclHandle;
 	evtID = pData[2];
 	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_avrcpSendRegEvtNotyCmd: handle[0x%x] keyID[0x%x]", handle, evtID);
-	btp_avrcp_sendRegEventNotyCmd(handle, evtID);
+	btp_avrcp_regEventNotify(handle, evtID);
 	return TLK_ENONE;
 }
 static int btp_func_avrcpSendEventNoty(uint08 *pData, uint16 dataLen)
@@ -512,7 +537,7 @@ static int btp_func_avrcpSendEventNoty(uint08 *pData, uint16 dataLen)
 	if(handle == 0) handle = sBtpFuncAclHandle;
 	evtID = pData[2];
 	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_avrcpSendEventNoty: handle[0x%x] evtID[0x%x]", handle, evtID);
-	btp_avrcp_sendEventNoty(handle, evtID, pData+3, dataLen-3);
+	btp_avrcp_notifyStatusChange(handle, evtID, pData+3, dataLen-3);
 	return TLK_ENONE;
 }
 static int btp_func_avrcpSetTrackValue(uint08 *pData, uint16 dataLen)
@@ -553,19 +578,64 @@ static int btp_func_avrcpSetPlayStatus(uint08 *pData, uint16 dataLen)
 
 static int btp_func_hfpHfConnect(uint08 *pData, uint16 dataLen)
 {
-	return -TLK_ENOSUPPORT;
+	uint16 handle;
+	uint08 channel;
+		
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	channel = pData[2];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfConnect: handle[0x%x] channel[0x%x]", handle, channel);
+	return btp_hfphf_connect(handle, channel);
 }
 static int btp_func_hfpHfDisconn(uint08 *pData, uint16 dataLen)
 {
-	return -TLK_ENOSUPPORT;
+	uint16 handle;
+		
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfDisconn: handle[0x%x]", handle);
+	return btp_hfphf_disconn(handle);
 }
 static int btp_func_hfpHfSetFeature(uint08 *pData, uint16 dataLen)
 {
-	return -TLK_ENOSUPPORT;
+	uint32 feature;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfSetFeature: failure - param error");
+		return -TLK_EPARAM;
+	}
+	feature = ((uint32)pData[3]<<24 | pData[2]<<16 | pData[1]<<8 | pData[0]);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfSetFeature: feature[0x%x]", feature);
+	btp_hfphf_setFeature(feature);
+	return TLK_ENONE;
 }
 static int btp_func_hfpHfSetVolume(uint08 *pData, uint16 dataLen)
 {
-	return -TLK_ENOSUPPORT;
+	uint08 volume;
+	uint08 volumeType;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfSetVolume: failure - param error");
+		return -TLK_EPARAM;
+	}
+	volumeType = pData[0];
+	volume = pData[1];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfSetVolume: spkVolume[0x%x] volumeType[0x%x]", volume, volumeType);
+
+	if(volumeType > 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfSetVolume: failure - volumeType param error");
+		return -TLK_EPARAM;
+	}
+	if(volumeType == BTP_HFP_VOLUME_TYPE_SPK) return btp_hfphf_setSpkVolume(volume);
+	else return btp_hfphf_setMicVolume(volume);
 }
 static int btp_func_hfpHfSetBattery(uint08 *pData, uint16 dataLen)
 {
@@ -577,63 +647,280 @@ static int btp_func_hfpHfSetSignal(uint08 *pData, uint16 dataLen)
 }
 static int btp_func_hfpHfAnswer(uint08 *pData, uint16 dataLen)
 {
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfRedial(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfDail(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfHUngup(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfReject(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfRejectWaitAndKeepActive(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfAcceptWaitAndHoldActive(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpHfHungupActiveAndResumeHold(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpAgConnect(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpAgDisconn(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-static int btp_func_hfpAgSetFeature(uint08 *pData, uint16 dataLen)
-{
-	return -TLK_ENOSUPPORT;
-}
-
-static int btp_func_a2dpSendAbort(uint08 *pData, uint16 dataLen)
-{
 	uint16 handle;
 		
 	if(pData == nullptr || dataLen < 2){
-		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_a2dpSendAbort: failure - param error");
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfAnswer: failure - param error");
 		return -TLK_EPARAM;
 	}
 	handle = ((uint16)pData[1]<<8 | pData[0]);
 	if(handle == 0) handle = sBtpFuncAclHandle;
-	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_a2dpSendAbort: handle[0x%x]", handle);
-	return btp_a2dpsrc_abort(handle);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfAnswer: handle[0x%x]", handle);
+	return btp_hfphf_answer(handle);
+}
+static int btp_func_hfpHfRedial(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+		
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfRedial: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfRedial: handle[0x%x]", handle);
+	return btp_hfphf_redial(handle);
+}
+static int btp_func_hfpHfDail(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 numbLen;
+	uint08 index = 0;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfDail: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	numbLen = pData[2];
+	char pNumber[numbLen];
+	for(int i = 0; i < numbLen; i++){
+		pNumber[index++] = pData[3+i];
+	}
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfDail: handle[0x%x]", handle);
+	tlkapi_array(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfDail: call number: ", pNumber, numbLen);
+	return btp_hfphf_dial(handle, pNumber, numbLen);
+}
+static int btp_func_hfpHfHUngup(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfHUngup: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfHUngup: handle[0x%x]", handle);
+	return btp_hfphf_hungUp(handle);
+}
+static int btp_func_hfpHfReject(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfReject: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfReject: handle[0x%x]", handle);
+	return btp_hfphf_reject(handle);
+}
+static int btp_func_hfpHfActivateVoiceRecog(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfActivateVoiceRecog: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfActivateVoiceRecog: handle[0x%x]", handle);
+	return btp_hfphf_siri_ctrl(handle);
+}
+static int btp_func_hfpHfRejectWaitAndKeepActive(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfRejectWaitAndKeepActive: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfRejectWaitAndKeepActive: handle[0x%x]", handle);
+	return btp_hfphf_rejectWaitAndKeepActive(handle);
+}
+static int btp_func_hfpHfAcceptWaitAndHoldActive(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfAcceptWaitAndHoldActive: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfAcceptWaitAndHoldActive: handle[0x%x]", handle);
+	return btp_hfphf_acceptWaitAndHoldActive(handle);
+}
+static int btp_func_hfpHfHungupActiveAndResumeHold(uint08 *pData, uint16 dataLen)
+{	
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfHungupActiveAndResumeHold: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpHfHungupActiveAndResumeHold: handle[0x%x]", handle);
+
+	return btp_hfphf_hungUpActiveAndResumeHold(handle);
+}
+static int btp_func_hfpAgConnect(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 channel;
+		
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	channel = pData[2];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgConnect: handle[0x%x] channel[0x%x]", handle, channel);
+	return btp_hfpag_connect(handle, channel);
+}
+static int btp_func_hfpAgDisconn(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+		
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgDisconn: handle[0x%x]", handle);
+	return btp_hfpag_disconn(handle);
+}
+static int btp_func_hfpAgSetFeature(uint08 *pData, uint16 dataLen)
+{
+	uint32 feature;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgSetFeature: failure - param error");
+		return -TLK_EPARAM;
+	}
+	feature = ((uint32)pData[3]<<24 | pData[2]<<16 | pData[1]<<8 | pData[0]);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgSetFeature: feature[0x%x]", feature);
+	btp_hfpag_setFeature(feature);
+	return TLK_ENONE;
+}
+static int btp_func_hfpAgPlaceCall(uint08 *pData, uint16 dataLen)
+{
+	
+	uint08 numbLen;
+	uint08 isIncoming;
+	uint08 index = 0;
+
+	if(pData == nullptr || dataLen < 9){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgPlaceCall: failure - param error");
+		return -TLK_EPARAM;
+	}
+	numbLen = pData[7];
+	char pNumber[numbLen];
+	pNumber[index++] = pData[0];
+	pNumber[index++] = pData[1];	
+	pNumber[index++] = pData[2];
+	pNumber[index++] = pData[3];
+	pNumber[index++] = pData[4];	
+	pNumber[index++] = pData[5];
+	pNumber[index++] = pData[6];
+	isIncoming = pData[8];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgPlaceCall: isIncoming[0x%x] ", isIncoming);
+	tlkapi_array(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgPlaceCall: call number: ", pNumber, numbLen);
+	return btp_hfpag_insertCall(pNumber, numbLen, isIncoming);
+}
+static int btp_func_hfpAgRemoveCall(uint08 *pData, uint16 dataLen)
+{
+	uint08 index;
+	uint08 numbLen;
+
+	if(pData == nullptr || dataLen < 8){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgRemoveCall: failure - param error");
+		return -TLK_EPARAM;
+	}
+	numbLen = pData[7];
+	char pNumber[numbLen];
+
+	index = 0;
+	pNumber[index++] = pData[0];
+	pNumber[index++] = pData[1];	
+	pNumber[index++] = pData[2];
+	pNumber[index++] = pData[3];
+	pNumber[index++] = pData[4];	
+	pNumber[index++] = pData[5];
+	pNumber[index++] = pData[6];
+	tlkapi_array(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgRemoveCall: call number: ", pNumber, numbLen);
+	return btp_hfpag_removeCall(pNumber, numbLen);
+}
+static int btp_func_hfpAgActiveCall(uint08 *pData, uint16 dataLen)
+{
+	uint08 index;
+	uint08 numbLen;
+
+	if(pData == nullptr || dataLen < 8){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgActiveCall: failure - param error");
+		return -TLK_EPARAM;
+	}
+	numbLen = pData[7];
+	char pNumber[numbLen];
+
+	index = 0;
+	pNumber[index++] = pData[0];
+	pNumber[index++] = pData[1];	
+	pNumber[index++] = pData[2];
+	pNumber[index++] = pData[3];
+	pNumber[index++] = pData[4];	
+	pNumber[index++] = pData[5];
+	pNumber[index++] = pData[6];
+	tlkapi_array(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hfpAgActiveCall: call number: ", pNumber, numbLen);
+	return btp_hfpag_activeCall(pNumber, numbLen);
 }
 
+static int btp_func_pbapConnect(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 usrID;
+	uint16 psmOrChn;
+	bool isL2cap;
+
+	if(pData == nullptr || dataLen < 6){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	usrID = pData[2];
+	psmOrChn = ((uint16)pData[4]<<8 | pData[3]);
+	if(psmOrChn == 0) psmOrChn = 9;
+	isL2cap = pData[5];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapConnect: handle[0x%x] usrID[0x%x] psmOrChn[0x%x] isL2cap[0x%x]", handle, usrID, psmOrChn, isL2cap);
+	return btp_pbap_connect(handle, usrID, psmOrChn, isL2cap);
+}
+static int btp_func_pbapDisconn(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 usrID;
+
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	usrID = pData[2];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapDisconn: handle[0x%x] usrID[0x%x]", handle, usrID);
+	return btp_pbap_disconn(handle, usrID);
+}
 
 #endif //#if (TLK_STK_BTP_ENABLE && TLK_CFG_TEST_ENABLE)
 

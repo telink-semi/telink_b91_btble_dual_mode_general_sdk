@@ -40,10 +40,12 @@
 static void tlkmdi_comm_makeRecvFrame(uint08 rbyte);
 static int  tlkmdi_comm_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 
+#if (TLK_DEV_SERIAL_ENABLE)
 __attribute__((aligned(4)))
 static uint08 sTlkCommSerialRecvBuffer[TLKMDI_COMM_SERIAL_RBUFF_NUMB*(TLKMDI_COMM_SERIAL_RBUFF_SIZE+4)];
 __attribute__((aligned(4)))
 static uint08 sTlkCommSerialSendBuffer[TLKMDI_COMM_SERIAL_SBUFF_NUMB*(TLKMDI_COMM_SERIAL_SBUFF_SIZE+4)];
+#endif
 
 
 typedef struct{

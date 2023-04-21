@@ -36,6 +36,7 @@
 *******************************************************************************/
 int tlkmdi_bta2dp_init(void);
 
+void tlkmdi_bta2dp_connectEvt(uint16 aclHandle, uint08 usrID);
 
 
 

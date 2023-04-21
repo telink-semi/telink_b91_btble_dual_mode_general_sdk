@@ -46,6 +46,7 @@ void tlkdbg_hpuvcd_event(uint08 id);
 void tlkdbg_hpuvcd_byte(uint08 id, uint08 value);
 void tlkdbg_hpuvcd_word(uint08 id, uint16 value);
 
+void tlkdbg_hpuvcd_setOpen(bool isOpen);
 
 #endif //#if (TLKDBG_CFG_HPU_VCD_ENABLE)
 
