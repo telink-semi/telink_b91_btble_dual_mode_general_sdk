@@ -42,7 +42,7 @@ int tlkdev_serial_init(void)
 	sTlkDevSerialPort = 0xFF;
 	tlkdrv_serial_init();
 	#if (TLK_CFG_SYS_ENABLE)
-	tlksys_pm_appendBusyCheckCB(tlkdev_serial_isBusy);
+	tlksys_pm_appendBusyCheckCB(tlkdev_serial_isBusy, "tlkdev_serial");
 	tlksys_pm_appendLeaveSleepCB(tlkdev_serial_wakeup);
 	#endif
 

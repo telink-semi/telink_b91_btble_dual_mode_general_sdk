@@ -86,7 +86,6 @@ static iAP2Packet_t sTlkMdiBtIapPacket;
 static iAP2LinkRunLoop_t *sTlkMdiBtIapRanLoop = nullptr;
 #endif    
 
-uint08 certificateBytes[640];
 uint16 eap_session_id=0;
 uint16 eap_flag=0; 
 
@@ -152,9 +151,6 @@ int tlkmdi_btiap_init(void)
 	if(ret == TLK_ENONE){
 		ret = tlkdev_mfi_open();
 	}
-	if(ret == TLK_ENONE){
-		ret = tlkdev_mfi_loadCertificateData(certificateBytes, 640);
-	}
 	if(ret != TLK_ENONE){
 		tlkdev_mfi_close();
 		return ret;
@@ -167,13 +163,6 @@ int tlkmdi_btiap_init(void)
 	#endif
 	
 	btp_iap_regDataCB(tlkmdi_btiap_dataRecv);
-	#if IAP2_STACK_EN
-    memset(&sTlkMdiBtIapPacket, 0, sizeof(iAP2Packet_t));
-    sTlkMdiBtIapRanLoop = iAP2LinkRunLoopCreateAccessory(&test_synParam, (void *)0, 
-    	(iAP2LinkSendPacketCB_t)tlkmdi_btiap_eap2SendDeal,
-		(iAP2LinkDataReadyCB_t)tlkmdi_btiap_eap2RecvDeal,
-		(void *)0, (void *)0, 0, 1, nullptr);
-	#endif
 	
 	return TLK_ENONE;
 }
@@ -189,6 +178,8 @@ void tlkmdi_btiap_setName(uint08 *pName, uint08 nameLen)
 	sTlkMdiBtIapCtrl.nameLen = nameLen;
 	tmemcpy(sTlkMdiBtIapCtrl.name, pName, nameLen);
 }
+
+extern void iap2_memInit(void);
 void tlkmdi_btiap_setAclHandle(bool isConn, uint16 aclHandle)
 {
 	tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_setAclHandle: %d 0x%x",
@@ -197,9 +188,21 @@ void tlkmdi_btiap_setAclHandle(bool isConn, uint16 aclHandle)
 	if(isConn && sTlkMdiBtIapCtrl.aclHandle == 0){
 		sTlkMdiBtIapCtrl.aclHandle = aclHandle;
 		sTlkMdiBtIapCtrl.detFlag = 0x55;
+
+		iap2_memInit();
+	    memset(&sTlkMdiBtIapPacket, 0, sizeof(iAP2Packet_t));
+	    sTlkMdiBtIapRanLoop = iAP2LinkRunLoopCreateAccessory(&test_synParam, (void *)0, 
+	    	(iAP2LinkSendPacketCB_t)tlkmdi_btiap_eap2SendDeal,
+			(iAP2LinkDataReadyCB_t)tlkmdi_btiap_eap2RecvDeal,
+			(void *)0, (void *)0, 0, 1, nullptr);
+		if(sTlkMdiBtIapRanLoop != nullptr){
+			sTlkMdiBtIapPacket.link = sTlkMdiBtIapRanLoop->link;
+		}
 	}else if(!isConn && sTlkMdiBtIapCtrl.aclHandle == aclHandle){
 		sTlkMdiBtIapCtrl.aclHandle = 0;
 		sTlkMdiBtIapCtrl.detFlag = 0xAA;
+		sTlkMdiBtIapRanLoop = nullptr;
+		sTlkMdiBtIapPacket.link = nullptr;
 	}
 }
 
@@ -223,7 +226,6 @@ void tlkmdi_btiap_handler(void)
         sTlkMdiBtIapCtrl.detFlag = 0;
     }
 
-    
 //    uint32 iap2_curTime = iAP2TimeGetCurTimeMs();
 //    _iAP2TimeHandleExpired(sTlkMdiBtIapRanLoop->link->mainTimer, iap2_curTime);
 	iAP2LinkRunLoopRunOnce(sTlkMdiBtIapRanLoop, (void *)(&sTlkMdiBtIapPacket));
@@ -241,7 +243,7 @@ static void tlkmdi_btiap_dataRecv(uint16 aclHandle, uint08 rfcHandle, uint08 *pD
 
     tlkapi_array(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "tlkmdi_btiap_dataRecv", pData, dataLen);
     iAP2PacketParseBuffer(pData, dataLen, &sTlkMdiBtIapPacket, 650, (BOOL*)&detect, &failedChecksums, &sopdetect);
-    
+
     if(detect == 1){
         tlkapi_trace(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "detect device");
         iAP2LinkRunLoopAttached(sTlkMdiBtIapRanLoop);
@@ -256,7 +258,6 @@ static void tlkmdi_btiap_dataRecv(uint16 aclHandle, uint08 rfcHandle, uint08 *pD
 
 
 
-    
 
 #if IAP2_STACK_EN
 static void LinkDataSentCB(struct iAP2Link_st* link, void* context)
@@ -295,7 +296,7 @@ static BOOL tlkmdi_btiap_eap2RecvDeal(struct iAP2Link_st* link, uint08* data, ui
          buffer[7] = 0x64;
          buffer[8] = 0x00;
          buffer[9] = 0x00;
-         tmemcpy(&buffer[10], certificateBytes, 608);
+		 ret = tlkdev_mfi_loadCertificateData(&buffer[10], 608);
          len = 10 + 608;
 		 ret = iAP2LinkQueueSendData(link, buffer, len, session, NULL, LinkDataSentCB);
 	}
@@ -445,8 +446,8 @@ static void tlkmdi_btiap_eapRecvDeal(uint16 aclHandle, uint08 rfcHandle, uint08 
         {
             buffer[5] = pData[6]+1;
             buffer[6] = pData[5];
-            buffer[8] = tlkmdi_btiap_calcChecksum(buffer,8);
-            tmemcpy(&buffer[19], certificateBytes, 608);
+            buffer[8] = tlkmdi_btiap_calcChecksum(buffer,8);			
+			tlkdev_mfi_loadCertificateData(&buffer[19], 608);
             buffer[627] = tlkmdi_btiap_calcChecksum(buffer,627);
             tlkapi_array(TLKMDI_BTIAP_DBG_FLAG, TLKMDI_BTIAP_DBG_SIGN, "cert=", buffer,628); 
             btp_iap_sendData(sTlkMdiBtIapCtrl.aclHandle, nullptr, 0, (uint08 *)buffer,628);

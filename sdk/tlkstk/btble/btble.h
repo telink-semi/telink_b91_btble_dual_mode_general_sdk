@@ -25,7 +25,7 @@
 #define STACK_BT_CONTROLLER_BB_STACK_H_
 
 
-
+extern bool sTlkLeSupport;
 
 /**
  * @brief	BT BLE Controller Event Callback
@@ -45,7 +45,10 @@ typedef enum{
 	CONTR_EVT_MAX_PM_NUM,
 }contr_evt_t;
 
-
+typedef enum{
+	TLKBT_WORKMODE_CONTROLLER = 0,
+	TLKBT_WORKMODE_GENERAL    = 1,
+}TLKBT_WORKMODE_ENUM;
 
 
 int btble_init(void);
@@ -87,5 +90,12 @@ void tlkbt_set_workMode(u8 workMode);
  * @param	sdk_mode:0--controller; 1--general .
  */
 u8 tlkbt_get_workMode(void);
+/**
+ * @brief	this API can set whether le support.
+ * @param	true:yes; false--no .
+
+ */
+void tlkble_set_leSupport(bool enable);
+
 
 #endif /* STACK_BT_CONTROLLER_BB_STACK_H_ */

@@ -48,6 +48,10 @@ int tlkmmi_rdt_btDisconn(uint16 handle);
 void tlkmmi_rdt_btClsPeerInfo(void);
 
 
+void tlkmmi_rdt_btSetName(uint08 *pName, uint08 nameLen);
+void tlkmmi_rdt_btSetAddr(uint08 *pAddr);
+
+
 
 #endif //#if (TLK_TEST_RDT_ENABLE)
 

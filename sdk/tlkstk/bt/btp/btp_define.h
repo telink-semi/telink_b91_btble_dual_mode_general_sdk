@@ -70,6 +70,8 @@ typedef enum{
 	BTP_PSMID_ATT     = 0x001F,
 	BTP_PSMID_AIRPODS = 0x1001,
 	BTP_PSMID_AVCTP_BROWSING = 0x001B,
+
+	BTP_PMSID_GENERAL = 0x0021,		// temp for PTS
 }BTP_PSMID_ENUM;
 
 typedef enum{

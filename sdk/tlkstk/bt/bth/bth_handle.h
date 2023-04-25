@@ -36,7 +36,9 @@ typedef struct{
 	uint16 timeout;
 	uint16 aclHandle;
 	uint16 pageTimer;
-	
+
+	uint08 reason;
+	uint08 resv00;
 	uint08 btaddr[6];
 
 	uint32 devClass;
@@ -55,11 +57,7 @@ typedef struct{
 
 	uint08 pinCode[4];
 	uint08 linkKey[16];
-    uint08 lowpower_flag;  /*if is lowpower. decided to buffer tx data*/
-    uint08 sniff_count;  /*to count how many sniff req sent*/
-    uint08 encry_enable_flag;/*tell if the entryption is enabled in this acl conn*/
-    uint08 encry_need_flag;/*tell if the entryption is need*/
-	
+		
 	tlkapi_timer_t timer;
 }bth_handle_t, bth_acl_handle_t;
 

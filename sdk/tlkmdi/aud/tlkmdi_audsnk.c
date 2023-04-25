@@ -216,7 +216,8 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 	bool isSucc;
 	bool enable;
 	uint sampleRate = 0;
-
+	
+	if(status == TLK_STATE_CLOSED && sTlkMdiSnkCtrl.handle != handle) return false;
 	if(status == TLK_STATE_OPENED) enable = true;
 	else enable = false;
 	if(sTlkMdiSnkCtrl.enable == enable) return true;
@@ -435,15 +436,8 @@ static void tlkmdi_snk_spkHandler(void)
  *        @dataLen[IN]--The data length.
  * Return: None.
 *******************************************************************************/
-void tlkmdi_snk_addEncFrame(uint08 *pData, uint16 dataLen)
+void tlkmdi_snk_addEncFrame(uint16 aclHandle, uint08 *pData, uint16 dataLen)
 {
-	//60 02 04 01 80 60 01 41  02 36 ee c5 00 00 00 00
-	//05 9c bd 35 b5 00 95 32  21 00 95
-
-//	uint08 pktType;
-//	uint16 seqNumber;
-//	uint32 srcDataID;
-//	uint32 timeStamp;
 	uint08 pktNumber;
 
 //	tlkapi_array(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_snk_addEncFrame:", pData, dataLen > 16 ? 16 : dataLen);
@@ -452,6 +446,9 @@ void tlkmdi_snk_addEncFrame(uint08 *pData, uint16 dataLen)
 	pktNumber = pData[12];
 	if(pData[13] != 0x9c){			//non-sbc packet
 //		tlkapi_array(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "<enc: not SBC packet>", p, 64);
+		return;
+	}
+	if(sTlkMdiSnkCtrl.handle != aclHandle){
 		return;
 	}
 

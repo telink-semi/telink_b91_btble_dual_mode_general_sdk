@@ -33,8 +33,9 @@
 #include "tlksys/prt/tlkpto_stdio.h"
 
 //HPU - Hardware Protocol UART
-
+#if (TLK_DEV_SERIAL_ENABLE)
 extern bool tlkdev_serial_sfifoIsMore60(uint16 dataLen);
+#endif
 #if (TLK_CFG_COMM_ENABLE)
 extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
@@ -78,7 +79,9 @@ void tlkdbg_hpulog_handler(void)
 		if(ret <= 0) break;
 		readLen = ret;
 		#if (TLK_CFG_COMM_ENABLE)
+		#if (TLK_DEV_SERIAL_ENABLE)
 		if(tlkdev_serial_sfifoIsMore60(readLen)) break;
+		#endif
 		ret = tlkmdi_comm_sendDat(TLKPRT_COMM_SYS_DAT_PORT, TLKPRT_COMM_SYS_DAT_LOG, sTlkdbgHpuLogCache, readLen);
 		#else
 		ret = -TLK_ENOSUPPORT;
@@ -109,11 +112,11 @@ void tlkdbg_hpulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb
 
 	tlkdbg_setPrintBuffer(nullptr, 0);
 	
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	dataLen = ((uint16)sTlkdbgHpuLogCache[1] << 8) | sTlkdbgHpuLogCache[0];
 	sTlkdbgHpuLogCache[dataLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache+2, dataLen+1);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 void tlkdbg_hpulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
@@ -141,11 +144,11 @@ void tlkdbg_hpulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 	
 	tlkdbg_setPrintBuffer(nullptr, 0);
 	
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	optLen = ((uint16)sTlkdbgHpuLogCache[1] << 8) | sTlkdbgHpuLogCache[0];
 	sTlkdbgHpuLogCache[optLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHpuLogFifo, sTlkdbgHpuLogCache+2, optLen+1);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 
@@ -234,10 +237,10 @@ void tlkdbg_hpulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 		tempVar = tlkapi_arrayToStr(pData, dataLen, (char*)(pBuff+buffLen), TLKDBG_HPU_LOG_IRQ_CACHE_SIZE-2-buffLen, ' ');
 		buffLen += tempVar;
 	}
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	pBuff[buffLen++] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHpuLogFifo, pBuff, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 

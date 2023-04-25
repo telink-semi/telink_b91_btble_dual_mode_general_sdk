@@ -35,7 +35,6 @@ extern int  btble_init(void);
 extern uint16 btc_state(void);
 extern void btble_sdk_main_loop(void);
 
-extern bool bth_isBusy(void);
 
 extern	volatile	u8	blt_state;
 
@@ -49,6 +48,11 @@ int tlkstk_init(void)
 
 	btc_init();
 
+	blec_init();
+
+#if TLK_STK_LEH_ENABLE
+	bleh_init();
+#endif
 #if TLK_STK_BTH_ENABLE
 	bth_init();
 #endif
@@ -56,7 +60,7 @@ int tlkstk_init(void)
 	btp_init();
 #endif
 #if (TLK_CFG_SYS_ENABLE)
-	tlksys_pm_appendBusyCheckCB(tlkstk_pmIsBusy);
+	tlksys_pm_appendBusyCheckCB(tlkstk_pmIsBusy, "tlkstk");
 #endif
 
 	return TLK_ENONE;

@@ -521,7 +521,7 @@ static int btp_func_avrcpSendRegEvtNotyCmd(uint08 *pData, uint16 dataLen)
 	if(handle == 0) handle = sBtpFuncAclHandle;
 	evtID = pData[2];
 	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_avrcpSendRegEvtNotyCmd: handle[0x%x] keyID[0x%x]", handle, evtID);
-	btp_avrcp_regEventNotify(handle, evtID);
+	btp_avrcp_sendRegEventNotify(handle, evtID);
 	return TLK_ENONE;
 }
 static int btp_func_avrcpSendEventNoty(uint08 *pData, uint16 dataLen)
@@ -543,8 +543,6 @@ static int btp_func_avrcpSendEventNoty(uint08 *pData, uint16 dataLen)
 static int btp_func_avrcpSetTrackValue(uint08 *pData, uint16 dataLen)
 {
 	uint16 handle;
-	uint32 valueH;
-	uint32 valueL;
 		
 	if(pData == nullptr || dataLen < 10){
 		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_avrcpSetTrackValue: failure - param error");
@@ -552,10 +550,8 @@ static int btp_func_avrcpSetTrackValue(uint08 *pData, uint16 dataLen)
 	}
 	handle = ((uint16)pData[1]<<8 | pData[0]);
 	if(handle == 0) handle = sBtpFuncAclHandle;
-	ARRAY_TO_UINT32L(pData, 2, valueL);
-	ARRAY_TO_UINT32L(pData, 6, valueH);
 	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_avrcpSetTrackValue: handle[0x%x]", handle);
-	btp_avrcp_setTrackValue(handle, valueH, valueL);
+	btp_avrcp_setTrackValue(handle, pData+2);
 	return TLK_ENONE;
 }
 static int btp_func_avrcpSetPlayStatus(uint08 *pData, uint16 dataLen)

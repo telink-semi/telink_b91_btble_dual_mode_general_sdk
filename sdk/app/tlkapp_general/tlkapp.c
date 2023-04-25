@@ -36,7 +36,9 @@
 
 extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 extern void trng_init(void);
+#if (TLKMMI_TEST_ENABLE)
 extern uint tlkcfg_getWorkMode(void);
+#endif
 extern void tlkbt_set_workMode(u8 workMode);
 
 extern int tlkdev_init(void);
@@ -76,7 +78,7 @@ int tlkapp_init(void)
 	tlkapp_pm_init();
 #endif
 	#if (TLK_CFG_SYS_ENABLE)
-	tlksys_pm_appendBusyCheckCB(tlkapp_pmIsBusy);
+	tlksys_pm_appendBusyCheckCB(tlkapp_pmIsBusy, "tlkapp");
 	#endif
 	
 	sTlkAppTimer = clock_time()|1;
@@ -171,6 +173,9 @@ extern const tlksys_funcs_t gTlkMmiViewTask;
 static void tlkapp_sysProcInit(void)
 {
 	tlksys_proc_mount(TLKSYS_PROCID_SYSTEM, 1, 1024); //System processes must come first
+	#if (TLK_CFG_STK_ENABLE)
+	tlksys_proc_mount(TLKSYS_PROCID_STACK,  2, 1024);
+	#endif
 	#if (TLKMMI_TEST_ENABLE)
 	if(tlkcfg_getWorkMode() != TLK_WORK_MODE_NORMAL){
 		tlksys_proc_mount(TLKSYS_PROCID_TEST,   1, 1024);
@@ -180,9 +185,6 @@ static void tlkapp_sysProcInit(void)
 	tlksys_proc_mount(TLKSYS_PROCID_AUDIO,  3, 1024);
 	#if (TLK_CFG_FS_ENABLE)
 	tlksys_proc_mount(TLKSYS_PROCID_FILEM,  2, 1024);
-	#endif
-	#if (TLK_CFG_STK_ENABLE)
-	tlksys_proc_mount(TLKSYS_PROCID_STACK,  2, 1024);
 	#endif
 	#if (TLK_CFG_GUI_ENABLE)
 	tlksys_proc_mount(TLKSYS_PROCID_VIEW,   1, 1024);
@@ -194,14 +196,14 @@ static void tlkapp_sysTaskInit(void)
 	#if (TLKMMI_SYSTEM_ENABLE)
 	tlksys_task_mount(TLKSYS_PROCID_SYSTEM, TLKSYS_TASKID_SYSTEM, &gTlkMmiSystemTask);
 	#endif
+	#if (TLKMMI_STACK_ENABLE)
+	tlksys_task_mount(TLKSYS_PROCID_STACK,  TLKSYS_TASKID_STACK,  &gTlkMmiStackTask); //This should be first in stack process.
+	#endif
 	#if (TLKMMI_TEST_ENABLE)
 	if(tlkcfg_getWorkMode() != TLK_WORK_MODE_NORMAL){
 		tlksys_task_mount(TLKSYS_PROCID_TEST, TLKSYS_TASKID_TEST, &gTlkMmiTestTask);
 		return;
 	}
-	#endif
-	#if (TLKMMI_STACK_ENABLE)
-	tlksys_task_mount(TLKSYS_PROCID_STACK,  TLKSYS_TASKID_STACK,  &gTlkMmiStackTask); //This should be first in stack process.
 	#endif
 	#if (TLKMMI_AUDIO_ENABLE)
 	tlksys_task_mount(TLKSYS_PROCID_AUDIO,  TLKSYS_TASKID_AUDIO,  &gTlkMmiAudioTask);

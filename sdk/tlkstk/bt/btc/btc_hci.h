@@ -1,5 +1,5 @@
 /********************************************************************************************************
- * @file     co_hci.h
+ * @file     btc_hci.h
  *
  * @brief    This is the header file for BTBLE SDK
  *
@@ -177,31 +177,6 @@
  **************                       HCI COMMANDS                     ****************
  **************************************************************************************/
 
-///HCI enumeration of possible Command OGF values.
-enum
-{
-    ///HCI Link Control Commands Group OGF code
-    LK_CNTL_OGF = 0x01,
-    ///HCI Link Policy Commands Group OGF code
-    LK_POL_OGF,
-    ///HCI Controller and Baseband Commands Group OGF code
-    CNTLR_BB_OGF,
-    ///HCI Information Parameters Commands Group OGF code
-    INFO_PAR_OGF,
-    ///HCI Status Commands Group OGF code
-    STAT_PAR_OGF,
-    ///HCI Test Commands Group OGF code
-    TEST_OGF,
-    ///HCI Low Energy Commands Group OGF code
-    LE_CNTLR_OGF=0x08,
-    #if (GTL_ITF && BLE_EMB_PRESENT)
-    ///GTL Specific Group OGF code
-    GTL_OGF = 0x3E,
-    #endif
-    ///HCI Vendor Specific Group OGF code
-    VS_OGF = 0x3F,
-    MAX_OGF
-};
 
 ///Commands Opcodes: OGF(6b) | OCF(10b)
 /* Some Abbreviation used in names:
@@ -416,60 +391,9 @@ enum
 ///Debug commands - OGF = 0x3F (spec)
 #define HCI_TDB_SET_BT_BD_ADDR_CMD_OPCODE             0xFC01
 #define HCI_SET_ESCO_MUTE_CMD_OPCODE                  0xFC02
-#define HCI_ADJUST_ACL_LINK_PRIO_OPCODE				  0xFC04
+#define HCI_ADJUST_ACL_LINK_PRIO_OPCODE				  0xFC03
 
 
-#if 0
-#define HCI_DBG_WR_MEM_CMD_OPCODE                     0xFC02
-#define HCI_DBG_DEL_PAR_CMD_OPCODE                    0xFC03
-#define HCI_DBG_ID_FLASH_CMD_OPCODE                   0xFC05
-#define HCI_DBG_ER_FLASH_CMD_OPCODE                   0xFC06
-#define HCI_DBG_WR_FLASH_CMD_OPCODE                   0xFC07
-#define HCI_DBG_RD_FLASH_CMD_OPCODE                   0xFC08
-#define HCI_DBG_RD_PAR_CMD_OPCODE                     0xFC09
-#define HCI_DBG_WR_PAR_CMD_OPCODE                     0xFC0A
-#define HCI_DBG_WLAN_COEX_CMD_OPCODE                  0xFC0B
-#define HCI_DBG_WLAN_COEXTST_SCEN_CMD_OPCODE          0xFC0D
-#define HCI_DBG_RD_KE_STATS_CMD_OPCODE                0xFC10
-#define HCI_DBG_PLF_RESET_CMD_OPCODE                  0xFC11
-#define HCI_DBG_RD_MEM_INFO_CMD_OPCODE                0xFC12
-#define HCI_DBG_HW_REG_RD_CMD_OPCODE                  0xFC30
-#define HCI_DBG_HW_REG_WR_CMD_OPCODE                  0xFC31
-#define HCI_DBG_SET_BD_ADDR_CMD_OPCODE                0xFC32
-#define HCI_DBG_SET_TYPE_PUB_CMD_OPCODE               0xFC33
-#define HCI_DBG_SET_TYPE_RAND_CMD_OPCODE              0xFC34
-#define HCI_DBG_SET_CRC_CMD_OPCODE                    0xFC35
-#define HCI_DBG_LLCP_DISCARD_CMD_OPCODE               0xFC36
-#define HCI_DBG_RESET_RX_CNT_CMD_OPCODE               0xFC37
-#define HCI_DBG_RESET_TX_CNT_CMD_OPCODE               0xFC38
-#define HCI_DBG_RF_REG_RD_CMD_OPCODE                  0xFC39
-#define HCI_DBG_RF_REG_WR_CMD_OPCODE                  0xFC3A
-#define HCI_DBG_SET_TX_PW_CMD_OPCODE                  0xFC3B
-#define HCI_DBG_RF_SWITCH_CLK_CMD_OPCODE              0xFC3C
-#define HCI_DBG_RF_WR_DATA_TX_CMD_OPCODE              0xFC3D
-#define HCI_DBG_RF_RD_DATA_RX_CMD_OPCODE              0xFC3E
-#define HCI_DBG_RF_CNTL_TX_CMD_OPCODE                 0xFC3F
-#define HCI_DBG_RF_SYNC_P_CNTL_CMD_OPCODE             0xFC40
-#define HCI_TESTER_SET_LE_PARAMS_CMD_OPCODE           0xFC41
-#define HCI_DBG_SET_BT_BD_ADDR_CMD_OPCODE			  0xFC42
-#define HCI_DBG_TL_ITF_MODE_CMD_OPCODE				  0xFC43
-#define HCI_DBG_CONFIG_FIXED_FREQ_CMD_OPCODE		  0xFC44
-#define HCI_DBG_HOPING_CMD_OPCODE					  0xFC45
-#define HCI_DBG_RF_TONE_CMD_OPCODE					  0xFC46
-#define HCI_DBG_HOST_AT_CMD_OPCODE                    0xFC47
-#define HCI_DBG_HOST_AT_RSP_CMD_OPCODE 				  0xFC48
-#define HCI_DBG_RF_CLBR_REQ_CMD_OPCODE				  0xFC49
-#define HCI_UART_BUAD_RATE_CHANGE_CMD_OPCODE          0xFC4A
-#define HCI_AUTO_PAIR_CMD_OPCODE                      0xFC4B
-#define HCI_DBG_ENTER_TEST_MODE_CMD_OPCODE            0xFC0C
-#define HCI_DBG_SEND_LMP_CMD_OPCODE                   0xFC0E
-#define HCI_DBG_WR_SYNC_DATA_CFG_CMD_OPCODE           0xFC0F
-#define HCI_DBG_EMUL_TESTER_CMD_OPCODE                0xFC2D
-#define HCI_DBG_SCATT_IMPROV_CMD_OPCODE               0xFC2E
-#if (DSM_SUPPORT)
-#define HCI_DBG_DATA_STORAGE_OP_CMD_OPCODE            0xFC16
-#endif //DSM_SUPPORT
-#endif
 /**************************************************************************************
  **************                        HCI EVENTS                      ****************
  **************************************************************************************/

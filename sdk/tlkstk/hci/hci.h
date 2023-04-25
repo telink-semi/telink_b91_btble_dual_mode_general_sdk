@@ -25,13 +25,8 @@
 
 
 #define HCI_FLAG_SCO_BT_STD                         (1<<21)
-#define HCI_FLAG_EVENT_ABNORMAL						(1<<22)
-#define HCI_FLAG_EVENT_PHYTEST_2_WIRE_UART			(1<<23)
-#define HCI_FLAG_EVENT_TLK_MODULE					(1<<24)
 #define HCI_FLAG_EVENT_BT_STD						(1<<25)
-#define HCI_FLAG_EVENT_STACK						(1<<26)
 #define HCI_FLAG_ACL_BT_STD							(1<<27)
-#define	HCI_FLAG_CMD_STACK							(1<<28)
 #define	HCI_FLAG_ISO_DATE_STD						(1<<29)
 
 

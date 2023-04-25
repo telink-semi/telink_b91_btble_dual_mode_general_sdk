@@ -31,6 +31,7 @@
 #include "tlkstk/bt/btp/iap/btp_iap.h"
 #include "tlkstk/bt/btp/rfcomm/btp_rfcomm.h"
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
+#include "tlkstk/bt/btp/browsing/btp_browsing.h"
 #include "tlkstk/bt/btp/a2dp/btp_a2dp.h"
 #include "tlkstk/bt/btp/pbap/btp_pbap.h"
 #include "tlkstk/bt/btp/hid/btp_hid.h"
@@ -327,7 +328,7 @@ int tlkmdi_btacl_disconn(uint16 handle, uint08 reason)
 	if(pItem->state == TLK_STATE_OPENED){
 		tlkmdi_btacl_resetItem(pItem);
 	}else if(pItem->state == TLK_STATE_CONNING){
-		ret = bth_acl_disconn(handle);
+		ret = bth_acl_disconn(handle, reason);
 		if(ret == TLK_ENONE || ret != -TLK_EBUSY){
 			tlkmdi_btacl_resetItem(pItem);
 		}else{
@@ -543,7 +544,7 @@ static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 		if(pEvt->status == TLK_ETIMEOUT){
 			tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_connectEvt: failure -- connect timeout");
 		}
-		if(pEvt->status != TLK_ENONE) bth_acl_disconn(pEvt->handle);
+		if(pEvt->status != TLK_ENONE) bth_acl_disconn(pEvt->handle, 0x00);
 		return -TLK_EFAIL;
 	}
 	
@@ -559,7 +560,7 @@ static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 	}
 	
 	if(pItem->state == TLK_STATE_DISCING){
-		bth_acl_disconn(pItem->handle);
+		bth_acl_disconn(pItem->handle, 0x00);
 		return TLK_ENONE;
 	}
 	
@@ -596,14 +597,12 @@ static int tlkmdi_btacl_encryptEvt(uint08 *pData, uint16 dataLen)
 {
 	tlkmdi_btacl_item_t *pItem;
 	bth_encryptCompleteEvt_t *pEvt;
-
-	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt0");
 	
 	pEvt = (bth_encryptCompleteEvt_t*)pData;
 	pItem = tlkmdi_btacl_getUsedItem(pEvt->handle);
 	if(pItem == nullptr){
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: failure -- no node");
-		bth_acl_disconn(pEvt->handle);
+		bth_acl_disconn(pEvt->handle, 0x00);
 		return -TLK_EFAIL;
 	}
 	if(pEvt->status != TLK_ENONE){
@@ -612,26 +611,25 @@ static int tlkmdi_btacl_encryptEvt(uint08 *pData, uint16 dataLen)
 		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: failure -- %d", pEvt->status);
 		pItem->handle = 0; //Important
 		tlkmdi_btacl_resetItem(pItem);
-		bth_acl_disconn(pEvt->handle);
+		bth_acl_disconn(pEvt->handle, 0x00);
 		if(sTlkMdiBtAclCrypCB){
 			sTlkMdiBtAclCrypCB(pEvt->handle, TLK_EENCRYPT, btaddr);
 		}
 		return TLK_ENONE;
 	}
 	if(pItem->state == TLK_STATE_DISCING){
-		bth_acl_disconn(pItem->handle);
+		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: acl is discing");
+		bth_acl_disconn(pItem->handle, 0x00);
 		return TLK_ENONE;
 	}
 	
-	tlkapi_array(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt1", pData, dataLen);
-	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt2: active %d", pItem->active);
+	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt: status[%d], enable[%d]", 
+		pEvt->status, pEvt->enable);
 
     btp_sdpclt_connect(pItem->handle);
 	tlkmdi_btadapt_insertTimer(&pItem->timer);
 	
-	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt3: %d", pEvt->status);
 	if(sTlkMdiBtAclCrypCB){
-		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_encryptEvt4: ");
 		sTlkMdiBtAclCrypCB(pItem->handle, TLK_ENONE, pItem->btaddr);
 	}
 	
@@ -751,6 +749,11 @@ static int tlkmdi_btacl_profileConnectEvt(uint08 *pData, uint16 dataLen)
 		if(pEvt->ptype == BTP_PTYPE_A2DP){
 			tlkmdi_bta2dp_connectEvt(pEvt->handle, pEvt->usrID);
 		}
+		#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
+		if(pEvt->ptype == BTP_PTYPE_AVRCP_BROWSING){
+			btp_browsing_sendGetFolderItemsCmd(pEvt->handle, 0x00, 0, 100, 0xFF, nullptr);
+		}
+		#endif
 	}
 	if(sTlkMdiBtAclProfConnCB != nullptr){
 		sTlkMdiBtAclProfConnCB(pEvt->handle, pEvt->status, pEvt->ptype, pEvt->usrID, pItem->btaddr);
@@ -853,7 +856,7 @@ static void tlkmdi_btacl_procs(tlkmdi_btacl_item_t *pItem)
 	}
 	if((pItem->busys & TLKMDI_BTACL_BUSY_DISC_ACL) != 0){
 		pItem->busys &= ~TLKMDI_BTACL_BUSY_DISC_ACL;
-		if(bth_acl_disconn(pItem->handle) != -TLK_EBUSY){
+		if(bth_acl_disconn(pItem->handle, 0x00) != -TLK_EBUSY){
 			btp_destroy(pItem->handle);
 			bth_destroy(pItem->handle);
 			tlkmdi_btacl_resetItem(pItem);

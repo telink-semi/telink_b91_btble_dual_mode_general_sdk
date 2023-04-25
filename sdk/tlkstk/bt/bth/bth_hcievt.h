@@ -25,6 +25,10 @@
 #define BTH_HCI_EVT_H
 
 
+#define BTH_HCI_EIR_DT_NAME_PART             0x08    /* Shortened local name */
+#define BTH_HCI_EIR_DT_NAME                  0x09    /* Complete local name */
+
+
 /******************************************************************************
  * Function: bth_hcievt_init
  * Descript: Initial the hci event callback.
@@ -32,9 +36,6 @@
  * Reutrn: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_hcievt_init(void);
-
-
-
 
 
 

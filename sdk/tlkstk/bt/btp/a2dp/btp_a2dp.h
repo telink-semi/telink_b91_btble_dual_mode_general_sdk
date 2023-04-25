@@ -28,7 +28,7 @@
 
 
 
-typedef	void(*BtpA2dpRecvDataCallback)(uint08 *pData, uint16 dataLen);
+typedef	void(*BtpA2dpRecvDataCallback)(uint16 aclHandle, uint08 *pData, uint16 dataLen);
 
 
 typedef enum{

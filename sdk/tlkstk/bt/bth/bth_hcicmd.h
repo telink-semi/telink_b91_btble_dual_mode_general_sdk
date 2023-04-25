@@ -552,5 +552,19 @@ int bth_hci_sendSetBtAddrCmd(uint08 pBtAddr[6]);
 int bth_hci_sendSetMaxSlotCmd(uint08 pBtAddr[6]);
 
 
+/******************************************************************************
+ * Function: bth_hci_exeCmdNow
+ * Descript: Execute the Host layer HCI instruction cached in the fifo 
+ *           immediately to ensure that there is enough space for the 
+ *           instructions added later. This interface is suitable for use 
+ *           during the initialization phase.
+ * Params: None.
+ * Note: "bth_hci_exeCmdNow" and "bth_hci_exeEvtNow" is only used in Init stage.
+*******************************************************************************/
+void bth_hci_exeCmdNow(void);
+void bth_hci_exeEvtNow(void);
+
+
+
 #endif //BTH_HCICMD_H
 

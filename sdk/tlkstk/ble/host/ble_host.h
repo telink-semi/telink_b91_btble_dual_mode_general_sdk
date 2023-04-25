@@ -44,18 +44,10 @@
 
 /*********************************************************/
 //Remove when file merge to SDK //
-#include "tlkstk/ble/ble_stack.h"
 #include "tlkstk/ble/ble_config.h"
 #include "tlkstk/ble/debug.h"
 #include "tlkstk/ble/trace.h"
 
-#include "tlkstk/ble/host/host_stack.h"
-#include "tlkstk/ble/host/l2cap/l2cap_stack.h"
-#include "tlkstk/ble/host/attr/att_stack.h"
-#include "tlkstk/ble/host/attr/gatt_stack.h"
-#include "tlkstk/ble/host/attr/att_stack.h"
-#include "tlkstk/ble/host/smp/smp_stack.h"
-#include "tlkstk/ble/host/gap/gap_stack.h"
 /*********************************************************/
 
 

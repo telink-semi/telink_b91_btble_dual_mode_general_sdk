@@ -122,7 +122,7 @@ bool tlkmdi_audsnk_irqProc(void);
  *        @dataLen[IN]--The data length.
  * Return: None.
 *******************************************************************************/
-void tlkmdi_snk_addEncFrame(uint08 *pData, uint16 dataLen);
+void tlkmdi_snk_addEncFrame(uint16 aclHandle, uint08 *pData, uint16 dataLen);
 
 /******************************************************************************
  * Function: tlkmdi_snk_setBuffer

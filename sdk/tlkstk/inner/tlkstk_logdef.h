@@ -167,12 +167,13 @@
 #define			SL08_schedule_last_id			23
 #define			SL08_sch_update_next_id         24
 #define			SL08_sch_change_next_id         25
+#define			SL08_bt_rxchannel               26
 
-#define			SL08_reserved_state_1           26
-#define			SL08_reserved_state_2           27
-#define			SL08_reserved_state_3           28
-#define			SL08_reserved_state_4           29
-#define			SL08_reserved_state_5           30
+#define			SL08_reserved_state_1           27
+#define			SL08_reserved_state_2           28
+#define			SL08_reserved_state_3           29
+#define			SL08_reserved_state_4           30
+#define			SL08_reserved_state_5           31
 
 
 

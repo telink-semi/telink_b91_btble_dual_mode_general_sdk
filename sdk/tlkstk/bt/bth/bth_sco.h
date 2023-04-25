@@ -49,7 +49,15 @@ typedef enum{
 	TLK_SCO_AIRMODE_A_LAW  = 0x02,
 	TLK_SCO_AIRMODE_TRANS  = 0x03,
 }TLK_SCO_AIRMODE_ENUM;
-
+	
+/******************************************************************************
+ * Function: bth_sco_isConn
+ * Descript: Get the sco is connect or not by aclHandle.
+ * Params: 
+ *     @timeout[IN]--aclHandle.
+ * Reutrn: True is connect,false is disconnect.
+*******************************************************************************/
+bool bth_sco_isConn(uint16 aclHandle);
 
 /******************************************************************************
  * Function: bth_sco_setConnTimeout

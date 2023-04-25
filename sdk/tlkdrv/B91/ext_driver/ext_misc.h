@@ -294,6 +294,10 @@ void generateRandomNum(int len, unsigned char *data);
 /******************************* dma_end ********************************************************************/
 
 
+/**
+ * @brief	6 = header(2)+l2cap_len(2)+CID(2)
+ */
+#define		CAL_L2CAP_BUFF_SIZE(n)				(((n + 6) + 3)/4 * 4)
 
 
 

@@ -27,6 +27,7 @@
 #if (TLK_DEV_SERIAL_ENABLE)
 
 
+
 typedef void(*TlkDevSerialRecvCB)(uint08 *pData, uint16 dataLen);
 
 

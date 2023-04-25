@@ -29,8 +29,6 @@
 
 
 
-
-
 #endif //#if (TLK_TEST_EMI_ENABLE)
 
 #endif //TLKMMI_EMI_H

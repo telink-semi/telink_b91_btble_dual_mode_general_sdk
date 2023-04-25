@@ -32,6 +32,7 @@
 #define TLKMDI_HFPHF_NUMBER_MAX_LEN					32
 
 #define TLKMDI_HFPHF_THREE_WAY_CALL_ENABLE          1
+#define TLKMDI_HFPHF_MAX_NUMBER						1
 
 
 
@@ -135,13 +136,17 @@ void tlkmdi_bthfp_destroy(uint16 aclHandle);
  * Return: Return call number.
  * Others: None.
 *******************************************************************************/
-uint08 *tlkmdi_bthfp_getHfCallNumber(uint08 callNum);
+uint08 *tlkmdi_bthfp_getHfCallNumber(uint16 aclHandle,uint08 callNum);
 
 
 int tlkmdi_bthfp_rejectHfWaitAndKeepActive(void);
 int tlkmdi_bthfp_acceptHfWaitAndHoldActive(void);
 int tlkmdi_bthfp_hungupHfActiveAndResumeHold(void);
 
+tlkmdi_hfphf_ctrl_t *tlkmdi_bthfp_getIdleItem(void);
+tlkmdi_hfphf_ctrl_t *tlkmdi_bthfp_getUsedItem(uint16 aclHandle);
+uint16 tlkmdi_bthfp_getHandle(int index);
+uint16 tlkmdi_bthfp_getHandle(int index);
 
 
 #endif //#if (TLK_MDI_BTHFP_ENABLE)

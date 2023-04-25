@@ -66,6 +66,12 @@ typedef enum{
     BTP_EVTID_AVRCP_VOLUME_CHANGED,
     BTP_EVTID_AVRCP_STATUS_CHANGED,
     BTP_EVTID_AVRCP_PEER_EVT_MASK,
+    BTP_EVTID_AVRCP_TRACK_CHANGED,
+    BTP_EVTID_AVRCP_BATTERY_STATUS_CHANGED,
+    BTP_EVTID_AVRCP_PLAYBACK_POS_CHANGED,
+    BTP_EVTID_AVRCP_PLAYER_APP_SETTING_CHANGED,
+    BTP_EVTID_AVRCP_PLAYER_ADDRESSED_CHANGED,
+    BTP_EVTID_AVRCP_OTHER_EVENT_CHANGED,
 	
 	BTP_EVTID_MAX,
 }BTP_EVTID_ENUM;
@@ -173,6 +179,35 @@ typedef struct{
 	uint16 handle;
 	uint32 evtMask;
 }btp_avrcpPeerEvtMaskEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 *pTrackID;
+}btp_avrcpTrackChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 status; //Refer to BTP_AVRCP_BATTERY_STATUS_ENUM.
+}btp_avrcpBatteryStatusChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint32 playPos; //Unit: ms
+}btp_avrcpPlaybackPosChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 *pParam;
+	uint16 paramLen;
+}btp_avrcpPlayerAppSettingChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 *pParam;
+	uint16 paramLen;
+}btp_avrcpPlayerAddressedChangeEvt_t;
+typedef struct{
+	uint16 handle;
+	uint08 eventID;
+	uint08 *pParam;
+	uint16 paramLen;
+}btp_avrcpOtherEventChangeEvt_t;
+
 
 
 int  btp_event_init(void);
@@ -204,10 +239,64 @@ int btp_send_a2dpSnkCodecChangedEvt(uint16 aclHandle, uint08 chnMode, uint08 cod
 int btp_send_a2dpSrcStatusChangedEvt(uint16 aclHandle, uint08 status);
 int btp_send_a2dpSnkStatusChangedEvt(uint16 aclHandle, uint08 status);
 
+
+/******************************************************************************
+ * Function: btp_send_avrcpKeyChangedEvt
+ * Descript: Send events to the user layer.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @keyID--Refer to BTP_AVRCP_KEYID_ENUM.
+ *     @isPress--True,this is one pressed key; False-this is one released key.
+ * Return:Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail. 
+*******************************************************************************/
 int btp_send_avrcpKeyChangedEvt(uint16 aclHandle, uint08 keyID, uint08 isPress);
+/******************************************************************************
+ * Function: btp_send_avrcpVolumeChangedEvt
+ * Descript: Send events to the user layer.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @volume--0x00~0x7F.
+ * Return:Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail. 
+*******************************************************************************/
 int btp_send_avrcpVolumeChangedEvt(uint16 aclHandle, uint08 volume);
+/******************************************************************************
+ * Function: btp_send_avrcpStatusChangedEvt
+ * Descript: Send events to the user layer.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @status--Refer to BTP_AVRCP_PLAY_STATE_ENUM.
+ *     @isNoty--True,report by notify; False-report by response.
+ * Return:Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail. 
+*******************************************************************************/
 int btp_send_avrcpStatusChangedEvt(uint16 aclHandle, uint08 status, uint08 isNoty);
 int btp_send_avrcpPeerEvtMaskEvt(uint16 aclHandle, uint32 evtMask);
+int btp_send_avrcpTrackChangedEvt(uint16 aclHandle, uint08 *pTrackID);
+/******************************************************************************
+ * Function: btp_send_avrcpBatteryStatusChangedEvt
+ * Descript: Send events to the user layer.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @status--Refer to BTP_AVRCP_BATTERY_STATUS_ENUM.
+ * Return:Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail. 
+*******************************************************************************/
+int btp_send_avrcpBatteryStatusChangedEvt(uint16 aclHandle, uint08 status);
+/******************************************************************************
+ * Function: btp_send_avrcpPlaybackPosChangedEvt
+ * Descript: Send events to the user layer.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @playPos--The offset of the current playback position. Unit:ms.
+ * Return:Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail. 
+*******************************************************************************/
+int btp_send_avrcpPlaybackPosChangedEvt(uint16 aclHandle, uint32 playPos);
+int btp_send_avrcpPlayerAppSettingChangedEvt(uint16 aclHandle, uint08 *pParam, uint16 paramLen);
+int btp_send_avrcpPlayerAddressedChangedEvt(uint16 aclHandle, uint08 *pParam, uint16 paramLen);
+int btp_send_avrcpOtherEventChangedEvt(uint16 aclHandle, uint08 evtID, uint08 *pParam, uint16 paramLen);
 
 
 

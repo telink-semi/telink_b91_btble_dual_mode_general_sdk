@@ -77,6 +77,7 @@ void 		blc_ll_initStandby_module (u8 *public_adr);
  * @return     status, 0x00:  succeed
  * 					   other: failed
  */
+ble_sts_t   blc_ll_writeBDAddr(u8 *addr);
 ble_sts_t   blc_ll_readBDAddr(u8 *addr);
 
 

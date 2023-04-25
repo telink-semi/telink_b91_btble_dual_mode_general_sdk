@@ -34,7 +34,7 @@ extern void trng_init(void);
 extern void flash_plic_preempt_config(unsigned char preempt_en,unsigned char threshold);
 
 extern void tlkbt_set_workMode(u8 workMode);
-extern plic_interrupt_claim_callback_t plic_interrupt_claim_cb;
+extern void tlkbt_regPlicIrqClaim(plic_interrupt_claim_callback_t cb);
 
 extern int tlkdev_init(void);
 extern int tlkusb_init(uint16 usbID);
@@ -61,6 +61,7 @@ int tlkapp_init(void)
 
 	tlkapp_irq_init();
 	
+	tlkbt_regPlicIrqClaim((plic_interrupt_claim_callback_t)plic_interrupt_claim());
 #if (TLK_CFG_DBG_ENABLE)
 	tlk_debug_init();
 	tlkdbg_init();
@@ -68,9 +69,7 @@ int tlkapp_init(void)
 #endif
 	tlkdev_init();
 	tlkstk_init();
-	
-	plic_interrupt_claim_cb = (plic_interrupt_claim_callback_t)plic_interrupt_claim();
-	
+
 	tlkapp_serial_init();
 
 	return TLK_ENONE;

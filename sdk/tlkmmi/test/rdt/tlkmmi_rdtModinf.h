@@ -26,10 +26,7 @@
 #if (TLK_TEST_RDT_ENABLE)
 
 
-
-int tlkmmi_rdt_modState(uint16 caseID);
 int tlkmmi_rdt_modStart(uint16 caseID, uint08 role);
-int tlkmmi_rdt_modPause(uint16 caseID);
 int tlkmmi_rdt_modClose(uint16 caseID);
 int tlkmmi_rdt_modInput(uint16 caseID, uint08 msgID, uint08 *pData, uint16 dataLen);
 

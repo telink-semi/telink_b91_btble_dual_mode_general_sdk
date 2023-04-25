@@ -35,9 +35,11 @@
 static bool tlkmmi_test_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkmmi_test_rebootDeal(void);
 
-
+#if (TLK_CFG_USB_ENABLE)
+extern void tlkusb_handler(void);
+#endif
 extern uint tlkcfg_getWorkMode(void);
- tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
+tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
 
 
 TLKSYS_MMI_TASK_DEFINE(test, Test);
@@ -52,22 +54,22 @@ static int tlkmmi_test_init(uint08 procID, uint08 taskID)
 	else if(workMode == TLK_WORK_MODE_TEST_FAT) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_FAT;
 	else if(workMode == TLK_WORK_MODE_TEST_EMI) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_EMI;
 	else if(workMode == TLK_WORK_MODE_TEST_USR) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_USR;
+	else if(workMode == TLK_WORK_MODE_TEST_BQB) sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_BQB;
 	else sTlkMmiTestCtrl.wmode = TLKMMI_TEST_MODTYPE_NONE;
 	if(sTlkMmiTestCtrl.wmode == TLKMMI_TEST_MODTYPE_NONE) return TLK_ENONE;
 
 	#if (TLK_CFG_COMM_ENABLE)
 	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_TEST, TLKSYS_TASKID_TEST);
 	#endif
-	tlkstk_init();
 	tlkmmi_test_adaptInit(procID);
-	
 	tlkmmi_test_adaptInitTimer(&sTlkMmiTestCtrl.timer, tlkmmi_test_timer, NULL, TLKMMI_TEST_TIMEOUT);
+	tlkmmi_test_modInit(sTlkMmiTestCtrl.wmode);
 
 	return TLK_ENONE;
 }
 static int tlkmmi_test_start(void)
 {
-	
+	tlkmmi_test_modStart(sTlkMmiTestCtrl.wmode);
 	return TLK_ENONE;
 }
 static int tlkmmi_test_pause(void)
@@ -94,7 +96,7 @@ static int tlkmmi_test_input(uint08 mtype, uint16 msgID, uint08 *pHead, uint16 h
 }
 static void tlkmmi_test_handler(void)
 {
-	tlkstk_handler();
+	tlkmmi_test_modHandler(sTlkMmiTestCtrl.wmode);
 }
 
 

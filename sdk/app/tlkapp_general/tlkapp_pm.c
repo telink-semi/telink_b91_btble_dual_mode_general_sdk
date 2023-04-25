@@ -106,7 +106,8 @@ int tlkapp_pm_init(void)
 void tlkapp_pm_handler(void)
 {
 	bool isBusy = false;
-	
+	const char *pName;
+
 	if(!gpio_read(TLKAPP_WAKEUP_PIN)){
 		isBusy = true;
 	}
@@ -118,6 +119,8 @@ void tlkapp_pm_handler(void)
 		sTlkAppPmTraceTimer = clock_time()|1;
 		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d", 
 			isBusy, tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
+		pName = tlksys_pm_getBusyName();
+		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-Busy Module-> %s", pName);
 	}
 	
 	if(isBusy){

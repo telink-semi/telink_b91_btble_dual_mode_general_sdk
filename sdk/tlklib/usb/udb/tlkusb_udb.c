@@ -229,7 +229,7 @@ static void tlkusb_udb_recvCmdProc(uint08 *pData, uint16 dataLen, bool *pIsDown)
 				flash_erase_sector(addr+index);
 			}
 		}else if(type == 0xFE){ //FW_DOWNLOAD
-			core_disable_interrupt();
+			core_interrupt_disable();
 			#if (TLKDBG_CFG_USB_LOG_ENABLE)
 			tlkdbg_usblog_reset();
 			#endif

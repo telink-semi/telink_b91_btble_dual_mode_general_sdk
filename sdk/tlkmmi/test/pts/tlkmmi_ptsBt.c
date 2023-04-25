@@ -34,7 +34,6 @@
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 
 
-extern int bt_ll_set_bd_addr(uint8_t *bdAddr);
 extern void bth_func_setAclHandle(uint16 aclHandle);
 extern void bth_func_setScoHandle(uint16 scoHandle);
 extern void btp_func_setAclHandle(uint16 aclHandle);
@@ -75,7 +74,7 @@ int tlkmmi_pts_btInit(void)
 	if(btAddr[0] == 0xFF && btAddr[1] == 0xFF && btAddr[2] == 0xFF){
 		tmemcpy(btAddr, bdaddr, 6);
 	}
-	bt_ll_set_bd_addr(btAddr);
+	bth_hci_sendSetBtAddrCmd(btAddr);
 	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTPTS_DEVICE_CLASS);
 	bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
@@ -91,6 +90,8 @@ int tlkmmi_pts_btInit(void)
 	}
 	btName[index] = 0;
 	bth_hci_sendWriteLocalNameCmd(btName);
+	bth_hci_exeCmdNow();
+	bth_hci_exeEvtNow();
 	
 	bth_event_regCB(BTH_EVTID_ACLCONN_REQUEST,  tlkmmi_pts_btAclRequestEvt);
 	bth_event_regCB(BTH_EVTID_ACLCONN_COMPLETE, tlkmmi_pts_btAclConnectEvt);
@@ -118,7 +119,7 @@ void tlkmmi_pts_btConnDevice(uint08 *pAddr)
 }
 void tlkmmi_pts_btDiscDevice(void)
 {
-	bth_acl_disconn(gTlkMmiTestPtsBtAclHandle);
+	bth_acl_disconn(gTlkMmiTestPtsBtAclHandle, 0x00);
 }
 
 void tlkmmi_pts_btConnProfile(uint08 ptype, uint08 usrID)

@@ -37,16 +37,19 @@
 
 //HPU - Hardware Protocol UART
 
-
+#if (TLK_DEV_SERIAL_ENABLE)
 static void tlkdbg_hpudwn_input(uint08 *pData, uint16 dataLen);
 static void tlkdbg_hpudwn_makeRecvFrame(uint08 rbyte);
+#endif
 static uint16 tlkdbg_hpudwn_crc16_calc(uint08 *pData, uint16 dataLen);
 static void tlkdbg_hpudwn_crc16_InvertUint08(uint08 *pDst, uint08 *pSrc);
 static void tlkdbg_hpudwn_crc16_InvertUint16(uint16 *pDst, uint16 *pSrc);
 static int  tlkdbg_hpudwn_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 
+#if (TLK_DEV_SERIAL_ENABLE)
 static void tlkdbg_hpudbg_recvCmdDeal(uint08 *pData, uint16 dataLen);
 //static void tlkdbg_hpudbg_recvDatDeal(uint16 numb, uint08 *pData, uint16 dataLen);
+#endif
 
 static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen);
 static void tlkdbg_hpudwn_recvFlashCmdDeal(uint08 *pData, uint16 dataLen);
@@ -140,7 +143,9 @@ void tlkdbg_hpudwn_handler(void)
 {
 	if(!sTlkDbgHpuDwnCtrl.isStart) return;
 	if(sTlkDbgHpuDwnCtrl.isStart){
+		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_handler();
+		#endif
 	}
 	if(sTlkDbgHpuDwnCtrl.isStart != 0 && clock_time_exceed(sTlkDbgHpuDwnCtrl.startTimer, 3000000)){
 		
@@ -170,7 +175,9 @@ static void tlkdbg_hpudwn_sendStartRspDeal(void)
 	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		#endif
 	}
 }
 _attribute_ram_code_sec_noinline_
@@ -192,7 +199,9 @@ static void tlkdbg_hpudwn_sendFlashRspDeal(void)
 	head[headLen++] = bodyLen; //Lens	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		#endif
 	}
 }
 _attribute_ram_code_sec_noinline_
@@ -223,7 +232,9 @@ static void tlkdbg_hpudwn_sendFSyncRspDeal(void)
 	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		#endif
 	}
 }
 _attribute_ram_code_sec_noinline_
@@ -246,11 +257,13 @@ static void tlkdbg_hpudwn_sendCloseRspDeal(void)
 	
 	ret = tlkdbg_hpudwn_makeSendFrame(TLKPRT_COMM_PTYPE_RSP, head, headLen, body, bodyLen);
 	if(ret == TLK_ENONE){
+		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_send(sTlkDbgHpuDwnCtrl.sendFrame, sTlkDbgHpuDwnCtrl.sendFrameLen);
+		#endif
 	}
 }
 
-
+#if (TLK_DEV_SERIAL_ENABLE)
 _attribute_ram_code_sec_noinline_
 static void tlkdbg_hpudbg_recvCmdDeal(uint08 *pData, uint16 dataLen)
 {
@@ -269,6 +282,7 @@ static void tlkdbg_hpudbg_recvCmdDeal(uint08 *pData, uint16 dataLen)
 		core_reboot();
 	}
 }
+#endif
 _attribute_ram_code_sec_noinline_
 //static 
 void tlkdbg_hpudbg_recvDatDeal(uint16 numb, uint08 *pData, uint16 dataLen)
@@ -314,6 +328,7 @@ static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen)
 		plic_interrupt_disable(IRQ14_ZB_BT);
 		plic_interrupt_disable(IRQ15_ZB_RT);
 		plic_interrupt_disable(IRQ28_SOFT);
+		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_clear();
 		tlkdev_serial_regCB(tlkdbg_hpudwn_input);
 		tlkdev_serial_close();
@@ -323,6 +338,9 @@ static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen)
 			sTlkDbgHpuDwnRecvBuff, TLKDBG_HPUDWN_RECV_ITEM_NUMB*TLKDBG_HPUDWN_RECV_ITEM_SIZE);
 		#endif
 		tlkdev_serial_open();
+		#else
+		return;
+		#endif
 	}
 	
 	sTlkDbgHpuDwnCtrl.isStart = 1;
@@ -378,7 +396,7 @@ static void tlkdbg_hpudwn_recvCloseCmdDeal(uint08 *pData, uint16 dataLen)
 	tlkdbg_hpudwn_sendCloseRspDeal();
 }
 
-
+#if (TLK_DEV_SERIAL_ENABLE)
 _attribute_ram_code_sec_noinline_
 static void tlkdbg_hpudwn_input(uint08 *pData, uint16 dataLen)
 {
@@ -569,6 +587,7 @@ static void tlkdbg_hpudwn_makeRecvFrame(uint08 rbyte)
 		#endif
 	}
 }
+#endif
 _attribute_ram_code_sec_noinline_
 static int tlkdbg_hpudwn_makeSendFrame(uint08 pktType, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen)
 {

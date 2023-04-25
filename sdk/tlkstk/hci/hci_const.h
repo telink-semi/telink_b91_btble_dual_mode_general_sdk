@@ -20,9 +20,8 @@
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
  *******************************************************************************************************/
-
-#ifndef HCI_CONST_H_
-#define HCI_CONST_H_
+#ifndef HCI_CONST_H
+#define HCI_CONST_H
 
 
 /****Events****/
@@ -70,9 +69,11 @@
 #define HCI_EVT_LINK_SUPERVISION_TIMEOUT_CHANGE                      0x38
 #define HCI_EVT_ENHANCED_FLUSH_COMPLETE                              0x39
 #define HCI_EVT_USER_PASSKEY_NOTIF									 0x3B
+#define HCI_EVT_KEYPRESS_NOTIF                                       0x3C
 #define HCI_EVT_REM_HOST_SUPP_FEATS_NOTIF                            0x3D
 #define HCI_EVT_LE_META                                              0x3E
-
+#define HCI_EVT_AUTH_PAYL_TO_EXP                                     0x57
+#define HCI_EVT_MAX_EVT_MSK_PAGE_2                                   0x58
 /// begin: vendor-independent hci event
 #define HCI_EVT_ACL_ESTABLISH                                        0x60
 /// end: vendor-independent hci event
@@ -203,12 +204,45 @@
 //-- OGF --
 #define HCI_CMD_LINK_CTRL_OPCODE_OGF								 0x04  //0x01 <<2 = 0x04
 //-- OCF --
-#define HCI_CMD_INQUIRY                                          	 0x01
+#define HCI_CMD_INQUIRY                                              0x01
+#define HCI_CMD_INQ_CANCEL                                           0x02
+#define HCI_CMD_PER_INQ_MODE                                         0x03
+#define HCI_CMD_EXIT_PER_INQ_MODE                                    0x04
+#define HCI_CMD_CREATE_CON                                           0x05
 #define HCI_CMD_DISCONNECT                                           0x06
+#define HCI_CMD_ADD_SYNC_CON                                         0x07
+#define HCI_CMD_CREATE_CON_CANCEL                                    0x08
+#define HCI_CMD_ACCEPT_CON_REQ                                       0x09
+#define HCI_CMD_REJECT_CON_REQ                                       0x0A
+#define HCI_CMD_LK_REQ_REPLY                                         0x0B
+#define HCI_CMD_LK_REQ_NEG_REPLY                                     0x0C
+#define HCI_CMD_PIN_CODE_REQ_REPLY                                   0x0D
+#define HCI_CMD_PIN_CODE_REQ_NEG_REPLY                               0x0E
+#define HCI_CMD_CHG_CON_PKT_TYPE                                     0x0F
+#define HCI_CMD_AUTH_REQ                                             0x11
+#define HCI_CMD_SET_CON_ENC                                          0x13
+#define HCI_CMD_CHG_CON_LK                                           0x15
+#define HCI_CMD_MASTER_LK                                            0x17
 #define HCI_CMD_READ_REMOTE_NAME_REQ                                 0x19
+#define HCI_CMD_REM_NAME_REQ_CANCEL                                  0x1A
 #define HCI_CMD_READ_REMOTE_SUP_FEAT                                 0x1B
+#define HCI_CMD_RD_REM_EXT_FEATS                                     0x1C
 #define HCI_CMD_READ_REMOTE_VER_INFO                                 0x1D
-
+#define HCI_CMD_RD_CLK_OFF                                           0x1F
+#define HCI_CMD_RD_LMP_HDL                                           0x20
+#define HCI_CMD_SETUP_SYNC_CON                                       0x28
+#define HCI_CMD_ACCEPT_SYNC_CON_REQ                                  0x29
+#define HCI_CMD_REJECT_SYNC_CON_REQ                                  0x2A
+#define HCI_CMD_IO_CAP_REQ_REPLY                                     0x2B
+#define HCI_CMD_USER_CFM_REQ_REPLY                                   0x2C
+#define HCI_CMD_USER_CFM_REQ_NEG_REPLY                               0x2D
+#define HCI_CMD_USER_PASSKEY_REQ_REPLY                               0x2E
+#define HCI_CMD_USER_PASSKEY_REQ_NEG_REPLY                           0x2F
+#define HCI_CMD_REM_OOB_DATA_REQ_REPLY                               0x30
+#define HCI_CMD_REM_OOB_DATA_REQ_NEG_REPLY                           0x33
+#define HCI_CMD_IO_CAP_REQ_NEG_REPLY                                 0x34
+#define HCI_CMD_ENH_SETUP_SYNC_CON                                   0x3D
+#define HCI_CMD_ENH_ACCEPT_SYNC_CON                                  0x3E
 
 
 //Controller & Baseband Commands

@@ -103,7 +103,7 @@ void tlkdbg_gsulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb
 
 	tlkdbg_setPrintBuffer(nullptr, 0);
 	
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	dataLen = ((uint16)sTlkDbgGsuLogCache[1] << 8) | sTlkDbgGsuLogCache[0];
 	#if (TLKDBG_GSULOG_NEWLINE_MODE1_ENABLE)
 	sTlkDbgGsuLogCache[dataLen+2+0] = '\r';
@@ -113,7 +113,7 @@ void tlkdbg_gsulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb
 	sTlkDbgGsuLogCache[dataLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, dataLen+1);
 	#endif
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 void tlkdbg_gsulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
@@ -141,7 +141,7 @@ void tlkdbg_gsulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 	
 	tlkdbg_setPrintBuffer(nullptr, 0);
 	
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	optLen = ((uint16)sTlkDbgGsuLogCache[1] << 8) | sTlkDbgGsuLogCache[0];
 	#if (TLKDBG_GSULOG_NEWLINE_MODE1_ENABLE)
 	sTlkDbgGsuLogCache[optLen+2+0] = '\r';
@@ -151,7 +151,7 @@ void tlkdbg_gsulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 	sTlkDbgGsuLogCache[optLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, sTlkDbgGsuLogCache+2, optLen+1);
 	#endif
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 
@@ -240,13 +240,13 @@ void tlkdbg_gsulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 		tempVar = tlkapi_arrayToStr(pData, dataLen, (char*)(pBuff+buffLen), TLKDBG_GSU_LOG_IRQ_CACHE_SIZE-2-buffLen, ' ');
 		buffLen += tempVar;
 	}
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	#if (TLKDBG_GSULOG_NEWLINE_MODE1_ENABLE)
 	pBuff[buffLen++] = '\r';
 	#endif
 	pBuff[buffLen++] = '\n';
 	tlkapi_fifo_write(&sTlkDbgGsuLogFifo, pBuff, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 
@@ -278,7 +278,7 @@ static void tlkdbg_gsulog_putchar(uint08 byte)
 	bits[8] = ((byte>>7) & 0x01)? bit1 : bit0;
 	bits[9] = bit1;
 
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	time1 = reg_system_tick;
 	for(index=0; index<10; index++){
 		time2 = time1;
@@ -287,7 +287,7 @@ static void tlkdbg_gsulog_putchar(uint08 byte)
 		}
 		reg_gpio_out(sTlkDbgGsuLogGpioPin) = bits[index];
 	}
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 

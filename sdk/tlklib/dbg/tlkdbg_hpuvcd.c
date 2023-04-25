@@ -37,7 +37,9 @@
 //HPU - Hardware Protocol UART
 bool sTlkHpuVcdIsOpen = false;
 
+#if (TLK_DEV_SERIAL_ENABLE)
 extern bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
+#endif
 #if (TLK_CFG_COMM_ENABLE)
 extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
@@ -92,7 +94,9 @@ void tlkdbg_hpuvcd_handler(void)
 		if(ret <= 0) break;
 		readLen = ret;
 		#if (TLK_CFG_COMM_ENABLE)
+		#if (TLK_DEV_SERIAL_ENABLE)
 		if(tlkdev_serial_sfifoIsMore80(readLen)) break;
+		#endif
 		ret = tlkmdi_comm_sendDat(TLKPRT_COMM_SYS_DAT_PORT, TLKPRT_COMM_SYS_DAT_VCD, buffer, readLen);
 		#else
 		ret = -TLK_ENOSUPPORT;
@@ -117,7 +121,7 @@ void tlkdbg_hpuvcd_ref(void)
 	
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	int t=clock_time();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = 0x20;
@@ -125,7 +129,7 @@ void tlkdbg_hpuvcd_ref(void)
 	buffer[buffLen++] = (t & 0xFF00) >> 8;
 	buffer[buffLen++] = (t & 0xFF0000) >> 16;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 // 4-byte sync word: 00 00 00 00
 _attribute_ram_code_sec_noinline_
@@ -135,14 +139,14 @@ void tlkdbg_hpuvcd_sync(bool enable)
 
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }      
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
 _attribute_ram_code_sec_noinline_
@@ -152,7 +156,7 @@ void tlkdbg_hpuvcd_tick(uint08 id)
 
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	int t=clock_time();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = 0x20 | (id&31);
@@ -160,7 +164,7 @@ void tlkdbg_hpuvcd_tick(uint08 id)
 	buffer[buffLen++] = (t & 0xFF00) >> 8;
 	buffer[buffLen++] = (t & 0xFF0000) >> 16;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //1-byte (01x_id-5bits) 1-bit data: b=0 or 1.
 _attribute_ram_code_sec_noinline_
@@ -170,7 +174,7 @@ void tlkdbg_hpuvcd_level(uint08 id, uint08 level)
 
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	int t=clock_time();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = ((level) ? 0x60:0x40) | (id&31);
@@ -178,7 +182,7 @@ void tlkdbg_hpuvcd_level(uint08 id, uint08 level)
 	buffer[buffLen++] = (t & 0xFF00) >> 8;
 	buffer[buffLen++] = (t & 0xFF0000) >> 16;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //1-byte (000_id-5bits)
 _attribute_ram_code_sec_noinline_
@@ -188,14 +192,14 @@ void tlkdbg_hpuvcd_event(uint08 id)
 
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = 0x00 | (id&31);
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //2-byte (10-id-6bits) 8-bit data
 _attribute_ram_code_sec_noinline_
@@ -205,14 +209,14 @@ void tlkdbg_hpuvcd_byte(uint08 id, uint08 value)
 
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = 0x80 | (id&63);
 	buffer[buffLen++] = value;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //3-byte (11-id-6bits) 16-bit data
 _attribute_ram_code_sec_noinline_
@@ -222,14 +226,14 @@ void tlkdbg_hpuvcd_word(uint08 id, uint16 value)
 
 	uint08 buffLen = 0;
 	uint08 buffer[5];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x7F;
 	buffer[buffLen++] = 0xc0 | (id&63);
 	buffer[buffLen++] = value & 0xFF;
 	buffer[buffLen++] = (value & 0xFF00) >> 8;
 	buffer[buffLen++] = 0x00;
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 void tlkdbg_hpuvcd_setOpen(bool isOpen)

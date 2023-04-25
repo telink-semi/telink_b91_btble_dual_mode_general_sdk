@@ -36,9 +36,7 @@
 #include "core/string.h"
 #include "tlkstk/inner/tlkstk_myudb.h"
 
-#include "tlkstk/inner/tlkstk_static_assert.h"
 #include "tlkstk/inner/tlkstk_fifo.h"
-#include "tlkstk/inner/tlkstk_timer.h"
 #include "tlkstk/inner/tlkstk_utility.h"
 
 

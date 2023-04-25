@@ -29,6 +29,7 @@
 
 #define TLKMMI_RDT_CASE_T001_ENABLE       1
 #define TLKMMI_RDT_CASE_T002_ENABLE       1
+#define TLKMMI_RDT_CASE_T003_ENABLE       1
 
 
 

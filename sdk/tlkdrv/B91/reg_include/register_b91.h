@@ -24,6 +24,7 @@
 #ifndef  REGISTER_B91_H
 #define  REGISTER_B91_H
 
+#include "reg_stack_adapt.h"
 #include "gpio_reg.h"
 #include "soc.h"
 #include "analog_reg.h"

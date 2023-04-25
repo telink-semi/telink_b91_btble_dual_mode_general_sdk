@@ -31,10 +31,14 @@
 #include "tlkmmi/phone/tlkmmi_phoneCtrl.h"
 #include "tlkmmi/phone/tlkmmi_phoneBook.h"
 #include "tlkmmi/phone/tlkmmi_phoneMsgInner.h"
+#include "tlkmmi/phone/tlkmmi_phoneAdapt.h"
 
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/hfp/btp_hfp.h"
-
+#include "tlkmdi/bt/tlkmdi_bthfp.h"
+#include "tlkmdi/aud/tlkmdi_audsco.h"
+#include "tlkstk/bt/bth/bth_sco.h"
+#include "drivers.h"
 
 static void tlkmmi_phone_hfCallCloseEvtDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_hfCallStartEvtDeal(uint08 *pData, uint08 dataLen);
@@ -44,6 +48,12 @@ static void tlkmmi_phone_hfCallWaitEvtDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_hfCallHoldEvtDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_syncBookCmdDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_phone_closeSyncCmdDeal(uint08 *pData, uint08 dataLen);
+static void tlkmmi_phone_scoUpdateDeal(uint08 *pData, uint08 dataLen);
+static bool tlkmmi_phoneActive_timer(tlkapi_timer_t *pTimer,uint32 userArg);
+
+static bool sTlkPhoneScoIsConn = false;
+static uint32 sTlkPhoneActiveTicks;
+tlkapi_timer_t sTlkMmiPhoneActiveTimer;
 
 
 /******************************************************************************
@@ -108,6 +118,8 @@ int tlkmmi_phone_innerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		tlkmmi_phone_syncBookCmdDeal(pData, dataLen);
 	}else if(msgID == TLKPTI_PHONE_MSGID_CANCEL_SYNC_CMD){
 		tlkmmi_phone_closeSyncCmdDeal(pData, dataLen);
+	}else if(msgID == TLKPTI_PHONE_MSGID_CALL_SCO_UPDATE_EVT){
+		tlkmmi_phone_scoUpdateDeal(pData,dataLen);
 	}else{
 		return -TLK_ENOSUPPORT;
 	}
@@ -123,7 +135,7 @@ static void tlkmmi_phone_hfCallCloseEvtDeal(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->callNum);
+	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle,pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 
 	buffLen = 0;
@@ -150,7 +162,7 @@ static void tlkmmi_phone_hfCallStartEvtDeal(uint08 *pData, uint08 dataLen)
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
 	nameLen = 0;
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->callNum);
+	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle, pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -197,7 +209,7 @@ static void tlkmmi_phone_hfCallActiveEvtDeal(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->callNum);
+	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle, pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -229,7 +241,29 @@ static void tlkmmi_phone_hfCallActiveEvtDeal(uint08 *pData, uint08 dataLen)
 	tlkmmi_phone_sendCommEvt(TLKPRT_COMM_EVTID_CALL_ACTIVE, buffer, buffLen);
 		
 	tlkmmi_phone_setHfCallStatus(pEvt->handle, TLKMMI_PHONE_CALL_STATUS_ACTIVE);
+	if(!bth_sco_isConn(pEvt->handle) && sTlkPhoneScoIsConn == false){
+		tlkmmi_phone_adaptInitTimer(&sTlkMmiPhoneActiveTimer, tlkmmi_phoneActive_timer, pEvt->handle, 50000);
+		sTlkPhoneActiveTicks = clock_time();
+		tlkmmi_phone_adaptInsertTimer(&sTlkMmiPhoneActiveTimer);
+	}
 }
+static bool tlkmmi_phoneActive_timer(tlkapi_timer_t *pTimer,uint32 userArg)
+{
+	uint16 handle = (uint16)userArg;
+
+
+	if(sTlkPhoneActiveTicks !=0 && clock_time_exceed(sTlkPhoneActiveTicks, 500000)){
+		if( !bth_sco_isConn(handle) ){
+			bth_sco_connect(handle, TLK_SCO_LINK_TYPE_ESCO, TLK_SCO_AIRMODE_CVSD);
+			sTlkPhoneActiveTicks = clock_time() | 1;
+		}else{
+			sTlkPhoneActiveTicks = 0;
+			return false;
+		}
+	}
+	return true;
+}
+
 static void tlkmmi_phone_hfCallResumeEvtDeal(uint08 *pData, uint08 dataLen)
 {
 	uint08 nameLen;
@@ -240,7 +274,7 @@ static void tlkmmi_phone_hfCallResumeEvtDeal(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 	
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->callNum);
+	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle, pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -283,7 +317,7 @@ static void tlkmmi_phone_hfCallWaitEvtDeal(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->callNum);
+	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle, pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -323,7 +357,7 @@ static void tlkmmi_phone_hfCallHoldEvtDeal(uint08 *pData, uint08 dataLen)
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->callNum);
+	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle, pEvt->callNum);
 	if(pNumber == nullptr) pEvt->numbLen = 0;
 	
 	buffLen = 0;
@@ -350,7 +384,32 @@ static void tlkmmi_phone_closeSyncCmdDeal(uint08 *pData, uint08 dataLen)
 	tlkmmi_phone_closeSyncBook(handle);
 }
 
+static void tlkmmi_phone_scoUpdateDeal(uint08 *pData, uint08 dataLen)
+{
+	tlkapi_array(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_scoUpdateDeal:",pData,dataLen);
+	if(dataLen < 3){
+		tlkapi_trace(TLKMMI_PHONE_DBG_FLAG, TLKMMI_PHONE_DBG_SIGN, "tlkmmi_phone_scoUpdateDeal - failure:invalid param");
+		return;
+	}
+	uint08 index;
+	uint16 oldHandle = 0,newHandle = 0;
+	oldHandle |= pData[0];
+	oldHandle |= (pData[1] << 8);
 
+	if(pData[2] == 1){
+		sTlkPhoneScoIsConn = true;
+		if(tlkmmi_phone_adaptIsHaveTimer(&sTlkMmiPhoneActiveTimer)){
+			tlkmmi_phone_adaptRemoveTimer(&sTlkMmiPhoneActiveTimer);
+		}
+		return;
+	}
+	for(index = 0;index < TLKMDI_HFPHF_MAX_NUMBER;index++){
+		newHandle = tlkmdi_bthfp_getHandle(index);
+		if(newHandle != 0 && newHandle != oldHandle && !bth_sco_isConn(oldHandle)){
+			bth_sco_connect(newHandle, TLK_SCO_LINK_TYPE_ESCO, TLK_SCO_AIRMODE_CVSD);
+		}
+	}
+}
 
 #endif //#if (TLKMMI_PHONE_ENABLE)
 

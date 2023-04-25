@@ -203,6 +203,7 @@ static inline void zb_rt_irq_enable(void)
 	#define 		LL_TX_STL_TIFS_2M								(LL_TX_STL_TIFS_1M + 24)
 	#define 		LL_TX_STL_TIFS_CODED							(LL_TX_STL_TIFS_1M + 40)
 
+	#define 		TX_STL_LEGADV_SCANRSP							75
 
 	#define			LL_TX_STL_ADV_1M								84
 	#define			LL_TX_STL_ADV_2M								115

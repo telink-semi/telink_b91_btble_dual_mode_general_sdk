@@ -58,25 +58,6 @@ static void tlkmmi_lemgr_leaveOTAEvt(int result);
 
 extern uint32 flash_sector_mac_address;
 
-/***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, End **********************************/
-
-/**
- * @brief	ACL RX buffer. size & number defined in app_buffer.h
- * ACL RX FIFO is shared by all connections to hold LinkLayer RF RX data, user should define this buffer
- * if either ACl connection master role or ACl connection slave role is used.
- */
-//_attribute_ble_data_retention_
-_attribute_data_no_init_  
-static uint08 sTlkmmiLemgrAclRxFifo[TLKMMI_LEMGR_ACL_RX_FIFO_SIZE * TLKMMI_LEMGR_ACL_RX_FIFO_NUM] = {0};
-
-/**
- * @brief	ACL TX buffer. size & number defined in app_buffer.h
- *  ACL MASTER TX buffer should be defined only when ACl connection master role is used.
- *  ACL SLAVE  TX buffer should be defined only when ACl connection slave role is used.
- */
-//_attribute_ble_data_retention_ uint08	tlkmmiLemgrAclMstTxFifo[TLKMMI_LEMGR_ACL_MASTER_TX_FIFO_SIZE * TLKMMI_LEMGR_ACL_MASTER_TX_FIFO_NUM * TLKMMI_LEMGR_MASTER_MAX_NUM] = {0}; //no BLE master in this project
-_attribute_ble_data_retention_
-static uint08 sTlkmmiLemgrAclSlvTxFifo[TLKMMI_LEMGR_ACL_SLAVE_TX_FIFO_SIZE * TLKMMI_LEMGR_ACL_SLAVE_TX_FIFO_NUM * TLKMMI_LEMGR_SLAVE_MAX_NUM] = {0};
 
 /**
  * @brief	ACL TX cache FIFO, used to workaround problem caused by
@@ -92,13 +73,7 @@ static uint08 sTlkmmiLemgrAclCacheTxFifo[260*16] = {0}; //size must 260, number 
 #endif
 /******************** ACL connection LinkLayer TX & RX data FIFO allocation, End ***********************************/
 
-/***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, Begin ********************************/
-//_attribute_ble_data_retention_	uint08 mtu_m_rx_fifo[TLKMMI_LEMGR_MASTER_MAX_NUM * MTU_M_BUFF_SIZE_MAX]; //no BLE master in this project
-_attribute_ble_data_retention_	
-static uint08 sTlkmmiLemgrMtuSlvRxFifo[TLKMMI_LEMGR_SLAVE_MAX_NUM * TLKMMI_LEMGR_MTU_S_BUFF_SIZE_MAX];
-_attribute_ble_data_retention_	
-static uint08 sTlkmmiLemgrMtuSlvTxFifo[TLKMMI_LEMGR_SLAVE_MAX_NUM * TLKMMI_LEMGR_MTU_S_BUFF_SIZE_MAX];
-/***************** ACL connection L2CAP layer MTU TX & RX data FIFO allocation, End **********************************/
+
 
 static uint08 sTlkMmiLemgrAdvDataLen = 24;
 static uint08 sTlkMmiLemgrAdvData[31] = {
@@ -299,98 +274,23 @@ int tlkmmi_lemgr_aclInit(void)
 	blc_initMacAddress(flash_sector_mac_address, mac_public, mac_random_static);
 	tlkmmi_lemgr_setAddr1(mac_public, mac_random_static);
 
-	//////////// LinkLayer Initialization  Begin /////////////////////////
-	blc_ll_initBasicMCU();
-	blc_ll_initStandby_module(mac_public);		//mandatory
-	blc_ll_initLegacyAdvertising_module();		//mandatory for BLE slave
-	blc_ll_initAclConnection_module();			//mandatory for BLE slave & master
-	blc_ll_initAclSlaveRole_module();			//mandatory for BLE slave
+	ble_evt_t evt_hci_params;
+	evt_hci_params.header = BLE_EVT_HCI_CMD_ID;
+	evt_hci_params.evt.hci_cmd_evt = tlkmmi_lemgr_coreEventCB;
+	bleh_event_regCB(&evt_hci_params);
 	
-	//blc_ll_init2MPhyCodedPhy_feature();		//This feature is not supported by default
-	
-	#if((TLKMMI_LEMGR_MASTER_MAX_NUM + TLKMMI_LEMGR_SLAVE_MAX_NUM + 1) > MAX_BLE_LINK)
-		#error MAX BLE lINK not enough
-	#endif
-	
-	blc_ll_setMaxConnectionNumber(TLKMMI_LEMGR_MASTER_MAX_NUM, TLKMMI_LEMGR_SLAVE_MAX_NUM);
-	blc_ll_setAclConnMaxOctetsNumber(TLKMMI_LEMGR_CONN_MAX_RX_OCTETS, TLKMMI_LEMGR_MASTER_MAX_TX_OCTETS, TLKMMI_LEMGR_SLAVE_MAX_TX_OCTETS);
-	
-	/* all ACL connection share same RX FIFO */
-	blc_ll_initAclConnRxFifo(sTlkmmiLemgrAclRxFifo, TLKMMI_LEMGR_ACL_RX_FIFO_SIZE, TLKMMI_LEMGR_ACL_RX_FIFO_NUM);
-	/* ACL Slave TX FIFO */
-	blc_ll_initAclConnSlaveTxFifo(sTlkmmiLemgrAclSlvTxFifo, TLKMMI_LEMGR_ACL_SLAVE_TX_FIFO_SIZE, TLKMMI_LEMGR_ACL_SLAVE_TX_FIFO_NUM, TLKMMI_LEMGR_SLAVE_MAX_NUM);
-	
-	
-	#if (TLKMMI_LEMGR_WORKAROUND_TX_FIFO_4K_LIMITATION_EN && (TLKMMI_LEMGR_MASTER_MAX_TX_OCTETS > 230 || TLKMMI_LEMGR_SLAVE_MAX_TX_OCTETS > 230))
-	/* extend TX FIFO size for MAX_TX_OCTETS > 230 if user want use 16 or 32 FIFO */
-	blc_ll_initAclConnCacheTxFifo(sTlkmmiLemgrAclCacheTxFifo, 260, 16);
-	#endif
-	//////////// LinkLayer Initialization  End /////////////////////////
+	ble_evt_t evt_gap_params;
+	evt_gap_params.header = BLE_EVT_GAP_ID;
+	evt_gap_params.evt.gap_evt = tlkmmi_lemgr_hostEventCB;
+	bleh_event_regCB(&evt_gap_params);
+
+	ble_evt_t evt_gatt_params;
+	evt_gatt_params.header = BLE_EVT_GATT_ID;
+	evt_gatt_params.evt.gatt_evt = tlkmmi_lemgr_gattDataCB;
+	bleh_event_regCB(&evt_gatt_params);
 
 
-	//////////// HCI Initialization  Begin /////////////////////////
-	blc_hci_registerControllerDataHandler(blt_l2cap_pktHandler);
-	blc_hci_registerControllerEventHandler(tlkmmi_lemgr_coreEventCB); //controller hci event to host all processed in this func
-	
-	/* bluetooth event */
-	blc_hci_setEventMask_cmd(HCI_EVT_MASK_DISCONNECTION_COMPLETE);
-	/* bluetooth low energy(LE) event */
-	blc_hci_le_setEventMask_cmd(HCI_LE_EVT_MASK_CONNECTION_COMPLETE | HCI_LE_EVT_MASK_CONNECTION_UPDATE_COMPLETE);
-	//////////// HCI Initialization  End /////////////////////////
-
-	uint08 check_status = blc_controller_check_appBufferInitialization();
-	if(check_status != BLE_SUCCESS){
-		/* here user should set some log to know which application buffer incorrect*/
-		#if (BLMS_DEBUG_EN)
-			BLMS_ERR_DEBUG(0x88880000 | check_status);
-		#endif
-		tlkapi_error(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "application buffer incorrect");
-	}
-	
-	//////////// Host Initialization  Begin /////////////////////////
-	/* Host Initialization */
-	/* GAP initialization must be done before any other host feature initialization !!! */
-	blc_gap_init();
-	
-	/* L2CAP Initialization */
-	bls_l2cap_initMtuBuffer(sTlkmmiLemgrMtuSlvRxFifo, TLKMMI_LEMGR_MTU_S_BUFF_SIZE_MAX, sTlkmmiLemgrMtuSlvTxFifo, TLKMMI_LEMGR_MTU_S_BUFF_SIZE_MAX);
-	blc_att_setSlaveRxMTUSize(TLKMMI_LEMGR_ATT_MTU_SLAVE_RX_MAX_SIZE); //Do not call this API, the default MTU_SIZE is 23
-
-	/* GATT Initialization */
 	tlkmmi_lemgr_attInit();
-	blc_gatt_register_data_handler(tlkmmi_lemgr_gattDataCB);
-	
-		/* SMP Initialization */
-	#if (TLKMMI_LEMGR_MASTER_SMP_ENABLE || TLKMMI_LEMGR_SLAVE_SMP_ENABLE)
-	blc_smp_configPairingSecurityInfoStorageAddressAndSize(TLK_CFG_FLASH_LE_SMP_PAIRING_ADDR, TLK_CFG_FLASH_LE_SMP_PAIRING_SIZE);
-	#endif
-	
-	#if (TLKMMI_LEMGR_SLAVE_SMP_ENABLE)
-	blc_smp_setSecurityLevel_slave(Unauthenticated_Pairing_with_Encryption);  //LE_Security_Mode_1_Level_2
-	#else
-	blc_smp_setSecurityLevel(No_Security);  //LE_Security_Mode_1_Level_2
-	#endif
-	//	blc_smp_setPairingMethods(LE_Secure_Connection); //TLKMMI_LEMGR_ATT_MTU_SLAVE_RX_MAX_SIZE or TLKMMI_LEMGR_ATT_MTU_MASTER_RX_MAX_SIZE >= 64
-	blc_smp_smpParamInit();
-	// Hid device on android7.0/7.1 or later version
-	// New paring: send security_request immediately after connection complete
-	// reConnect:  send security_request 1000mS after connection complete. If master start paring or encryption before 1000mS timeout, slave do not send security_request.
-	blc_smp_configSecurityRequestSending(SecReq_IMM_SEND, SecReq_PEND_SEND, 1000); //if not set, default is:  send "security request" immediately after link layer connection established(regardless of new connection or reconnection)
-	
-	/* Host (GAP/SMP/GATT/ATT) event process: register host event callback and set event mask */
-	blc_gap_registerHostEventHandler(tlkmmi_lemgr_hostEventCB );
-	blc_gap_setEventMask( GAP_EVT_MASK_SMP_PAIRING_BEGIN			|  \
-						  GAP_EVT_MASK_SMP_PAIRING_SUCCESS			|  \
-						  GAP_EVT_MASK_SMP_PAIRING_FAIL 			|  \
-						  GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE);
-	//////////// Host Initialization  End /////////////////////////
-	
-	//////////////////////////// BLE stack Initialization  End //////////////////////////////////
-	
-	#if (TLK_CFG_PM_ENABLE)
-	blc_ll_initPowerManagement_module();
-	#endif
-	
 	//////////////////////////// User Configuration for BLE application ////////////////////////////
 	#if (TLKMMI_LEMGR_OTA_SERVER_ENABLE)
 	blc_ota_initOtaServer_module();

@@ -33,7 +33,6 @@
 #include "tlkstk/bt/btp/sdp/btp_sdp.h"
 
 
-extern int bt_ll_set_bd_addr(uint8_t *bdAddr);
 extern void bth_func_setAclHandle(uint16 aclHandle);
 extern void bth_func_setScoHandle(uint16 scoHandle);
 extern void btp_func_setAclHandle(uint16 aclHandle);
@@ -78,7 +77,7 @@ int tlkmmi_rdt_btCoreInit(void)
 	if(btAddr[0] == 0xFF && btAddr[1] == 0xFF && btAddr[2] == 0xFF){
 		tmemcpy(btAddr, bdaddr, 6);
 	}
-	bt_ll_set_bd_addr(btAddr);
+	bth_hci_sendSetBtAddrCmd(btAddr);
 	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTRDT_DEVICE_CLASS);
 	bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
@@ -94,6 +93,8 @@ int tlkmmi_rdt_btCoreInit(void)
 	}
 	btName[index] = 0;
 	bth_hci_sendWriteLocalNameCmd(btName);
+	bth_hci_exeCmdNow();
+	bth_hci_exeEvtNow();
 	
 	bth_event_regCB(BTH_EVTID_ACLCONN_REQUEST,  tlkmmi_rdt_btAclRequestEvt);
 	bth_event_regCB(BTH_EVTID_ACLCONN_COMPLETE, tlkmmi_rdt_btAclConnectEvt);
@@ -113,6 +114,21 @@ int tlkmmi_rdt_btCoreInit(void)
 	return TLK_ENONE;
 }
 
+void tlkmmi_rdt_btSetName(uint08 *pName, uint08 nameLen)
+{
+	uint08 btName[TLK_CFG_FLASH_BT_NAME_LENS+1];
+
+	if(pName == nullptr || nameLen == 0) return;
+	if(nameLen > TLK_CFG_FLASH_BT_NAME_LENS) nameLen = TLK_CFG_FLASH_BT_NAME_LENS;
+	tmemcpy(btName, pName, nameLen);
+	pName[nameLen] = 0;
+	bth_hci_sendWriteLocalNameCmd(btName);
+}
+void tlkmmi_rdt_btSetAddr(uint08 *pAddr)
+{
+	if(pAddr == nullptr) return;
+	bth_hci_sendSetBtAddrCmd(pAddr);
+}
 
 void tlkmmi_rdt_btRegAclConnectCB(RdtBtAclConnectCB connectCB)
 {
@@ -170,7 +186,7 @@ int tlkmmi_rdt_btConnect(uint08 btaddr[6], uint32 devClass, uint08 initRole)
 int tlkmmi_rdt_btDisconn(uint16 handle)
 {
 	if(handle == 0) handle = sTlkMmiRdtBtAclHandle;
-	return bth_acl_disconn(handle);
+	return bth_acl_disconn(handle, 0x00);
 }
 
 void tlkmmi_rdt_btClsPeerInfo(void)
@@ -349,7 +365,6 @@ static int tlkmmi_rdt_btProfileDisconnEvt(uint08 *pData, uint16 dataLen)
 	if(sTlkMmiRdtBtPrfDisconnCB != nullptr){
 		sTlkMmiRdtBtPrfDisconnCB(pEvt->handle, pEvt->ptype, TLK_ENONE);
 	}
-
 	return TLK_ENONE;
 }
 

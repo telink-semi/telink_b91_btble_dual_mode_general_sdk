@@ -115,6 +115,7 @@ bool tlkdrv_serial_sfifoIsMore85(uint08 port,uint16 dataLen);
 
 uint32 tlkdrv_serial_getBaudrate(uint08 port);
 
+
 #endif //#if (TLK_DEV_SERIAL_ENABLE)
 
 #endif //TLKDRV_SERIAL_H

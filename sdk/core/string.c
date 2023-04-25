@@ -80,8 +80,9 @@ _attribute_retention_code_ int tmemcmp4(void * m1, void * m2, register unsigned 
 	return 0;
 }
 
-
+#if DEBUG_MEM_VIOLATION
 extern uint32_t _RETENTION_DATA_VMA_END,_RAMCODE_VMA_END,_RETENTION_RESET_VMA_END;
+#endif
 
 volatile uint32_t tdest_addr;
 volatile uint32_t tdest_addr_end;

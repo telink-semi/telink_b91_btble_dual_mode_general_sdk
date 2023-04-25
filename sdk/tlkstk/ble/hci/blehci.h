@@ -25,7 +25,6 @@
 
 
 #include "tlkstk/ble/ble_common.h"
-#include "tlkstk/ble/ble_stack.h"
 
 typedef int (*blc_hci_rx_handler_t) (void);
 typedef int (*blc_hci_tx_handler_t) (void);
@@ -109,8 +108,7 @@ extern hci_data_handler_t		blc_hci_data_handler;
 
 
 int blc_hci_rx_from_usb (void);
-int blc_hci_tx_to_usb (void);
-int blc_hci_tx_to_btusb (void);
+
 
 int blc_hci_handler (u8 *p, int n);
 

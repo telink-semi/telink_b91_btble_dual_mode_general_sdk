@@ -27,6 +27,10 @@
 #include "compiler.h"
 
 
+static unsigned char sCoreInqIsEn = 0;
+static unsigned short sCoreInqCount = 0;
+
+
 /** @brief Enable interrupts globally in the system.
  * This macro must be used when the initialization phase is over and the interrupts
  * can start being handled by the system.
@@ -48,23 +52,41 @@
 }
 
 
-
-_attribute_retention_code_ unsigned int core_disable_interrupt(void)
+_attribute_retention_code_ 
+unsigned int core_disable_interrupt(void)
 {
-   unsigned int r = read_csr(NDS_MSTATUS) & BIT(3);
-   if (r) {
-	   clear_csr(NDS_MSTATUS, BIT(3));//global interrupts disable
-	   NDS_FENCE_IORW; //ensure that MIE bit of mstatus reg is cleared at hardware level
-   }
-   return r;
+	core_interrupt_disable();
+	return 0;
 }
 
-_attribute_retention_code_ void core_restore_interrupt(unsigned int en)
+_attribute_retention_code_ 
+void core_restore_interrupt(unsigned int en)
 {
-   if (en) {
-	   set_csr(NDS_MSTATUS, en); //global interrupts enable
-	   NDS_FENCE_IORW;
-   }
+	core_interrupt_restore();
 }
+
+_attribute_retention_code_ 
+void core_interrupt_disable(void)
+{
+	if(sCoreInqIsEn){
+		if(sCoreInqCount == 0){
+			clear_csr(NDS_MSTATUS, BIT(3));//global interrupts disable
+			NDS_FENCE_IORW; //ensure that MIE bit of mstatus reg is cleared at hardware level
+		}
+		sCoreInqCount ++;
+	}
+}
+_attribute_retention_code_ 
+void core_interrupt_restore(void)
+{
+	if(sCoreInqIsEn && sCoreInqCount != 0){
+		sCoreInqCount --;
+		if(sCoreInqCount == 0){
+			set_csr(NDS_MSTATUS, BIT(3)); //global interrupts enable
+			NDS_FENCE_IORW;
+		}
+	}
+}
+
 
 

@@ -119,21 +119,17 @@ int tlkdev_mfi_loadChallengeData(uint08 *pData, uint16 dataLen, uint08 *pBuff, u
 		tlkapi_error(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "loadCertificateData: Device is not open!");
 		return -TLK_ENOREADY;
 	}
-	
+
 	tlkapi_array(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "tlkdev_mfi_loadChallengeData=", pData, dataLen);  
 	tlkdrv_mfi_write(kHAPMFiHWAuthRegister_ChallengeData, pData, dataLen);
-	delay_ms(200);
 	
 	nc = 1;
 	tlkdrv_mfi_write(kHAPMFiHWAuthRegister_AuthenticationControlAndStatus, (uint08*)&nc, 1);
-	delay_ms(200);
 
 	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_AuthenticationControlAndStatus, (uint08*)&nc, 1); 
-	delay_ms(200);
 	tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "kHAPMFiHWAuthRegister_AuthenticationControlAndStatus=%d", nc);  
 
 	tlkdrv_mfi_read(kHAPMFiHWAuthRegister_ChallengeResponseDataLength, (uint08*)&nc, 2);
-	delay_ms(200);
 	tlkapi_trace(TLKDEV_EXT_DBG_FLAG, TLKDEV_EXT_DBG_SIGN, "kHAPMFiHWAuthRegister_ChallengeResponseDataLength=%d", nc);
 
 	length = nc>>8;

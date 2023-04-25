@@ -35,25 +35,19 @@
 
 typedef struct{
 	uint caseID;
-	int(*State)(void);
 	int(*Start)(uint08 role);
-	int(*Pause)(void);
 	int(*Close)(void);
 	int(*Input)(uint08 msgID, uint08 *pData, uint16 dataLen);
 }tlkmmi_rdtModinf_t;
 
 
 #define TLKMMI_RDT_MODINF_DEFINE(caseID)       \
-	static int tlkmmi_rdt_t##caseID##State(void);\
 	static int tlkmmi_rdt_t##caseID##Start(uint08 role);\
-	static int tlkmmi_rdt_t##caseID##Pause(void);\
 	static int tlkmmi_rdt_t##caseID##Close(void);\
 	static int tlkmmi_rdt_t##caseID##Input(uint08 msgID, uint08 *pData, uint16 dataLen);\
 	const tlkmmi_rdtModinf_t gTlkMmiRdtT##caseID##Inf = {\
 		caseID,\
-		tlkmmi_rdt_t##caseID##State,\
 		tlkmmi_rdt_t##caseID##Start,\
-		tlkmmi_rdt_t##caseID##Pause,\
 		tlkmmi_rdt_t##caseID##Close,\
 		tlkmmi_rdt_t##caseID##Input\
 	}\

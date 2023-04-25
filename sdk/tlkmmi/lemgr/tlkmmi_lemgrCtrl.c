@@ -149,6 +149,7 @@ int tlkmmi_lemgr_setAddr1(uint08 *pPubAddr, uint08 *pRndAddr)
 {
 	tmemcpy(gTlkMmiLemgrCtrl.leaddr,   pPubAddr, 6);
 	tmemcpy(gTlkMmiLemgrCtrl.leaddr+6, pRndAddr, 6);
+	blc_ll_writeBDAddr(pPubAddr); //set ble addr
 	return TLK_ENONE;
 }
 

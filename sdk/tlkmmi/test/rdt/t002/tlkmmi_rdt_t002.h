@@ -27,22 +27,46 @@
 #if (TLKMMI_RDT_CASE_T002_ENABLE)
 
 
+
+#define TLKMMI_RDT_T002_TIMEOUT       200000 //200ms
+
+#define TLKMMI_RDT_T002_BTNAME_DUT         "RDT-T002-DUT"
+#define TLKMMI_RDT_T002_BTNAME_AUT         "RDT-T002-AUT"
+#define TLKMMI_RDT_T002_BTNAME_AUT2        "RDT-T002-AUT2"
+
+#define TLKMMI_RDT_T002_BTADDR_DUT         {0x02, 0xD1, 0xD1, 0xD1, 0xD1, 0x02}
+#define TLKMMI_RDT_T002_BTADDR_AUT         {0x02, 0xA1, 0xA1, 0xA1, 0xA1, 0x02}
+#define TLKMMI_RDT_T002_BTADDR_AUT2        {0x02, 0xA2, 0xA2, 0xA2, 0xA2, 0x02}
+
+#define TLKMMI_RDT_T002_BTDEV_CLASS_AUT    0x240404
+#define TLKMMI_RDT_T002_BTDEV_CLASS_DUT    0x240404
+#define TLKMMI_RDT_T002_BTDEV_CLASS_AUT2   0x240404
+
+
+typedef enum{
+	TLKMMI_RDT_T002_FLAG_NONE = 0x00,
+	TLKMMI_RDT_T002_FLAG_CRYPT = 0x01,
+	TLKMMI_RDT_T002_FLAG_SCO_CONN = 0x02,
+}TLKMMI_RDT_T002_FLAG_ENUM;
+typedef enum{
+	TLKMMI_RDT_T002_BUSY_NONE = 0x00,
+}TLKMMI_RDT_T002_BUSY_ENUM;
+
 typedef enum{
 	TLKMMI_RDT_T002_MSGID_NONE = 0,
-	TLKMMI_RDT_T002_MSGID_SET_PEER_INFO = 1,
+	TLKMMI_RDT_T002_MSGID_SET_ACL_SWITCH = 0x01,
+	TLKMMI_RDT_T002_MSGID_SET_SCO_SWITCH = 0x01,
 }TLKMMI_RDT_T002_MSGID_ENUM;
+
 
 
 typedef struct{
 	uint08 state;
-	uint08 stage;
-	uint08 devRole;
+	uint08 drole;
+	uint16 reserve;
 	tlkapi_timer_t timer;
 }tlkmmi_rdt_t002_t;
 
-
-int tlkmmi_rdt_t002GetRole(void);
-int tlkmmi_rdt_t002GetState(void);
 
 
 

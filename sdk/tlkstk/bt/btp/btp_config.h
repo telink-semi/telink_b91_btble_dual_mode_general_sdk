@@ -66,11 +66,8 @@
 #define TLK_BT_HFP_MAX_NUMB                (TLK_STK_BTACl_NUMB)
 #define TLK_BT_ATT_MAX_NUMB                (1)
 #define TLK_BT_A2DP_MAX_NUMB               (TLK_STK_BTACl_NUMB)
-#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
-#define TLK_BT_AVRCP_MAX_NUMB              (TLK_STK_BTACl_NUMB*2)
-#else
 #define TLK_BT_AVRCP_MAX_NUMB              (TLK_STK_BTACl_NUMB)
-#endif
+#define TLK_BT_BROWSING_MAX_NUMB           (TLK_STK_BTACl_NUMB)
 #define TLK_BT_RFCOMM_SERVICE_MAX_NUMB     6 //spp, pbap, hfp-ag, hfp-hf
 #define TLK_BT_RFCOMM_SESSION_MAX_NUMB     (TLK_STK_BTACl_NUMB)
 #define TLK_BT_RFCOMM_CHANNEL_MAX_NUMB     (TLK_STK_BTACl_NUMB*6)

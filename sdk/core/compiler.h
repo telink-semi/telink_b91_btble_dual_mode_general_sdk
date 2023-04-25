@@ -66,11 +66,6 @@
 #define _attribute_text_code_           __attribute__((section(".text")))
 
 
-/// define the static keyword for this compiler
-
-/// define the force inlining attribute for this compiler
-#define __INLINE static __attribute__((__always_inline__)) inline
-
 
 #define ASSERT_ERR(x)
 

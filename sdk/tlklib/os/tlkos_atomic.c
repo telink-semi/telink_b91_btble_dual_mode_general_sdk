@@ -30,56 +30,50 @@
 
 void tlkos_atomic_set(tlkos_atomic_t *at, uint val)
 {
-	uint irqMsk;
-	irqMsk = tlkos_disable_interrupt();
+	tlkos_disable_interrupt();
 	at->val = val;
-	tlkos_restore_interrupt(irqMsk);
+	tlkos_restore_interrupt();
 }
 uint tlkos_atomic_read(volatile tlkos_atomic_t *pAtomic)
 {
 	uint val;
-	uint irqMsk;
-	irqMsk = tlkos_disable_interrupt();
+	tlkos_disable_interrupt();
 	val = pAtomic->val;
-	tlkos_restore_interrupt(irqMsk);
+	tlkos_restore_interrupt();
 	return val;
 }
 
 void tlkos_atomic_add(uint step, volatile tlkos_atomic_t *pAtomic)
 {
-	uint irqMsk;
-	irqMsk = tlkos_disable_interrupt();
+	tlkos_disable_interrupt();
 	pAtomic->val += step;
-	tlkos_restore_interrupt(irqMsk);
+	tlkos_restore_interrupt();
 }
 void tlkos_atomic_sub(uint step, volatile tlkos_atomic_t *pAtomic)
 {
-	uint irqMsk;
-	irqMsk = tlkos_disable_interrupt();
+	tlkos_disable_interrupt();
 	pAtomic->val -= step;
-	tlkos_restore_interrupt(irqMsk);
+	tlkos_restore_interrupt();
 }
 
 uint tlkos_atomic_addAndReturn(uint step, volatile tlkos_atomic_t *pAtomic)
 {
 	int temp;
-	uint irqMsk;
-	irqMsk = tlkos_disable_interrupt();
+	tlkos_disable_interrupt();
 	temp = pAtomic->val;
 	temp += step;
 	pAtomic->val = temp;
-	tlkos_restore_interrupt(irqMsk);
+	tlkos_restore_interrupt();
 	return temp;
 }
 uint tlkos_atomic_subAndReturn(uint step, volatile tlkos_atomic_t *pAtomic)
 {
 	uint temp;
-	uint irqMsk;
-	irqMsk = tlkos_disable_interrupt();
+	tlkos_disable_interrupt();
 	temp = pAtomic->val;
 	temp -= step;
 	pAtomic->val = temp;
-	tlkos_restore_interrupt(irqMsk);
+	tlkos_restore_interrupt();
 	return temp;
 }
 

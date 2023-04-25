@@ -28,11 +28,10 @@
 #include "tlk_config.h"
 #include "tlk_debug.h"
 #include "tlkstk_logdef.h"
-#include "tlkdrv/B91/reg_include/usb_reg.h"
 
 
-#define GLOBAL_INT_DISABLE()		u32 rie = core_disable_interrupt ()
-#define GLOBAL_INT_RESTORE()		core_restore_interrupt(rie)
+#define GLOBAL_INT_DISABLE()		core_interrupt_disable()
+#define GLOBAL_INT_RESTORE()		core_interrupt_restore()
 
 extern void tlkdbg_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
 extern void tlkdbg_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);

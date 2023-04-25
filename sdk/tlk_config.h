@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010200 //Application, 5.1.2.0
+#define TLK_APP_VERSION              0x05010201 //Application, 5.1.2.1
 #endif
 #define TLK_LIB_VERSION              0x05010200 //Libary, 5.1.2.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -57,7 +57,7 @@
 #define TLK_CFG_OS_ENABLE            0
 #endif
 #ifndef TLK_CFG_PM_ENABLE
-#define TLK_CFG_PM_ENABLE            0
+#define TLK_CFG_PM_ENABLE            1
 #endif
 #ifndef TLK_CFG_SYS_ENABLE
 #define TLK_CFG_SYS_ENABLE           1
@@ -169,6 +169,9 @@
 #endif
 #ifndef TLK_STK_LE_ENABLE
 #define TLK_STK_LE_ENABLE            (1 && TLK_CFG_STK_ENABLE)
+#endif
+#ifndef TLK_STK_LEH_ENABLE
+#define TLK_STK_LEH_ENABLE           (1 && TLK_STK_LE_ENABLE)
 #endif
 #ifndef TLK_STK_BTH_ENABLE
 #define TLK_STK_BTH_ENABLE           (1 && TLK_STK_BT_ENABLE)
@@ -364,6 +367,9 @@
 #endif
 #ifndef TLK_TEST_EMI_ENABLE
 #define TLK_TEST_EMI_ENABLE          (1 && TLK_CFG_TEST_ENABLE)
+#endif
+#ifndef TLK_TEST_BQB_ENABLE
+#define TLK_TEST_BQB_ENABLE          (1 && TLK_CFG_TEST_ENABLE)
 #endif
 #ifndef TLK_TEST_USR_ENABLE
 #define TLK_TEST_USR_ENABLE          (0 && TLK_CFG_TEST_ENABLE)

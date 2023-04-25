@@ -125,12 +125,12 @@ void tlkdbg_usblog_print(char *pSign, char *pHead, char *fileName, uint lineNumb
 		sTlkDbgUsbLogCache[4] = 0x22;
 		sTlkDbgUsbLogCache[5] = 0x00;
 		sTlkDbgUsbLogCache[6] = 0x00;
-//		uint32 r = core_disable_interrupt();
+//		core_interrupt_disable();
 		uint08 *pBuff = tlkapi_qfifo_takeBuff(&sTlkDbgUsbLogFifo);
 		if(pBuff != nullptr){
 			tmemcpy(pBuff, sTlkDbgUsbLogCache, dataLen+2);
 		}
-//		core_restore_interrupt(r);
+//		core_interrupt_restore();
 	}
 }
 void tlkdbg_usblog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
@@ -168,12 +168,12 @@ void tlkdbg_usblog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 		sTlkDbgUsbLogCache[4] = 0x22;
 		sTlkDbgUsbLogCache[5] = 0x00;
 		sTlkDbgUsbLogCache[6] = 0x00;
-//		uint32 r = core_disable_interrupt();
+//		core_interrupt_disable();
 		uint08 *pBuff = tlkapi_qfifo_takeBuff(&sTlkDbgUsbLogFifo);
 		if(pBuff != nullptr){
 			tmemcpy(pBuff, sTlkDbgUsbLogCache, dataLen+2);
 		}
-//		core_restore_interrupt(r);
+//		core_interrupt_restore();
 	}
 }
 
@@ -298,12 +298,12 @@ void tlkdbg_usblog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 	buffer[0] = ((buffLen-2) & 0x00FF);
 	buffer[1] = ((buffLen-2) & 0xFF00) >> 8;
 
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	pBuff = tlkapi_qfifo_takeBuff(&sTlkDbgUsbLogFifo);
 	if(pBuff != nullptr){
 		tmemcpy(pBuff, buffer, buffLen);
 	}
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 

@@ -56,7 +56,7 @@
 #include "tlkdbg_hwulog.h"
 #endif
 #if (TLKDBG_CFG_HWU_VCD_ENABLE)
-#include "tlkdbg_hwutvcd.h"
+#include "tlkdbg_hwuvcd.h"
 #endif
 
 extern bool tlk_debug_dbgIsEnable1(unsigned int flags);

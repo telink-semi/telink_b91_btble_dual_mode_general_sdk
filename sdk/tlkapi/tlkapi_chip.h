@@ -52,6 +52,8 @@ extern void core_enter_critical(void);
 extern void core_leave_critical(void);
 extern unsigned int core_disable_interrupt(void);
 extern void core_restore_interrupt(unsigned int value);
+extern void core_interrupt_disable(void);
+extern void core_interrupt_restore(void);
 
 
 #endif 

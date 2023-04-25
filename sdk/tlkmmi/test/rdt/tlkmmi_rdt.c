@@ -34,6 +34,7 @@
 
 
 extern void tlkmmi_test_reboot(uint16 timeout);
+static int tlkmmi_rdt_init(void);
 static int tlkmmi_rdt_start(void);
 static int tlkmmi_rdt_pause(void);
 static int tlkmmi_rdt_close(void);
@@ -43,6 +44,7 @@ static int tlkmmi_rdt_input(uint08 msgID, uint08 *pData, uint16 dataLen);
 static uint16 sTlkmmiRdtTestCase = 0;
 const tlkmmi_testModinf_t gTlkMmiRatModinf = 
 {
+	tlkmmi_rdt_init,  //.Init
 	tlkmmi_rdt_start, //.Start
 	tlkmmi_rdt_pause, //.Pause
 	tlkmmi_rdt_close, //.Close
@@ -84,7 +86,7 @@ int tlkmmi_rdt_pauseTest(void)
 	if(sTlkmmiRdtTestCase == 0){
 		tlkapi_warn(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_pauseTest: invalid caseID");
 	}else{
-		tlkmmi_rdt_modPause(sTlkmmiRdtTestCase);
+		tlkapi_warn(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_pauseTest: not supported");
 	}
 	return TLK_ENONE;
 }
@@ -109,18 +111,21 @@ int tlkmmi_rdt_testInput(uint08 msgID, uint08 *pData, uint16 dataLen)
 }
 
 
-
-static int tlkmmi_rdt_start(void)
+static int tlkmmi_rdt_init(void)
 {
 	tlkmmi_rdt_btInit();
 	tlkmmi_rdt_leInit();
 	
 	return TLK_ENONE;
 }
+static int tlkmmi_rdt_start(void)
+{
+	return TLK_ENONE;
+}
 static int tlkmmi_rdt_pause(void)
 {
 	if(sTlkmmiRdtTestCase != 0){
-		tlkmmi_rdt_modPause(sTlkmmiRdtTestCase);
+		tlkapi_warn(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_pause: not supported");
 	}
 	return TLK_ENONE;
 }

@@ -125,6 +125,7 @@ typedef struct{
 }bth_encryptCompleteEvt_t;
 
 typedef struct{
+	uint16 aclHandle;
 	uint08 codec; //0/1-CVSD, 2-MSBC
 }bth_scoCodecChangedEvt_t;
 
@@ -294,7 +295,7 @@ int bth_send_encryptCompleteEvt(uint16 handle, uint08 status, uint08 enable);
  *        @codec[IN]--The sco codec id.
  * Reutrn: TLK_ENONE is success, other value if false.
 *******************************************************************************/
-int bth_send_scoCodecChangedEvt(uint08 codec);
+int bth_send_scoCodecChangedEvt(uint16 aclHandle, uint08 codec);
 
 /******************************************************************************
  * Function: bth_send_pinCodeRequestEvt

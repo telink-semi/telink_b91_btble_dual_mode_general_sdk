@@ -24,8 +24,6 @@
 #define TLKSTK_H
 
 
-
-
 int tlkstk_init(void);
 
 void tlkstk_handler(void);

@@ -27,115 +27,30 @@
 #include "../tlkmmi_rdtStd.h"
 #if (TLKMMI_RDT_CASE_T001_ENABLE)
 #include "tlkmmi_rdt_t001.h"
-#include "tlkmmi_rdt_t001Bt.h"
-#include "tlkmmi_rdt_t001Le.h"
+//#include "tlkmmi_rdt_t001Bt.h"
+//#include "tlkmmi_rdt_t001Le.h"
 
 
 TLKMMI_RDT_MODINF_DEFINE(001);
-static bool tlkmmi_rdt_t001Timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
-static tlkmmi_rdt_t001_t sTlkMmiRdtT001 = {0};
+//static tlkmmi_rdt_t001_t sTlkMmiRdtT001 = {0};
 
 
-int tlkmmi_rdt_t001GetRole(void)
-{
-	return sTlkMmiRdtT001.devRole;
-}
-int tlkmmi_rdt_t001GetState(void)
-{
-	return sTlkMmiRdtT001.state;
-}
-
-
-static int tlkmmi_rdt_t001State(void)
-{
-	
-	
-	return TLK_STATE_CLOSED;
-}
 static int tlkmmi_rdt_t001Start(uint08 role)
 {
-	uint08 state;
-	
-	if(role != TLKMMI_RDT_ROLE_DUT && role != TLKMMI_RDT_ROLE_AUT){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Start: error role[%d]",
-			role);
-		return -TLK_EROLE;
-	}
-	if(sTlkMmiRdtT001.state != TLK_STATE_CLOSED && sTlkMmiRdtT001.state != TLK_STATE_PAUSED){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Start: error status[%d]",
-			sTlkMmiRdtT001.state);
-		return -TLK_ESTATUS;
-	}
-	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Start");
-
-	state = sTlkMmiRdtT001.state;
-	sTlkMmiRdtT001.devRole = role;
-	sTlkMmiRdtT001.state = TLK_STATE_OPENED;
-	if(state == TLK_STATE_CLOSED){		
-		tlkmmi_rdt_t001BtStart();
-		tlkmmi_rdt_t001LeStart();
-	}
-	
-	tlkmmi_test_adaptInitTimer(&sTlkMmiRdtT001.timer, tlkmmi_rdt_t001Timer, 
-		nullptr, 200000);
-	tlkmmi_test_adaptInsertTimer(&sTlkMmiRdtT001.timer);
-	
-	return TLK_ENONE;
-}
-static int tlkmmi_rdt_t001Pause(void)
-{
-	if(sTlkMmiRdtT001.state != TLK_STATE_OPENED){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Pause: error status[%d]",
-			sTlkMmiRdtT001.state);
-		return -TLK_ESTATUS;
-	}
-	tlkmmi_test_adaptRemoveTimer(&sTlkMmiRdtT001.timer);
-	sTlkMmiRdtT001.state = TLK_STATE_PAUSED;
-	tlkmmi_rdt_t001BtClose();
-	tlkmmi_rdt_t001LeClose();
-	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Pause");
 	return TLK_ENONE;
 }
 static int tlkmmi_rdt_t001Close(void)
 {
-	if(sTlkMmiRdtT001.state == TLK_STATE_CLOSED){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Close: error status[%d]",
-			sTlkMmiRdtT001.state);
-		return -TLK_ESTATUS;
-	}
-	tlkmmi_test_adaptRemoveTimer(&sTlkMmiRdtT001.timer);
-	sTlkMmiRdtT001.state = TLK_STATE_CLOSED;
-	tlkmmi_rdt_t001BtClose();
-	tlkmmi_rdt_t001LeClose();
-	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Close");
 	return TLK_ENONE;
 }
 static int tlkmmi_rdt_t001Input(uint08 msgID, uint08 *pData, uint16 dataLen)
 {
-	if(sTlkMmiRdtT001.state != TLK_STATE_PAUSED){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Input: error status[%d]",
-			sTlkMmiRdtT001.state);
-		return -TLK_ESTATUS;
-	}
-	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Input: msgID[0x%x]", msgID);
-	tlkmmi_rdt_t001BtInput(msgID, pData, dataLen);
 	return TLK_ENONE;
 }
 
 
-static bool tlkmmi_rdt_t001Timer(tlkapi_timer_t *pTimer, uint32 userArg)
-{
-	if(sTlkMmiRdtT001.state != TLK_STATE_OPENED){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t001Timer: error status[%d]",
-			sTlkMmiRdtT001.state);
-		return false;
-	}
-	tlkmmi_rdt_t001BtTimer();
-	tlkmmi_rdt_t001LeTimer();
-	return true;
-}
 
 
 

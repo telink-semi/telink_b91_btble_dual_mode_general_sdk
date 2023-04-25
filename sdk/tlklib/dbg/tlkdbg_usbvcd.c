@@ -67,75 +67,75 @@ void tlkdbg_usbvcd_handler(void)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_ref(void)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0x20);
 	int t=clock_time();
 	tlkdbg_usbvcd_rcd(t);
 	tlkdbg_usbvcd_rcd(t>>8);
 	tlkdbg_usbvcd_rcd(t>>16);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 // 4-byte sync word: 00 00 00 00
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_sync(bool enable)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0);
 	tlkdbg_usbvcd_rcd(0);
 	tlkdbg_usbvcd_rcd(0);
 	tlkdbg_usbvcd_rcd(0);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }      
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_tick(uint08 id)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0x20|(id&31));
 	int t=clock_time();
 	tlkdbg_usbvcd_rcd(t);
 	tlkdbg_usbvcd_rcd(t>>8);
 	tlkdbg_usbvcd_rcd(t>>16);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //1-byte (01x_id-5bits) 1-bit data: b=0 or 1.
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_level(uint08 id, uint08 level)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(((level)?0x60:0x40)|(id&31));
 	int t=clock_time();
 	tlkdbg_usbvcd_rcd(t);
 	tlkdbg_usbvcd_rcd(t>>8);
 	tlkdbg_usbvcd_rcd(t>>16);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //1-byte (000_id-5bits)
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_event(uint08 id)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0x00|(id&31));
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //2-byte (10-id-6bits) 8-bit data
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_byte(uint08 id, uint08 value)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0x80|(id&63));
 	tlkdbg_usbvcd_rcd(value);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //3-byte (11-id-6bits) 16-bit data
 _attribute_ram_code_sec_noinline_
 void tlkdbg_usbvcd_word(uint08 id, uint16 value)
 {
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0xc0|(id&63));
 	tlkdbg_usbvcd_rcd(value);
 	tlkdbg_usbvcd_rcd((value)>>8);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 

@@ -30,6 +30,7 @@
 
 typedef struct
 {
+	int(*Init)(void);
 	int(*Start)(void);
 	int(*Pause)(void);
 	int(*Close)(void);

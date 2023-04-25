@@ -31,13 +31,10 @@
 #define	EM_BT_AUDIOBUF_SIZE						256
 #define ACL_DATA_BUF_SIZE            			800
 
-#ifdef TLKAPP_DUALMODE_DONGLE_ENABLE
-#define BLMS_MAX_CONN_MASTER_NUM				1
-#define	BLMS_MAX_CONN_SLAVE_NUM					0
-#else
+
 #define BLMS_MAX_CONN_MASTER_NUM				0
 #define	BLMS_MAX_CONN_SLAVE_NUM					1
-#endif
+
 
 
 

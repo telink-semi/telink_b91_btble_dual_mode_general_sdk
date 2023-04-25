@@ -132,7 +132,7 @@ int  bth_acl_connect(uint08 btaddr[6], uint32 devClass, uint08 initRole, uint16 
  * Params: @aclHandle[IN]--The acl link handle.
  * Reutrn: TLK_ENONE is set sucess, others means failure.
 *******************************************************************************/
-int  bth_acl_disconn(uint16 aclHandle);
+int  bth_acl_disconn(uint16 aclHandle, uint08 reason);
 
 /******************************************************************************
  * Function: bth_acl_destroy

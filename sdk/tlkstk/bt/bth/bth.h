@@ -107,7 +107,7 @@ extern int  bth_acl_connect(uint08 btaddr[6], uint32 devClass, uint08 initRole, 
  * Params: @aclHandle[IN]--The acl link handle.
  * Reutrn: TLK_ENONE is set sucess, others means failure.
 *******************************************************************************/
-extern int  bth_acl_disconn(uint16 aclHandle);
+extern int  bth_acl_disconn(uint16 aclHandle, uint08 reason);
 
 /******************************************************************************
  * Function: bth_acl_destroy

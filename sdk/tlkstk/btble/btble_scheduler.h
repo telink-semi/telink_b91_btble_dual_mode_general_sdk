@@ -59,8 +59,8 @@ enum {
 	SCHEDULER_INTERVAL_7MS5_1		=	1,
 	SCHEDULER_INTERVAL_15MS_0		=	2,
 	SCHEDULER_INTERVAL_15MS_1		=	3,
-
-	SCHEDULER_PRIORITY_SNIFF		=	0x01,
+	//sniff is currently executed frequently, resulting in BLE create & update failures. After synchronizing with "Qipeng", lower the priority. if any question, contact ronglu 20230421
+	SCHEDULER_PRIORITY_SNIFF		=	0x09,
 	SCHEDULER_PRIORITY_PAGETOACL	=	0x10,
 	SCHEDULER_PRIORITY_ROLESWITCH	=	0x10,
 	SCHEDULER_PRIORITY_SCO			=	0x20,
@@ -224,8 +224,6 @@ void	bt_ll_schedule_set_mode (int m, int max_bt, int max_ble);
 void	bt_ll_schedule_set_ble_callback (void *p);
 
 void	bt_ll_schedule_set_bt_callback (void *p);
-
-void	bt_ll_schedule_init ();
 
 void	bt_ll_schedule_set_enable (uint8_t id, uint8_t priority, uint8_t type, uint32_t tick, uint32_t win1m25, uint32_t latency);
 

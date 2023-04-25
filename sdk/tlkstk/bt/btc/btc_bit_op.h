@@ -45,5 +45,13 @@ void sub_wr(unsigned int addr, unsigned char value, unsigned char e, unsigned ch
  */
 void sub_wr_word(unsigned int addr, unsigned int value, unsigned char e, unsigned char s);
 
-
+/**
+ * @brief      This function writes a word data to sram
+ * @param[in]  addr - the address of the digital register needs to write
+ * @param[in]  value  - the data will be written to the digital register
+ * @param[in]  e - the end address of value
+ * @param[in]  s - the start address of the value
+ * @return     none
+ */
+void sub_wr_ram32(unsigned int addr, unsigned int value, unsigned char e, unsigned char s);
 #endif /* BTC_BIT_OP_H */

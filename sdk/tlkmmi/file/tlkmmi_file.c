@@ -58,7 +58,7 @@ static int tlkmmi_file_init(uint08 procID, uint08 taskID)
 	tlkmdi_file_init();
 	#endif
 	#if (TLK_CFG_SYS_ENABLE)
-	tlksys_pm_appendBusyCheckCB(tlkmmi_file_dfuIsStart);
+	tlksys_pm_appendBusyCheckCB(tlkmmi_file_dfuIsStart, "tlkmmi_file");
 	#endif
 	
 	tlkmmi_file_adaptInit(procID);

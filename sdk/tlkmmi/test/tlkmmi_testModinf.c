@@ -34,6 +34,7 @@ extern const tlkmmi_testModinf_t gTlkMmiRatModinf;
 extern const tlkmmi_testModinf_t gTlkMmiPtsModinf;
 extern const tlkmmi_testModinf_t gTlkMmiEmiModinf;
 extern const tlkmmi_testModinf_t gTlkMmiUsrModinf;
+extern const tlkmmi_testModinf_t gTlkMmiBqbModinf;
 
 static const tlkmmi_testModinf_t *sTlkMmiTestModule[TLKMMI_TEST_MODTYPE_MAX] = 
 {
@@ -63,9 +64,20 @@ static const tlkmmi_testModinf_t *sTlkMmiTestModule[TLKMMI_TEST_MODTYPE_MAX] =
 	#else
 		nullptr,
 	#endif
+	#if (TLK_TEST_BQB_ENABLE)
+		&gTlkMmiBqbModinf,
+	#else
+		nullptr,
+	#endif
 };
 
 
+int tlkmmi_test_modInit(TLKMMI_TEST_MODTYPE_ENUM type)
+{
+	const tlkmmi_testModinf_t *pModinf = tlkmmi_test_getModinf(type);
+	if(pModinf == nullptr || pModinf->Init == nullptr) return -TLK_ENOSUPPORT;
+	return pModinf->Init();
+}
 int tlkmmi_test_modStart(TLKMMI_TEST_MODTYPE_ENUM type)
 {
 	const tlkmmi_testModinf_t *pModinf = tlkmmi_test_getModinf(type);
@@ -91,7 +103,13 @@ int tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID,
 	if(pModinf == nullptr || pModinf->Input == nullptr) return -TLK_ENOSUPPORT;
 	return pModinf->Input(msgID, pData, dataLen);
 }
-
+int tlkmmi_test_modHandler(TLKMMI_TEST_MODTYPE_ENUM type)
+{
+	const tlkmmi_testModinf_t *pModinf = tlkmmi_test_getModinf(type);
+	if(pModinf == nullptr || pModinf->Handler == nullptr) return -TLK_ENOSUPPORT;
+	pModinf->Handler();
+	return TLK_ENONE;
+}
 
 static const tlkmmi_testModinf_t *tlkmmi_test_getModinf(TLKMMI_TEST_MODTYPE_ENUM type)
 {

@@ -41,7 +41,9 @@
 #ifdef TLKAPP_DUALMODE_DONGLE_ENABLE
 	#include "app/tlkapp_general/tlkapp_config.h"		//Reuse general app code, diff on MMI lager.
 #endif
-
+#ifdef TLKAPP_RFTEST_ENABLE
+	#include "app/tlkapp_emi/tlkapp_config.h"
+#endif
 
 #endif /* APP_CONFIG_H */
 

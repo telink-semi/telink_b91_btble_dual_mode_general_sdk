@@ -75,7 +75,7 @@ static int tlkmmi_audio_init(uint08 procID, uint08 taskID)
 	tlkmdi_audio_init();
 	#endif
 	#if (TLK_CFG_SYS_ENABLE)
-	tlksys_pm_appendBusyCheckCB(tlkmmi_audio_isBusy);
+	tlksys_pm_appendBusyCheckCB(tlkmmi_audio_isBusy, "tlkmmi_audio");
 	#endif
 	
 	tlkmmi_audio_adaptInit(procID);

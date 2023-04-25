@@ -71,7 +71,7 @@
 #include "tlkstk/ble/controller/csa/csa.h"
 
 #include "tlkstk/ble/controller/phy/phy.h"
-#include "tlkstk/ble/controller/phy/phy_test.h"
+//#include "tlkstk/ble/controller/phy/phy_test.h"
 
 
 #include "tlkalg/crypt/ecc/tlkalg_ecc_ll.h"
@@ -79,20 +79,9 @@
 
 
 /*********************************************************/
-
-#include "tlkstk/ble/ble_stack.h"
 #include "tlkstk/ble/debug.h"
 #include "tlkstk/ble/trace.h"
 
-#include "tlkstk/ble/controller/ll/ll_stack.h"
-#include "tlkstk/ble/controller/ll/acl_conn/acl_stack.h"
-#include "tlkstk/ble/controller/ll/adv/adv_stack.h"
-#include "tlkstk/ble/controller/ll/scan/scan_stack.h"
-#include "tlkstk/ble/controller/ll/init/init_stack.h"
-#include "tlkstk/ble/controller/whitelist/whitelist_stack.h"
-#include "tlkstk/ble/controller/csa/csa_stack.h"
-#include "tlkstk/ble/controller/phy/phy_stack.h"
-#include "tlkstk/ble/hci/hci_stack.h"
 /*********************************************************/
 
 #endif /* BLE_H_ */

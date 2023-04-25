@@ -127,6 +127,7 @@ static void tlkmmi_test_recvCloseDeal(uint08 *pData, uint16 dataLen)
 }
 static void tlkmmi_test_recvRebootDeal(void)
 {
+	tlkmmi_test_modClose(sTlkMmiTestCtrl.wmode);
 	tlkmmi_test_reboot(500);
 	tlkmmi_test_sendCommRsp(TLKPRT_COMM_CMDID_TEST_REBOOT, TLKPRT_COMM_RSP_STATUE_SUCCESS, TLK_ENONE, nullptr, 0);
 }

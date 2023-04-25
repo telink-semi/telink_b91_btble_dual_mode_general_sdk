@@ -35,6 +35,7 @@
 
 extern int bth_hci_sendResetCmd(void);
 
+static int  tlkmmi_pts_init(void);
 static int  tlkmmi_pts_start(void);
 static int  tlkmmi_pts_pause(void);
 static int  tlkmmi_pts_close(void);
@@ -42,6 +43,7 @@ static int  tlkmmi_pts_input(uint08 msgID, uint08 *pData, uint16 dataLen);
 static bool tlkmmi_pts_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 const tlkmmi_testModinf_t gTlkMmiPtsModinf = 
 {
+	tlkmmi_pts_init,  //.Init
 	tlkmmi_pts_start, //.Start
 	tlkmmi_pts_pause, //.Pause
 	tlkmmi_pts_close, //.Close
@@ -50,12 +52,14 @@ const tlkmmi_testModinf_t gTlkMmiPtsModinf =
 tlkmmi_pts_ctrl_t gTlkMmiPtsCtrl;
 
 
-
-static int tlkmmi_pts_start(void)
+static int tlkmmi_pts_init(void)
 {
 	tlkmmi_test_adaptInitTimer(&gTlkMmiPtsCtrl.timer, tlkmmi_pts_timer, NULL, TLKMMI_PTS_TIMEOUT);
 	tlkmmi_pts_btInit();
-	
+	return TLK_ENONE;
+}
+static int tlkmmi_pts_start(void)
+{
 	return TLK_ENONE;
 }
 static int tlkmmi_pts_pause(void)

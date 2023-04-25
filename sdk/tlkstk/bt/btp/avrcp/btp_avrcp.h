@@ -26,6 +26,43 @@
 
 
 
+typedef enum{
+	//Capabilities
+	BTP_AVRCP_PDUID_GET_CAP                = 0x10, //AV/C STATUS
+	//Player Application Settings
+	BTP_AVRCP_PDUID_LIST_PAS_ATTRS         = 0x11, //ListPlayerApplicationSettingAttributes, AV/C STATUS
+	BTP_AVRCP_PDUID_LIST_PAS_VALUES        = 0x12, //ListPlayerApplicationSettingValues, AV/C STATUS
+	BTP_AVRCP_PDUID_GET_CUR_PAS_VALUR      = 0x13, //GetCurrentPlayerApplicationSettingValue, AV/C STATUS
+	BTP_AVRCP_PDUID_SET_PAS_VALUE          = 0x14, //AV/C CONTROL, AV/C CONTROL
+	BTP_AVRCP_PDUID_GET_PAS_ATTR_TEXT      = 0x15, //GetPlayerApplicationSettingAttributeText , AV/C STATUS
+	BTP_AVRCP_PDUID_GET_PAS_VALUE_TEXT     = 0x16, //GetPlayerApplicationSettingValueText, AV/C STATUS
+	BTP_AVRCP_PDUID_INFORM_DISPLAY_CHARSET = 0x17, //GetPlayerApplicationSettingValueText, AV/C CONTROL
+	BTP_AVRCP_PDUID_INFORM_BATTERY_STATUS  = 0x18, //InformBatteryStatusOfCT, AV/C CONTROL
+	//Metadata Attributes for Current Media Item
+	BTP_AVRCP_PDUID_GET_ELEMENT_ATTR       = 0x20, //GetElementAttributes, AV/C STATUS
+	//Notifications
+	BTP_AVRCP_PDUID_GET_PLAY_STATUS        = 0x30, //AV/C STATUS
+	BTP_AVRCP_PDUID_REG_NOTIFICATION       = 0x31, //AV/C NOTIFY
+	//Continuation
+	BTP_AVRCP_PDUID_REQUEST_CONTINUE_RSP   = 0x40, //RequestContinuingResponse, AV/C CONTROL
+	BTP_AVRCP_PDUID_ABORT_CONTINUE_RSP     = 0x41, //AbortContinuingResponse, AV/C CONTROL
+	//Absolute Volume
+	BTP_AVRCP_PDUID_SET_ABSOLUTE_VOLUME    = 0x50, //AV/C CONTROL
+	//MediaPlayerSelection
+	BTP_AVRCP_PDUID_SET_ADDRESSED_PLAYER   = 0x60, //SetAddressedPlayer, AV/C CONTROL
+	//Browsing
+	BTP_AVRCP_PDUID_SET_BROWSED_PLAYER     = 0x70, //SetBrowsedPlayer, Browsing
+	BTP_AVRCP_PDUID_CHANGE_PATH            = 0x72, //ChangePath, Browsing
+	BTP_AVRCP_PDUID_GET_ITEM_ATTR          = 0x73, //GetItemAttributes, Browsing
+	//Search, 
+	BTP_AVRCP_PDUID_SEARCH                 = 0x80, //Browsing
+	BTP_AVRCP_PDUID_GET_FOLDER_ITEMS       = 0x71, //GetFolderItems(MediaPlayerList,Filesystem,SearchResultList,NowPlayingList), Browsing
+	BTP_AVRCP_PDUID_GET_TOTAL_ITEMS        = 0x75, //GetTotalNumberOfItems, Browsing
+	BTP_AVRCP_PDUID_PLAY_ITEM              = 0x74, //PlayItem(Filesystem,SearchResultList,NowPlayingList), AV/C CONTROL
+	BTP_AVRCP_PDUID_ADD_PLAYING            = 0x90, //AddToNowPlaying, AV/C CONTROL
+	//Error Response
+	BTP_AVRCP_PDUID_GENERAL_REJECT         = 0xA0, //Browsing
+}BTP_AVRCP_PDUID_ENUM;
 
 /* Define PASSTHROUGH OP_ID */
 typedef enum{
@@ -177,18 +214,98 @@ typedef enum{
 	BTP_AVRCP_EVTMSK_AVAILABLE_PLAYERS_CHANGED   = 1 << (BTP_AVRCP_EVTID_AVAILABLE_PLAYERS_CHANGED-1),
 	BTP_AVRCP_EVTMSK_UIDS_CHANGED                = 1 << (BTP_AVRCP_EVTID_UIDS_CHANGED-1),
 	BTP_AVRCP_EVTMSK_VOLUME_CHANGED              = 1 << (BTP_AVRCP_EVTID_VOLUME_CHANGED-1),
-	BTP_AVRCP_EVTMSK_DEFAULT = BTP_AVRCP_EVTMSK_PLAYBACK_STATUS_CHANGED | BTP_AVRCP_EVTMSK_VOLUME_CHANGED,
+	BTP_AVRCP_EVTMSK_DEFAULT = BTP_AVRCP_EVTMSK_PLAYBACK_STATUS_CHANGED
+		| BTP_AVRCP_EVTMSK_VOLUME_CHANGED | BTP_AVRCP_EVTMSK_BATT_STATUS_CHANGED,
 	BTP_AVRCP_EVTMSK_ALL     = 0x1FFF,
 }BTP_AVRCP_EVTMSK_ENUM;
 
+typedef enum{
+	BTP_AVRCP_BATTERY_STATUS_NORMAL      = 0x00, //Battery operation is in normal state
+	BTP_AVRCP_BATTERY_STATUS_WARNING     = 0x01, //unable to operate soon. Specified when battery going down.
+	BTP_AVRCP_BATTERY_STATUS_CRITICAL    = 0x02, //cannot operate any more. Specified when battery going down.
+	BTP_AVRCP_BATTERY_STATUS_EXTERNAL    = 0x03, //Connecting to external power supply
+	BTP_AVRCP_BATTERY_STATUS_FULL_CHARGE = 0x04, //when the device is completely charged.
+}BTP_AVRCP_BATTERY_STATUS_ENUM;
 
+
+/******************************************************************************
+ * typedef: BtpAvrcpKeyChangeCallback
+ * Descript: The type of callback function that receives keystroke completion. 
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @keyID--Refer BTP_AVRCP_KEYID_ENUM.
+ *     @isPress--True, this key is pressed; Flas, this key is released.
+ * Return: None
+*******************************************************************************/
 typedef void (*BtpAvrcpKeyChangeCallback)(uint16 aclHandle, uint08 keyID, uint08 isPress);
+/******************************************************************************
+ * typedef: BtpAvrcpVolumeChangeCallback
+ * Descript: Type of callback function for volume changed.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @volume--0x00~0x7F.
+ * Return: None
+*******************************************************************************/
 typedef void (*BtpAvrcpVolumeChangeCallback)(uint16 aclHandle, uint08 volume);
+/******************************************************************************
+ * typedef: BtpAvrcpInsCompleteCB
+ * Descript: The type of the callback function that the instruction completed. 
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pduID--The ID of Protocol Data Unit. Refer BTP_AVRCP_PDUID_ENUM.
+ *     @status--Refer BTP_AVRCP_STATUS_CODE_ENUM.
+ *         BTP_AVRCP_STATUS_CODE_OPERATE_WITHOUT_ERROR is success.
+ *     @pParam--The callback param to user.
+ *     @paramLen--The length of param.
+ * Return: None
+*******************************************************************************/
+typedef void(*BtpAvrcpInsCompleteCB)(uint16 aclHandle, uint08 pduID, uint08 status, void *pParam, uint16 paramLen);
+
+
+typedef struct{
+	uint32 songLength; //The total length of the playing song in milliseconds.
+	uint32 songPosition; //The current position of the playing in milliseconds elapsed.
+	uint08 playStatus; //Current Status of playing. Refer BTP_AVRCP_PLAY_STATE_ENUM.
+}btp_avrcp_getPlayStatusRsp_t;
+typedef struct{
+	uint08 attNumb;
+	uint08 attID[16]; //Refer BTP_AVRCP_PLAYER_ATTID_ENUM
+}btp_avrcp_listPasAttrRsp_t;
+typedef struct{
+	uint08 valNumb;
+	uint08 value[16];
+}btp_avrcp_listPasValueRsp_t;
+typedef struct{
+	uint08 number;
+	uint08 attID[16]; //Refer BTP_AVRCP_PLAYER_ATTID_ENUM
+	uint08 value[16];
+}btp_avrcp_getCurlistPasValueRsp_t;
+typedef struct{
+	uint08 number;
+	uint08 attID[16]; //Refer BTP_AVRCP_PLAYER_ATTID_ENUM
+	uint16 charSet[16]; //Refer BTP_BROWSING_CHAR_SET_ENUM
+	uint08 textLen[16];
+	uint08 *pTxtDat[16];
+}btp_avrcp_getPasAttrTextRsp_t;
+typedef struct{
+	uint08 number;
+	uint08 attID[16]; //Refer BTP_AVRCP_PLAYER_ATTID_ENUM
+	uint16 charSet[16]; //Refer BTP_BROWSING_CHAR_SET_ENUM
+	uint08 textLen[16];
+	uint08 *pTxtDat[16];
+}btp_avrcp_getPasValueTextRsp_t;
+typedef struct{
+	uint08 number;
+	uint32 attID[16]; //Refer BTP_AVRCP_PLAYER_ATTID_ENUM
+	uint16 charSet[16]; //Refer BTP_BROWSING_CHAR_SET_ENUM
+	uint16 length[16];
+	uint08 *pValue[16];
+}btp_avrcp_getElementAttrRsp_t;
 
 
 
 /******************************************************************************
- * Function: AVRCP init interface
+ * Function: btp_avrcp_init
  * Descript: This interface be used by user to initial the avrcp resource
  *           of client/server before create a connection between the entity.
  * Params:
@@ -198,62 +315,65 @@ typedef void (*BtpAvrcpVolumeChangeCallback)(uint16 aclHandle, uint08 volume);
 int  btp_avrcp_init(void);
 
 /******************************************************************************
- * Function: AVRCP Trigger Connect interface
+ * Function: btp_avrcp_connect
  * Descript: Defines trigger the avrcp connect cmd to peer avrcp entity and setup
  *           a connection with devices.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @usrId--The service user id.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @usrId--The service user id. The field is not used.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int  btp_avrcp_connect(uint16 aclHandle, uint08 usrID);
 
 /******************************************************************************
- * Function: AVRCP Trigger Disonnect interface
+ * Function: btp_avrcp_disconn
  * Descript: Defines trigger the avrcp disconnect cmd to peer avrcp entity and
  *           tear up a connection which specify by aclhandle and usrid.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @usrId--The service user id.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @usrId--The service user id.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int  btp_avrcp_disconn(uint16 aclHandle, uint08 usrID);
 
 /******************************************************************************
- * Function: AVRCP Send destroy interface
+ * Function: btp_avrcp_destroy
  * Descript: Defines trigger to release the resource which allocated.
  * Params:
- *     @aclHandle--The Acl Handle identifier.
- * Return: null
+ *     @aclHandle--Connection handle of the current ACL.
+ * Return: None.
 *******************************************************************************/
 void btp_avrcp_destroy(uint16 aclHandle);
 
 
 /******************************************************************************
- * Function: AVRCP get play/stop status interface
+ * Function: btp_avrcp_remoteIsPlaying
  * Descript: Defines trigger the avrcp cmd check the music status of peer avrcp entity.
  * Params:
- *     @aclHandle--The Acl Handle identifier.
+ *     @aclHandle--Connection handle of the current ACL.
  * Return: true(success)/false(fail)
 *******************************************************************************/
 bool btp_avrcp_remoteIsPlaying(uint16 aclHandle);
 
 /******************************************************************************
- * Function: AVRCP query set volume Command interface
+ * Function: btp_avrcp_isSupportSetVolume
  * Descript: Defines trigger query the peer avrcp whether support set volume or not.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
+ *     @aclHandle--Connection handle of the current ACL.
  * Return: true(success)/false(fail)
 *******************************************************************************/
 bool btp_avrcp_isSupportSetVolume(uint16 aclHandle);
 
 /******************************************************************************
  * Function: btp_avrcp_setVolume
- * Descript: Defines trigger the avrcp change the music volume to peer entity.
+ * Descript: Set volume, calling this interface will trigger set volume (CT),
+ *           or send Notify(TG).
  * Params:
+ *     @aclHandle--Connection handle of the current ACL.
  *     @volume--The volume value.
+ *     @isSrc--True-this is audio source, false-This is audio sink.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
@@ -261,53 +381,117 @@ int btp_avrcp_setVolume(uint16 aclHandle, uint08 volume, bool isSrc);
 
 /******************************************************************************
  * Function: btp_avrcp_setDefaultVolume
- * Descript: Defines trigger the avrcp change the music volume to peer entity.
+ * Descript: Set the system default volume.
  * Params:
- *     @volume--The volume value.
+ *     @volume--The volume value. 0x00~0x7F
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int btp_avrcp_setDefaultVolume(uint08 volume);
 
 /******************************************************************************
- * Function: btp_avrcp_setTrackValue
- * Descript: .
+ * Function: btp_avrcp_notifyBatteryStatus
+ * Descript: Notify the status of battery to CT.
  * Params:
- *     @volume--The volume value.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @batStatus--The status of battery. Refer BTP_AVRCP_BATTERY_STATUS_ENUM.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avrcp_setTrackValue(uint16 aclHandle, uint32 valueH, uint32 valudL);
+int btp_avrcp_notifyBatteryStatus(uint16 aclHandle, uint08 batStatus);
+
+/******************************************************************************
+ * Function: btp_avrcp_setDefaultBatteryStatus
+ * Descript: Set the default battery status.
+ * Params:
+ *     @batStatus--The status of battery. Refer BTP_AVRCP_BATTERY_STATUS_ENUM.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+*******************************************************************************/
+int btp_avrcp_setDefaultBatteryStatus(uint08 batStatus);
+
+/******************************************************************************
+ * Function: btp_avrcp_setTrackValue
+ * Descript: Set the value of play track ID.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pTrackID--Play Track ID, which bond with music info. Fixed 8 Bytes.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: TrackID need to be bond with the music information if browsing is
+ *     supported. If browsing is not supported, trackID is all zeor.
+*******************************************************************************/
+int btp_avrcp_setTrackValue(uint16 aclHandle, uint08 *pTrackID);
 
 /******************************************************************************
  * Function: btp_avrcp_notifyStatusChange
- * Descript: .
+ * Descript: Notify the status is changed to CT.
  * Params:
+ *     @aclHandle--Connection handle of the current ACL.
  *     @eventID--refer BTP_AVRCP_EVTID_ENUM
+ *     @pData--The data to be sent.
+ *     @dataLen--The length of the data.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int btp_avrcp_notifyStatusChange(uint16 aclHandle, uint08 eventID, uint08 *pData, uint16 dataLen);
-int btp_avrcp_regEventNotify(uint16 aclHandle, uint08 eventID);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendRegEventNotify
+ * Descript: Send a registration event notification message to the TG.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @eventID--refer BTP_AVRCP_EVTID_ENUM
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: 
+ *     1. Registration fails for events that are not supported by the other party.
+ *     2. You can use btp_avrcp_eventIsSupport to check whether the peer supports it.
+*******************************************************************************/
+int btp_avrcp_sendRegEventNotify(uint16 aclHandle, uint08 eventID);
+
+/******************************************************************************
+ * Function: btp_avrcp_eventIsSupport
+ * Descript: Check the event is supported by peer.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @eventID--refer BTP_AVRCP_EVTID_ENUM
+ * Return: True means be supported by peer.
+*******************************************************************************/
 bool btp_avrcp_eventIsSupport(uint16 aclHandle, uint08 eventID);
 
 /******************************************************************************
  * Function: btp_avrcp_setLocalEventMask
- * Descript: 
+ * Descript: Set the event mask of locally supported.
  * Params:
  *     @evtMask--Refer to BTP_AVRCP_EVTMSK_ENUM.
  * Return: None.
 *******************************************************************************/
 void btp_avrcp_setLocalEventMask(uint32 evtMask);
+
+/******************************************************************************
+ * Function: btp_avrcp_setLocalEventMask
+ * Descript: Obtain a locally supported Event Mask.
+ * Params: None.
+ * Return: Refer BTP_AVRCP_EVTMSK_ENUM.
+*******************************************************************************/
 uint btp_avrcp_getLocalEventMask(void);
+
+/******************************************************************************
+ * Function: btp_avrcp_getPeerEventMask
+ * Descript: Obtain a remoter supported Event Mask.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ * Return: Refer BTP_AVRCP_EVTMSK_ENUM.
+*******************************************************************************/
 uint btp_avrcp_getPeerEventMask(uint16 aclHandle);
 
 /******************************************************************************
  * Function: AVRCP Set music state interface
  * Descript: Defines trigger the avrcp cmd change the music of peer avrcp entity.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @playsate--The state of music to be set. Refer BTP_AVRCP_PLAY_STATE_ENUM.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @playsate--The state of music to be set. Refer BTP_AVRCP_PLAY_STATE_ENUM.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
@@ -318,8 +502,8 @@ int btp_avrcp_setPlayState(uint16 aclHandle, uint08 playState);
  * Descript: Defines trigger the avrcp of CT notify the music state 
  *           changing to peer avrcp entity.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @playState--Refer BTP_AVRCP_PLAY_STATE_ENUM.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @playState--Refer BTP_AVRCP_PLAY_STATE_ENUM.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
@@ -329,8 +513,8 @@ int btp_avrcp_notifyPlayState(uint16 aclHandle, uint08 playState);
  * Function: AVRCP Send Key interface
  * Descript: Defines trigger the avrcp key press cmd to peer avrcp entity.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @keyID--The key id which reflect to a special command.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @keyID--The key id which reflect to a special command.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
@@ -340,38 +524,209 @@ int btp_avrcp_sendKeyPress(uint16 aclHandle, uint08 keyID);
  * Function: AVRCP Send Key Release interface
  * Descript: Defines trigger the avrcp key release cmd to peer avrcp entity.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @keyID--The key id which reflect to a special command.
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @keyID--The key id which reflect to a special command.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
 int btp_avrcp_sendKeyRelease(uint16 aclHandle, uint08 keyID);
 
 /******************************************************************************
- * Function: AVRCP Register to listen the Music change interface
+ * Function: btp_avrcp_regKeyChangeCB
  * Descript: Defines register a callback to listen the music player state changing
  *           which operate by avrcp entity.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @cb--The play changed callback.
- * Return: null
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @cb--The play changed callback.
+ * Return: None.
 *******************************************************************************/
 void btp_avrcp_regKeyChangeCB(BtpAvrcpKeyChangeCallback cb);
 
 /******************************************************************************
- * Function: AVRCP Register Volume Change interface
+ * Function: btp_avrcp_regVolumeChangeCB
  * Descript: Defines register a volume change of music player.
  * Params:
- *        @aclHandle--The Acl Handle identifier.
- *        @cb--The volume changed callback.
- * Return: null
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @cb--The volume changed callback.
+ * Return: None.
 *******************************************************************************/
 void btp_avrcp_regVolumeChangeCB(BtpAvrcpVolumeChangeCallback cb);
 
+/******************************************************************************
+ * Function: btp_avrcp_sendGetPlayStatusCmd
+ * Descript: This function is used by the CT to get the status of the currently
+ *           playing media at the TG.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P51 and P134.
+*******************************************************************************/
+int btp_avrcp_sendGetPlayStatusCmd(uint16 aclHandle);
 
-extern int btp_avrcp_browseConnect(uint16 aclHandle);
-extern int btp_avrcp_browseDisconn(uint16 aclHandle);
+/******************************************************************************
+ * Function: btp_avrcp_sendListPasAttrCmd
+ * Descript: This function request the target device to provide target supported
+ *           player application setting attributes.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P48 and P134.
+*******************************************************************************/
+int btp_avrcp_sendListPasAttrCmd(uint16 aclHandle);
 
+/******************************************************************************
+ * Function: btp_avrcp_sendListPasValuesCmd
+ * Descript: This function requests the target device to list the set of possible
+ *           values for the requested player application setting attribute.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @attID--Player application setting attribute ID. 
+ *             Refer BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P49 and P134.
+*******************************************************************************/
+int btp_avrcp_sendListPasValuesCmd(uint16 aclHandle, uint08 attID);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendGetPasAttrTextCmd
+ * Descript: This function requests the target device to provide the current set
+ *           values on the target for the provided player application setting
+ *           attributes list.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pAttID--Player application setting attribute ID for which the corresponding
+ *         current set value is requested. Refer BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM.
+ *     @attCnt--Number of player application setting attribute for which current
+ *         set values are requested.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P49 and P134.
+*******************************************************************************/
+int btp_avrcp_sendGetCurPasValueCmd(uint16 aclHandle, uint08 *pAttID, uint08 attCnt);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendGetPasAttrTextCmd
+ * Descript: This function requests to set the player application setting list
+ *           of player application setting values on the target device for the
+ *           corresponding defined list of PlayerApplicationSettingAttributes.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pAttID--Player application setting attribute ID for which the value 
+ *         needs to be set. Refer BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM.
+ *     @pAttVal--Player application setting value ID for the corresponding player 
+ *         application setting attribute ID.
+ *     @attCnt--Number of player application setting attributes for which the 
+ *         player application setting.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P50 and P134.
+*******************************************************************************/
+int btp_avrcp_sendSetPasValueCmd(uint16 aclHandle, uint08 *pAttID, uint08 *pAttVal, uint08 attCnt);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendGetPasAttrTextCmd
+ * Descript: This function requests the target device to provide supported player
+ *           application setting attribute displayable text for the provided 
+ *           PlayerApplicationSettingAttributeIDs.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pAttID--Player application setting attribute ID for which the corresponding
+ *         attribute displayable text is needed. Refer BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM.
+ *     @attCnt--Number of player application setting attribute IDs for which 
+ *         corresponding string is needed.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P51 and P134.
+ *     This command is expected to be used mainly for extended attributes for
+ *     menu navigation; for defined attributes the CT provides text for the
+ *     application. However, to avoid inconsistency between CT and TG provided 
+ *     text, the TG can choose to provide text for defined attributes as well.
+ *     It is assumed that all pairs used for menu extensions are statically
+ *     defined by TG.
+*******************************************************************************/
+int btp_avrcp_sendGetPasAttrTextCmd(uint16 aclHandle, uint08 *pAttID, uint08 attCnt);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendGetPasValueTextCmd
+ * Descript: This function request the target device to provide target supported
+ *           player application setting value displayable text for the provided
+ *           player application setting attribute values.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pAttID--Player application setting attribute ID for which the value 
+ *         needs to be set. Refer BTP_AVRCP_PLAYER_APP_SET_ATTR_ENUM.
+ *     @pAttVal--Player application setting value ID for the corresponding player 
+ *         application setting attribute ID.
+ *     @attCnt--Number of player application setting attributes for which the 
+ *         player application setting.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: PAS - PlayerApplicationSetting. Refer <AVRCP_v1.6.2> P52 and P134.
+*******************************************************************************/
+int btp_avrcp_sendGetPasValueTextCmd(uint16 aclHandle, uint08 *pAttID, uint08 *pAttVal, uint08 attCnt);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendInformDisplayableCharacterSetCmd
+ * Descript: This function provides the list of character sets supported by CT
+ *           to the TG. This shall allow the TG to send responses with strings
+ *           in any of the character sets supported by CT.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @pCharSet--Supported Character Set.
+ *     @setCnt--Number of displayable character sets provided.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: Refer <AVRCP_v1.6.2> P53 and P134
+ *     After the TG has received this command, the TG may send a string in any
+ *     of the character sets that are specified in this command. By default, the
+ *     TG shall send strings in UTF-8 if it has not received a valid version of
+ *     this command.
+*******************************************************************************/
+int btp_avrcp_sendInformDisplayableCharacterSetCmd(uint16 aclHandle, uint16 *pCharSet, uint08 setCnt);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendInformBatteryStatusOfCTCmd
+ * Descript: This command frame is being sent by the CT to TG whenever the CT's
+ *           battery status has been changed.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @status--Refer to BTP_AVRCP_BATTERY_STATUS_ENUM.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: Refer <AVRCP_v1.6.2> P53 and P134
+*******************************************************************************/
+int btp_avrcp_sendInformBatteryStatusOfCTCmd(uint16 aclHandle, uint08 status);
+
+/******************************************************************************
+ * Function: btp_avrcp_sendGetElementAttrCmd
+ * Descript: These function requests the TG to provide the attributes of the
+ *           element specified in the parameter. This shall only be used to 
+ *           retrieve Metadata for the currently playing track from the Addressed
+ *           Player on the Control channel when GetItemAttributes is not supported.
+ * Params:
+ *     @aclHandle--Connection handle of the current ACL.
+ *     @identify--Unique identifier to identify an element on TG.
+ *     @pAttID--Specifies the attribute ID for the attributes to be retrieved.
+ *         Refer BTP_AVRCP_ATTRID_ENUM.
+ *     @attCnt--Number of Attributes provided.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: Refer <AVRCP_v1.6.2> P54 and P134
+*******************************************************************************/
+int btp_avrcp_sendGetElementAttrCmd(uint16 aclHandle, uint08 identify[8], uint32 *pAttID, uint08 attCnt);
+
+/******************************************************************************
+ * Function: btp_avrcp_regInsCompleteCB
+ * Descript: Register the callback interface for the completion of instruction
+ *           execution.
+ * Params:
+ *     @cb--The callback interface for the completion of instruction execution.
+ * Return: None.
+*******************************************************************************/
+void btp_avrcp_regInsCompleteCB(BtpAvrcpInsCompleteCB cb);
 
 
 #endif /* BTP_AVRCP_H */

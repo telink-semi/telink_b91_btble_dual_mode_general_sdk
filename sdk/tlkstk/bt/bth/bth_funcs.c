@@ -54,6 +54,12 @@ static const bth_func_item_t scBthFunSet[] = {
 	{BTH_FUNCID_SCO_CONNECT, bth_func_scoConnect},
 	{BTH_FUNCID_SCO_DISCONN, bth_func_scoDisconn},
 	{BTH_FUNCID_SCO_DISCONN_BY_ADDR, bth_func_scoDisconnByAddr},
+	//L2CAP
+	{BTH_FUNCID_L2C_CONNECT, bth_func_l2capConnect},
+	{BTH_FUNCID_L2C_DISCONN, bth_func_l2capDisconn},
+	{BTH_FUNCID_L2C_SEND_DATA, bth_func_l2capSendData},
+	{BTH_FUNCID_L2C_SEND_INFO_REQ, bth_func_l2capSendInfoReq},
+
 };
 
 
@@ -152,7 +158,7 @@ static int bth_func_aclDisconn(uint08 *pData, uint16 dataLen)
 	if(handle == 0) handle = sBthFuncAclHandle;
 	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_aclDisconn: handle[0x%x]", handle);
 
-	return bth_acl_disconn(handle);
+	return bth_acl_disconn(handle, 0x00);
 }
 static int bth_func_aclConnectCancel(uint08 *pData, uint16 dataLen)
 {
@@ -246,8 +252,87 @@ static int bth_func_scoDisconnByAddr(uint08 *pData, uint16 dataLen)
 	return bth_sco_disconnByAddr(btAddr, reason);
 }
 
+static int bth_func_l2capConnect(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint16 psmID;
+	uint08 usrID;
 
+	if(pData == nullptr || dataLen < 5){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
 
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBthFuncAclHandle;
+	psmID = ((uint16)pData[3]<<8 | pData[2]);
+	usrID = pData[4];
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capConnect: handle[0x%x], psmID[0x%x], usrID[0x%x]",
+		handle, psmID, usrID);
+
+	return bth_signal_createConnect(handle, psmID, usrID);
+}
+static int bth_func_l2capDisconn(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint16 chnID;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBthFuncAclHandle;
+	chnID = ((uint16)pData[3]<<8 | pData[2]);
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capDisconn: handle[0x%x], CID[0x%x]", handle, chnID);
+	
+	return bth_signal_disconnChannel(handle, chnID);
+}
+static int bth_func_l2capSendData(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint16 scid;
+	uint08 buffLen;
+	uint08 buffer[48];
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSendData: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBthFuncAclHandle;
+	scid = ((uint16)pData[3]<<8 | pData[2]);
+	if(scid == 0) scid = BTH_L2CAP_SIG_CID;
+	buffLen = 48;
+	tmemset(buffer, 0x55, sizeof(buffer));
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSendData: handle[0x%x], scid[0x%x]", handle, scid);
+
+	return bth_l2cap_sendChannelData(handle, scid, buffer, buffLen, nullptr, 0);
+}
+static int bth_func_l2capSendInfoReq(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint16 infoType;
+	uint08 identify;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSendInfoReq: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBthFuncAclHandle;
+	identify = pData[2];
+	if (identify == 0) identify = 1;
+	infoType = ((uint16)pData[4]<<8 | pData[3]);
+	if(infoType == 0) infoType = 0x0002;
+
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSendInfoReq: handle[0x%x], identify[0x%x], infoType[0x%x]",
+															handle, identify, infoType);
+	return bth_signal_sendInfoReq(handle, identify, infoType);
+}
 
 
 #endif //#if (TLK_STK_BTH_ENABLE && TLK_CFG_TEST_ENABLE)

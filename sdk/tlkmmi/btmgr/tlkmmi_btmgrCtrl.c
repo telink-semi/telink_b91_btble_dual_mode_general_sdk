@@ -39,26 +39,6 @@
 
 #define TLKMMI_BTMGR_NAME_DEF     "TLK DualMode 2.0"
 
-//extern void generateRandomNum(int len, unsigned char *data);
-
-/******************************************************************************
- * Function: bt_ll_set_bd_addr
- * Descript: Set Bt address.
- * Params:
- * Return: TLK_ENONE is success, others value is failure.
- * Others: None.
-*******************************************************************************/
-extern int bt_ll_set_bd_addr(uint08 *bdAddr);
-
-/******************************************************************************
- * Function: bt_ll_set_local_name
- * Descript: Set Bt local name.
- * Params:
- * Return: None.
- * Others: None.
-*******************************************************************************/
-extern void bt_ll_set_local_name(char *name);
-
 
 tlkmmi_btmgr_ctrl_t gTlkMmiBtmgrCtrl;
 
@@ -104,8 +84,10 @@ int tlkmmi_btmgr_ctrlInit(void)
 	}
 	tmemcpy(gTlkMmiBtmgrCtrl.btaddr, bttemp, 6);
 
-	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
+	bth_hci_sendSetBtAddrCmd(gTlkMmiBtmgrCtrl.btaddr);
 	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);
+	bth_hci_exeCmdNow();
+	bth_hci_exeEvtNow();
 
 	#if (TLK_MDI_BTIAP_ENABLE)
 	tlkmdi_btiap_setAddr(gTlkMmiBtmgrCtrl.btaddr);
@@ -182,7 +164,7 @@ int tlkmmi_btmgr_setAddr(uint08 *pAddr)
 	tlkapi_flash_write(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
 	
 	tmemcpy(gTlkMmiBtmgrCtrl.btaddr, pAddr, 6);
-	bt_ll_set_bd_addr(gTlkMmiBtmgrCtrl.btaddr);
+	bth_hci_sendSetBtAddrCmd(gTlkMmiBtmgrCtrl.btaddr);
 
 	#if (TLK_MDI_BTIAP_ENABLE)
 	tlkmdi_btiap_setAddr(gTlkMmiBtmgrCtrl.btaddr);

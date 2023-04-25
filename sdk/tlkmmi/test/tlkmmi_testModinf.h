@@ -35,16 +35,18 @@ typedef enum
 	TLKMMI_TEST_MODTYPE_RDT,
 	TLKMMI_TEST_MODTYPE_EMI,
 	TLKMMI_TEST_MODTYPE_USR,
+	TLKMMI_TEST_MODTYPE_BQB,
 	TLKMMI_TEST_MODTYPE_MAX,
 }TLKMMI_TEST_MODTYPE_ENUM;
 
 
+int tlkmmi_test_modInit(TLKMMI_TEST_MODTYPE_ENUM type);
 int tlkmmi_test_modStart(TLKMMI_TEST_MODTYPE_ENUM type);
 int tlkmmi_test_modPause(TLKMMI_TEST_MODTYPE_ENUM type);
 int tlkmmi_test_modClose(TLKMMI_TEST_MODTYPE_ENUM type);
 int tlkmmi_test_modInput(TLKMMI_TEST_MODTYPE_ENUM type, uint16 msgID, 
 	uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
-
+int tlkmmi_test_modHandler(TLKMMI_TEST_MODTYPE_ENUM type);
 
 
 #endif //#if (TLKMMI_TEST_MODINF_H)

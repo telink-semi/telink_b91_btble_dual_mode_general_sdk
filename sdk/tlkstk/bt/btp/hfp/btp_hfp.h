@@ -439,6 +439,28 @@ extern int btp_hfpag_activeCall(uint08 *pNumber, uint08 numbLen);
 *******************************************************************************/
 extern int btp_hfpag_hungupCall(void);
 
+/******************************************************************************
+ * Function: btp_hfphf_sendDtmf
+ * Descript: Instruct the AG to transmit a specific DTMF code to its network
+ *           connection.
+ * Params:
+ *     @aclHandle[IN]--The acl handle.
+ *     @dtmf[IN]--The Dtmf tone. dtmf is a single ASCII character.
+ *        The value of dtmf is '0'~9,'*','#', 'A','B','C','D'.
+ * Return: Returning TLK_ENONE(0x00) means the send process success.
+ *         If others value is returned means the send process fail.
+ * Note: To send the DTMF dial tone, you must have a phone currently in use.
+*******************************************************************************/
+extern int btp_hfphf_sendDtmf(uint16 aclHandle, char dtmf);
+
+/******************************************************************************
+ * Function: btp_hfp_getCurCodec
+ * Descript:
+ * Params:
+ *     @aclHandle[IN]--The acl handle.
+ * Return:
+*******************************************************************************/
+extern uint08 btp_hfp_getCurCodec(uint16 aclHandle);
 
 
 

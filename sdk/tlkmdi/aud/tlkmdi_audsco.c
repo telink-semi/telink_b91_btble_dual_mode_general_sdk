@@ -41,6 +41,8 @@
 #include "tlkdev/sys/tlkdev_codec.h"
 #include "tlksys/prt/tlkpti_audio.h"
 #include "tlksys/prt/tlkpto_comm.h"
+#include "tlksys/prt/tlkpti_phone.h"
+#include "tlksys/tlksys_stdio.h"
 
 
 #define TLKMDI_AUDSCO_DOUBLE_CHANNEL_ENABLE     1
@@ -65,6 +67,7 @@
 
 
 extern void btc_sco_regDataCB(void *prx, void *ptx);
+extern uint08 btp_hfp_getCurCodec(uint16 aclHandle);
 //extern void tlkalg_2chnmix(short* pLeft, short* pRight, short* pOut, int stride, int length);
 
 
@@ -192,6 +195,7 @@ bool tlkmdi_audsco_switch(uint16 handle, uint08 status)
 
 	tlkdev_codec_muteSpk();
 	
+	sTlkMdiScoCodec = btp_hfp_getCurCodec(sTlkMdiScoCtrl.handle);
 	tlkmdi_sco_initCodec(enable);
 	if(enable){
 		tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_audsco_switch: enable");
@@ -269,6 +273,7 @@ void tlkmdi_sco_setCodec(uint08 codec)
 
 static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 {
+	uint08 data[4];
 	bth_scoConnComplateEvt_t *pEvt;
 
 	pEvt = (bth_scoConnComplateEvt_t*)pData;
@@ -287,11 +292,15 @@ static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 	if(sTlkMdiScoConnCB != nullptr){
 		sTlkMdiScoConnCB(pEvt->aclHandle, pEvt->scoHandle, true);
 	}
-	
+	data[0] = pEvt->aclHandle & 0xFF;
+	data[1] = ((pEvt->aclHandle & 0xFF00) >> 8);
+	data[2] = 1;//sco connect
+	tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE,TLKPTI_PHONE_MSGID_CALL_SCO_UPDATE_EVT,data, 3);
 	return TLK_ENONE;
 }
 static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
 {
+	uint08 data[4];
 	bth_scoDiscComplateEvt_t *pEvt;
 
 	pEvt = (bth_scoDiscComplateEvt_t*)pData;
@@ -302,18 +311,22 @@ static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
 	if(sTlkMdiScoConnCB != nullptr){
 		sTlkMdiScoConnCB(pEvt->aclHandle, pEvt->scoHandle, false);
 	}
+	data[0] = pEvt->aclHandle & 0xFF;
+	data[1] = ((pEvt->aclHandle & 0xFF00) >> 8);
+	data[2] = 0;//sco disc;
+	tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE,TLKPTI_PHONE_MSGID_CALL_SCO_UPDATE_EVT,data,3);
 	return TLK_ENONE;
 }
 static int tlkmdi_sco_codecChgEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoCodecChangedEvt_t *pEvt;
+//	bth_scoCodecChangedEvt_t *pEvt;
 
-	pEvt = (bth_scoCodecChangedEvt_t*)pData;
-	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_codecChgEvt: %d", pEvt->codec);
-	if(pEvt->codec != sTlkMdiScoCodec){
-		sTlkMdiScoCodec = pEvt->codec;
-		if(sTlkMdiScoCtrl.enable) tlkmdi_sco_initCodec(sTlkMdiScoCtrl.enable);
-	}
+//	pEvt = (bth_scoCodecChangedEvt_t*)pData;
+//	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_codecChgEvt: %d", pEvt->codec);
+//	if(pEvt->codec != sTlkMdiScoCodec){
+//		sTlkMdiScoCodec = pEvt->codec;
+//		if(sTlkMdiScoCtrl.enable) tlkmdi_sco_initCodec(sTlkMdiScoCtrl.enable);
+//	}
 	return TLK_ENONE;
 }
 

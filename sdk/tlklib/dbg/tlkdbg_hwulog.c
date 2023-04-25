@@ -111,7 +111,7 @@ void tlkdbg_hwulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb
 
 	tlkdbg_setPrintBuffer(nullptr, 0);
 	
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	dataLen = ((uint16)sTlkDbgHwuLogCache[1] << 8) | sTlkDbgHwuLogCache[0];
 	#if (TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE)
 	sTlkDbgHwuLogCache[dataLen+2+0] = '\r';
@@ -121,7 +121,7 @@ void tlkdbg_hwulog_print(char *pSign, char *pHead, char *fileName, uint lineNumb
 	sTlkDbgHwuLogCache[dataLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogCache+2, dataLen+1);
 	#endif
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 void tlkdbg_hwulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
@@ -150,7 +150,7 @@ void tlkdbg_hwulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 	
 	tlkdbg_setPrintBuffer(nullptr, 0);
 	
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	optLen = ((uint16)sTlkDbgHwuLogCache[1] << 8) | sTlkDbgHwuLogCache[0];
 	#if (TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE)
 	sTlkDbgHwuLogCache[optLen+2+0] = '\r';
@@ -160,7 +160,7 @@ void tlkdbg_hwulog_array(char *pSign, char *pHead, char *fileName, uint lineNumb
 	sTlkDbgHwuLogCache[optLen+2+0] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogCache+2, optLen+1);
 	#endif
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 
@@ -251,13 +251,13 @@ void tlkdbg_hwulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 		tempVar = tlkapi_arrayToStr(pData, dataLen, (char*)(pBuff+buffLen), TLKDBG_HWU_LOG_IRQ_CACHE_SIZE-2-buffLen, ' ');
 		buffLen += tempVar;
 	}
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	#if (TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE)
 	pBuff[buffLen++] = '\r';
 	#endif
 	pBuff[buffLen++] = '\n';
 	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, pBuff, buffLen);	
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 

@@ -42,26 +42,125 @@ typedef struct{
 	uint08 busyCheckCount;
 	uint08 enterSleepCount;
 	uint08 leaveSleepCount;
+	const char *name[TLKSYS_PM_BUSY_CHECK_FUNC_MAX_NUMB];
 	TlkSysPmBusyCheckCallback  busyCheck[TLKSYS_PM_BUSY_CHECK_FUNC_MAX_NUMB];
 	TlkSysPmEnterSleepCallback enterSleep[TLKSYS_PM_ENTER_SLEEP_FUNC_MAX_NUMB];
 	TlkSysPmLeaveSleepCallback leaveSleep[TLKSYS_PM_LEAVE_SLEEP_FUNC_MAX_NUMB];
 }tlksys_pm_cbCtrl_t;
 
 
+/******************************************************************************
+ * Function: tlksys_pm_init
+ * Descript: 
+ * Params:
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int tlksys_pm_init(void);
 
-int tlksys_pm_appendBusyCheckCB(TlkSysPmBusyCheckCallback cb);
+/******************************************************************************
+ * Function: tlksys_pm_appendBusyCheckCB
+ * Descript: Add a task function to the 'sTlkSysPmCbCtrl.busyCheck' table that
+ * 			 needs to detect its busy status.
+ * Params:
+ *     @cb[IN]--Function name of the task function.
+ *     @name[IN]--Identification name of the task function.
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
+int tlksys_pm_appendBusyCheckCB(TlkSysPmBusyCheckCallback cb, const char *name);
+
+/******************************************************************************
+ * Function: tlksys_pm_removeBusyCheckCB
+ * Descript: Remove a task function from the 'sTlkSysPmCbCtrl.busyCheck' table.
+ * Params:
+ *     @cb[IN]--Function name of the task function.
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int tlksys_pm_removeBusyCheckCB(TlkSysPmBusyCheckCallback cb);
 
+/******************************************************************************
+ * Function: tlksys_pm_appendEnterSleepCB
+ * Descript: Add a task function to the 'sTlkSysPmCbCtrl.enterSleep' table that
+ * 			 needs to go to sleep.
+ * Params:
+ *     @cb[IN]--Function name of the task function.
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int tlksys_pm_appendEnterSleepCB(TlkSysPmEnterSleepCallback cb);
+
+/******************************************************************************
+ * Function: tlksys_pm_removeEnterSleepCB
+ * Descript: Remove a task function from the 'sTlkSysPmCbCtrl.enterSleep' table.
+ * Params:
+ *     @cb[IN]--Function name of the task function.
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int tlksys_pm_removeEnterSleepCB(TlkSysPmEnterSleepCallback cb);
 
+/******************************************************************************
+ * Function: tlksys_pm_appendLeaveSleepCB
+ * Descript: Add a task function to the 'sTlkSysPmCbCtrl.leaveSleep' table that
+ * 			 needs to exit sleep.
+ * Params:
+ *     @cb[IN]--Function name of the task function.
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int tlksys_pm_appendLeaveSleepCB(TlkSysPmLeaveSleepCallback cb);
+
+/******************************************************************************
+ * Function: tlksys_pm_removeLeaveSleepCB
+ * Descript: Remove the task function for exiting sleep from the
+ * 			 'sTlkSysPmCbCtrl.leaveSleep' table.
+ * Params:
+ *     @cb[IN]--Task functions to be removed.
+ * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Others: None.
+*******************************************************************************/
 int tlksys_pm_removeLeaveSleepCB(TlkSysPmLeaveSleepCallback cb);
 
-
+/******************************************************************************
+ * Function: tlksys_pm_isBusy
+ * Descript: Get whether the function in the 'sTlkSysPmCbCtrl.busyCheck' table
+ * 			 is in the BUSY state.
+ * Params:
+ * Return: true means success, false means failture.
+ * Others: None.
+*******************************************************************************/
 bool tlksys_pm_isBusy(void);
+
+/******************************************************************************
+ * Function: tlksys_pm_getBusyName
+ * Descript: Get the name of the currently busy task from the
+ * 			 'sTlkSysPmCbCtrl.busyCheck' table
+ * Params:
+ * Return: Busy task name.
+ * Others: None.
+*******************************************************************************/
+const char *tlksys_pm_getBusyName(void);
+
+/******************************************************************************
+ * Function: tlksys_pm_enterSleep
+ * Descript: Enter low power mode.
+ * Params:
+ *     @wake[IN]--Low power operation mode, refer to pm_sleep_mode_e.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlksys_pm_enterSleep(uint mode);
+
+/******************************************************************************
+ * Function: tlksys_pm_leaveSleep
+ * Descript: Leaving low power mode.
+ * Params:
+ *     @wake[IN]--Wake up source, refer to pm_sleep_wakeup_src_e.
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
 void tlksys_pm_leaveSleep(uint wake);
 
 

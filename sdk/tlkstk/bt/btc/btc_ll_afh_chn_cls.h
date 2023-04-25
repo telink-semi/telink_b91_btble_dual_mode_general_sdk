@@ -29,12 +29,19 @@
 #include "tlkstk/bt/incs/em_map_config.h"
 
 /// CLASSIFICATION state
-enum ACL_CLS_STATE
-{
-    AFH_CLS_IDLE,
-    AFH_WAIT_CLS_INTERVAL,
-	AFH_WAIT_CLS_DONE,
-};
+typedef enum{
+    BTC_AFH_CLS_STATE_IDLE,
+    BTC_AFH_CLS_STATE_WAIT_INTERVAL,
+	BTC_AFH_CLS_STATE_WAIT_DONE,
+}BTC_AFH_CLS_STATE_ENUM;
+typedef enum{
+	BTC_AFH_CLS_MSGID_IDLE,
+	BTC_AFH_CLS_MSGID_HCI_SET_AFH_HOST_CH_CLASS,
+	BTC_AFH_CLS_MSGID_DISABLE_CLS,
+	BTC_AFH_CLS_MSGID_LMP_REQ,
+	BTC_AFH_CLS_MSGID_LMP_CH_CLS_REQ,
+	BTC_AFH_CLS_MSGID_LMP_CH_CLS,
+}BTC_AFH_CLS_MSGID_ENUM;
 
 
 /// Channel assessment data
@@ -72,22 +79,13 @@ typedef struct bt_afh_tag {
 
 extern bt_afh_tag_t bt_afh_env;
 
-enum{
-	AFH_CLS_MAINLOOP_TASK_ID_IDLE,
-	AFH_CLS_MAINLOOP_TASK_ID_HCI_SET_AFH_HOST_CH_CLASS,
-	AFH_CLS_MAINLOOP_TASK_ID_DISABLE_CLS,
-	AFH_CLS_MAINLOOP_TASK_ID_LMP_REQ,
-	AFH_CLS_MAINLOOP_TASK_ID_LMP_CH_CLS_REQ,
-	AFH_CLS_MAINLOOP_TASK_ID_LMP_CH_CLS,
-};
 
-enum{
-	AFH_CLS_IRQ_TASK_ID_IDLE,
-};
-typedef int32_t (*btc_afh_cls_task_callback_t)(uint8_t link_id,uint8_t* p,uint8_t len);
 
-extern btc_afh_cls_task_callback_t btc_afh_cls_mainloop_task_callback;
+
+typedef int(*btc_afh_cls_task_callback_t)(uint08 linkId, uint08 msgId, uint08 *pData, uint08 dataLen);
+
+extern btc_afh_cls_task_callback_t gBtcAfhClsSysMsgCB;
 int btc_timer_afh_cls_interval_to_func(uint32_t data);
-void btc_afh_cls_register_module(void);
+void btc_afh_cls_init(void);
 
 #endif /* _BT_LL_CHN_CLS_H_ */

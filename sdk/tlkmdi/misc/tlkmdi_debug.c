@@ -34,6 +34,7 @@
 #define TLKMDI_DEBUG_DBG_FLAG         ((TLK_MAJOR_DBGID_MDI_MISC << 24) | (TLK_MINOR_DBGID_MDI_MISC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_DEBUG_DBG_SIGN         "[MDI]"
 
+
 extern void tlk_debug_init(void);
 
 
@@ -51,7 +52,7 @@ int tlkmdi_debug_init(void)
 	tlkapi_chip_stackInit();
 	#endif
 	#if (TLK_CFG_SYS_ENABLE)
-	tlksys_pm_appendBusyCheckCB(tlkdbg_isBusy);
+	tlksys_pm_appendBusyCheckCB(tlkdbg_isBusy, "tlkmdi_debug");
 	#endif
 	
 	return TLK_ENONE;

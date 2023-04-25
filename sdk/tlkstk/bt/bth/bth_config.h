@@ -26,7 +26,7 @@
 
 
 
-#define BTH_L2CAP_MTU_SIZE                656//676
+
 
 
 

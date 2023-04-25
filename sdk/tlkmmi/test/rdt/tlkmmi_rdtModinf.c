@@ -33,23 +33,17 @@
 			&gTlkMmiRdtT##caseID##Inf
 TLKMMI_RDT_MODULE_EXT(001);
 TLKMMI_RDT_MODULE_EXT(002);
+TLKMMI_RDT_MODULE_EXT(003);
 static const tlkmmi_rdtModinf_t *sTlkMmiRdtTestModule[] =
 {
 	TLKMMI_RDT_MODULE_CALL(001),
 	TLKMMI_RDT_MODULE_CALL(002),
+	TLKMMI_RDT_MODULE_CALL(003),
 };
 static const tlkmmi_rdtModinf_t *tlkmmi_rdt_getModinf(uint caseID);
 
 
 
-int tlkmmi_rdt_modState(uint16 caseID)
-{
-	const tlkmmi_rdtModinf_t *pModInf = tlkmmi_rdt_getModinf(caseID);
-	if(pModInf == nullptr || pModInf->State == nullptr){
-		return -TLK_ENOSUPPORT;
-	}
-	return pModInf->State();
-}
 int tlkmmi_rdt_modStart(uint16 caseID, uint08 role)
 {
 	const tlkmmi_rdtModinf_t *pModInf = tlkmmi_rdt_getModinf(caseID);
@@ -57,14 +51,6 @@ int tlkmmi_rdt_modStart(uint16 caseID, uint08 role)
 		return -TLK_ENOSUPPORT;
 	}
 	return pModInf->Start(role);
-}
-int tlkmmi_rdt_modPause(uint16 caseID)
-{
-	const tlkmmi_rdtModinf_t *pModInf = tlkmmi_rdt_getModinf(caseID);
-	if(pModInf == nullptr || pModInf->Pause == nullptr){
-		return -TLK_ENOSUPPORT;
-	}
-	return pModInf->Pause();
 }
 int tlkmmi_rdt_modClose(uint16 caseID)
 {

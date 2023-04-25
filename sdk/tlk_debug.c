@@ -124,7 +124,8 @@ static const tlk_debug_info_t scTlkDebugBtpInfo = {
 		{TLK_MINOR_DBGID_BTP_AVRCP,  true,  false, TLK_DEBUG_DBG_FLAG_ALL, "[AVRCP]"},
 		{TLK_MINOR_DBGID_BTP_OBEX,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[OBEX]"},
 		{TLK_MINOR_DBGID_BTP_PBAP,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[PBAP]"},
-		{TLK_MINOR_DBGID_BTP_FUNC,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[PBAP]"},
+		{TLK_MINOR_DBGID_BTP_BROWSE, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[BROWSE]"},
+		{TLK_MINOR_DBGID_BTP_FUNC,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[FUNC]"},
 	}
 };
 

@@ -43,14 +43,14 @@ void tlkos_leave_critical(uint irqMsk)
 }
 
 _attribute_ram_code_sec_noinline_
-uint tlkos_disable_interrupt(void)
+void tlkos_disable_interrupt(void)
 {
-	return core_disable_interrupt();
+	core_interrupt_disable();
 }
 _attribute_ram_code_sec_noinline_
-void tlkos_restore_interrupt(uint irqMsk)
+void tlkos_restore_interrupt(void)
 {
-	core_restore_interrupt(irqMsk);
+	core_interrupt_restore();
 }
 
 void tlkos_delay(uint value)

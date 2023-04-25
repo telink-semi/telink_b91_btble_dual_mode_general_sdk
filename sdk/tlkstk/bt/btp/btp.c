@@ -28,6 +28,7 @@
 #include "../bth/bth.h"
 #include "../bth/bth_device.h"
 #include "../bth/bth_handle.h"
+#include "../bth/bth_l2cap.h"
 #include "btp.h"
 #include "btp_config.h"
 #include "btp_define.h"
@@ -41,6 +42,7 @@
 #include "att/btp_att.h"
 #include "hid/btp_hid.h"
 #include "iap/btp_iap.h"
+#include "browsing/btp_browsing.h"
 
 
 int btp_init(void)
@@ -76,6 +78,10 @@ int btp_init(void)
 	#endif
 	#if (TLKBTP_CFG_HID_ENABLE)
 	btp_hid_init();
+	#endif
+	#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
+	btp_browsing_init();
+	bth_l2cap_setExtFeature(BTH_L2CAP_EXT_FEATURE_ENHANCED_RTN_MODE | BTH_L2CAP_EXT_FEATURE_FCS_OPTION);
 	#endif
 	
 	return TLK_ENONE;
@@ -120,6 +126,9 @@ void btp_destroy(uint16 aclHandle)
 	#endif
 	#if (TLKBTP_CFG_HID_ENABLE)
 	btp_hid_destroy(aclHandle);
+	#endif
+	#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
+	btp_browsing_destroy(aclHandle);
 	#endif
 }
 

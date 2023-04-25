@@ -95,14 +95,14 @@ void tlkdbg_gsuvcd_ref(void)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	int t=clock_time();
 	buffer[buffLen++] = 0x20;
 	buffer[buffLen++] = t & 0xFF;
 	buffer[buffLen++] = (t & 0xFF00) >> 8;
 	buffer[buffLen++] = (t & 0xFF0000) >> 16;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 // 4-byte sync word: 00 00 00 00
 _attribute_ram_code_sec_noinline_
@@ -110,13 +110,13 @@ void tlkdbg_gsuvcd_sync(bool enable)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	buffer[buffLen++] = 0x00;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }      
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
 _attribute_ram_code_sec_noinline_
@@ -124,14 +124,14 @@ void tlkdbg_gsuvcd_tick(uint08 id)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	int t=clock_time();
 	buffer[buffLen++] = 0x20 | (id&31);
 	buffer[buffLen++] = t & 0xFF;
 	buffer[buffLen++] = (t & 0xFF00) >> 8;
 	buffer[buffLen++] = (t & 0xFF0000) >> 16;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //1-byte (01x_id-5bits) 1-bit data: b=0 or 1.
 _attribute_ram_code_sec_noinline_
@@ -139,14 +139,14 @@ void tlkdbg_gsuvcd_level(uint08 id, uint08 level)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	int t=clock_time();
 	buffer[buffLen++] = ((level) ? 0x60:0x40) | (id&31);
 	buffer[buffLen++] = t & 0xFF;
 	buffer[buffLen++] = (t & 0xFF00) >> 8;
 	buffer[buffLen++] = (t & 0xFF0000) >> 16;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //1-byte (000_id-5bits)
 _attribute_ram_code_sec_noinline_
@@ -154,10 +154,10 @@ void tlkdbg_gsuvcd_event(uint08 id)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x00 | (id&31);
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //2-byte (10-id-6bits) 8-bit data
 _attribute_ram_code_sec_noinline_
@@ -165,11 +165,11 @@ void tlkdbg_gsuvcd_byte(uint08 id, uint08 value)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0x80 | (id&63);
 	buffer[buffLen++] = value;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 //3-byte (11-id-6bits) 16-bit data
 _attribute_ram_code_sec_noinline_
@@ -177,12 +177,12 @@ void tlkdbg_gsuvcd_word(uint08 id, uint16 value)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	buffer[buffLen++] = 0xc0 | (id&63);
 	buffer[buffLen++] = value & 0xFF;
 	buffer[buffLen++] = (value & 0xFF00) >> 8;
 	tlkapi_fifo_write(&sTlkDbgGsuVcdFifo, buffer, buffLen);
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 
@@ -213,7 +213,7 @@ static void tlkdbg_gsuvcd_putchar(uint08 byte)
 	bits[8] = ((byte>>7) & 0x01)? bit1 : bit0;
 	bits[9] = bit1;
 
-	uint32 r = core_disable_interrupt();
+	core_interrupt_disable();
 	time1 = reg_system_tick;
 	for(index=0; index<10; index++){
 		time2 = time1;
@@ -222,7 +222,7 @@ static void tlkdbg_gsuvcd_putchar(uint08 byte)
 		}
 		reg_gpio_out(sTlkDbgGsuVcdGpioPin) = bits[index];
 	}
-	core_restore_interrupt(r);
+	core_interrupt_restore();
 }
 
 

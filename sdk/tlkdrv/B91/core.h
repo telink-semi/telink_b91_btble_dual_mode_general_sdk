@@ -97,36 +97,7 @@ typedef enum{
 	FLD_FEATURE_VECTOR_MODE_EN 			= BIT(1),
 }feature_e;
 
-/* Disable the Machine external, timer and software interrupts until setup is done */
-/** @brief Disable interrupts globally in the system.
- * This function must be used when the system wants to disable all the interrupt
- * it could handle.
- */
-//static inline u32 core_disable_interrupt(void){
-//
-//	u32 r = read_csr (NDS_MIE);
-//	clear_csr(NDS_MIE, BIT(3)| BIT(7)| BIT(11));
-//	return r;
-//}
-
-
-/* Enable the Machine External/Timer/Sofware interrupt bit in MIE. */
-/** @brief Disable interrupts globally in the system.
- * This function must be used when the system wants to restore all the interrupt
- * it could handle.
- */
-//static inline u32 core_restore_interrupt(u32 en){
-//
-//	set_csr(NDS_MIE, en);
-//	return 0;
-//}
-
  
-unsigned int core_disable_interrupt(void);
-
-void core_restore_interrupt(unsigned int en);
-
-
 /* Enable the Machine External/Timer/Sofware interrupt bit in MIE. */
 /** @brief Disable interrupts globally in the system.
  * This function must be used when the system wants to restore all the interrupt
@@ -137,6 +108,11 @@ void core_restore_interrupt(unsigned int en);
 void core_enable_interrupt(void);
 
 
+unsigned int core_disable_interrupt(void);
+void core_restore_interrupt(unsigned int en);
 
+
+void core_interrupt_disable(void);
+void core_interrupt_restore(void);
 
 #endif

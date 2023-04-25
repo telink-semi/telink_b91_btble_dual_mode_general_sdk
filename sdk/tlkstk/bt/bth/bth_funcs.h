@@ -25,6 +25,9 @@
 
 #if (TLK_STK_BTH_ENABLE)
 
+#ifndef BTH_PTS_TEST_L2CAP
+#define BTH_PTS_TEST_L2CAP	0
+#endif	//BTH_PTS_TEST_L2CAP
 
 
 enum BTH_FUNCID_SET_ENUM{
@@ -53,6 +56,10 @@ enum BTH_FUNCID_SET_ENUM{
 	BTH_FUNCID_EVT_START = 0x0500,
 	//L2cap Start
 	BTH_FUNCID_L2C_START = 0x0600,
+	BTH_FUNCID_L2C_CONNECT = 0x01 + BTH_FUNCID_L2C_START,
+	BTH_FUNCID_L2C_DISCONN = 0x02 + BTH_FUNCID_L2C_START,
+	BTH_FUNCID_L2C_SEND_DATA = 0x03 + BTH_FUNCID_L2C_START,
+	BTH_FUNCID_L2C_SEND_INFO_REQ= 0x04 + BTH_FUNCID_L2C_START,
 	//Signal Start
 	BTH_FUNCID_SIG_START = 0x0700,
 };
@@ -85,7 +92,10 @@ static int bth_func_scoConnect(uint08 *pData, uint16 dataLen);
 static int bth_func_scoDisconn(uint08 *pData, uint16 dataLen);
 static int bth_func_scoDisconnByAddr(uint08 *pData, uint16 dataLen);
 
-
+static int bth_func_l2capConnect(uint08 *pData, uint16 dataLen);
+static int bth_func_l2capDisconn(uint08 *pData, uint16 dataLen);
+static int bth_func_l2capSendData(uint08 *pData, uint16 dataLen);
+static int bth_func_l2capSendInfoReq(uint08 *pData, uint16 dataLen);
 
 #endif //#if (TLK_STK_BTH_ENABLE)
 

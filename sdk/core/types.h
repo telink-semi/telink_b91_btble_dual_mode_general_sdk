@@ -33,6 +33,24 @@
 #define nullptr  0
 #endif
 
+#ifndef TRUE
+#define TRUE     1
+#endif
+
+#ifndef FALSE
+#define FALSE     0
+#endif
+
+
+#ifndef min
+#define min(a,b)	((a) < (b) ? (a) : (b))
+#endif
+#ifndef max
+#define max(a,b)	((a) > (b) ? (a): (b))
+#endif
+
+
+
 
 typedef unsigned char  u8  ;
 typedef unsigned short u16 ;
@@ -53,18 +71,6 @@ typedef signed short   int16_t  ;
 typedef unsigned long uint32_t;
 
 
-#ifndef TRUE
-#define TRUE     1
-#endif
-
-#ifndef FALSE
-#define FALSE     0
-#endif
-
-#define U32_MAX ((u32)0xffffffff)
-#define U16_MAX ((u16)0xffff)
-#define U8_MAX ((u8)0xff)
-
 
 typedef unsigned char		 uint08;
 typedef unsigned short		 uint16;
@@ -73,6 +79,4 @@ typedef unsigned long long	 uint64;
 
 
 
-
 #endif /* TYPES_H_ */
-

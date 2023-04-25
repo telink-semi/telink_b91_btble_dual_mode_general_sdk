@@ -46,6 +46,9 @@
 #define TLK_STK_BTH_ENABLE           0
 #define TLK_STK_BTP_ENABLE           0
 
+#define TLK_STK_LE_ENABLE            1
+#define TLK_STK_LEH_ENABLE           0
+
 #define TLK_DEV_SERIAL_ENABLE        1
 #define TLK_DEV_CODEC_ENABLE         0
 #define TLK_DEV_STORE_ENABLE         0

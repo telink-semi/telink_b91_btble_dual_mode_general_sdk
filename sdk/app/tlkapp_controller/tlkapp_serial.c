@@ -32,8 +32,6 @@
 static void tlkapp_serial_input(uint08 *pData, uint16 dataLen);
 static int  tlkapp_serial_send(uint08 *pData, uint16 dataLen);
 static void tlkapp_serial_reset(void);
-static void tlkapp_serial_reboot(uint32 reserve);
-static void tlkapp_serial_setBaudrate(uint32 baudrate);
 
 __attribute__((aligned(4)))
 static uint08 sTlkAppSerialRecvBuffer[TLKAPP_SERIAL_RBUFF_NUMB*(TLKAPP_SERIAL_RBUFF_SIZE+4)];
@@ -55,8 +53,6 @@ int tlkapp_serial_init(void)
 
 	tlkbt_hci_regSendCB(tlkapp_serial_send);
 	tlkbt_hci_regResetCB(tlkapp_serial_reset);
-	tlkbt_hci_regStandByCB(tlkapp_serial_reboot);
-	tlkbt_hci_regBaudRateCB(tlkapp_serial_setBaudrate);
 
 	return TLK_ENONE;
 }
@@ -79,16 +75,6 @@ static int tlkapp_serial_send(uint08 *pData, uint16 dataLen)
 static void tlkapp_serial_reset(void)
 {
 	tlkdev_serial_close();
-	tlkdev_serial_open();
-}
-static void tlkapp_serial_reboot(uint32 reserve)
-{
-	core_reboot();
-}
-static void tlkapp_serial_setBaudrate(uint32 baudrate)
-{
-	tlkdev_serial_close();
-	tlkdev_serial_setBaudrate(baudrate);
 	tlkdev_serial_open();
 }
 

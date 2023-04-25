@@ -27,75 +27,44 @@
 #include "../tlkmmi_rdtStd.h"
 #if (TLKMMI_RDT_CASE_T002_ENABLE)
 #include "tlkmmi_rdt_t002.h"
-#include "tlkmmi_rdt_t002Bt.h"
-
-
-
-TLKMMI_RDT_MODINF_DEFINE(002);
-
+#include "tlkmmi_rdt_t002Dut.h"
+#include "tlkmmi_rdt_t002Aut.h"
 
 static bool tlkmmi_rdt_t002Timer(tlkapi_timer_t *pTimer, uint32 userArg);
 
 
+TLKMMI_RDT_MODINF_DEFINE(002);
+
 static tlkmmi_rdt_t002_t sTlkMmiRdtT002 = {0};
 
 
-int tlkmmi_rdt_t002GetRole(void)
-{
-	return sTlkMmiRdtT002.devRole;
-}
-int tlkmmi_rdt_t002GetState(void)
-{
-	return sTlkMmiRdtT002.state;
-}
 
-
-static int tlkmmi_rdt_t002State(void)
-{
-
-
-	return TLK_STATE_CLOSED;
-}
 static int tlkmmi_rdt_t002Start(uint08 role)
 {
-	uint08 state;
-
 	if(role != TLKMMI_RDT_ROLE_DUT && role != TLKMMI_RDT_ROLE_AUT){
 		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Start: error role[%d]",
 			role);
 		return -TLK_EROLE;
 	}
-	if(sTlkMmiRdtT002.state != TLK_STATE_CLOSED && sTlkMmiRdtT002.state != TLK_STATE_PAUSED){
+	if(sTlkMmiRdtT002.state != TLK_STATE_CLOSED){
 		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Start: error status[%d]",
 			sTlkMmiRdtT002.state);
 		return -TLK_ESTATUS;
 	}
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Start:role[%d]",role);
 
-	state = sTlkMmiRdtT002.state;
-	sTlkMmiRdtT002.devRole = role;
+	sTlkMmiRdtT002.drole = role;
 	sTlkMmiRdtT002.state = TLK_STATE_OPENED;
-	if(state == TLK_STATE_CLOSED){
-		tlkmmi_rdt_t002BtStart();
+	if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_DUT){
+		tlkmmi_rdt_t002DutStart();
+	}else if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_AUT){
+		tlkmmi_rdt_t002AutStart();
 	}
-
+	
 	tlkmmi_test_adaptInitTimer(&sTlkMmiRdtT002.timer, tlkmmi_rdt_t002Timer,
-		nullptr, 200000);
+		nullptr, TLKMMI_RDT_T002_TIMEOUT);
 	tlkmmi_test_adaptInsertTimer(&sTlkMmiRdtT002.timer);
 
-	return TLK_ENONE;
-}
-static int tlkmmi_rdt_t002Pause(void)
-{
-	if(sTlkMmiRdtT002.state != TLK_STATE_OPENED){
-		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Pause: error status[%d]",
-			sTlkMmiRdtT002.state);
-		return -TLK_ESTATUS;
-	}
-	tlkmmi_test_adaptRemoveTimer(&sTlkMmiRdtT002.timer);
-	sTlkMmiRdtT002.state = TLK_STATE_PAUSED;
-	tlkmmi_rdt_t002BtClose();
-	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Pause");
 	return TLK_ENONE;
 }
 static int tlkmmi_rdt_t002Close(void)
@@ -107,19 +76,27 @@ static int tlkmmi_rdt_t002Close(void)
 	}
 	tlkmmi_test_adaptRemoveTimer(&sTlkMmiRdtT002.timer);
 	sTlkMmiRdtT002.state = TLK_STATE_CLOSED;
-	tlkmmi_rdt_t002BtClose();
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Close");
+	if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_DUT){
+		tlkmmi_rdt_t002DutClose();
+	}else if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_AUT){
+		tlkmmi_rdt_t002AutClose();
+	}
 	return TLK_ENONE;
 }
 static int tlkmmi_rdt_t002Input(uint08 msgID, uint08 *pData, uint16 dataLen)
 {
-	if(sTlkMmiRdtT002.state != TLK_STATE_PAUSED){
+	if(sTlkMmiRdtT002.state != TLK_STATE_OPENED){
 		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Input: error status[%d]",
 			sTlkMmiRdtT002.state);
 		return -TLK_ESTATUS;
 	}
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002Input: msgID[0x%x]", msgID);
-	tlkmmi_rdt_t002BtInput(msgID, pData, dataLen);
+	if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_DUT){
+		tlkmmi_rdt_t002DutInput(msgID, pData, dataLen);
+	}else if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_AUT){
+		tlkmmi_rdt_t002AutInput(msgID, pData, dataLen);
+	}
 	return TLK_ENONE;
 }
 
@@ -131,7 +108,11 @@ static bool tlkmmi_rdt_t002Timer(tlkapi_timer_t *pTimer, uint32 userArg)
 			sTlkMmiRdtT002.state);
 		return false;
 	}
-	tlkmmi_rdt_t002BtTimer();
+	if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_DUT){
+		tlkmmi_rdt_t002DutTimer();
+	}else if(sTlkMmiRdtT002.drole == TLKMMI_RDT_ROLE_AUT){
+		tlkmmi_rdt_t002AutTimer();
+	}
 	return true;
 }
 

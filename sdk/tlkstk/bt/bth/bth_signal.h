@@ -25,6 +25,21 @@
 #define BTH_SIGNAL_H
 
 
+/* command code */
+typedef enum{
+	BTH_SIGNAL_OPCODE_REJECT    = 0x01,
+	BTH_SIGNAL_OPCODE_CONN_REQ  = 0x02,
+	BTH_SIGNAL_OPCODE_CONN_RSP  = 0x03,
+	BTH_SIGNAL_OPCODE_CFG_REQ   = 0x04,
+	BTH_SIGNAL_OPCODE_CFG_RSP   = 0x05,
+	BTH_SIGNAL_OPCODE_DISC_REQ  = 0x06,
+	BTH_SIGNAL_OPCODE_DISC_RSP  = 0x07,
+	BTH_SIGNAL_OPCODE_ECHO_REQ  = 0x08,
+	BTH_SIGNAL_OPCODE_ECHO_RSP  = 0x09,
+	BTH_SIGNAL_OPCODE_INFO_REQ  = 0x0A,
+	BTH_SIGNAL_OPCODE_INFO_RSP  = 0x0B,
+}BTH_SIGNAL_OPCODE_ENUM;
+
 
 typedef enum{
 	BTH_SIGNAL_FLAG_NONE          = 0x00,
@@ -46,14 +61,24 @@ typedef enum{
 	BTH_SIGNAL_BUSY_SEND_CFG_RSP  = 0x20,
 }BTH_SIGNAL_BUSYS_ENUM;
 typedef enum{
-	BTH_SIGNAL_ATTR_NONE = 0x00,
-	BTH_SIGNAL_ATTR_FCS  = 0x01,
-	BTH_SIGNAL_ATTR_RTN  = 0x02,
-	BTH_SIGNAL_ATTR_NFCS = 0x04,
-	BTH_SIGNAL_ATTR_OPTION_MASK = 0x7F,
+	BTH_SIGNAL_ATTR_NONE = 0x0000,
+	BTH_SIGNAL_ATTR_PEER_MTU     = 0x0001,
+	BTH_SIGNAL_ATTR_PEER_QOS     = 0x0002,
+	BTH_SIGNAL_ATTR_PEER_RTN     = 0x0004,
+	BTH_SIGNAL_ATTR_PEER_FCS     = 0x0008,
+	BTH_SIGNAL_ATTR_PEER_TIMEOUT = 0x0010,
 
-	BTH_SIGNAL_ATTR_CONNECT = 0x40,
-	BTH_SIGNAL_ATTR_ACTIVE  = 0x80,
+	BTH_SIGNAL_ATTR_MINE_MTU     = 0x0100,
+	BTH_SIGNAL_ATTR_MINE_QOS     = 0x0200,
+	BTH_SIGNAL_ATTR_MINE_RTN     = 0x0400,
+	BTH_SIGNAL_ATTR_MINE_FCS     = 0x0800,
+	BTH_SIGNAL_ATTR_MINE_TIMEOUT = 0x1000,
+
+	BTH_SIGNAL_ATTR_PEER_OPTION_MASK = 0x001F,
+	BTH_SIGNAL_ATTR_MINE_OPTION_MASK = 0x1F00,
+
+	BTH_SIGNAL_ATTR_CONNECT = 0x4000,
+	BTH_SIGNAL_ATTR_ACTIVE  = 0x8000,
 }BTH_SIGNAL_ATTRS_ENUM;
 
 
@@ -84,6 +109,22 @@ typedef enum{
 	BTH_SIGNAL_REASON_MTU_EXCEED     = 0x01,
 	BTH_SIGNAL_REASON_INVALID_CID    = 0x02,
 }BTH_SIGNAL_REASON_ENUM;
+
+
+
+
+/******************************************************************************
+ * FCS: It is non-negotiable. The FCS option shall only be used when the mode 
+ * is being, or is already configured to Enhanced Retransmission mode or
+ * Streaming mode.
+*******************************************************************************/
+int bth_signal_enableRtnOption(uint16 aclHandle, uint16 scid, bool enable);
+int bth_signal_enableFcsOption(uint16 aclHandle, uint16 scid, bool enable);
+int bth_signal_setFcsType(uint16 aclHandle, uint16 scid, uint16 fcsType);
+int bth_signal_setRtnMode(uint16 aclHandle, uint16 scid, uint08 rtnMode);
+int bth_signal_setRtnMps(uint16 aclHandle, uint16 scid, uint16 rtnMps);
+int bth_signal_getFcsType(uint16 aclHandle, uint16 scid, uint16 *pFcsType);
+int bth_signal_getRtnMode(uint16 aclHandle, uint16 scid, uint08 *pRtnMode);
 
 
 /******************************************************************************
@@ -228,6 +269,8 @@ bool bth_signal_chnTimer(tlkapi_timer_t *pTimer, uint32 userArg);
  * Reutrn: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 void bth_signal_recvData(uint16 handle, uint08 *pData, uint16 dataLen);
+void bth_signal_recvHandler(uint16 handle, uint08 *pData, uint16 dataLen);
+
 
 /******************************************************************************
  * Function: bth_signal_busyProc
@@ -379,7 +422,7 @@ int bth_signal_sendConfigRsp(uint16 handle, uint08 identify, uint16 dcid, uint16
 *******************************************************************************/
 int bth_signal_sendRejectRsp(uint16 handle, uint08 identify, uint16 reason, uint08 *pData, uint16 dataLen);
 
-
+int bth_signal_enableRtnOption(uint16 aclHandle, uint16 psmID, bool enable);
 
 #endif //BTH_SIGNAL_H
 
