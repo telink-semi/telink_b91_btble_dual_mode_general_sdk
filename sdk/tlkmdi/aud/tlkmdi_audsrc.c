@@ -466,6 +466,10 @@ static void tlkmdi_audsrc_mp3Handler(void) //in irq
 			sTlkMdiSrcCtrl.waitStart = 1;
 			sTlkMdiSrcCtrl.waitTimer = clock_time()|1;
 			tlkmdi_audsrc_resetParam(tlkmdi_mp3_getSampleRate());
+		}else{
+			sTlkMdiSrcCtrl.waitStart = 2;
+			sTlkMdiSrcCtrl.waitTimer = clock_time()|1;
+			btp_a2dpsrc_restart(sTlkMdiSrcCtrl.handle);
 		}
 		sTlkMdiSrcCtrl.mp3State = TLKMDI_MP3_STATUS_PLAY;
 		tlkmdi_audio_sendPlayStartEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SRC, sTlkMdiSrcCtrl.playIndex);
