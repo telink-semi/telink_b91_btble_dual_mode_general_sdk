@@ -112,7 +112,8 @@ void tlkmmi_rdt_t002DutTimer(void)
 	if(sTlkMmiRdtT002Dut.dbgTimer != 0 && clock_time_exceed(sTlkMmiRdtT002Dut.dbgTimer, 3000000)){
 		sTlkMmiRdtT002Dut.dbgTimer = clock_time()|1;
 		tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, 
-			"tlkmmi_rdt_t002DutTimer: Send[0x%04x],Recv[0x%04x]",
+			"tlkmmi_rdt_t002DutTimer: Handle1[0x%x],Handle2[%x],Send[0x%04x],Recv[0x%04x]",
+			sTlkMmiRdtT002Dut.aut1Handle, sTlkMmiRdtT002Dut.aut2Handle,
 			sTlkMmiRdtT002Dut.sndCount, sTlkMmiRdtT002Dut.rcvCount);
 	}
 	if(sTlkMmiRdtT002Dut.scoHandle == 0) return;

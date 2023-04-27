@@ -220,6 +220,17 @@ extern int btp_a2dpsrc_abort(uint16 aclHandle);
 extern int btp_a2dpsrc_reconfig(uint16 aclHandle, uint32 sampleRate);
 
 /******************************************************************************
+ * Function: btp_a2dpsrc_restart
+ * Descript: Defines the format of the A2dp source trigger restart
+ *           the codec's paramter.
+ * Params:
+ * 	    @aclHandle[IN]--The ACL link's handle.
+ * Return: Returning TLK_ENONE(0x00) means the restart process success.
+ * 		If others value is returned means the restart process fail.
+ *******************************************************************************/
+extern int btp_a2dpsrc_restart(uint16 aclHandle);
+
+/******************************************************************************
  * Function: A2DP source get A2DP connection status
  * Descript: Defines the format of the A2dp source trigger get status 
  *           of the connection.

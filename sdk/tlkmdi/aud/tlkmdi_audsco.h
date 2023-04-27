@@ -168,16 +168,6 @@ bool tlkmdi_audsco_switch(uint16 handle, uint08 status);
 bool tlkmdi_audsco_irqProc(void);
 
 
-/******************************************************************************
- * Function: tlkmdi_sco_XXXCodec
- * Descript: Get/Set the SCO codec. 
- * Params: @codec[IN]--The codec id.
- * Return: The codec id.
-*******************************************************************************/
-uint tlkmdi_sco_getCodec(void);
-void tlkmdi_sco_setCodec(uint08 codec);
-
-
 
 #endif //#if (TLK_MDI_AUDSCO_ENABLE)
 

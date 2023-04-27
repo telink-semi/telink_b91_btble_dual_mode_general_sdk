@@ -23,7 +23,7 @@
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLKMMI_VIEW_ENABLE)
 #include "tlkmmi/view/tlkmmi_view.h"
-#include "tlkmmi/view/tlkmmi_viewTask.h"
+#include "tlksys/tlksys_stdio.h"
 #if (TLK_MDI_GUI_ENABLE)
 #include "tlkmdi/gui/tlkmdi_gui.h"
 #endif

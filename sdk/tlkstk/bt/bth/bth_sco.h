@@ -49,13 +49,14 @@ typedef enum{
 	TLK_SCO_AIRMODE_A_LAW  = 0x02,
 	TLK_SCO_AIRMODE_TRANS  = 0x03,
 }TLK_SCO_AIRMODE_ENUM;
-	
+
+
 /******************************************************************************
  * Function: bth_sco_isConn
- * Descript: Get the sco is connect or not by aclHandle.
+ * Descript: Verify that SCO is in the connected state.
  * Params: 
- *     @timeout[IN]--aclHandle.
- * Reutrn: True is connect,false is disconnect.
+ *        @pCodec[IN]--The codec id.
+ * Reutrn: True if SCO is connection.
 *******************************************************************************/
 bool bth_sco_isConn(uint16 aclHandle);
 
@@ -68,25 +69,6 @@ bool bth_sco_isConn(uint16 aclHandle);
 *******************************************************************************/
 void bth_sco_setConnTimeout(uint16 timeout);
 
-/******************************************************************************
- * Function: bth_sco_getCodec
- * Descript: Get the Sco codec id.
- * Params: 
- *        @pCodec[OUT]--The codec id.
- * Reutrn: Return TLK_ENONE is success, other value is failure.
-*******************************************************************************/
-int bth_sco_getCodec(uint08 *pCodec);
-
-/******************************************************************************
- * Function: bth_sco_setCodec
- * Descript: Set the Sco codec id.
- * Params: 
- *        @pCodec[IN]--The codec id.
- * Reutrn: Return TLK_ENONE is success, other value is failure.
-*******************************************************************************/
-int bth_sco_setCodec(uint08 codec);
-
-//BTH_LINK_TYPE_SCO, BTH_LINK_TYPE_ESCO
 /******************************************************************************
  * Function: bth_sco_connect
  * Descript: This interface be used to connect the SCO link which
@@ -223,6 +205,11 @@ void bth_sco_connectEvt(uint08 status, uint16 handle, uint08 btaddr[6], uint08 l
  * Reutrn: None.
 *******************************************************************************/
 void bth_sco_disconnEvt(uint16 handle, uint08 reason);
+
+
+int bth_sco_getHandle(uint16 aclHandle, uint16 offset, uint08 *pScoHandle);
+int bth_sco_getAirMode(uint16 scoHandle, uint08 *pAirMode);
+int bth_sco_setAirMode(uint16 scoHandle, uint08 airMode);
 
 
 

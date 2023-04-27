@@ -214,6 +214,8 @@ bth_sco_handle_t *bth_handle_getDiscSco(uint16 scoHandle);
 bth_sco_handle_t *bth_handle_searchUsedSco(uint16 aclHandle);
 bth_sco_handle_t *bth_handle_searchConnSco(uint16 aclHandle);
 bth_sco_handle_t *bth_handle_searchBusySco(uint16 aclHandle);
+bth_sco_handle_t *bth_handle_findUsedSco(uint16 aclHandle, uint08 offset);
+bth_sco_handle_t *bth_handle_findConnSco(uint16 aclHandle, uint08 offset);
 
 
 

@@ -44,7 +44,6 @@ typedef enum{
 	BTH_EVTID_SCODISC_COMPLETE,
 	BTH_EVTID_AUTHEN_COMPLETE,
 	BTH_EVTID_ENCRYPT_COMPLETE,
-	BTH_EVTID_SCOCODEC_CHANGED,
 	BTH_EVTID_ROLE_CHANGED,
 	BTH_EVTID_MODE_CHANGED,
 	BTH_EVTID_PINCODE_REQUEST,
@@ -96,7 +95,8 @@ typedef struct{
 }bth_aclConnComplateEvt_t;
 typedef struct{
 	uint08 status;
-	uint08 linkType;
+	uint08 linkType; //Refer TLK_SCO_LINK_TYPE_ENUM.
+	uint08 airMode;  //Refer TLK_SCO_AIRMODE_ENUM.
 	uint16 aclHandle;
 	uint16 scoHandle;
 	uint08 peerMac[6];
@@ -124,10 +124,6 @@ typedef struct{
 	uint08 enable;
 }bth_encryptCompleteEvt_t;
 
-typedef struct{
-	uint16 aclHandle;
-	uint08 codec; //0/1-CVSD, 2-MSBC
-}bth_scoCodecChangedEvt_t;
 
 typedef struct{
 	uint08 status; //0x00-A role change has occurred; 
@@ -246,12 +242,13 @@ int bth_send_scoConnRequestEvt(uint32 devClass, uint08 linkType, uint08 btaddr[6
  *        @aclHandle[IN]--The acl link handle.
  *        @scoHandle[IN]--The Sco link handle.
  *        @status[IN]--The acl link status.
- *        @linkType[IN]--The link type.
+ *        @linkType[IN]--The link type. Refer TLK_SCO_LINK_TYPE_ENUM.
+ *        @airMode[IN]--Refer TLK_SCO_AIRMODE_ENUM.
  *        @btaddr[IN]--The device bt address.
  * Reutrn: TLK_ENONE is success, other value if false.
 *******************************************************************************/
-int bth_send_scoConnCompleteEvt(uint16 aclHandle, uint16 scoHandle, uint08 status, uint08 linkType, uint08 btaddr[6]);
-
+int bth_send_scoConnCompleteEvt(uint16 aclHandle, uint16 scoHandle,
+	uint08 status, uint08 linkType, uint08 airMode, uint08 btaddr[6]);
 
 /******************************************************************************
  * Function: bth_send_scoDiscCompleteEvt
@@ -265,7 +262,6 @@ int bth_send_scoConnCompleteEvt(uint16 aclHandle, uint16 scoHandle, uint08 statu
  * Reutrn: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_scoDiscCompleteEvt(uint16 aclHandle, uint16 scoHandle, uint08 reason, uint08 linkType, uint08 btaddr[6]);
-
 
 /******************************************************************************
  * Function: bth_send_authenCompleteEvt
@@ -287,15 +283,6 @@ int bth_send_authenCompleteEvt(uint16 handle, uint08 status);
  * Reutrn: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_encryptCompleteEvt(uint16 handle, uint08 status, uint08 enable);
-
-/******************************************************************************
- * Function: bth_send_scoCodecChangedEvt
- * Descript: Send the SCO codec changed event via callback.
- * Params:
- *        @codec[IN]--The sco codec id.
- * Reutrn: TLK_ENONE is success, other value if false.
-*******************************************************************************/
-int bth_send_scoCodecChangedEvt(uint16 aclHandle, uint08 codec);
 
 /******************************************************************************
  * Function: bth_send_pinCodeRequestEvt

@@ -67,9 +67,8 @@
 
 
 extern void btc_sco_regDataCB(void *prx, void *ptx);
-extern uint08 btp_hfp_getCurCodec(uint16 aclHandle);
 //extern void tlkalg_2chnmix(short* pLeft, short* pRight, short* pOut, int stride, int length);
-
+extern int btp_hfp_getCodec(uint16 aclHandle, uint08 *pCodec);
 
 static void tlkmdi_sco_micHandler(void);
 static void tlkmdi_sco_spkHandler(void);
@@ -91,7 +90,6 @@ static void tlkmdi_sco_freeAlgBuffer(void);
 
 static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen);
-static int tlkmdi_sco_codecChgEvt(uint08 *pData, uint16 dataLen);
 
 static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *p, int len);
 static void tlkmdi_sco_getMicEncFrame(uint08 id, uint08 *p, int len);
@@ -112,7 +110,6 @@ static tlkmdi_sco_buff_t sTlkMdiScoBuff;
 static uint08 sTlkMdiAudScoLength = 0;
 static uint08 sTlkMdiAudScoFrame[120];
 
-_attribute_data_retention_sec_ 
 uint08 sTlkMdiScoCodec = TLKMDI_SCO_CODEC_ID_CVSD;
 #if TLKMDI_SCO_SCO_LOSS_TEST
 uint16 sTlkMdiScoErrIndex = 0;
@@ -134,8 +131,7 @@ int tlkmdi_audsco_init(void)
 
 	bth_event_regCB(BTH_EVTID_SCOCONN_COMPLETE, tlkmdi_sco_connectEvt);
 	bth_event_regCB(BTH_EVTID_SCODISC_COMPLETE, tlkmdi_sco_disconnEvt);
-	bth_event_regCB(BTH_EVTID_SCOCODEC_CHANGED, tlkmdi_sco_codecChgEvt);
-	
+		
 	return TLK_ENONE;
 }
 
@@ -175,8 +171,13 @@ bool tlkmdi_audsco_switch(uint16 handle, uint08 status)
 		tlkapi_error(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "current ns_size[%d] > TLKMDI_SCO_SPEEX_NS_SIZE", nsSize);
 		return false;
 	}
+	
 	if(status == TLK_STATE_OPENED) enable = true;
 	else enable = false;
+	if(enable && btp_hfp_getCodec(handle, &sTlkMdiScoCodec) != TLK_ENONE){
+		tlkapi_error(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "btp_hfp_getCodec failure");
+		return false;
+	}
 	if(sTlkMdiScoCtrl.enable == enable) return true;
 
 	if(!enable) sTlkMdiScoCtrl.enable = false;
@@ -194,8 +195,7 @@ bool tlkmdi_audsco_switch(uint16 handle, uint08 status)
 	sTlkMdiScoCtrl.micBuffLen = tlkdev_codec_getMicBuffLen();
 
 	tlkdev_codec_muteSpk();
-	
-	sTlkMdiScoCodec = btp_hfp_getCurCodec(sTlkMdiScoCtrl.handle);
+
 	tlkmdi_sco_initCodec(enable);
 	if(enable){
 		tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_audsco_switch: enable");
@@ -251,25 +251,6 @@ bool tlkmdi_audsco_irqProc(void)
 }
 
 
-/******************************************************************************
- * Function: tlkmdi_sco_XXXCodec
- * Descript: Get/Set the SCO codec. 
- * Params: @codec[IN]--The codec id.
- * Return: The codec id.
-*******************************************************************************/
-uint tlkmdi_sco_getCodec(void)
-{
-    return sTlkMdiScoCodec;
-}
-
-void tlkmdi_sco_setCodec(uint08 codec)
-{
-	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_setCodec: %d %d", sTlkMdiScoCodec, codec);
-    if(TLKMDI_SCO_CODEC_ID_CVSD == codec || TLKMDI_SCO_CODEC_ID_MSBC == codec){
-        sTlkMdiScoCodec = codec;
-		if(sTlkMdiScoCtrl.enable) tlkmdi_sco_initCodec(sTlkMdiScoCtrl.enable);
-    }
-}
 
 static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 {
@@ -284,7 +265,8 @@ static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 		}
 		return TLK_ENONE;
 	}
-	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_connectEvt: {status-%d,handle-%d,scoHandle-%d,linkType-%d}", 
+	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, 
+		"tlkmdi_sco_connectEvt: {status-%d,handle-0x%x,scoHandle-0x%x,linkType-%d}", 
 		pEvt->status, pEvt->aclHandle, pEvt->scoHandle, pEvt->linkType);
 	tlkmdi_audio_sendStartEvt(TLKPTI_AUD_OPTYPE_SCO, pEvt->aclHandle);
 
@@ -315,18 +297,6 @@ static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
 	data[1] = ((pEvt->aclHandle & 0xFF00) >> 8);
 	data[2] = 0;//sco disc;
 	tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE,TLKPTI_PHONE_MSGID_CALL_SCO_UPDATE_EVT,data,3);
-	return TLK_ENONE;
-}
-static int tlkmdi_sco_codecChgEvt(uint08 *pData, uint16 dataLen)
-{
-//	bth_scoCodecChangedEvt_t *pEvt;
-
-//	pEvt = (bth_scoCodecChangedEvt_t*)pData;
-//	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_codecChgEvt: %d", pEvt->codec);
-//	if(pEvt->codec != sTlkMdiScoCodec){
-//		sTlkMdiScoCodec = pEvt->codec;
-//		if(sTlkMdiScoCtrl.enable) tlkmdi_sco_initCodec(sTlkMdiScoCtrl.enable);
-//	}
 	return TLK_ENONE;
 }
 
@@ -505,7 +475,7 @@ static void tlkmdi_sco_spkHandler(void)
 static void tlkmdi_audsco_makeValidFrame(uint08 *pData)
 {
 	uint08 index;
-	if(pData[0] == TLKMDI_SCO_PACKET_LOSS_FLAG || TLKMDI_SCO_CODEC_ID_MSBC != tlkmdi_sco_getCodec()){
+	if(pData[0] == TLKMDI_SCO_PACKET_LOSS_FLAG || TLKMDI_SCO_CODEC_ID_MSBC != sTlkMdiScoCodec){
 		if(sTlkMdiAudScoLength != 0) sTlkMdiAudScoLength = 0;
 		return;
 	}
@@ -550,9 +520,9 @@ static int tlkmdi_sco_getPcmData(sint16 *pBuffer)
 		#if TLKMDI_SCO_PLC_ENABLE1
 		tlkalg_sbc_plcGoodFrame(&gTlkalgSbcPlcState, pBuffer, pBuffer);
 		#endif
-	}else{				
+	}else{
 		#if TLKMDI_SCO_PLC_ENABLE1
-		if(TLKMDI_SCO_CODEC_ID_MSBC == tlkmdi_sco_getCodec()){
+		if(TLKMDI_SCO_CODEC_ID_MSBC == sTlkMdiScoCodec){
 			tlkalg_msbc_decData((uint08 *)&gTlkalgSbcPlcIndices0[0], 57, (uint08*)pBuffer);
 		}else{
 			sTlkMdiScoCtrl.dec_func(pData, 60, (uint08*)pBuffer);
@@ -653,7 +623,7 @@ static void tlkmdi_sco_initCodec(bool enable)
 		tlkalg_sbc_decInit(nullptr);
 	}else{
 		tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_initCodec: enable");
-		if(TLKMDI_SCO_CODEC_ID_CVSD == tlkmdi_sco_getCodec()){
+		if(TLKMDI_SCO_CODEC_ID_CVSD == sTlkMdiScoCodec){
 			tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_initCodec: CVSD init");
 			tlkalg_cvsd_init(sTlkMdiScoBuff.pEncodeBuffer, sTlkMdiScoBuff.pEncodeBuffer+TLKMDI_SCO_CVSD_PARAM_SIZE,
 				TLKMDI_SCO_CVSD_PARAM_SIZE, TLKMDI_SCO_CVSD_CACHE_SIZE);

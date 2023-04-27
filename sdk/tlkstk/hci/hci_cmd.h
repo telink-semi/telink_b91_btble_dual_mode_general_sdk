@@ -387,10 +387,20 @@ typedef struct {
 
 
 
+/**
+ * @brief Command & Return Parameters for "7.5.4 Read RSSI command"
+ */
+typedef struct
+{
+	u16 	connHandle;
+}hci_readRssi_cmdParam_t;
 
-
-
-
+typedef struct
+{
+	u8 		status;
+	u16 	connHandle;
+	s8 		rssi;
+}hci_readRssi_retParam_t;
 
 
 /**

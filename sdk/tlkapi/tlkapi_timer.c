@@ -87,8 +87,9 @@ void tlkapi_timer_handler(void)
 	tlkapi_timer_close();
 	
 //	uint32 irq = read_csr(NDS_MIE);
-//	core_restore_interrupt(irq | BIT(11));
-
+//	set_csr(NDS_MSTATUS, irq | BIT(11)); //global interrupts enable
+//	fence_iorw;
+	
 	sTlkMdiTimerIsBusy = true;
 	tlkapi_adapt_handler(&sTlkMdiTimerAdapt);
 
@@ -100,7 +101,8 @@ void tlkapi_timer_handler(void)
 		tlkapi_timer_start(timeIntval);
 	}
 	
-//	core_restore_interrupt(irq);
+//	set_csr(NDS_MSTATUS, irq); //global interrupts enable
+//	fence_iorw;
 }
 
 /******************************************************************************

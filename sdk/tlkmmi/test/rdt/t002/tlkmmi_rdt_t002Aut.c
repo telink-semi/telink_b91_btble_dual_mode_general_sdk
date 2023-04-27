@@ -130,8 +130,8 @@ void tlkmmi_rdt_t002AutTimer(void)
 	if(sTlkMmiRdtT002Aut.dbgTimer != 0 && clock_time_exceed(sTlkMmiRdtT002Aut.dbgTimer, 3000000)){
 		sTlkMmiRdtT002Aut.dbgTimer = clock_time()|1;
 		tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, 
-			"tlkmmi_rdt_t002AutTimer: Send[0x%04x],Recv[0x%04x]",
-			sTlkMmiRdtT002Aut.sndCount, sTlkMmiRdtT002Aut.rcvCount);
+			"tlkmmi_rdt_t002AutTimer: handle[0x%x],Send[0x%04x],Recv[0x%04x]",
+			sTlkMmiRdtT002Aut.acl.handle, sTlkMmiRdtT002Aut.sndCount, sTlkMmiRdtT002Aut.rcvCount);
 	}
 	if(sTlkMmiRdtT002AutAcl.enable && sTlkMmiRdtT002Aut.acl.timer != 0 
 		&& clock_time_exceed(sTlkMmiRdtT002Aut.acl.timer, sTlkMmiRdtT002Aut.acl.intval)){

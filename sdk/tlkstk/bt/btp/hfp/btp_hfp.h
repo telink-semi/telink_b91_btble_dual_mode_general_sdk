@@ -454,13 +454,13 @@ extern int btp_hfpag_hungupCall(void);
 extern int btp_hfphf_sendDtmf(uint16 aclHandle, char dtmf);
 
 /******************************************************************************
- * Function: btp_hfp_getCurCodec
+ * Function: btp_hfp_getCodec
  * Descript:
  * Params:
  *     @aclHandle[IN]--The acl handle.
  * Return:
 *******************************************************************************/
-extern uint08 btp_hfp_getCurCodec(uint16 aclHandle);
+extern int btp_hfp_getCodec(uint16 aclHandle, uint08 *pCodec);
 
 
 
