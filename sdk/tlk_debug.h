@@ -34,20 +34,6 @@
 #define TLK_DEBUG_DBG_FLAG_ASSERT        0x80
 #define TLK_DEBUG_DBG_FLAG_ALL           0xFE
 
-typedef struct{
-	unsigned char minorID;
-	unsigned char dbgIsEn;
-	unsigned char vcdIsEn;
-	unsigned char dbgFlag;
-	const char *pDbgSign;
-}tlk_debug_unit_t;
-typedef struct{
-	unsigned char dbgIsEn;
-	unsigned char vcdIsEn;
-	unsigned char dbgFlag;
-	unsigned char unitCnt;
-	tlk_debug_unit_t unit[32];
-}tlk_debug_info_t;
 
 typedef enum{
 	TLK_MAJOR_DBGID_NONE = 0,
@@ -142,6 +128,7 @@ typedef enum{
 	TLK_MINOR_DBGID_BTP_PBAP,
 	TLK_MINOR_DBGID_BTP_BROWSE,
 	TLK_MINOR_DBGID_BTP_FUNC,
+	TLK_MINOR_DBGID_BTP_PTS,
 	TLK_MINOR_DBGID_BTP_MAX,
 	//TLK_MAJOR_DBGID_LEC
 	TLK_MINOR_DBGID_LEC_ADV = 0,
@@ -243,7 +230,28 @@ typedef enum{
 }TLK_DEBUG_MINOR_ID_ENUM;
 
 
+#if (TLK_CFG_DBG_ENABLE)
+#include <stdbool.h>
 
+void tlk_debug_init(void);
+void tlk_debug_dbgLoad(void);
+void tlk_debug_vcdLoad(void);
+
+bool tlk_debug_setDbgMask(TLK_DEBUG_MAJOR_ID_ENUM majorID, unsigned int mask);
+bool tlk_debug_setVcdMask(TLK_DEBUG_MAJOR_ID_ENUM majorID, unsigned int mask);
+
+unsigned int tlk_debug_getDbgMask(TLK_DEBUG_MAJOR_ID_ENUM majorID);
+unsigned int tlk_debug_getVcdMask(TLK_DEBUG_MAJOR_ID_ENUM majorID);
+unsigned int tlk_debug_getItemNumb(TLK_DEBUG_MAJOR_ID_ENUM majorID);
+const char *tlk_debug_getItemSign(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+
+bool tlk_debug_dbgItemIsEnable(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+bool tlk_debug_vcdItemIsEnable(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+bool tlk_debug_enableDbgItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+bool tlk_debug_enableVcdItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+bool tlk_debug_disableDbgItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+bool tlk_debug_disableVcdItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID);
+#endif //#if (TLK_CFG_DBG_ENABLE)
 
 #endif //TLK_DEBUG_H
 

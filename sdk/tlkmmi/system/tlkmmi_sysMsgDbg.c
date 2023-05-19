@@ -38,17 +38,12 @@
 
 
 
-#if (TLK_CFG_USB_ENABLE)
-extern bool tlkusb_setModule(uint08 modtype); //TLKUSB_MODTYPE_ENUM
-extern void tklcfg_setUsbMode(uint08 umode);
-#endif
 extern int tlkmmi_phone_bookSetParam(uint08 posi, uint08 type, uint08 sort, uint16 offset, uint16 number);
 extern int tlkmmi_phone_startSyncBook(uint16 aclHandle, uint08 *pBtAddr, bool isForce);
 
 
 static void tlkmmi_sys_recvDbgStartToneDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen);
-static void tlkmmi_sys_recvDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgFirmwareUpdateDeal(uint08 *pData, uint08 dataLen);
 
@@ -62,8 +57,6 @@ int tlkmmi_sys_dbgMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 		tlkmmi_sys_recvDbgStartToneDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_DBG_GET_PHONE_BOOK){
 		tlkmmi_sys_recvDbgGetPhoneBookDeal(pData, dataLen);
-	}else if(msgID == TLKPRT_COMM_CMDID_DBG_SET_USB_MODE){
-		tlkmmi_sys_recvDbgSetUSBModeDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_DBG_SIMULATE_KEY){
 		tlkmmi_sys_recvDbgSimulateKeyDeal(pData, dataLen);
 	}else if(msgID == TLKPRT_COMM_CMDID_DBG_FIRMWARE_UPDATE){
@@ -122,18 +115,6 @@ static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 	tlkmmi_phone_bookSetParam(posi, type, sort, offset, number);
 	tlkmmi_phone_startSyncBook(pHandle->aclHandle, pHandle->btaddr, true);
 #endif
-}
-static void tlkmmi_sys_recvDbgSetUSBModeDeal(uint08 *pData, uint08 dataLen)
-{
-	if(dataLen < 1){
-		tlkapi_error(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgSetUSBModeDeal: length error - %d", dataLen);
-		return;
-	}
-	tlkapi_array(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkmmi_sys_recvDbgSetUSBModeDeal: ", pData, dataLen);
-	#if (TLK_CFG_USB_ENABLE)
-	tlkusb_setModule(pData[0]);
-	tklcfg_setUsbMode(pData[0]);
-	#endif
 }
 static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen)
 {

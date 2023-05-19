@@ -36,9 +36,11 @@ typedef struct{
 	uint16 timeout;
 	uint16 aclHandle;
 	uint16 pageTimer;
+	uint16 authTimer; //negetive auth
+	uint16 exitTimer; //Exit Sniffer wait timer in disconnect acl.
 
 	uint08 reason;
-	uint08 resv00;
+	uint08 othBusys; //Other Busys
 	uint08 btaddr[6];
 
 	uint32 devClass;
@@ -49,6 +51,7 @@ typedef struct{
 	uint08 switchCnt; //role_switch_req_cnt
 	uint08 scanMode; //page_scan_repetition_mode
 	uint16 clkOffs;
+	uint32 extFeature; //Peer
 
 	uint08 curMode;
 	uint08 initRole;
@@ -57,6 +60,7 @@ typedef struct{
 
 	uint08 pinCode[4];
 	uint08 linkKey[16];
+	uint08 infoRsp[16];
 		
 	tlkapi_timer_t timer;
 }bth_handle_t, bth_acl_handle_t;

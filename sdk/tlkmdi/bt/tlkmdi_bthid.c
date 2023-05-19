@@ -41,9 +41,6 @@ static uint tlkmdi_bthid_getReportCB(uint16 aclHandle, uint08 reportType, uint08
 
 static int tlkmdi_bthid_irqRecvDataCB(uint16 handle, uint08 *pData, uint16 dataLen);
 
-tlkmdi_bthid_report_t *tlkmdi_bthid_getReportCtrl(uint08 rtype, uint08 rptID);
-tlkmdi_bthid_report_t *tlkmdi_bthid_getReportCtrlByRptID(uint08 rptID);
-
 
 static uint08 sTlkMdiBtHidProtocolMode;
 
@@ -63,25 +60,18 @@ int tlkmdi_bthid_connect(uint16 aclHandle)
 	return btp_hidd_connect(aclHandle);
 }
 
-int tlkmid_bthid_disconn(uint16 aclHandle)
+int tlkmdi_bthid_disconn(uint16 aclHandle)
 {
 	return btp_hidd_disconn(aclHandle);
 }
 
 
-int tlkmdi_bthid_sendData(uint16 aclHandle, uint08 reportID, uint08 *pData, uint16 dataLen)
+int tlkmdi_bthid_sendData(uint16 aclHandle, uint08 reportID, uint08 reportType, uint08 *pData, uint16 dataLen)
 {
     int ret;
-	tlkmdi_bthid_report_t *pReport;
 	
-	pReport = tlkmdi_bthid_getReportCtrlByRptID(reportID);
-	if(pReport == nullptr){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_sendData: invalid report ID");
-		return -TLK_EPARAM;
-	}
-	
-    ret = btp_hidd_sendData(aclHandle, reportID, pReport->rtype, pData, dataLen);
-	if(ret != TLK_ENONE) {
+    ret = btp_hidd_sendData(aclHandle, reportID, reportType, pData, dataLen);
+	if(ret != TLK_ENONE){
 		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_sendData error");
 		return ret;
 	}
@@ -94,7 +84,7 @@ int tlkmdi_bthid_sendDataWithoutReportID(uint16 aclHandle, uint08 reportType, ui
 	
     ret = btp_hidd_sendDataWithoutReportID(aclHandle, reportType, pData, dataLen);
 	if(ret != TLK_ENONE){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_sendData error");
+		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_sendDataWithoutReportID error");
 		return ret;
 	}
 	tlkapi_trace(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_sendDataWithoutReportID");
@@ -124,177 +114,42 @@ static uint tlkmdi_bthid_getProtocolCB(uint16 aclHandle, uint08 *pProtoMode)
 
 static uint tlkmdi_bthid_setReportCB(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pData, uint16 dataLen)
 {
-	tlkmdi_bthid_report_t *pReport;
-
 	if(pData == NULL || dataLen < 2){
 		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB: invalid param");
 		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
 	}
-	
-	pReport = tlkmdi_bthid_getReportCtrlByRptID(reportID);
-	if(pReport == nullptr){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB: invalid report id");
-		return BTP_HID_HSHK_ERR_INVALID_REPORT_ID;
-	}
-	if(reportType != BTP_HID_DATA_RTYPE_OTHER && reportType != pReport->rtype){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB: invalid report type");
-		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
-	}
-	if(!pReport->enChg){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB: unsupport request");
-		return BTP_HID_HSHK_ERR_UNSUPPORTED_REQUEST;
-	}
-	if(dataLen > pReport->bsize){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB: overflow");
-		return BTP_HID_HSHK_ERR_FATAL;
-	}
-
+	//Bond with gcBtpSdpHidReportMap.
 	tlkapi_trace(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB");
-	tmemcpy(pReport->pData, pData, dataLen);
-	pReport->dlens = dataLen;
-	
 	return BTP_HID_HSHK_SUCCESS;
 }
 static uint tlkmdi_bthid_getReportCB(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pBuff, uint16 *pBuffLen)
 {
 	uint16 buffLen;
-	tlkmdi_bthid_report_t *pReport;
-
+	
 	if(pBuff == NULL || pBuffLen == nullptr || (*pBuffLen) == 0){
 		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_getReportCB: invalid param");
 		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
 	}
 
-	buffLen = *pBuffLen;
-	pReport = tlkmdi_bthid_getReportCtrlByRptID(reportID);
-	if(pReport == nullptr){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_getReportCB: invalid report id");
-		return BTP_HID_HSHK_ERR_INVALID_REPORT_ID;
-	}
-	if(reportType != BTP_HID_DATA_RTYPE_OTHER && reportType != pReport->rtype){
-		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_getReportCB: invalid report type");
-		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
-	}
-
 	tlkapi_trace(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_getReportCB");
+	buffLen = *pBuffLen;
+	//Bond with gcBtpSdpHidReportMap.
+	if(reportID == 0x01){ //keyboard
+		if(buffLen > 20) buffLen = 20;
+		tmemset(pBuff, 0, buffLen);
+	}else if(reportID == 0x02){
+		if(buffLen > 2) buffLen = 2;
+		tmemset(pBuff, 0, buffLen);
+	}
 	
-	if(buffLen > pReport->dlens) buffLen = pReport->dlens;
-	tmemcpy(pBuff, pReport->pData, buffLen);
-	*pBuffLen = buffLen;
-		
 	return BTP_HID_HSHK_SUCCESS;
 }
 static int tlkmdi_bthid_irqRecvDataCB(uint16 handle, uint08 *pData, uint16 dataLen)
 {
+	tlkapi_array(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_irqRecvDataCB", pData, dataLen);
 	return TLK_ENONE;
 }
 
-
-static const uint08 scTlkMdiBtHidKeyboardReportData[] = {
-	//keyboard report in
-	0x05, 0x01,     // Usage Pg (Generic Desktop)
-	0x09, 0x06,     // Usage (Keyboard)
-	0xA1, 0x01,     // Collection: (Application)
-	0x85, TLKMDI_BTHID_REPORT_ID_KEYBOARD_INPUT, // Report Id (keyboard)
-	0x05, 0x07,     // Usage Pg (Key Codes)
-	0x19, 0xE0,     // Usage Min (224)  VK_CTRL:0xe0
-	0x29, 0xE7,     // Usage Max (231)  VK_RWIN:0xe7
-	0x15, 0x00,     // Log Min (0)
-	0x25, 0x01,     // Log Max (1)
-	//Modifier byte
-	0x75, 0x01,     // Report Size (1)   1 bit * 8
-	0x95, 0x08,     // Report Count (8)
-	0x81, 0x02,     // Input: (Data, Variable, Absolute)
-	//Reserved byte
-	0x95, 0x01,     // Report Count (1)
-	0x75, 0x08,     // Report Size (8)
-	0x81, 0x01,     // Input: (static constant)
-	//keyboard output
-	//5 bit led ctrl: NumLock CapsLock ScrollLock Compose kana
-	0x95, 0x05,    //Report Count (5)
-	0x75, 0x01,    //Report Size (1)
-	0x05, 0x08,    //Usage Pg (LEDs )
-	0x19, 0x01,    //Usage Min
-	0x29, 0x05,    //Usage Max
-	0x91, 0x02,    //Output (Data, Variable, Absolute)
-	//3 bit reserved
-	0x95, 0x01,    //Report Count (1)
-	0x75, 0x03,    //Report Size (3)
-	0x91, 0x01,    //Output (static constant)
-	//Key arrays (6 bytes)
-	0x95, 0x06,     // Report Count (6)
-	0x75, 0x08,     // Report Size (8)
-	0x15, 0x00,     // Log Min (0)
-	0x25, 0xF1,     // Log Max (241)
-	0x05, 0x07,     // Usage Pg (Key Codes)
-	0x19, 0x00,     // Usage Min (0)
-	0x29, 0xf1,     // Usage Max (241)
-	0x81, 0x00,     // Input: (Data, Array)
-	0xC0,            // End Collection
-};
-static tlkmdi_bthid_report_t sTlkMdiBtHidKeyboardReportCtrl = {
-	false, //.enChg
-	sizeof(scTlkMdiBtHidKeyboardReportData), //.bsize
-	BTP_HID_DATA_RTYPE_INPUT, //rtype
-	TLKMDI_BTHID_REPORT_ID_KEYBOARD_INPUT, //rptID
-	sizeof(scTlkMdiBtHidKeyboardReportData), //.dlens
-	(uint08*)scTlkMdiBtHidKeyboardReportData,
-};
-
-static const uint08 scTlkMdiBtHidConsumerReportData[] = {
-	//consumer report in
-	0x05, 0x0C,   // Usage Page (Consumer)
-	0x09, 0x01,   // Usage (Consumer Control)
-	0xA1, 0x01,   // Collection (Application)
-	0x85, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT,   //     Report Id
-	0x75, 0x10,     //global, report size 16 bits
-	0x95, 0x01,     //global, report count 1
-	0x15, 0x01,     //global, min  0x01
-	0x26, 0x8c,0x02,  //global, max  0x28c
-	0x19, 0x01,     //local, min   0x01
-	0x2a, 0x8c,0x02,  //local, max    0x28c
-	0x81, 0x00,     //main,  input data varible, absolute
-	0xc0,        //main, end collection
-};
-static tlkmdi_bthid_report_t sTlkMdiBtHidConsumerReportCtrl = {
-	false, //.enChg
-	sizeof(scTlkMdiBtHidConsumerReportData), //.bsize
-	BTP_HID_DATA_RTYPE_INPUT, //rtype
-	TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, //rptID
-	sizeof(scTlkMdiBtHidConsumerReportData), //.dlens
-	(uint08*)scTlkMdiBtHidConsumerReportData,
-};
-
-
-static tlkmdi_bthid_report_t *spTlkMdiBtHidReportCtrl[] = {
-	&sTlkMdiBtHidKeyboardReportCtrl,
-	&sTlkMdiBtHidConsumerReportCtrl,
-};
-static uint08 sTlkMdiBtHidReportCount = sizeof(spTlkMdiBtHidReportCtrl)/sizeof(tlkmdi_bthid_report_t*);
-
-
-tlkmdi_bthid_report_t *tlkmdi_bthid_getReportCtrl(uint08 rtype, uint08 rptID)
-{
-	uint08 index;
-	tlkmdi_bthid_report_t *pReport;
-	for(index=0; index<sTlkMdiBtHidReportCount; index++){
-		pReport = spTlkMdiBtHidReportCtrl[index];
-		if(pReport != nullptr && pReport->rtype == rtype && pReport->rptID == rptID) break;
-	}
-	if(index == sTlkMdiBtHidReportCount) return nullptr;
-	return spTlkMdiBtHidReportCtrl[index];
-}
-tlkmdi_bthid_report_t *tlkmdi_bthid_getReportCtrlByRptID(uint08 rptID)
-{
-	uint08 index;
-	tlkmdi_bthid_report_t *pReport;
-	for(index=0; index<sTlkMdiBtHidReportCount; index++){
-		pReport = spTlkMdiBtHidReportCtrl[index];
-		if(pReport != nullptr && pReport->rptID == rptID) break;
-	}
-	if(index == sTlkMdiBtHidReportCount) return nullptr;
-	return spTlkMdiBtHidReportCtrl[index];
-}
 
 
 

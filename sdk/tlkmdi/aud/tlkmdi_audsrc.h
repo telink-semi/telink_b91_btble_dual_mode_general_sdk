@@ -27,12 +27,15 @@
 #if (TLK_MDI_AUDSRC_ENABLE)
 
 
+#define TLKMDI_SRC_FRAME_SIZE              85 //For 32bitPool
 #define TLKMDI_SRC_PKT_BUFF_SIZE           680 //676, fixed, not change
 #define TLKMDI_SRC_SBC_ENC_BUFF_SIZE       3368
 
-#define TLKMDI_SRC_FRAME_NUMB        7
+#define TLKMDI_SRC_FRAME_MAX_NUMB          7 //(TLKMDI_SRC_PKT_BUFF_SIZE-13)/TLKMDI_SRC_FRAME_SIZE
 
 #define TLKMDI_SRC_WAIT_RECFG_TIMEOUT      3000000 //Unit:us
+
+
 
 
 typedef struct{
@@ -47,6 +50,12 @@ typedef struct{
 	uint32 unitTime;
 	uint32 timeStamp;
 
+	uint08 pktNumb; //Frame number in one media packet
+	uint08 frmSize; //85
+	uint16 pktTime; //128*pktNumb
+
+	uint08 sendFail;
+	uint08 cacheFrm; //Cache Frames
 	uint08 isPause;
 	uint08 mp3State;
 	uint08 waitStart;

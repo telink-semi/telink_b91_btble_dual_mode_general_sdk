@@ -38,7 +38,7 @@
 #define BTP_HID_DATA_RSRVD_MASK             0x0c
 #define BTP_HID_DATA_RTYPE_OTHER            0x00
 #define BTP_HID_DATA_RTYPE_INPUT            0x01
-#define BTP_HID_DATA_RTYPE_OUPUT            0x02
+#define BTP_HID_DATA_RTYPE_OUTPUT           0x02
 #define BTP_HID_DATA_RTYPE_FEATURE          0x03
 
 /* HIDP protocol header parameters */
@@ -46,6 +46,72 @@
 #define BTP_HID_PROTO_REPORT                0x01
 #define BTP_HID_PROTO_MODE_REPORT_WITH_FALLBACK_TO_BOOT   0x02
 
+
+#define BTP_HID_RPT_DATA_SIZE_MASK                   (0x03)
+#define BTP_HID_RPT_TYPE_MASK                        (0x0C)
+#define BTP_HID_RPT_TAG_MASK                         (0xF0)
+
+#define BTP_HID_RPT_TYPE_MAIN                        (0x00)
+#define BTP_HID_RPT_TYPE_GLOBAL                      (0x04)
+#define BTP_HID_RPT_TYPE_LOCAL                       (0x08)
+
+#define BTP_HID_RPT_DATA_BITS_0                      (0x00)
+#define BTP_HID_RPT_DATA_BITS_8                      (0x01)
+#define BTP_HID_RPT_DATA_BITS_16                     (0x02)
+#define BTP_HID_RPT_DATA_BITS_32                     (0x03)
+#define BTP_HID_RPT_DATA_BITS(Data_bits)             BTP_HID_RPT_DATA_BITS_##Data_bits
+
+#define BTP_HID_RPT_DATA_ENCODE_0(Data)
+#define BTP_HID_RPT_DATA_ENCODE_8(Data)              , (Data & 0xFF)
+#define BTP_HID_RPT_DATA_ENCODE_16(Data)             BTP_HID_RPT_DATA_ENCODE_8(Data)  BTP_HID_RPT_DATA_ENCODE_8(Data>>8)
+#define BTP_HID_RPT_DATA_ENCODE_32(Data)             BTP_HID_RPT_DATA_ENCODE_16(Data) BTP_HID_RPT_DATA_ENCODE_16(Data>>16)
+#define BTP_HID_RPT_DATA_ENCODE(Data_bits, ...)      BTP_HID_RPT_DATA_ENCODE_##Data_bits(__VA_ARGS__)
+
+
+#define BTP_HID_RPT_DATA_ENTRY(Type, Tag, Data_bits, ...)  \
+			(Type | Tag | BTP_HID_RPT_DATA_BITS(Data_bits)) BTP_HID_RPT_DATA_ENCODE(Data_bits, (__VA_ARGS__))
+
+//data item for Input/Ouput/Feature
+#define BTP_HID_IOF_CONSTANT                          BIT(0)
+#define BTP_HID_IOF_DATA                              (0<<0)
+#define BTP_HID_IOF_VARIABLE                          BIT(1)
+#define BTP_HID_IOF_ARRAY                             (0<<1)
+#define BTP_HID_IOF_RELATIVE                          BIT(2)
+#define BTP_HID_IOF_ABSOLUTE                          (0<<2)
+#define BTP_HID_IOF_WRAP                              BIT(3)
+#define BTP_HID_IOF_NO_WRAP                           (0<<3)
+#define BTP_HID_IOF_NON_LINEAR                        BIT(4)
+#define BTP_HID_IOF_LINEAR                            (0<<4)
+#define BTP_HID_IOF_NO_PREFERRED_STATE                BIT(5)
+#define BTP_HID_IOF_PREFERRED_STATE                   (0<<5)
+#define BTP_HID_IOF_NULLSTATE                         BIT(6)
+#define BTP_HID_IOF_NO_NULL_POSITION                  (0<<6)
+#define BTP_HID_IOF_VOLATILE                          BIT(7)
+#define BTP_HID_IOF_NON_VOLATILE                      (0<<7)
+#define BTP_HID_IOF_BUFFERED_BYTES                    BIT(8)
+#define BTP_HID_IOF_BITFIELD                          (0<<8)
+
+//HID report definitions
+#define BTP_HID_RPT_INPUT(Data_bits, ...)             BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_MAIN  , 0x80, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_OUTPUT(Data_bits, ...)            BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_MAIN  , 0x90, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_COLLECTION(Data_bits, ...)        BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_MAIN  , 0xA0, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_FEATURE(Data_bits, ...)           BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_MAIN  , 0xB0, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_END_COLLECTION(Data_bits, ...)    BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_MAIN  , 0xC0, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_USAGE_PAGE(Data_bits, ...)        BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x00, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_LOGICAL_MINIMUM(Data_bits, ...)   BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x10, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_LOGICAL_MAXIMUM(Data_bits, ...)   BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x20, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_PHYSICAL_MINIMUM(Data_bits, ...)  BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x30, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_PHYSICAL_MAXIMUM(Data_bits, ...)  BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x40, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_UNIT_EXPONENT(Data_bits, ...)     BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x50, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_UNIT(Data_bits, ...)              BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x60, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_REPORT_SIZE(Data_bits, ...)       BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x70, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_REPORT_ID(Data_bits, ...)         BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x80, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_REPORT_COUNT(Data_bits, ...)      BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0x90, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_PUSH(Data_bits, ...)              BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0xA0, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_POP(Data_bits, ...)               BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_GLOBAL, 0xB0, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_USAGE(Data_bits, ...)             BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_LOCAL , 0x00, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_USAGE_MINIMUM(Data_bits, ...)     BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_LOCAL , 0x10, Data_bits, __VA_ARGS__)
+#define BTP_HID_RPT_USAGE_MAXIMUM(Data_bits, ...)     BTP_HID_RPT_DATA_ENTRY(BTP_HID_RPT_TYPE_LOCAL , 0x20, Data_bits, __VA_ARGS__)
 
 
 typedef uint (*BtpHidSetProtocolCallback)(uint16 aclHandle, uint08 protoMode);
@@ -72,6 +138,10 @@ int btp_hid_disconn(uint16 handle, uint08 usrID);
  * Return: Returning TLK_ENONE is success.
  *******************************************************************************/
 void btp_hid_destroy(uint16 handle);
+
+extern int btp_hid_enableQos(bool enable);
+extern int btp_hid_enableRtnMode(bool enable, uint08 rtnMode);
+
 
 /******************************************************************************
  * Function: HID device initial interface.
@@ -103,6 +173,10 @@ extern uint16 btp_hidd_getAnyConnHandle(void);
 
 extern int btp_hidd_sendData(uint16 aclHandle, uint08 reportID, uint08 reportType, uint08 *pData, uint16 dataLen);
 extern int btp_hidd_sendDataWithoutReportID(uint16 aclHandle, uint08 reportType, uint08 *pData, uint16 dataLen);
+
+
+int btp_hid_sendIrqData(uint16 aclHandle, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
+int btp_hid_sendCtrData(uint16 aclHandle, uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
 
 
 

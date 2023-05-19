@@ -106,7 +106,7 @@ void tlkdbg_gsuvcd_ref(void)
 }
 // 4-byte sync word: 00 00 00 00
 _attribute_ram_code_sec_noinline_
-void tlkdbg_gsuvcd_sync(bool enable)
+void tlkdbg_gsuvcd_sync(void)
 {
 	uint08 buffLen = 0;
 	uint08 buffer[4];

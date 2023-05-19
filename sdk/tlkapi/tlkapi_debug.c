@@ -104,7 +104,7 @@ void __attribute__((unused))tlkdbg_delayForPrint(uint32 us) __attribute__((weak,
 _attribute_ram_code_sec_
 void tlkdbg_vcd_default(void){}
 void __attribute__((unused))tlkdbg_vcd_ref(void) __attribute__((weak, alias("tlkdbg_vcd_default")));
-void __attribute__((unused))tlkdbg_vcd_sync(bool enable) __attribute__((weak, alias("tlkdbg_vcd_default")));
+void __attribute__((unused))tlkdbg_vcd_sync(void) __attribute__((weak, alias("tlkdbg_vcd_default")));
 void __attribute__((unused))tlkdbg_vcd_tick(uint flags, uint08 id) __attribute__((weak, alias("tlkdbg_vcd_default")));
 void __attribute__((unused))tlkdbg_vcd_level(uint flags, uint08 id, uint08 level) __attribute__((weak, alias("tlkdbg_vcd_default")));
 void __attribute__((unused))tlkdbg_vcd_event(uint flags, uint08 id) __attribute__((weak, alias("tlkdbg_vcd_default")));

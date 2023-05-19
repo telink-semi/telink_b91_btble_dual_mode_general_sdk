@@ -27,8 +27,8 @@
 #if (TLK_MDI_BTHID_ENABLE)
 
 
-#define TLKMDI_BTHID_REPORT_ID_KEYBOARD_INPUT         1   //!< Keyboard input report ID
-#define TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT         2   //!< Consumer Control input report ID
+#define TLKMDI_BTHID_REPORT_ID_KEYBOARD_INPUT         1   //!< Keyboard input report ID, Bond with gcBtpSdpHidReportMap.
+#define TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT         2   //!< Consumer Control input report ID, Bond with gcBtpSdpHidReportMap.
 
 
 typedef struct{
@@ -43,9 +43,9 @@ typedef struct{
 
 int tlkmdi_bthid_init(void);
 int tlkmdi_bthid_connect(uint16 aclHandle);
-int tlkmid_bthid_disconn(uint16 aclHandle);
+int tlkmdi_bthid_disconn(uint16 aclHandle);
 
-int tlkmdi_bthid_sendData(uint16 aclHandle, uint08 reportID, uint08 *pData, uint16 dataLen);
+int tlkmdi_bthid_sendData(uint16 aclHandle, uint08 reportID, uint08 reportType, uint08 *pData, uint16 dataLen);
 int tlkmdi_bthid_sendDataWithoutReportID(uint16 aclHandle, uint08 reportType, uint08 *pData, uint16 dataLen);
 
 

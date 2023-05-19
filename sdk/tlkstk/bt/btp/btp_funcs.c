@@ -39,6 +39,9 @@
 #include "a2dp/btp_a2dpInner.h"
 #include "a2dp/btp_a2dpSrc.h"
 #include "avrcp/btp_avrcpInner.h"
+#include "pts/btp_ptsL2c.h"
+#include "pts/btp_ptsHid.h"
+#include "browsing/btp_browsing.h"
 
 
 #define BTP_FUNC_DBG_FLAG       ((TLK_MAJOR_DBGID_BTH << 24) | (TLK_MINOR_DBGID_BTH_FUNC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
@@ -80,6 +83,15 @@ static const btp_func_item_t scBtpFunSet[] = {
 	{BTP_FUNCID_A2DP_SRC_SEND_A2DP_START, btp_func_a2dpSrcSendStart},
 	{BTP_FUNCID_A2DP_SRC_SEND_MEDIA_DATA, btp_func_a2dpSrcSendMediaData},
 	{BTP_FUNCID_A2DP_SEND_ABORT, btp_func_a2dpSendAbort},
+	//HID
+	{BTP_FUNCID_HID_CONNECT, btp_func_hidConnect},
+	{BTP_FUNCID_HID_DISCONN, btp_func_hidDisconn},
+	{BTP_FUNCID_HID_SEND_DATA, btp_func_hidSendData},
+	{BTP_FUNCID_HID_SEND_CTR_DATA, btp_func_hidSendCtrData},
+	{BTP_FUNCID_HID_SEND_IRQ_DATA, btp_func_hidSendIrqData},
+	{BTP_FUNCID_HID_ENABLE_RTN, btp_func_hidEnableRtn},
+	{BTP_FUNCID_HID_ENABLE_QOS, btp_func_hidEnableQos},
+	{BTP_FUNCID_HID_SET_COD, btp_func_hidSetCod},
 	//AVRCP
 	{BTP_FUNCID_AVRCP_CONNECT, btp_func_avrcpConnect},
 	{BTP_FUNCID_AVRCP_DISCONN, btp_func_avrcpDisconn},
@@ -89,6 +101,8 @@ static const btp_func_item_t scBtpFunSet[] = {
 	{BTP_FUNCID_AVRCP_SEND_EVENT_NOTY, btp_func_avrcpSendEventNoty},
 	{BTP_FUNCID_AVRCP_SET_TRACK_VALUE, btp_func_avrcpSetTrackValue},
 	{BTP_FUNCID_AVRCP_SET_PLAY_STATUS, btp_func_avrcpSetPlayStatus},
+	{BTP_FUNCID_BROWSING_CONNECT, btp_func_browsingConnect},
+	{BTP_FUNCID_BROWSING_DISCONN, btp_func_browsingDisconn},
 	//HFP
 	{BTP_FUNCID_HFP_HF_CONNECT, btp_func_hfpHfConnect},
 	{BTP_FUNCID_HFP_HF_DISCONN, btp_func_hfpHfDisconn},
@@ -114,7 +128,22 @@ static const btp_func_item_t scBtpFunSet[] = {
 	//PBAP
 	{BTP_FUNCID_PBAP_CONNECT, btp_func_pbapConnect},
 	{BTP_FUNCID_PBAP_DISCONN, btp_func_pbapDisconn},
-	
+	{BTP_FUNCID_PBAP_ENABLE_RTN, btp_func_pbapEnableRtn},
+	{BTP_FUNCID_PBAP_SEND_GET_REQ, btp_func_pbapSendGetReqTest},
+	{BTP_FUNCID_PBAP_SEND_GET_CONTINUE, btp_func_pbapSendGetContinueTest},
+	{BTP_FUNCID_PBAP_SEND_GET_REQ1, btp_func_pbapSendGetReqTest1},
+	{BTP_FUNCID_PBAP_SEND_SYNC_BOOK, btp_func_pbapSyncBook},
+	{BTP_FUNCID_PBAP_CONNECT_WITH_AUTH, btp_func_pbapConnectWithAuth},
+	{BTP_FUNCID_PBAP_SET_FOLDER_PATH, btp_func_pbapSetFolderPath},
+	{BTP_FUNCID_PBAP_SEND_GET_REQ2, btp_func_pbapSendGetReqTest2},
+	{BTP_FUNCID_PBAP_SEND_GET_CONTINUE2, btp_func_pbapSendGetContinueTest2},
+	//PTS-L2CAP
+	{BTP_FUNCID_PTSL2C_CONNECT, btp_func_ptsl2cConnect},
+	{BTP_FUNCID_PTSL2C_DISCONN, btp_func_ptsl2cDisconn},
+	{BTP_FUNCID_PTSL2C_ENABLE_RTN, btp_func_ptsl2cEnableRtn},
+	{BTP_FUNCID_PTSL2C_ENABLE_FCS, btp_func_ptsl2cEnableFcs},
+	{BTP_FUNCID_PTSL2C_SEND_DATA, btp_func_ptsl2cSendData},
+	{BTP_FUNCID_PTSL2C_ENABLE_EFS, btp_func_ptsl2cEnableEfs},
 };
 
 
@@ -444,6 +473,135 @@ static int btp_func_a2dpSendAbort(uint08 *pData, uint16 dataLen)
 }
 
 
+static int btp_func_hidConnect(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 userID;
+	
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	userID = pData[2];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidConnect: handle[0x%x] userID[0x%x]", handle, userID);
+	btp_hid_connect(handle, userID);
+	return TLK_ENONE;
+}
+static int btp_func_hidDisconn(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 userID;
+	
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	userID = pData[2];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidDisconn: handle[0x%x] userID[0x%x]", handle, userID);
+	btp_hid_disconn(handle, userID);
+	return TLK_ENONE;
+}
+static int btp_func_hidSendData(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 reportID;
+	uint08 reportType;
+	
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidSendData: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	reportID = pData[2];
+	reportType = pData[3];
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, 
+		"btp_func_hidSendData: handle[0x%x], reportID[%d], reportType[%d]", 
+		handle, reportID, reportType);
+	btp_hidd_sendData(handle, reportID, reportType, pData+4, dataLen-4);
+	return TLK_ENONE;
+}
+static int btp_func_hidSendCtrData(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidSendCtrData: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, 
+		"btp_func_hidSendCtrData: handle[0x%x], dataLen[%d]", 
+		handle, dataLen);
+	btp_hid_sendCtrData(handle, nullptr, 0, pData+2, dataLen-2);
+	return TLK_ENONE;
+}
+static int btp_func_hidSendIrqData(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidSendIrqData: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, 
+		"btp_func_hidSendIrqData: handle[0x%x], dataLen[%d]", 
+		handle, dataLen);
+	btp_hid_sendIrqData(handle, nullptr, 0, pData+2, dataLen-2);
+	return TLK_ENONE;
+}
+static int btp_func_hidEnableRtn(uint08 *pData, uint16 dataLen)
+{
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidEnableRtn: failure - param error");
+		return -TLK_EPARAM;
+	}
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, 
+		"btp_func_hidEnableRtn: enable[%d], rtnMode[%d]", pData[0], pData[1]);
+	btp_hid_enableRtnMode(pData[0], pData[1]);
+	return TLK_ENONE;
+}
+static int btp_func_hidEnableQos(uint08 *pData, uint16 dataLen)
+{	
+	if(pData == nullptr || dataLen < 1){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidEnableQos: failure - param error");
+		return -TLK_EPARAM;
+	}
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, 
+		"btp_func_hidEnableQos: enable[%d]", pData[0]);
+	btp_hid_enableQos(pData[0]);
+	return TLK_ENONE;
+}
+static int btp_func_hidSetCod(uint08 *pData, uint16 dataLen)
+{	
+//	if(pData == nullptr || dataLen < 1){
+//		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidEnableQos: failure - param error");
+//		return -TLK_EPARAM;
+//	}
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_hidSetCod");
+#if (TLKBTP_CFG_PTSHID_ENABLE)
+	btp_ptshid_setClassOfDevice();
+#endif
+	return TLK_ENONE;
+}
+
+
 static int btp_func_avrcpConnect(uint08 *pData, uint16 dataLen)
 {
 	uint16 handle;
@@ -568,6 +726,38 @@ static int btp_func_avrcpSetPlayStatus(uint08 *pData, uint16 dataLen)
 	status = pData[2];
 	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_avrcpSetPlayStatus: handle[0x%x] status[0x%x]", handle, status);
 	btp_avrcp_setPlayState(handle, status);
+	return TLK_ENONE;
+}
+static int btp_func_browsingConnect(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_browsingConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_browsingConnect: handle[0x%x]", handle);
+	#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
+	btp_browsing_connect(handle);
+	#endif
+	return TLK_ENONE;
+}
+static int btp_func_browsingDisconn(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_browsingDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_browsingDisconn: handle[0x%x]", handle);
+	#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
+	btp_browsing_disconn(handle);
+	#endif
 	return TLK_ENONE;
 }
 
@@ -896,9 +1086,10 @@ static int btp_func_pbapConnect(uint08 *pData, uint16 dataLen)
 	if(handle == 0) handle = sBtpFuncAclHandle;
 	usrID = pData[2];
 	psmOrChn = ((uint16)pData[4]<<8 | pData[3]);
-	if(psmOrChn == 0) psmOrChn = 9;
 	isL2cap = pData[5];
-	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapConnect: handle[0x%x] usrID[0x%x] psmOrChn[0x%x] isL2cap[0x%x]", handle, usrID, psmOrChn, isL2cap);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+		"btp_func_pbapConnect: handle[0x%x] usrID[0x%x] psmOrChn[0x%x] isL2cap[0x%x]",
+		handle, usrID, psmOrChn, isL2cap);
 	return btp_pbap_connect(handle, usrID, psmOrChn, isL2cap);
 }
 static int btp_func_pbapDisconn(uint08 *pData, uint16 dataLen)
@@ -917,6 +1108,264 @@ static int btp_func_pbapDisconn(uint08 *pData, uint16 dataLen)
 	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapDisconn: handle[0x%x] usrID[0x%x]", handle, usrID);
 	return btp_pbap_disconn(handle, usrID);
 }
+static int btp_func_pbapEnableRtn(uint08 *pData, uint16 dataLen)
+{
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapEnableRtn: failure - param error");
+		return -TLK_EPARAM;
+	}
+	
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, 
+		"btp_func_pbapEnableRtn: enable[%d], rtnMode[%d]", pData[0], pData[1]);
+	btp_pbap_enableRtnMode(pData[0], pData[1]);
+	return TLK_ENONE;
+}
+static int btp_func_pbapSendGetReqTest(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 isWait;
+	uint08 isEnSram;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapSendGetReqTest: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	isWait = pData[2];
+	isEnSram = pData[3];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+			"btp_func_pbapSendGetReqTest: handle[0x%x] isWait[%d] isEnSram[%d]",
+			handle, isWait, isEnSram);
+	return btp_pbapclt_sendGetReqTest(handle, isWait, isEnSram);
+}
+static int btp_func_pbapSendGetContinueTest(uint08 *pData, uint16 dataLen)
+{
+	uint08 isWait;
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 3){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapSendGetContinueTest: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	isWait = pData[2];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+		"btp_func_pbapSendGetContinueTest: handle[0x%x] isWait[%d]",
+		handle, isWait);
+	return btp_pbapclt_sendGetContinueTest(handle, isWait);
+}
+static int btp_func_pbapSendGetReqTest1(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 isWait;
+	uint08 isEnSram;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapSendGetReqTest1: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	isWait = pData[2];
+	isEnSram = pData[3];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+			"btp_func_pbapSendGetReqTest1: handle[0x%x] isWait[%d] isEnSram[%d]",
+			handle, isWait, isEnSram);
+	return btp_pbapclt_sendGetReqTest1(handle, isWait, isEnSram);
+}
+static int btp_func_pbapSyncBook(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 bookPosi;
+	uint08 bookType;
+	uint08 bookSort;
+
+	if(pData == nullptr || dataLen < 5){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapSyncBook: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	bookPosi = pData[2];
+	bookType = pData[3];
+	bookSort = pData[4];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+			"btp_func_pbapSyncBook: handle[0x%x] bookPosi[%d] bookType[%d] bookSort[%d]",
+			handle, bookPosi, bookType, bookSort);
+	return btp_pbapclt_startSyncBook(handle, bookPosi, bookType, bookSort, 0, 0xFFFF);
+}
+static int btp_func_pbapConnectWithAuth(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+//	uint08 usrID;
+	uint16 psmOrChn;
+	bool isL2cap;
+
+	if(pData == nullptr || dataLen < 6){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapConnectWithAuth: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+//	usrID = pData[2];
+	psmOrChn = ((uint16)pData[4]<<8 | pData[3]);
+	isL2cap = pData[5];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+		"btp_func_pbapConnectWithAuth: handle[0x%x] psmOrChn[0x%x] isL2cap[0x%x]",
+		handle, psmOrChn, isL2cap);
+	return btp_pbapclt_connectWithAuth(handle, psmOrChn, isL2cap);
+}
+static int btp_func_pbapSetFolderPath(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 path;
+	uint08 type;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapConnectWithAuth: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	path = pData[2];
+	type = pData[3];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+		"btp_func_pbapSetFolderPath: handle[0x%x] path[0x%x] type[0x%x]",
+		handle, path, type);
+	return btp_pbapclt_sendSetFolderTest(handle, path, type);
+}
+static int btp_func_pbapSendGetReqTest2(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	uint08 isWait;
+	uint08 isEnSram;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapSendGetReqTest2: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	isWait = pData[2];
+	isEnSram = pData[3];
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN,
+			"btp_func_pbapSendGetReqTest2: handle[0x%x] isWait[%d] isEnSram[%d]",
+			handle, isWait, isEnSram);
+	return btp_pbapclt_sendGetReqTest2(handle, isWait, isEnSram);
+}
+static int btp_func_pbapSendGetContinueTest2(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_pbapSendGetContinueTest2: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	return btp_pbapclt_sendGetContinueTest2(handle, pData[2], pData[3]);
+}
+
+
+static int btp_func_ptsl2cConnect(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cConnect: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cConnect: handle[0x%x]");
+	return btp_ptsl2c_connect(handle);
+}
+static int btp_func_ptsl2cDisconn(uint08 *pData, uint16 dataLen)
+{
+	uint16 handle;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cDisconn: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	handle = ((uint16)pData[1]<<8 | pData[0]);
+	if(handle == 0) handle = sBtpFuncAclHandle;
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cDisconn: handle[0x%x]", handle);
+	return btp_ptsl2c_disconn(handle);
+}
+static int btp_func_ptsl2cEnableRtn(uint08 *pData, uint16 dataLen)
+{
+	uint08 isEnable;
+	uint08 rtnMode;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableRtn: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	isEnable = pData[0];
+	rtnMode  = pData[1];
+	btp_ptsl2c_enableRtn(isEnable, rtnMode);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableRtn: isEnable[%d],rtnMode[%d]", isEnable, rtnMode);
+	return TLK_ENONE;
+}
+static int btp_func_ptsl2cEnableFcs(uint08 *pData, uint16 dataLen)
+{
+	uint16 isEnable;
+	uint08 fcsType;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableFcs: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	isEnable = pData[0];
+	fcsType  = pData[1];
+	btp_ptsl2c_enableFcs(isEnable, fcsType);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableFcs: isEnable[%d],fcsType[%d]", isEnable, fcsType);
+	return TLK_ENONE;
+}
+static int btp_func_ptsl2cSendData(uint08 *pData, uint16 dataLen)
+{
+	uint16 length;
+	
+	if(pData == nullptr || dataLen < 2){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableFcs: failure - param error");
+		return -TLK_EPARAM;
+	}
+	
+	length = ((uint16)pData[1]<<8) | pData[0];
+	btp_ptsl2c_sendTestData(length);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableFcs: length[%d]", length);
+	return TLK_ENONE;
+}
+static int btp_func_ptsl2cEnableEfs(uint08 *pData, uint16 dataLen)
+{
+	uint16 isEnable;
+	
+	if(pData == nullptr || dataLen < 1){
+		tlkapi_error(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableEfs: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	isEnable = pData[0];
+	btp_ptsl2c_enableEfs(isEnable);
+	tlkapi_trace(BTP_FUNC_DBG_FLAG, BTP_FUNC_DBG_SIGN, "btp_func_ptsl2cEnableEfs: isEnable[%d]", isEnable);
+	return TLK_ENONE;
+}
+
 
 #endif //#if (TLK_STK_BTP_ENABLE && TLK_CFG_TEST_ENABLE)
 

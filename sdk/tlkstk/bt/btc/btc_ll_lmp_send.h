@@ -27,8 +27,8 @@
 
 int btc_lmp_send(uint08 linkId, uint08 *pData, uint08 dataLen);
 
-int lmp_accept_opcode_req(uint8_t link_id, uint8_t opcode, uint8_t errorcode);
-int lmp_accept_ext_opcode_req(uint8_t link_id, uint8_t esc, uint8_t code, uint8_t errorcode);
+int lmp_send_accept_opcode_req(uint8_t link_id, uint8_t opcode, uint8_t errorcode);
+int lmp_send_accept_ext_opcode_req(uint8_t link_id, uint8_t esc, uint8_t code, uint8_t errorcode);
 int lmp_send_timing_accuracy_req(uint8_t link_id);
 int lmp_send_timing_accuracy_res(uint8_t link_id);
 int lmp_send_auto_rate(uint8_t link_id);
@@ -57,13 +57,13 @@ int lmp_send_ch_classification(uint8_t link_id,struct chnl_map ch_class);
 int btc_authen_sendLmpRandNumber(int linkId, uint8_t * rand_number);
 int btc_authen_sendLmpSres(uint8_t linkId, uint8_t* sres);
 
-int lmp_send_max_slot(int Lid, unsigned char max_slot);
-int lmp_send_cmd_max_slot_req(int Lid, unsigned char max_slot);
-int lmp_send_cmd_ptt_req(int Lid, unsigned char ptt);
+int lmp_send_max_slot(uint08 Lid, unsigned char max_slot);
+int lmp_send_cmd_max_slot_req(uint08 Lid, unsigned char max_slot);
+int lmp_send_cmd_ptt_req(uint08 Lid, unsigned char ptt);
 
 
-int lmp_send_setup_complete(int Lid,uint8_t tid);
-int lmp_send_host_con_req(int Lid);
+int lmp_send_setup_complete(uint08 Lid,uint8_t tid);
+int lmp_send_host_con_req(uint08 Lid);
 
 int lmp_send_in_rand_number(uint08 linkId, uint08 number[16]);
 int lmp_send_comb_key(uint08 linkId, uint08 combkey[16]);
@@ -96,7 +96,7 @@ int lmp_send_name_res(uint8_t link_id, uint8_t name_offset);
 int lmp_send_clock_off_req(uint8_t link_id);
 int lmp_send_clk_off_res(uint8_t link_id, uint16_t clock_off);
 
-void lmp_send_sniff_req(uint8_t link_id, uint8_t timing_ctrl_flags, uint16_t Dsniff, uint16_t Tsniff, uint16_t sniff_attempt, uint16_t sniff_timeout, uint08 initiator);
+void lmp_send_sniff_req(uint8_t link_id, uint8_t timing_ctrl_flags, uint16_t Dsniff, uint16_t Tsniff, uint16_t sniff_attempt, uint16_t sniff_timeout);
 void lmp_send_unsniff_req(uint8_t link_id);
 
 

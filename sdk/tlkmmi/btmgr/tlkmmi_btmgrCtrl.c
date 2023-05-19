@@ -183,9 +183,9 @@ int tlkmmi_btmgr_ctrlVolInc(void)
 	aclHandle = btp_hidd_getAnyConnHandle();
 	if(aclHandle == 0) return -TLK_ENOREADY;
 	consumeKey = 0x00e9;
-	ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, BTP_HID_DATA_RTYPE_INPUT, (uint08*)&consumeKey, 2);
 	consumeKey = 0x0000;
-	if(ret == TLK_ENONE) ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	if(ret == TLK_ENONE) ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, BTP_HID_DATA_RTYPE_INPUT, (uint08*)&consumeKey, 2);
 	return ret;
 	#else
 	return -TLK_ENOSUPPORT;
@@ -200,9 +200,9 @@ int tlkmmi_btmgr_ctrlVolDec(void)
 	aclHandle = btp_hidd_getAnyConnHandle();
 	if(aclHandle == 0) return -TLK_ENOREADY;
 	consumeKey = 0x00ea;
-	ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, BTP_HID_DATA_RTYPE_INPUT, (uint08*)&consumeKey, 2);
 	consumeKey = 0x0000;
-	if(ret == TLK_ENONE) ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, (uint08*)&consumeKey, 2);
+	if(ret == TLK_ENONE) ret = tlkmdi_bthid_sendData(aclHandle, TLKMDI_BTHID_REPORT_ID_CONSUMER_INPUT, BTP_HID_DATA_RTYPE_INPUT, (uint08*)&consumeKey, 2);
 	return ret;
 	#else
 	return -TLK_ENOSUPPORT;

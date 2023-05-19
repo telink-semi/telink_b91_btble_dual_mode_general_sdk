@@ -49,6 +49,7 @@ typedef enum{
 	BTH_SIGNAL_FLAG_WAIT_CONN_RSP = 0x08,
 	BTH_SIGNAL_FLAG_WAIT_CFG_REQ  = 0x10,
 	BTH_SIGNAL_FLAG_WAIT_CFG_RSP  = 0x20,
+	BTH_SIGNAL_FLAG_RE_NEGOTIATION  = 0x40,
 }BTH_SIGNAL_FLAGS_ENUM;
 typedef enum{
 	BTH_SIGNAL_BUSY_NONE          = 0x00,
@@ -61,24 +62,9 @@ typedef enum{
 	BTH_SIGNAL_BUSY_SEND_CFG_RSP  = 0x20,
 }BTH_SIGNAL_BUSYS_ENUM;
 typedef enum{
-	BTH_SIGNAL_ATTR_NONE = 0x0000,
-	BTH_SIGNAL_ATTR_PEER_MTU     = 0x0001,
-	BTH_SIGNAL_ATTR_PEER_QOS     = 0x0002,
-	BTH_SIGNAL_ATTR_PEER_RTN     = 0x0004,
-	BTH_SIGNAL_ATTR_PEER_FCS     = 0x0008,
-	BTH_SIGNAL_ATTR_PEER_TIMEOUT = 0x0010,
-
-	BTH_SIGNAL_ATTR_MINE_MTU     = 0x0100,
-	BTH_SIGNAL_ATTR_MINE_QOS     = 0x0200,
-	BTH_SIGNAL_ATTR_MINE_RTN     = 0x0400,
-	BTH_SIGNAL_ATTR_MINE_FCS     = 0x0800,
-	BTH_SIGNAL_ATTR_MINE_TIMEOUT = 0x1000,
-
-	BTH_SIGNAL_ATTR_PEER_OPTION_MASK = 0x001F,
-	BTH_SIGNAL_ATTR_MINE_OPTION_MASK = 0x1F00,
-
-	BTH_SIGNAL_ATTR_CONNECT = 0x4000,
-	BTH_SIGNAL_ATTR_ACTIVE  = 0x8000,
+	BTH_SIGNAL_ATTR_NONE    = 0x00,
+	BTH_SIGNAL_ATTR_CONNECT = 0x40,
+	BTH_SIGNAL_ATTR_ACTIVE  = 0x80,
 }BTH_SIGNAL_ATTRS_ENUM;
 
 
@@ -103,6 +89,14 @@ typedef enum{
 	BTH_SIGNAL_CONN_STATUS_AUTHOR_PENDING = 0x0002, //Authorization pending
 }BTH_SIGNAL_CONN_STATUS_ENUM;
 
+typedef enum{
+	BTH_SIGNAL_CFG_RESULT_SUCCESS            = 0x0000, //
+	BTH_SIGNAL_CFG_RESULT_UNACCEPT_PARAM     = 0x0001,
+	BTH_SIGNAL_CFG_RESULT_REJECT             = 0x0002,
+	BTH_SIGNAL_CFG_RESULT_UNKNOWN_OPTIONS    = 0x0003,
+	BTH_SIGNAL_CFG_RESULT_PENDING            = 0x0004,
+	BTH_SIGNAL_CFG_RESULT_FLOW_SPEC_REJECTED = 0x0005,
+}BTH_SIGNAL_CFG_RESULT_ENUM;
 
 typedef enum{
 	BTH_SIGNAL_REASON_NOT_UNDERSTOOD = 0x00,
@@ -120,11 +114,21 @@ typedef enum{
 *******************************************************************************/
 int bth_signal_enableRtnOption(uint16 aclHandle, uint16 scid, bool enable);
 int bth_signal_enableFcsOption(uint16 aclHandle, uint16 scid, bool enable);
+int bth_signal_enableEfsOption(uint16 aclHandle, uint16 scid, bool enable);
+int bth_signal_enableQosOption(uint16 aclHandle, uint16 scid, bool enable);
 int bth_signal_setFcsType(uint16 aclHandle, uint16 scid, uint16 fcsType);
 int bth_signal_setRtnMode(uint16 aclHandle, uint16 scid, uint08 rtnMode);
 int bth_signal_setRtnMps(uint16 aclHandle, uint16 scid, uint16 rtnMps);
-int bth_signal_getFcsType(uint16 aclHandle, uint16 scid, uint16 *pFcsType);
+int bth_signal_getFcsType(uint16 aclHandle, uint16 scid, uint08 *pFcsType);
 int bth_signal_getRtnMode(uint16 aclHandle, uint16 scid, uint08 *pRtnMode);
+int bth_signal_setRfsParam(uint16 aclHandle, uint16 scid, uint08 ientifier, 
+	uint08 serviceType, uint16 maxSduSize, uint32 sduArrivalTime, uint32 accessLatency,
+	uint32 flushTimeout);
+int bth_signal_getRtnMonTime(uint16 aclHandle, uint16 scid, uint16 *pMonTime);
+int bth_signal_getRtnRtnTime(uint16 aclHandle, uint16 scid, uint16 *pRtnTime);
+int bth_signal_getRtnCount(uint16 aclHandle, uint16 scid, uint08 *pCount);
+int bth_signal_setQosServiceType(uint16 aclHandle, uint16 scid, uint08 serviceType);
+
 
 
 /******************************************************************************
@@ -136,7 +140,7 @@ int bth_signal_getRtnMode(uint16 aclHandle, uint16 scid, uint08 *pRtnMode);
  *        @usrID[IN]--The user id.
  * Reutrn: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
-int bth_signal_createConnect(uint16 aclHandle, uint16 psmID, uint08 usrID);
+int bth_signal_createConnect(uint16 aclHandle, uint16 psmID, uint08 usrID, uint16 *pScid);
 
 /******************************************************************************
  * Function: bth_signal_destoryConnect

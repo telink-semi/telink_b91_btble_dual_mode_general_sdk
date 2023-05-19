@@ -47,8 +47,17 @@ int tlkdev_codec_init(void)
 
 	tlkdrv_codec_paInit();
 	
+#if (TLKDRV_CODEC_ICODEC_ENABLE)
 	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_INNER, TLKDRV_CODEC_SUBDEV_BOTH);
-//	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_RTL2108, TLKDRV_CODEC_SUBDEV_BOTH);
+#elif (TLKDRV_CODEC_RTL2108_ENABLE)
+	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_RTL2108, TLKDRV_CODEC_SUBDEV_BOTH);
+#elif (TLKDRV_CODEC_IISSLV_ENABLE)
+	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_IISSLV, TLKDRV_CODEC_SUBDEV_BOTH);
+#elif (TLKDRV_CODEC_IISMST_ENABLE)
+	tlkdrv_codec_mount(TLKDRV_CODEC_DEV_IISMST, TLKDRV_CODEC_SUBDEV_BOTH);
+#endif
+	
+
 	
 	tlkdev_codec_setSpkVolume(100);
 	tlkdev_codec_setMicVolume(100);
@@ -245,6 +254,14 @@ bool tlkdev_codec_readMicData(uint08 *pBuff, uint16 buffLen, uint16 *pOffset)
 		tlkdrv_codec_micDataZoom(pBuff, buffLen);
 	}
 	return isSucc;
+}
+bool tlkdev_codec_fillSpkRawData(uint08 *pData, uint16 dataLen)
+{
+	return tlkdrv_codec_fillSpkBuff(pData, dataLen);
+}
+bool tlkdev_codec_readMicRawData(uint08 *pBuff, uint16 buffLen)
+{
+	return tlkdrv_codec_readMicData(pBuff, buffLen, nullptr);
 }
 
 void tlkdev_codec_muteSpkBuff(void)

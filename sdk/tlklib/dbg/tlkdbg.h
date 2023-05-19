@@ -48,8 +48,7 @@ void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 va
 void tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
 void tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
 
-void tlkdbg_vcd_ref(void);
-void tlkdbg_vcd_sync(bool enable);
+void tlkdbg_vcd_sync(void);
 void tlkdbg_vcd_tick(uint flags, uint08 id);
 void tlkdbg_vcd_level(uint flags, uint08 id, uint08 level);
 void tlkdbg_vcd_event(uint flags, uint08 id);

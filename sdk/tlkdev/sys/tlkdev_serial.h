@@ -44,6 +44,7 @@ int tlkdev_serial_setRxFifo(uint08 *pBuffer, uint16 buffLen);
 int tlkdev_serial_setTxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen);
 int tlkdev_serial_setRxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16 buffLen);
 
+bool tlkdev_serial_isOpen();
 int tlkdev_serial_open(void);
 int tlkdev_serial_close(void);
 

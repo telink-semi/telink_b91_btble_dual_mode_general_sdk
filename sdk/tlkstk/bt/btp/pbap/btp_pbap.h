@@ -147,9 +147,9 @@ extern void btp_pbapclt_regBookCB(BtpPbapcBookCallback cb);
  * Descript: This interface be used by client user to release the resource.
  * Params:
  *        @aclHandle[IN]--The acl link handle.
- *        @bookPosi[IN]--The storage position(Phone ram/sim card).
- *        @bookType[IN]--The Object type(phonebook or call record).
- *        @bookSort[IN]--The sort type.
+ *        @bookPosi[IN]--The storage position(Phone ram/sim card). Refer BTP_PBAP_BOOK_POSI_ENUM.
+ *        @bookType[IN]--The Object type(phonebook or call record). Refer BTP_PBAP_BOOK_TYPE_ENUM.
+ *        @bookSort[IN]--The sort type. Refer BTP_PBAP_BOOK_SORT_ENUM.
  *        @offset[IN]--The offset.
  *        @count[IN]--The count.
  * Return: Returning TLK_ENONE(0x00) means the send process success.
@@ -172,8 +172,18 @@ extern int btp_pbapclt_startSyncBook(uint16 aclHandle, int bookPosi, int bookTyp
 *******************************************************************************/
 extern int btp_pbapclt_closeSyncBook(uint16 aclHandle);
 
+
+extern int btp_pbap_enableRtnMode(bool enable, uint08 rtnMode);
+extern int btp_pbapclt_sendGetReqTest(uint16 aclHandle, bool isEnSram, bool isWait);
+extern int btp_pbapclt_sendGetReqTest1(uint16 aclHandle, bool isWait, bool isEnSram);
+extern int btp_pbapclt_sendGetContinueTest(uint16 aclHandle, bool isWait);
+extern int btp_pbapclt_connectWithAuth(uint16 aclHandle, uint16 psmOrChn, bool isL2cap);
+extern int btp_pbapclt_sendSetFolderTest(uint16 aclHandle, uint08 path, uint08 type);
+extern int btp_pbapclt_sendGetReqTest2(uint16 aclHandle, bool isWait, bool isEnSram);
+extern int btp_pbapclt_sendGetContinueTest2(uint16 aclHandle, bool isWait, bool enable);
+
+
+
 #endif //#if (TLKBTP_CFG_PBAPCLT_ENABLE)
-
 #endif
-
 #endif

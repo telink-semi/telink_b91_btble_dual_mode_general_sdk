@@ -72,6 +72,8 @@ void tlkmdi_comm_handler(void);
 
 bool tlkmdi_comm_pmIsBusy(void);
 
+int tlkmdi_comm_setBaudrate(uint32 baudrate);
+
 int tlkmdi_comm_getValidDatID(uint08 *pDatID);
 
 void tlkmdi_comm_incSendNumb(void);

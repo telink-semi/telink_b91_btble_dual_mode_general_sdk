@@ -59,7 +59,8 @@ static const bth_func_item_t scBthFunSet[] = {
 	{BTH_FUNCID_L2C_DISCONN, bth_func_l2capDisconn},
 	{BTH_FUNCID_L2C_SEND_DATA, bth_func_l2capSendData},
 	{BTH_FUNCID_L2C_SEND_INFO_REQ, bth_func_l2capSendInfoReq},
-
+	{BTH_FUNCID_L2C_SET_EXT_FEATURE, bth_func_l2capSetExtFeature},
+	{BTH_FUNCID_L2C_SET_EXT_FEATURE_BITS, bth_func_l2capSetExtFeatureBits},
 };
 
 
@@ -270,7 +271,7 @@ static int bth_func_l2capConnect(uint08 *pData, uint16 dataLen)
 	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capConnect: handle[0x%x], psmID[0x%x], usrID[0x%x]",
 		handle, psmID, usrID);
 
-	return bth_signal_createConnect(handle, psmID, usrID);
+	return bth_signal_createConnect(handle, psmID, usrID, nullptr);
 }
 static int bth_func_l2capDisconn(uint08 *pData, uint16 dataLen)
 {
@@ -308,7 +309,6 @@ static int bth_func_l2capSendData(uint08 *pData, uint16 dataLen)
 	buffLen = 48;
 	tmemset(buffer, 0x55, sizeof(buffer));
 	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSendData: handle[0x%x], scid[0x%x]", handle, scid);
-
 	return bth_l2cap_sendChannelData(handle, scid, buffer, buffLen, nullptr, 0);
 }
 static int bth_func_l2capSendInfoReq(uint08 *pData, uint16 dataLen)
@@ -325,14 +325,48 @@ static int bth_func_l2capSendInfoReq(uint08 *pData, uint16 dataLen)
 	handle = ((uint16)pData[1]<<8 | pData[0]);
 	if(handle == 0) handle = sBthFuncAclHandle;
 	identify = pData[2];
-	if (identify == 0) identify = 1;
+	if(identify == 0) identify = 1;
 	infoType = ((uint16)pData[4]<<8 | pData[3]);
 	if(infoType == 0) infoType = 0x0002;
 
-	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSendInfoReq: handle[0x%x], identify[0x%x], infoType[0x%x]",
-															handle, identify, infoType);
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, 
+		"bth_func_l2capSendInfoReq: handle[0x%x], identify[0x%x], infoType[0x%x]",
+		handle, identify, infoType);
 	return bth_signal_sendInfoReq(handle, identify, infoType);
 }
+static int bth_func_l2capSetExtFeature(uint08 *pData, uint16 dataLen)
+{
+	uint32 feature;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSetExtFeature: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	ARRAY_TO_UINT32L(pData, 0, feature);
+	
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, 
+		"bth_func_l2capSetExtFeature: feature[0x%x]", feature);
+	bth_l2cap_setExtFeature(feature);
+	return TLK_ENONE;
+}
+static int bth_func_l2capSetExtFeatureBits(uint08 *pData, uint16 dataLen)
+{
+	uint32 feature;
+
+	if(pData == nullptr || dataLen < 4){
+		tlkapi_error(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, "bth_func_l2capSetExtFeatureBits: failure - param error");
+		return -TLK_EPARAM;
+	}
+
+	ARRAY_TO_UINT32L(pData, 0, feature);
+	
+	tlkapi_trace(BTH_FUNC_DBG_FLAG, BTH_FUNC_DBG_SIGN, 
+		"bth_func_l2capSetExtFeatureBits: feature[0x%x]", feature);
+	bth_l2cap_setExtFeatureBits(feature);
+	return TLK_ENONE;
+}
+
 
 
 #endif //#if (TLK_STK_BTH_ENABLE && TLK_CFG_TEST_ENABLE)

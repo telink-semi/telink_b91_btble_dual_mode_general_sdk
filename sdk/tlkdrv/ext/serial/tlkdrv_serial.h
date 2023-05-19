@@ -97,6 +97,7 @@ int tlkdrv_serial_read(uint08 port, uint08 *pBuff, uint16 buffLen);
 int tlkdrv_serial_send(uint08 port, uint08 *pData, uint16 dataLen);
 
 int tlkdrv_serial_setBaudrate(uint08 port, uint32 baudRate);
+uint32 tlkdrv_serial_getBaudrate(uint08 port);
 
 int tlkdrv_serial_setTxFifo(uint08 port, uint08 *pBuffer, uint16 buffLen);
 int tlkdrv_serial_setRxFifo(uint08 port, uint08 *pBuffer, uint16 buffLen);
@@ -113,7 +114,6 @@ void tlkdrv_serial_handler(uint08 port);
 bool tlkdrv_serial_sfifoIsMore60(uint08 port,uint16 dataLen);
 bool tlkdrv_serial_sfifoIsMore85(uint08 port,uint16 dataLen);
 
-uint32 tlkdrv_serial_getBaudrate(uint08 port);
 
 
 #endif //#if (TLK_DEV_SERIAL_ENABLE)

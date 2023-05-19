@@ -31,13 +31,21 @@
 #include "tlkdbg_define.h"
 #include "tlkdbg_hwulog.h"
 #include "drivers.h"
+#include "tlkdev/sys/tlkdev_serial.h"
+#include "tlkdrv/ext/serial/tlkdrv_serial.h"
+#if (TLK_CFG_SYS_ENABLE)
+#include "tlksys/tlksys_pm.h"
+#endif
+
+#if (TLK_DEV_SERIAL_ENABLE)
+void tlkdbg_hwulog_wakeup(uint wakeSrc);
+#endif
 
 //HWU - GPIO simulate UART
 
 #define TLKDBG_HWULOG_NEWLINE_MODE1_ENABLE         1
 
 
-static uint08 sTlkDbgHwuLogIsBusy;
 static uint16 sTlkDbgHwuLogSerial;
 static uint08 sTlkDbgHwuLogCache[TLKDBG_HWU_LOG_CACHE_SIZE+4];
 static uint08 sTlkDbgHwuLogBuffer[TLKDBG_HWU_LOG_BUFFER_SIZE];
@@ -48,36 +56,34 @@ static tlkapi_fifo_t sTlkDbgHwuLogFifo;
 
 void tlkdbg_hwulog_init(void)
 {
-	unsigned short div;
-	unsigned char bwpc;
-
-	sTlkDbgHwuLogIsBusy = false;
 	sTlkDbgHwuLogSerial = 0;
 	tlkapi_fifo_init(&sTlkDbgHwuLogFifo, false, false, sTlkDbgHwuLogBuffer, TLKDBG_HWU_LOG_BUFFER_SIZE);
-		
-	uart_reset(TLKDBG_HWULOG_UART_PORT);
-	uart_set_pin(TLKDBG_HWULOG_UART_PORT, TLKDBG_HWULOG_UART_TX_PIN, GPIO_NONE_PIN);
-	
-	uart_cal_div_and_bwpc(TLKDBG_HWULOG_UART_BAUDRATE, sys_clk.pclk*1000*1000, &div, &bwpc);
-	uart_init(TLKDBG_HWULOG_UART_PORT, div, bwpc, UART_PARITY_NONE, UART_STOP_BIT_ONE);	
-	
-	uart_clr_irq_status(TLKDBG_HWULOG_UART_PORT, UART_TXDONE_IRQ_STATUS);
-	uart_set_irq_mask(TLKDBG_HWULOG_UART_PORT, UART_TXDONE_MASK); 
-	uart_set_irq_mask(TLKDBG_HWULOG_UART_PORT, UART_ERR_IRQ_MASK);
+
+	#if (TLK_DEV_SERIAL_ENABLE)
+	tlkdrv_serial_mount(TLKDBG_HWULOG_UART_PORT, TLKDBG_HWULOG_UART_BAUDRATE, 
+		TLKDBG_HWULOG_UART_TX_PIN, 0, 0, 0, 0, 0);
+	tlkdrv_serial_open(TLKDBG_HWULOG_UART_PORT);
+	tlksys_pm_appendLeaveSleepCB(tlkdbg_hwulog_wakeup);
+	#endif
 }
 
 void tlkdbg_hwulog_reset(void)
 {
-	sTlkDbgHwuLogIsBusy = false;
 	sTlkDbgHwuLogSerial = 0;
 	tlkapi_fifo_clear(&sTlkDbgHwuLogFifo);
 }
 
 bool tlkdbg_hwulog_isBusy(void)
 {
-	if(tlkapi_fifo_isEmpty(&sTlkDbgHwuLogFifo)) return false;
-	else return true;
+	if(!tlkapi_fifo_isEmpty(&sTlkDbgHwuLogFifo)) return true;
+	return false;
 }
+#if (TLK_DEV_SERIAL_ENABLE)
+void tlkdbg_hwulog_wakeup(uint wakeSrc)
+{
+	tlkdrv_serial_wakeup(TLKDBG_HWULOG_UART_PORT);
+}
+#endif
 
 
 void tlkdbg_hwulog_handler(void)
@@ -86,7 +92,9 @@ void tlkdbg_hwulog_handler(void)
 	if(!tlkapi_fifo_isEmpty(&sTlkDbgHwuLogFifo)){
 		ret = tlkapi_fifo_read(&sTlkDbgHwuLogFifo, sTlkDbgHwuLogSendBuff, TLKDBG_HWU_LOG_SND_CACHE_SIZE);
 		if(ret > 0){
-			uart_send(TLKDBG_HWULOG_UART_PORT, sTlkDbgHwuLogSendBuff, ret);
+			#if (TLK_DEV_SERIAL_ENABLE)
+			tlkdrv_serial_send(TLKDBG_HWULOG_UART_PORT, sTlkDbgHwuLogSendBuff, ret);
+			#endif
 		}
 	}
 }
@@ -259,7 +267,6 @@ void tlkdbg_hwulog_sendData(char *pSign, char *pStr, uint08 *pData, uint16 dataL
 	tlkapi_fifo_write(&sTlkDbgHwuLogFifo, pBuff, buffLen);	
 	core_interrupt_restore();
 }
-
 
 
 

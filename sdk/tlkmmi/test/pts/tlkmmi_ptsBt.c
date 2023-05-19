@@ -189,6 +189,7 @@ static int tlkmmi_pts_btAclDisconnEvt(uint08 *pData, uint16 dataLen)
 	gTlkMmiTestPtsBtScoHandle = 0;
 	bth_func_setAclHandle(gTlkMmiTestPtsBtAclHandle);
 	btp_func_setAclHandle(gTlkMmiTestPtsBtAclHandle);
+	bth_device_clsItem();
 
 	return TLK_ENONE;
 }

@@ -146,6 +146,7 @@ typedef struct{
 typedef struct{
 	uint16 handle;
 	uint08 status; // 0-Closed, 1-Opened, 2-Paused, 3-Stream, Refer to BTP_A2DP_STATUS_ENUM.
+	uint16 mtuSize;
 }btp_a2dpStatusChangeEvt_t;
 typedef struct{
 	uint16 handle;
@@ -236,8 +237,8 @@ int btp_send_hfphfNumberInquiryEvt(uint16 aclHandle, uint08 state, uint08 status
 
 int btp_send_a2dpSrcCodecChangedEvt(uint16 aclHandle, uint08 chnMode, uint08 codecType, uint32 frequence, uint32 bitRate, uint08 objType);
 int btp_send_a2dpSnkCodecChangedEvt(uint16 aclHandle, uint08 chnMode, uint08 codecType, uint32 frequence, uint32 bitRate, uint08 objType);
-int btp_send_a2dpSrcStatusChangedEvt(uint16 aclHandle, uint08 status);
-int btp_send_a2dpSnkStatusChangedEvt(uint16 aclHandle, uint08 status);
+int btp_send_a2dpSrcStatusChangedEvt(uint16 aclHandle, uint08 status, uint16 mtuSize);
+int btp_send_a2dpSnkStatusChangedEvt(uint16 aclHandle, uint08 status, uint16 mtuSize);
 
 
 /******************************************************************************

@@ -51,7 +51,7 @@ static void tlkdbg_hpudbg_recvCmdDeal(uint08 *pData, uint16 dataLen);
 //static void tlkdbg_hpudbg_recvDatDeal(uint16 numb, uint08 *pData, uint16 dataLen);
 #endif
 
-static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen);
+static void tlkdbg_hpudwn_recvStartCmdDeal(void);
 static void tlkdbg_hpudwn_recvFlashCmdDeal(uint08 *pData, uint16 dataLen);
 static void tlkdbg_hpudwn_recvCloseCmdDeal(uint08 *pData, uint16 dataLen);
 
@@ -81,10 +81,10 @@ typedef struct{
 	uint32 writeOffs;
 	uint32 writeLens;
 	uint32 startAddr;
+	uint32 busyTimer;
 	uint08 isEscape;
 	uint08 makeState;
 	uint16 makeLength;
-	uint32 startTimer;
 	uint16 recvFrameLen;
 	uint16 sendFrameLen;
 	uint08 recvFrame[TLKDBG_HPUDWN_RECV_BUFF_SIZE];
@@ -122,9 +122,33 @@ void tlkdbg_hpudbg_recvCmd(uint08 *pData, uint16 dataLen)
 	
 	msgID = pData[0];
 	if(msgID == TLKDBG_HPUDWN_MSGID_START){
+		#if !(TLK_DEV_SERIAL_ENABLE)
+		return;
+		#endif
 		tlkapi_trace(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkdbg_hpudbg_recvCmd 01");
-		tlkdbg_hpudwn_recvStartCmdDeal(pData+1, dataLen-1);
-	}else if(msgID == TLKDBG_HPUDWN_MSGID_FLASH){
+		plic_interrupt_disable(IRQ1_SYSTIMER);
+		plic_interrupt_disable(IRQ3_TIMER1);
+		plic_interrupt_disable(IRQ4_TIMER0);
+		plic_interrupt_disable(IRQ5_DMA);
+		plic_interrupt_disable(IRQ12_ZB_DM);
+		plic_interrupt_disable(IRQ13_ZB_BLE);
+		plic_interrupt_disable(IRQ14_ZB_BT);
+		plic_interrupt_disable(IRQ15_ZB_RT);
+		plic_interrupt_disable(IRQ28_SOFT);
+		#if (TLK_DEV_SERIAL_ENABLE)
+		tlkdev_serial_clear();
+		tlkdev_serial_regCB(tlkdbg_hpudwn_input);
+		tlkdev_serial_close();
+//		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
+		#if (TLKDBG_HPUDWN_FAST_SPEED_ENABLE)
+		tlkdev_serial_setRxQFifo(TLKDBG_HPUDWN_RECV_ITEM_NUMB, TLKDBG_HPUDWN_RECV_ITEM_SIZE, 
+			sTlkDbgHpuDwnRecvBuff, TLKDBG_HPUDWN_RECV_ITEM_NUMB*TLKDBG_HPUDWN_RECV_ITEM_SIZE);
+		#endif
+		tlkdev_serial_open();		
+		#endif
+		tlkdbg_hpudwn_recvStartCmdDeal();
+	}
+	else if(msgID == TLKDBG_HPUDWN_MSGID_FLASH){
 		tlkapi_trace(TLKMMI_SYS_DBG_FLAG, TLKMMI_SYS_DBG_SIGN, "tlkdbg_hpudbg_recvCmd 02");
 		tlkdbg_hpudwn_recvFlashCmdDeal(pData+1, dataLen-1);
 	}else if(msgID == TLKDBG_HPUDWN_MSGID_CLOSE){
@@ -146,9 +170,6 @@ void tlkdbg_hpudwn_handler(void)
 		#if (TLK_DEV_SERIAL_ENABLE)
 		tlkdev_serial_handler();
 		#endif
-	}
-	if(sTlkDbgHpuDwnCtrl.isStart != 0 && clock_time_exceed(sTlkDbgHpuDwnCtrl.startTimer, 3000000)){
-		
 	}
 }
 
@@ -273,7 +294,7 @@ static void tlkdbg_hpudbg_recvCmdDeal(uint08 *pData, uint16 dataLen)
 
 	msgID = pData[0];
 	if(msgID == TLKDBG_HPUDWN_MSGID_START){
-		tlkdbg_hpudwn_recvStartCmdDeal(pData+1, dataLen-1);
+		tlkdbg_hpudwn_recvStartCmdDeal();
 	}else if(msgID == TLKDBG_HPUDWN_MSGID_FLASH){
 		tlkdbg_hpudwn_recvFlashCmdDeal(pData+1, dataLen-1);
 	}else if(msgID == TLKDBG_HPUDWN_MSGID_CLOSE){
@@ -303,9 +324,7 @@ void tlkdbg_hpudbg_recvDatDeal(uint16 numb, uint08 *pData, uint16 dataLen)
 		tlkdbg_hpudwn_sendFSyncRspDeal();
 		return;
 	}
-	
-	sTlkDbgHpuDwnCtrl.startTimer = clock_time();
-	
+		
 	if((sTlkDbgHpuDwnCtrl.writeOffs & 0xFFF) == 0){
 		flash_erase_sector(sTlkDbgHpuDwnCtrl.writeOffs);
 	}
@@ -316,38 +335,18 @@ void tlkdbg_hpudbg_recvDatDeal(uint16 numb, uint08 *pData, uint16 dataLen)
 }
 
 _attribute_ram_code_sec_noinline_
-static void tlkdbg_hpudwn_recvStartCmdDeal(uint08 *pData, uint16 dataLen)
+static void tlkdbg_hpudwn_recvStartCmdDeal(void)
 {
-	if(sTlkDbgHpuDwnCtrl.isStart == 0){
-		plic_interrupt_disable(IRQ1_SYSTIMER);
-		plic_interrupt_disable(IRQ3_TIMER1);
-		plic_interrupt_disable(IRQ4_TIMER0);
-		plic_interrupt_disable(IRQ5_DMA);
-		plic_interrupt_disable(IRQ12_ZB_DM);
-		plic_interrupt_disable(IRQ13_ZB_BLE);
-		plic_interrupt_disable(IRQ14_ZB_BT);
-		plic_interrupt_disable(IRQ15_ZB_RT);
-		plic_interrupt_disable(IRQ28_SOFT);
-		#if (TLK_DEV_SERIAL_ENABLE)
-		tlkdev_serial_clear();
-		tlkdev_serial_regCB(tlkdbg_hpudwn_input);
-		tlkdev_serial_close();
-		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_96M);
-		#if (TLKDBG_HPUDWN_FAST_SPEED_ENABLE)
-		tlkdev_serial_setRxQFifo(TLKDBG_HPUDWN_RECV_ITEM_NUMB, TLKDBG_HPUDWN_RECV_ITEM_SIZE, 
-			sTlkDbgHpuDwnRecvBuff, TLKDBG_HPUDWN_RECV_ITEM_NUMB*TLKDBG_HPUDWN_RECV_ITEM_SIZE);
-		#endif
-		tlkdev_serial_open();
-		#else
-		return;
-		#endif
-	}
-	
 	sTlkDbgHpuDwnCtrl.isStart = 1;
 	sTlkDbgHpuDwnCtrl.isEarse = 0;
 	sTlkDbgHpuDwnCtrl.sendNumb = 0;
 	sTlkDbgHpuDwnCtrl.recvNumb = 0;
-	sTlkDbgHpuDwnCtrl.startTimer = clock_time();
+	sTlkDbgHpuDwnCtrl.busyTimer = 0;
+	
+	sTlkDbgHpuDwnCtrl.isEscape = false;
+	sTlkDbgHpuDwnCtrl.makeLength = 0;
+	sTlkDbgHpuDwnCtrl.makeState  = TLKDBG_HPUDWN_MSTATE_HEAD;
+		
 	tlkdbg_hpudwn_sendStartRspDeal();
 }
 /******************************************************************************
@@ -406,7 +405,7 @@ static void tlkdbg_hpudwn_input(uint08 *pData, uint16 dataLen)
 	uint16 rawCrc;
 	uint16 calCrc;
 
-//	tlkapi_array(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "=== recv", pData, dataLen);
+//	tlkapi_array(0xFFFFFFFF, "[com]", "=== recv", pData, dataLen);
 	
 	for(index=0; index<dataLen; index++){
 		tlkdbg_hpudwn_makeRecvFrame(pData[index]);
@@ -458,8 +457,6 @@ static void tlkdbg_hpudwn_input(uint08 *pData, uint16 dataLen)
 		else{
 			//tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv Error PktType: ptype-%d", ptype);
 		}
-		sTlkDbgHpuDwnCtrl.makeState = TLKDBG_HPUDWN_MSTATE_HEAD;
-		sTlkDbgHpuDwnCtrl.makeLength = 0;
 	}	
 }
 
@@ -467,6 +464,20 @@ static void tlkdbg_hpudwn_input(uint08 *pData, uint16 dataLen)
 _attribute_ram_code_sec_noinline_
 static void tlkdbg_hpudwn_makeRecvFrame(uint08 rbyte)
 {
+	if(sTlkDbgHpuDwnCtrl.makeState != TLKDBG_HPUDWN_MSTATE_BODY && sTlkDbgHpuDwnCtrl.busyTimer != 0){
+		sTlkDbgHpuDwnCtrl.busyTimer = 0;
+	}else if(sTlkDbgHpuDwnCtrl.makeState == TLKDBG_HPUDWN_MSTATE_BODY && sTlkDbgHpuDwnCtrl.busyTimer == 0){
+		sTlkDbgHpuDwnCtrl.busyTimer = clock_time() | 1;
+	}
+	if(sTlkDbgHpuDwnCtrl.busyTimer != 0 && clock_time_exceed(sTlkDbgHpuDwnCtrl.busyTimer, 500000)){
+		sTlkDbgHpuDwnCtrl.busyTimer = 0;
+		sTlkDbgHpuDwnCtrl.makeState = TLKDBG_HPUDWN_MSTATE_READY;
+	}
+	if(sTlkDbgHpuDwnCtrl.makeState == TLKDBG_HPUDWN_MSTATE_READY){
+		sTlkDbgHpuDwnCtrl.isEscape = false;
+		sTlkDbgHpuDwnCtrl.makeLength = 0;
+		sTlkDbgHpuDwnCtrl.makeState  = TLKDBG_HPUDWN_MSTATE_HEAD;
+	}
 	#if (TLKDBG_HPUDWN_RECV_ESCAPE_ENABLE)
 	if(rbyte == TLKPRT_COMM_HEAD_SIGN && sTlkDbgHpuDwnCtrl.makeState != TLKDBG_HPUDWN_MSTATE_HEAD){
 		sTlkDbgHpuDwnCtrl.isEscape = false;
@@ -504,12 +515,11 @@ static void tlkdbg_hpudwn_makeRecvFrame(uint08 rbyte)
 			return;
 		}
 	}
-	#endif
-	
+	#endif	
+
 	if(sTlkDbgHpuDwnCtrl.makeState == TLKDBG_HPUDWN_MSTATE_HEAD){
 		#if (TLKDBG_HPUDWN_RECV_ESCAPE_ENABLE)
-		if(rbyte == TLKPRT_COMM_HEAD_SIGN0)
-		{
+		if(rbyte == TLKPRT_COMM_HEAD_SIGN0){
 			sTlkDbgHpuDwnCtrl.makeState = TLKDBG_HPUDWN_MSTATE_ATTR;
 			sTlkDbgHpuDwnCtrl.makeLength = 0;
 			sTlkDbgHpuDwnCtrl.recvFrameLen = 0;

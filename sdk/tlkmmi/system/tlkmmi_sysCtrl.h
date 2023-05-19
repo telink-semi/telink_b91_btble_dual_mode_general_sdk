@@ -45,6 +45,7 @@ void tlkmmi_sys_setPowerParam(uint32 offTimeUs, bool isBoot);
 void tlkmmi_sys_setHeartParam(uint32 intervalUs);
 
 void tlkmmi_sys_poweroff(void);
+void tlkmmi_sys_restoreFactorySettings(void);
 
 
 #endif //TLKMMI_SYSTEM_ENABLE

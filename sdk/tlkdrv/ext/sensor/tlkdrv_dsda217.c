@@ -58,13 +58,6 @@ static short yzcross=0;
 uint08 i2c_addr = 0x27;
 
 
-volatile uint32 AAAA_sen_test001 = 0;
-volatile uint32 AAAA_sen_test002 = 0;
-volatile uint32 AAAA_sen_test003 = 0;
-volatile uint32 AAAA_sen_test004 = 0;
-volatile uint32 AAAA_sen_test005 = 0;
-volatile uint32 AAAA_sen_test006 = 0;
-
 
 static bool tlkdrv_dsda217_isOpen(void)
 {
@@ -87,7 +80,6 @@ static int tlkdrv_dsda217_open(void)
 	if(!sTlkDrvDsda217Ctrl.isInit) return -TLK_ENOREADY;
 	if(sTlkDrvDsda217Ctrl.isOpen) return -TLK_EREPEAT;
 
-	AAAA_sen_test001 ++;
 	gpio_set_low_level(TLKDRV_DSDA217_POWER_PIN);
 	
 	i2c1_m_set_pin(TLKDRV_DSDA217_SDA_PIN, TLKDRV_DSDA217_SCL_PIN);
@@ -97,18 +89,14 @@ static int tlkdrv_dsda217_open(void)
 
 	delay_ms(10);
 	i2c1_m_master_send_stop(1);
-	AAAA_sen_test002 ++;
 //	i2c_master_write();
 	//TLKDRV_DSDA217_I2C_ADDR
 	uint08 data[4] = {0};
 	uint08 buffer[4] = {0};
 	data[0] = TLKDRV_DSDA217_REG_WHO_AM_I;
 	i2c1_m_master_send_stop(1);
-	AAAA_sen_test003 ++;
-	AAAA_sen_test005 = i2c1_m_master_write_read(TLKDRV_DSDA217_I2C_READ_ADDR, data, 1, buffer, 1);
-	AAAA_sen_test006 = buffer[0];
-	AAAA_sen_test004 ++;
-
+	i2c1_m_master_write_read(TLKDRV_DSDA217_I2C_READ_ADDR, data, 1, buffer, 1);
+	
 	sTlkDrvDsda217Ctrl.isOpen = true;
 	return TLK_ENONE;
 }

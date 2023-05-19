@@ -35,7 +35,7 @@ bool tlkdbg_usbvcd_isBusy(void);
 void tlkdbg_usbvcd_handler(void);
 
 void tlkdbg_usbvcd_ref(void);
-void tlkdbg_usbvcd_sync(bool enable);
+void tlkdbg_usbvcd_sync(void);
 void tlkdbg_usbvcd_tick(uint08 id);
 void tlkdbg_usbvcd_level(uint08 id, uint08 level);
 void tlkdbg_usbvcd_event(uint08 id);

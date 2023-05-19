@@ -116,7 +116,7 @@ typedef enum{
 	BTP_OBEX_HEADID_CONNECT_ID      = 0xCB, //an identifier used for OBEX connection multiplexing
 	BTP_OBEX_HEADID_APP_PARAM       = 0x4C, //extended application request & response information
 	BTP_OBEX_HEADID_AUTH_CHALL      = 0x4D, //authentication digest-challenge
-	BTP_OBEX_HEADID_AUTH_RESP       = 0x4E, //authentication digest-response
+	BTP_OBEX_HEADID_AUTH_RSP        = 0x4E, //authentication digest-response
 	BTP_OBEX_HEADID_CLASS           = 0x4F,
 	BTP_OBEX_HEADID_CREATOR_ID      = 0xCF, //indicates the creator of an object
 	BTP_OBEX_HEADID_WAN_UUID        = 0x50, //uniquely identifies the network client (OBEX server)
@@ -162,6 +162,9 @@ typedef struct
 typedef struct{
 	uint08 ctype; //Refer to BTP_OBEX_CHTYPE_ENUM.  Channel Type
 	uint08 usrOrSrv;
+	uint08 rtnMode;
+	uint08 fcsIsEn;
+	uint16 ehnCtrl;
 	uint16 channel;
 	uint16 mtuSize;
 	uint16 ifrmCtrl;
@@ -274,6 +277,8 @@ int btp_obex_sendPutReq(btp_obex_t *pObex, uint08 *pUsrData, uint16 dataLen, boo
  * Return: Returning header content.
 *******************************************************************************/
 int btp_obex_sendGetReq(btp_obex_t *pObex, bool isEnSRM, bool isWait, uint08 *pName, 
+	uint08 nameLen, uint08 *pType, uint08 typeLen, uint08 *pAppData, uint08 dataLen);
+int btp_obex_sendGetReq1(btp_obex_t *pObex, bool isEnSRM, bool isWait, uint08 *pName, 
 	uint08 nameLen, uint08 *pType, uint08 typeLen, uint08 *pAppData, uint08 dataLen);
 
 /******************************************************************************

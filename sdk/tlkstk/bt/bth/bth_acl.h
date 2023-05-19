@@ -30,7 +30,8 @@
 #define BTH_ACL_CONN_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
 #define BTH_ACL_DISC_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
 #define BTH_ACL_CANCEL_TIMEOUT    (2000000/BTH_ACL_TIMEOUT)
-
+#define BTH_ACL_AUTH_TIMEOUT      (4000000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_EXIT_TIMEOUT      (1500000/BTH_ACL_TIMEOUT)
 
 typedef enum{
 	BTH_ACL_ATTR_NONE = 0x00,
@@ -66,7 +67,15 @@ typedef enum{
 	BTH_ACL_FLAG_WAIT_AUTH_RESULT = 0x0004,
 	BTH_ACL_FLAG_WAIT_CRYP_RESULT = 0x0008,
 	BTH_ACL_FLAG_WAIT_DISC_RESULT = 0x0010,
+	BTH_ACL_FLAG_WAIT_UNSNIFF_RESULT = 0x0020,
 }BTH_ACL_FLAGS_ENUM;
+typedef enum{
+	BTH_ACL_OTH_BUSY_NONE  = 0x00,
+	BTH_ACL_OTH_BUSY_SEND_INFO_REQ = 0x01,
+	BTH_ACL_OTH_BUSY_SEND_INFO_RSP = 0x02,
+	BTH_ACL_OTH_BUSY_SEND_SNIFF_REQ   = 0x04,
+	BTH_ACL_OTH_BUSY_SEND_UNSNIFF_REQ = 0x08,
+}BTH_ACL_OTH_BUSYS_ENUM;
 
 
 /******************************************************************************
@@ -161,6 +170,13 @@ int  bth_acl_connectCancel(uint08 btaddr[6]);
 *******************************************************************************/
 int  bth_acl_disconnByAddr(uint08 btaddr[6]);
 
+void bth_acl_sendSniffReq(uint16 aclHandle);
+void bth_acl_sendUnSniffReq(uint16 aclHandle);
+
+void bth_acl_clearSniffPolicy(uint16 aclHandle);
+
+void bth_acl_clsLinkPolicyBit(uint16 aclHandle, uint08 mask);
+void bth_acl_setLinkPolicyBit(uint16 aclHandle, uint08 mask);
 
 /******************************************************************************
  * Function: bth_acl_connCancelComplete
@@ -308,6 +324,23 @@ void bth_acl_ioCapReqEvt(uint08 btaddr[6]);
  * Reutrn: None.
 *******************************************************************************/
 void bth_acl_userCfmReqEvt(uint08 btaddr[6], uint32 number);
+
+/******************************************************************************
+ * Function: bth_acl_sendInfoRsp
+ * Descript: Send l2cap info response.
+ * Params: 
+ *        @handle[IN]--The acl link handle.
+ *        @identify[IN]--The identify.
+ *        @infoType[IN]--The info type.
+ *        @result[IN]--The result.
+ *        @pData[IN]--The payload.
+ *        @dataLen[IN]--The payload length.
+ * Reutrn: TLK_ENONE is success, other value is failure.
+*******************************************************************************/
+void bth_acl_sendInfoRsp(uint16 handle, uint08 identify, uint16 infoType, uint16 result, uint08 *pData, uint16 dataLen);
+
+int bth_acl_setPeerExtFeature(uint16 handle, uint32 extFeature);
+int bth_acl_getPeerExtFeature(uint16 handle, uint32 *pExtFeature);
 
 
 #endif //BTH_ACL_H

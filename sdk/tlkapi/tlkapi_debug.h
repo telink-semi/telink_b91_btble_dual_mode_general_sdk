@@ -89,7 +89,7 @@ extern void tlkdbg_handler(void);
 extern void tlkdbg_delayForPrint(uint32 us);
 
 extern void tlkdbg_vcd_ref(void);
-extern void tlkdbg_vcd_sync(bool enable);
+extern void tlkdbg_vcd_sync(void);
 extern void tlkdbg_vcd_tick(uint flags, uint08 id);
 extern void tlkdbg_vcd_level(uint flags, uint08 id, uint08 level);
 extern void tlkdbg_vcd_event(uint flags, uint08 id);

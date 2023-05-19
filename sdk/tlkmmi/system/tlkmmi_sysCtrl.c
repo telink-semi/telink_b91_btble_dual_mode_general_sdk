@@ -107,6 +107,62 @@ void tlkmmi_sys_poweroff(void)
 }
 
 
+void tlkmmi_sys_restoreFactorySettings(void)
+{
+	uint08 i;
+
+	//play list
+	for( i = 0; i < TLK_CFG_FLASH_PLAY_LIST_LENS/0x1000; i++ )
+	{
+		tlkapi_flash_eraseSector(TLK_CFG_FLASH_PLAY_LIST_ADDR + i * 0x1000);
+	}
+
+	//play info
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_PLAY_INFO_ADDR);
+
+	//ota
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_OTA_PARAM_ADDR);
+
+	//sys
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_SYS_CONFIG_ADDR);
+
+
+	//pbap
+	for( i = 0; i < TLK_CFG_FLASH_PBAP_LIST_LENS/0x1000; i++ )
+	{
+		tlkapi_flash_eraseSector(TLK_CFG_FLASH_PBAP_LIST_ADDR + i * 0x1000);
+	}
+
+	//factory parm
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_FACTORY_ADDR);
+
+	//volume
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_VOLUME_ADDR);
+
+	//pair addr
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_BT_PAIR_ADDR0);
+	tlkapi_flash_eraseSector(TLK_CFG_FLASH_BT_PAIR_ADDR1);
+
+	//le smp
+	for( i = 0; i < (TLK_CFG_FLASH_LE_SMP_PAIRING_SIZE*2)/0x1000; i++ )
+	{
+		tlkapi_flash_eraseSector(TLK_CFG_FLASH_LE_SMP_PAIRING_ADDR + i * 0x1000);
+	}
+
+	//le pair: slave info
+	for( i = 0; i < TLK_CFG_FLASH_LE_ADR_CUSTOM_PAIRING_SIZE/0x1000; i++ )
+	{
+		tlkapi_flash_eraseSector(TLK_CFG_FLASH_LE_ADR_CUSTOM_PAIRING_ADDR + i * 0x1000);
+	}
+
+	//peer device att handle
+	for( i = 0; i < TLK_CFG_FLASH_LE_SDP_ATT_SIZE/0x1000; i++ )
+	{
+		tlkapi_flash_eraseSector(TLK_CFG_FLASH_LE_SDP_ATT_ADRR + i * 0x1000);
+	}
+	
+}
+
 
 #endif //#if (TLKMMI_SYSTEM_ENABLE)
 

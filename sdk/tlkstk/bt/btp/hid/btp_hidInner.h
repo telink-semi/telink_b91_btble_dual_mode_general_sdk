@@ -26,6 +26,10 @@
 #if (TLKBTP_CFG_HID_ENABLE)
 
 
+#define BTP_HID_DBG_FLAG       ((TLK_MAJOR_DBGID_BTP << 24) | (TLK_MINOR_DBGID_BTP_HID << 16) | TLK_DEBUG_DBG_FLAG_ALL)
+#define BTP_HID_DBG_SIGN       "[HID]"
+
+
 #define BTP_HID_CONN_TIMEOUT2        (5000000/BTP_TIMER_TIMEOUT)
 
 
@@ -91,16 +95,28 @@ typedef struct{
 	uint08 errCode;
 	uint08 reportID;
 	uint08 reportType;
+
+	uint08 rtnMode;
+	uint08 fcsIsEn;
+	uint08 qosIsEn;
+	uint16 ctrEhnCtrl;
+	uint16 irqEhnCtrl;
 	
 	tlkapi_timer_t  timer;
 }btp_hid_item_t;
 
 typedef struct{
+	uint08 rtnMode;
+	uint08 qosIsEn;
+	uint16 reserve;
     btp_hid_item_t item[TLK_BT_HID_MAX_NUMB];
 }btp_hidp_ctrl_t;
 
 
 int btp_hid_innerInit(void);
+
+int btp_hid_enableQos(bool enable);
+int btp_hid_enableRtnMode(bool enable, uint08 rtnMode);
 
 void btp_hid_destroy(uint16 aclHandle);
 

@@ -58,7 +58,7 @@ void tlkdbg_usbvcd_handler(void)
 	if(sTlkDbgUsbVcdTicks == 0 || clock_time_exceed(sTlkDbgUsbVcdTicks, 10000)){
 		sTlkDbgUsbVcdTicks = clock_time() | 1;
 		tlkdbg_usbvcd_ref();
-		tlkdbg_usbvcd_sync(true); //SL_STACK_VCD_EN
+		tlkdbg_usbvcd_sync();
 	}
 }
 
@@ -77,7 +77,7 @@ void tlkdbg_usbvcd_ref(void)
 }
 // 4-byte sync word: 00 00 00 00
 _attribute_ram_code_sec_noinline_
-void tlkdbg_usbvcd_sync(bool enable)
+void tlkdbg_usbvcd_sync(void)
 {
 	core_interrupt_disable();
 	tlkdbg_usbvcd_rcd(0);

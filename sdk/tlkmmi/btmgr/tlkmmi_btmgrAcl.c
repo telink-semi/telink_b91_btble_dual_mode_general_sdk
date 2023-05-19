@@ -368,8 +368,8 @@ static void tlkmmi_btmgr_aclConnectCB(uint16 handle, uint08 status, uint08 *pBtA
 			}
 		}
 		//Keep the device connected until the device that triggers the timeout is connected.
-		if(status == BTH_HCI_ERROR_CONN_TIMEOUT && bth_handle_searchUsedAcl(pBtAddr) == nullptr
-			&& tlkmdi_btacl_getIdleCount() != 0){
+		if((status == BTH_HCI_ERROR_CONN_TIMEOUT || status == BTH_HCI_ERROR_LMP_RSP_TIMEOUT)
+			&& bth_handle_searchUsedAcl(pBtAddr) == nullptr && tlkmdi_btacl_getIdleCount() != 0){
 			return;
 		}
 		#if (TLKMMI_BTMGR_BTREC_ENABLE)

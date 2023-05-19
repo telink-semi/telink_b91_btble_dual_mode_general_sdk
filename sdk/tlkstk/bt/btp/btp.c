@@ -43,6 +43,12 @@
 #include "hid/btp_hid.h"
 #include "iap/btp_iap.h"
 #include "browsing/btp_browsing.h"
+#if (TLKBTP_CFG_PTSL2C_ENABLE)
+#include "pts/btp_ptsL2c.h"
+#endif
+#if (TLKBTP_CFG_PTSHID_ENABLE)
+#include "pts/btp_ptsHid.h"
+#endif
 
 
 int btp_init(void)
@@ -51,6 +57,9 @@ int btp_init(void)
 	btp_adapt_init();
 	#if (TLKBTP_CFG_SDP_ENABLE)
 	btp_sdp_init();
+	#endif
+	#if (TLKBTP_CFG_PTSL2C_ENABLE)
+	btp_ptsl2c_init();
 	#endif
 	#if (TLKBTP_CFG_AVRCP_ENABLE)
 	btp_avrcp_init();
@@ -81,7 +90,10 @@ int btp_init(void)
 	#endif
 	#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
 	btp_browsing_init();
-	bth_l2cap_setExtFeature(BTH_L2CAP_EXT_FEATURE_ENHANCED_RTN_MODE | BTH_L2CAP_EXT_FEATURE_FCS_OPTION);
+	bth_l2cap_setExtFeatureBits(BTH_L2CAP_EXT_FEATURE_ENHANCED_RTN_MODE | BTH_L2CAP_EXT_FEATURE_FCS_OPTION);
+	#endif
+	#if (TLKBTP_CFG_PTSHID_ENABLE)
+	btp_ptshid_init();
 	#endif
 	
 	return TLK_ENONE;
@@ -103,6 +115,12 @@ void btp_destroy(uint16 aclHandle)
 	#endif
 	#if (TLKBTP_CFG_AVRCP_ENABLE)
 	btp_avrcp_destroy(aclHandle);
+	#endif
+	#if (TLKBTP_CFG_PTSL2C_ENABLE)
+	btp_ptsl2c_destroy(aclHandle);
+	#endif
+	#if (TLKBTP_CFG_PTSHID_ENABLE)
+	btp_ptshid_destroy(aclHandle);
 	#endif
 
 	#if (TLKBTP_CFG_PBAP_ENABLE)

@@ -30,6 +30,8 @@
 #define TLKBT_HCI_H2C_FIFO_NUMB        8
 #define TLKBT_HCI_C2H_FIFO_SIZE        692
 #define TLKBT_HCI_C2H_FIFO_NUMB        8
+#define TLKBT_HCI_H2C_CMD_FIFO_SIZE    100
+#define TLKBT_HCI_H2C_CMD_FIFO_NUMB    8
 
 
 /**
@@ -55,6 +57,7 @@ typedef int(*TlkBtHciSendCallback)(uint08 *pData, uint16 dataLen);
 typedef void(*TlkBtHciResetCallback)(void);
 typedef int (*TlkBtHciEventCallback)(uint08 evtID, uint08 *pData, uint16 dataLen);
 typedef void(*TlkBtHciAclDataCallback)(uint16 handle, uint08 *pData, uint16 dataLen);
+typedef void(*TlkBtHciUserCmdCallback)(uint08 *pData, uint16 dataLen);
 
 
 
@@ -75,7 +78,10 @@ typedef struct{
 
 void tlkbt_hci_regEventCB(TlkBtHciEventCallback cb);
 void tlkbt_hci_regAclDataCB(TlkBtHciAclDataCallback cb);
+void tlkbt_hci_regUserCmdCB(TlkBtHciUserCmdCallback cb);
 
+void tlkbt_hci_regSendCB(TlkBtHciSendCallback sendCB);
+void tlkbt_hci_regResetCB(TlkBtHciResetCallback resetCB);
 
 void tlkbt_hci_enableTxCritical(bool enable);
 bool tlkbt_hci_TxCriticalIsenable(void);
@@ -92,6 +98,14 @@ uint tlkbt_hci_h2cFifoNumb(void);
 uint tlkbt_hci_h2cFifoUsed(void);
 uint tlkbt_hci_h2cFifoUnused(void);
 
+bool tlkbt_hci_h2cCmdFifoIsFull(void);
+bool tlkbt_hci_h2cCmdFifoIsEmpty(void);
+uint tlkbt_hci_h2cCmdFifoSize(void);
+uint tlkbt_hci_h2cCmdFifoNumb(void);
+uint tlkbt_hci_h2cCmdFifoUsed(void);
+uint tlkbt_hci_h2cCmdFifoUnused(void);
+
+
 uint08 *tlkbt_hci_getH2cBuff(void);
 uint08 *tlkbt_hci_getC2hBuff(void);
 
@@ -101,9 +115,8 @@ void tlkbt_hci_h2cHandler(void);
 void tlkbt_hci_exeCmdNow(void);
 void tlkbt_hci_exeEvtNow(void);
 
-int tlkbt_hci_pushH2cData(uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
-int tlkbt_hci_pushH2cExtData(uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen, uint08 *pExtData, uint16 extLen);
-int tlkbt_hci_sendH2cCmdData(uint16 opcode, uint08 *pData, uint08 dataLen);
+int tlkbt_hci_sendH2cCmd(uint16 opcode, uint08 *pData, uint08 dataLen);
+int tlkbt_hci_pushH2cExtCmd(uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 int tlkbt_hci_sendH2cAclData(uint16 aclHandle, uint08 *pUsrExt, uint16 extLen, 
 	uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
 
@@ -114,9 +127,6 @@ int tlkbt_hci_sendC2hIsoData(uint16 isoHandle, uint08 *pData, uint16 dataLen);
 int tlkbt_hci_sendC2hAclData(uint16 aclHandle, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 int tlkbt_hci_sendC2hEvent(uint08 evtID, uint08 *pHead, uint16 headLen, uint08 *pBody, uint16 bodyLen);
 
-
-void tlkbt_hci_regSendCB(TlkBtHciSendCallback sendCB);
-void tlkbt_hci_regResetCB(TlkBtHciResetCallback resetCB);
 
 void tlkbt_hci_recvHandler(uint08* pending_buf, uint32 pending_len);
 

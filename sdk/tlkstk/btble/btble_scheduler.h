@@ -117,6 +117,7 @@ typedef struct link_scheduler_item
 
 	u32			tick;
 	u32			latency;
+	u8			bandwith_adjust;
 	func_system_tick_isr_t func;
 } link_scheduler_t;
 

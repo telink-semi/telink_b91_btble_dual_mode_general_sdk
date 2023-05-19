@@ -41,7 +41,7 @@ bool tlkdbg_gsuvcd_isBusy(void);
 void tlkdbg_gsuvcd_handler(void);
 
 void tlkdbg_gsuvcd_ref(void);
-void tlkdbg_gsuvcd_sync(bool enable);
+void tlkdbg_gsuvcd_sync(void);
 void tlkdbg_gsuvcd_tick(uint08 id);
 void tlkdbg_gsuvcd_level(uint08 id, uint08 level);
 void tlkdbg_gsuvcd_event(uint08 id);

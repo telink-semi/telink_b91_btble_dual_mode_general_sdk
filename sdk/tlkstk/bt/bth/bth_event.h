@@ -50,6 +50,7 @@ typedef enum{
 	BTH_EVTID_LINKKEY_REQUEST,
 	BTH_EVTID_LINKKEY_NOTIFY,
 	BTH_EVTID_ACL_ESTABLISH, //Private Protocol
+	BTH_EVTID_EXT_FEATURE_CHANGED,
 	
 	//Signal Event
 	BTH_EVTID_SIGNAL_CONNREQ,
@@ -150,6 +151,11 @@ typedef struct{
 	uint08 peerMac[6];
 	uint16 linkKey[16];
 }bth_linkKeyNotifyEvt_t;
+typedef struct{
+	uint16 aclHandle;
+	uint32 peerExtFeature; //Refer BTH_L2CAP_EXT_FEATURE_ENUM
+	uint32 mineExtFeature; //Refer BTH_L2CAP_EXT_FEATURE_ENUM
+}bth_extFeatureChangedEvt_t;
 
 
 typedef struct{
@@ -324,6 +330,17 @@ int bth_send_linkKeyNotifyEvt(uint08 keyType, uint08 btaddr[6], uint08 linkKey[1
  * Reutrn: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_aclEstablishEvt(uint08 *pData, uint16_t dataLen);
+
+/******************************************************************************
+ * Function: bth_send_extFeatureChangedEvt
+ * Descript: 
+ * Params:
+ *        @handle[IN]--The handle of acl link.
+ *        @peerFeature[IN]--Refer BTH_L2CAP_EXT_FEATURE_ENUM.
+ *        @mineFeature[IN]--Refer BTH_L2CAP_EXT_FEATURE_ENUM.
+ * Reutrn: TLK_ENONE is success, other value if false.
+*******************************************************************************/
+int bth_send_extFeatureChangedEvt(uint16 handle, uint32 peerFeature, uint32 mineFeature);
 
 
 

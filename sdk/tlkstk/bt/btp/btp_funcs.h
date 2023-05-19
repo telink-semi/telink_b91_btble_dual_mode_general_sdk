@@ -62,9 +62,16 @@ enum BTP_FUNCID_SET_ENUM{
 	BTP_FUNCID_A2DP_SRC_SEND_MEDIA_DATA = 0x16+BTP_FUNCID_A2DP_START,
 	BTP_FUNCID_A2DP_SRC_SEND_A2DP_START = 0x17+BTP_FUNCID_A2DP_START,
 	BTP_FUNCID_A2DP_SEND_ABORT = 0x18+BTP_FUNCID_A2DP_START,
-
 	//HID Start
 	BTP_FUNCID_HID_START = 0x0700,
+	BTP_FUNCID_HID_CONNECT = 0x01+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_DISCONN = 0x02+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_SEND_DATA = 0x03+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_SEND_CTR_DATA = 0x04+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_SEND_IRQ_DATA = 0x05+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_ENABLE_RTN = 0x08+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_ENABLE_QOS = 0x09+BTP_FUNCID_HID_START,
+	BTP_FUNCID_HID_SET_COD = 0x0A+BTP_FUNCID_HID_START,
 	//HFP Start
 	BTP_FUNCID_HFP_START = 0x0800,
 	BTP_FUNCID_HFP_HF_CONNECT = 0x01+BTP_FUNCID_HFP_START,
@@ -88,7 +95,6 @@ enum BTP_FUNCID_SET_ENUM{
 	BTP_FUNCID_HFP_AG_PALCE_CALL = 0x54+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_AG_REMOVE_CALL = 0x55+BTP_FUNCID_HFP_START,
 	BTP_FUNCID_HFP_AG_ACTIVE_CALL = 0x56+BTP_FUNCID_HFP_START,
-	
 	//AVRCP Start
 	BTP_FUNCID_AVRCP_START = 0x0900,
 	BTP_FUNCID_AVRCP_CONNECT = 0x01+BTP_FUNCID_AVRCP_START,
@@ -99,15 +105,33 @@ enum BTP_FUNCID_SET_ENUM{
 	BTP_FUNCID_AVRCP_SEND_EVENT_NOTY = 0x06+BTP_FUNCID_AVRCP_START,
 	BTP_FUNCID_AVRCP_SET_TRACK_VALUE = 0x07+BTP_FUNCID_AVRCP_START,
 	BTP_FUNCID_AVRCP_SET_PLAY_STATUS = 0x08+BTP_FUNCID_AVRCP_START,
-	
+	BTP_FUNCID_BROWSING_CONNECT = 0x09+BTP_FUNCID_AVRCP_START,
+	BTP_FUNCID_BROWSING_DISCONN = 0x0A+BTP_FUNCID_AVRCP_START,
 	//OBEX Start
 	BTP_FUNCID_OBEX_START = 0x0A00,
-
 	//PBAP Start
 	BTP_FUNCID_PBAP_START = 0x0B00,
 	BTP_FUNCID_PBAP_CONNECT = 0x01+BTP_FUNCID_PBAP_START,
 	BTP_FUNCID_PBAP_DISCONN = 0x02+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_ENABLE_RTN = 0x03+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SEND_GET_REQ = 0x04+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SEND_GET_CONTINUE = 0x05+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SEND_GET_REQ1 = 0x06+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SEND_SYNC_BOOK = 0x07+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_CONNECT_WITH_AUTH = 0x08+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SET_FOLDER_PATH = 0x09+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SEND_GET_REQ2 = 0x0A+BTP_FUNCID_PBAP_START,
+	BTP_FUNCID_PBAP_SEND_GET_CONTINUE2 = 0x0B+BTP_FUNCID_PBAP_START,
+	//PTS-L2CAP Start
+	BTP_FUNCID_PTSL2C_START = 0x0C00,
+	BTP_FUNCID_PTSL2C_CONNECT = 0x01+BTP_FUNCID_PTSL2C_START,
+	BTP_FUNCID_PTSL2C_DISCONN = 0x02+BTP_FUNCID_PTSL2C_START,
+	BTP_FUNCID_PTSL2C_ENABLE_RTN = 0x03+BTP_FUNCID_PTSL2C_START,
+	BTP_FUNCID_PTSL2C_ENABLE_FCS = 0x04+BTP_FUNCID_PTSL2C_START,
+	BTP_FUNCID_PTSL2C_SEND_DATA  = 0x05+BTP_FUNCID_PTSL2C_START,
+	BTP_FUNCID_PTSL2C_ENABLE_EFS = 0x06+BTP_FUNCID_PTSL2C_START,
 
+	//
 };
 
 
@@ -158,6 +182,8 @@ static int btp_func_avrcpSendRegEvtNotyCmd(uint08 *pData, uint16 dataLen);
 static int btp_func_avrcpSendEventNoty(uint08 *pData, uint16 dataLen);
 static int btp_func_avrcpSetTrackValue(uint08 *pData, uint16 dataLen);
 static int btp_func_avrcpSetPlayStatus(uint08 *pData, uint16 dataLen);
+static int btp_func_browsingConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_browsingDisconn(uint08 *pData, uint16 dataLen);
 
 static int btp_func_hfpHfConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_hfpHfDisconn(uint08 *pData, uint16 dataLen);
@@ -183,6 +209,32 @@ static int btp_func_hfpAgActiveCall(uint08 *pData, uint16 dataLen);
 
 static int btp_func_pbapConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_pbapDisconn(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapEnableRtn(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSendGetReqTest(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSendGetContinueTest(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSendGetReqTest1(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSyncBook(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapConnectWithAuth(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSetFolderPath(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSendGetReqTest2(uint08 *pData, uint16 dataLen);
+static int btp_func_pbapSendGetContinueTest2(uint08 *pData, uint16 dataLen);
+
+static int btp_func_ptsl2cConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_ptsl2cDisconn(uint08 *pData, uint16 dataLen);
+static int btp_func_ptsl2cEnableRtn(uint08 *pData, uint16 dataLen);
+static int btp_func_ptsl2cEnableFcs(uint08 *pData, uint16 dataLen);
+static int btp_func_ptsl2cSendData(uint08 *pData, uint16 dataLen);
+static int btp_func_ptsl2cEnableEfs(uint08 *pData, uint16 dataLen);
+
+static int btp_func_hidConnect(uint08 *pData, uint16 dataLen);
+static int btp_func_hidDisconn(uint08 *pData, uint16 dataLen);
+static int btp_func_hidSendData(uint08 *pData, uint16 dataLen);
+static int btp_func_hidSendCtrData(uint08 *pData, uint16 dataLen);
+static int btp_func_hidSendIrqData(uint08 *pData, uint16 dataLen);
+static int btp_func_hidEnableRtn(uint08 *pData, uint16 dataLen);
+static int btp_func_hidEnableQos(uint08 *pData, uint16 dataLen);
+static int btp_func_hidSetCod(uint08 *pData, uint16 dataLen);
+
 
 #endif //#if (TLK_STK_BTP_ENABLE)
 

@@ -23,7 +23,6 @@
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_SERIAL_ENABLE)
 #include "tlkdev/tlkdev.h"
-#include "tlksys/prt/tlkpto_comm.h"
 #include "tlkdev/sys/tlkdev_serial.h"
 #include "tlkdrv/ext/serial/tlkdrv_serial.h"
 #if (TLK_CFG_SYS_ENABLE)
@@ -33,8 +32,6 @@
 
 static uint08 sTlkDevSerialPort = 0xFF;
 static uint08 sTlkDevSerialIsOpen = false;
-
-extern void tlkcfg_setSerialBaudrate(uint32 baudrate);
 
 
 int tlkdev_serial_init(void)
@@ -125,7 +122,11 @@ int tlkdev_serial_setRxQFifo(uint16 fnumb, uint16 fsize, uint08 *pBuffer, uint16
 	}
 	return tlkdrv_serial_setRxQFifo(sTlkDevSerialPort, fnumb, fsize, pBuffer, buffLen);
 }
-
+bool tlkdev_serial_isOpen()
+{
+	if(sTlkDevSerialIsOpen == true) return true;
+	else return false;
+}
 int tlkdev_serial_open(void)
 {
 	int ret;
@@ -142,9 +143,6 @@ int tlkdev_serial_open(void)
 	ret = tlkdrv_serial_open(sTlkDevSerialPort);
 	if(ret == TLK_ENONE){
 		sTlkDevSerialIsOpen = true;
-	}
-	if(sTlkDevSerialIsOpen == true){
-		tlkcfg_setSerialBaudrate(tlkdrv_serial_getBaudrate(sTlkDevSerialPort));
 	}
 	return ret;
 }

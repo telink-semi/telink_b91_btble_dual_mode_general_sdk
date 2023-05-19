@@ -40,6 +40,7 @@ typedef enum{
 	BTP_PTYPE_AVRCP = 8,
 	BTP_PTYPE_PBAP = 9,
 	BTP_PTYPE_AVRCP_BROWSING = 10,
+	BTP_PTYPE_PTS_L2C = 11,
 	BTP_PTYPE_MAX,
 }BTP_PTYPE_ENUM; //Profile Type
 typedef enum{
@@ -71,7 +72,7 @@ typedef enum{
 	BTP_PSMID_AIRPODS = 0x1001,
 	BTP_PSMID_AVCTP_BROWSING = 0x001B,
 
-	BTP_PMSID_GENERAL = 0x0021,		// temp for PTS
+	BTP_PSMID_PTS_L2C = 0x0EF1,		// temp for PTS
 }BTP_PSMID_ENUM;
 
 typedef enum{

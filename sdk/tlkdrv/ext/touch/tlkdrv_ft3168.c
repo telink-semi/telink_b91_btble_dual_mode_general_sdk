@@ -67,6 +67,7 @@ static int tlkdrv_ft3168_init(void)
 
     i2c_master_init();
 	i2c_set_master_clk((unsigned char)(sys_clk.pclk*1000*1000/(4*6))); //500k
+	i2c_master_detect_nack_en();
 	i2c_set_pin(TLKDRV_FT3168_I2C_SDA, TLKDRV_FT3168_I2C_SCL);
 
 	//enable irq

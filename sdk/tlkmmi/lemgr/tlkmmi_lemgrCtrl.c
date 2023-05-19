@@ -129,17 +129,17 @@ int tlkmmi_lemgr_setName(uint08 *pName, uint08 nameLen)
 int tlkmmi_lemgr_setAddr(uint08 *pAddr)
 {
 	uint08 btBuffer[6];
-	uint08 leBuffer[12];
+	uint08 leBuffer[8];
 	
 	if(pAddr == nullptr) return -TLK_EPARAM;
 	
 	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, btBuffer, 6);
-	tlkapi_flash_read(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
+	tlkapi_flash_read(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 8);
 	
 	tmemcpy(leBuffer, pAddr, 6);
 	tlkapi_flash_eraseSector(TLK_CFG_FLASH_LE_ADDR_ADDR & 0xFFFFF000);
 	tlkapi_flash_write(TLK_CFG_FLASH_BT_ADDR_ADDR, btBuffer, 6);
-	tlkapi_flash_write(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 12);
+	tlkapi_flash_write(TLK_CFG_FLASH_LE_ADDR_ADDR, leBuffer, 8);
 	
 	tmemcpy(gTlkMmiLemgrCtrl.leaddr, pAddr, 6);
 	return tlkmmi_lemgr_setAclName(gTlkMmiLemgrCtrl.leaddr, 6);

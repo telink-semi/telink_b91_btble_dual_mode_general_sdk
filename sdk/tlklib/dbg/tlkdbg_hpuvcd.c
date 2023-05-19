@@ -44,8 +44,10 @@ extern bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
 extern uint tlkmdi_comm_getSingleDatPktUnitLen(void);
 extern int  tlkmdi_comm_sendDat(uint08 datID, uint16 numb, uint08 *pData, uint16 dataLen);
 #endif
+static void tlkdbg_hpuvcd_push(uint08 value, uint08 *pBuffer, uint08 *pOffset);
 
-bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg);
+//static bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg);
+
 
 static uint32 sTlkDbgHpuVcdTicks;
 static uint08 sTlkdbgHpuVcdBuffer[TLKDBG_HPU_VCD_BUFFER_SIZE];
@@ -56,7 +58,7 @@ static tlkapi_fifo_t sTlkDbgHpuVcdFifo;
 void tlkdbg_hpuvcd_init(void)
 {
 	tlkapi_fifo_init(&sTlkDbgHpuVcdFifo, false, false, sTlkdbgHpuVcdBuffer, TLKDBG_HPU_VCD_BUFFER_SIZE);
-//	tlkapi_timer_initNode(&sTlkDbgHpuVcdTimer, tlkdbg_hpuvcd_timer, nullptr, 1000);
+//	tlkapi_timer_initNode(&sTlkDbgHpuVcdTimer, tlkdbg_hpuvcd_timer, nullptr, 5000);
 }
 
 
@@ -79,8 +81,7 @@ void tlkdbg_hpuvcd_handler(void)
 
 	if(sTlkDbgHpuVcdTicks == 0 || clock_time_exceed(sTlkDbgHpuVcdTicks, 10000)){
 		sTlkDbgHpuVcdTicks = clock_time() | 1;
-		tlkdbg_hpuvcd_ref();
-		tlkdbg_hpuvcd_sync(true);
+		tlkdbg_hpuvcd_sync();
 	}
 
 	#if (TLK_CFG_COMM_ENABLE)
@@ -107,47 +108,33 @@ void tlkdbg_hpuvcd_handler(void)
 	}
 }
 
-bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg)
-{
-	tlkdbg_hpuvcd_handler();
-	return true;
-}
+//bool tlkdbg_hpuvcd_timer(tlkapi_timer_t *pTimer, uint32 userArg)
+//{
+//	tlkdbg_hpuvcd_handler();
+//	return true;
+//}
+
+
 
 
 _attribute_ram_code_sec_noinline_
-void tlkdbg_hpuvcd_ref(void)
-{
-	if(sTlkHpuVcdIsOpen == false) return;
-	
-	uint08 buffLen = 0;
-	uint08 buffer[5];
-	core_interrupt_disable();
-	int t=clock_time();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = 0x20;
-	buffer[buffLen++] = t & 0xFF;
-	buffer[buffLen++] = (t & 0xFF00) >> 8;
-	buffer[buffLen++] = (t & 0xFF0000) >> 16;
-	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
-	core_interrupt_restore();
-}
-// 4-byte sync word: 00 00 00 00
-_attribute_ram_code_sec_noinline_
-void tlkdbg_hpuvcd_sync(bool enable)
+void tlkdbg_hpuvcd_sync(void)
 {
 	if(sTlkHpuVcdIsOpen == false) return;
 
 	uint08 buffLen = 0;
-	uint08 buffer[5];
+	uint08 buffer[16];
 	core_interrupt_disable();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = 0x00;
+	int tick=clock_time();
+	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
+	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_SYNC << 4) | 0x04;
+	tlkdbg_hpuvcd_push((tick & 0xFF), buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF00) >> 8, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF0000) >> 16, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF000000) >> 24, buffer, &buffLen);
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
 	core_interrupt_restore();
-}      
+}
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
 _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_tick(uint08 id)
@@ -155,14 +142,16 @@ void tlkdbg_hpuvcd_tick(uint08 id)
 	if(sTlkHpuVcdIsOpen == false) return;
 
 	uint08 buffLen = 0;
-	uint08 buffer[5];
+	uint08 buffer[16];
 	core_interrupt_disable();
-	int t=clock_time();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = 0x20 | (id&31);
-	buffer[buffLen++] = t & 0xFF;
-	buffer[buffLen++] = (t & 0xFF00) >> 8;
-	buffer[buffLen++] = (t & 0xFF0000) >> 16;
+	int tick=clock_time();
+	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
+	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_TICK << 4) | 0x05;
+	tlkdbg_hpuvcd_push(id, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF), buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF00) >> 8, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF0000) >> 16, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF000000) >> 24, buffer, &buffLen);
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
 	core_interrupt_restore();
 }
@@ -171,16 +160,20 @@ _attribute_ram_code_sec_noinline_
 void tlkdbg_hpuvcd_level(uint08 id, uint08 level)
 {
 	if(sTlkHpuVcdIsOpen == false) return;
-
+	
 	uint08 buffLen = 0;
-	uint08 buffer[5];
+	uint08 buffer[16];
 	core_interrupt_disable();
-	int t=clock_time();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = ((level) ? 0x60:0x40) | (id&31);
-	buffer[buffLen++] = t & 0xFF;
-	buffer[buffLen++] = (t & 0xFF00) >> 8;
-	buffer[buffLen++] = (t & 0xFF0000) >> 16;
+	int tick=clock_time();
+	if(level) id |= 0x80;
+	else id &= 0x7F;
+	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
+	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_LEVEL << 4) | 0x05;
+	tlkdbg_hpuvcd_push(id, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF), buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF00) >> 8, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF0000) >> 16, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((tick & 0xFF000000) >> 24, buffer, &buffLen);
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
 	core_interrupt_restore();
 }
@@ -191,13 +184,11 @@ void tlkdbg_hpuvcd_event(uint08 id)
 	if(sTlkHpuVcdIsOpen == false) return;
 
 	uint08 buffLen = 0;
-	uint08 buffer[5];
+	uint08 buffer[16];
 	core_interrupt_disable();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = 0x00 | (id&31);
-	buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = 0x00;
+	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
+	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_EVENT << 4) | 0x01;
+	tlkdbg_hpuvcd_push(id, buffer, &buffLen);
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
 	core_interrupt_restore();
 }
@@ -208,13 +199,12 @@ void tlkdbg_hpuvcd_byte(uint08 id, uint08 value)
 	if(sTlkHpuVcdIsOpen == false) return;
 
 	uint08 buffLen = 0;
-	uint08 buffer[5];
+	uint08 buffer[16];
 	core_interrupt_disable();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = 0x80 | (id&63);
-	buffer[buffLen++] = value;
-	buffer[buffLen++] = 0x00;
-	buffer[buffLen++] = 0x00;
+	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
+	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_BYTE << 4) | 0x02;
+	tlkdbg_hpuvcd_push(id, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((value & 0xFF), buffer, &buffLen);
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
 	core_interrupt_restore();
 }
@@ -225,13 +215,13 @@ void tlkdbg_hpuvcd_word(uint08 id, uint16 value)
 	if(sTlkHpuVcdIsOpen == false) return;
 
 	uint08 buffLen = 0;
-	uint08 buffer[5];
+	uint08 buffer[16];
 	core_interrupt_disable();
-	buffer[buffLen++] = 0x7F;
-	buffer[buffLen++] = 0xc0 | (id&63);
-	buffer[buffLen++] = value & 0xFF;
-	buffer[buffLen++] = (value & 0xFF00) >> 8;
-	buffer[buffLen++] = 0x00;
+	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
+	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_WORD << 4) | 0x03; //
+	tlkdbg_hpuvcd_push(id, buffer, &buffLen);
+	tlkdbg_hpuvcd_push((value & 0xFF), buffer, &buffLen);
+	tlkdbg_hpuvcd_push((value & 0xFF00) >> 8, buffer, &buffLen);
 	tlkapi_fifo_write(&sTlkDbgHpuVcdFifo, buffer, buffLen);
 	core_interrupt_restore();
 }
@@ -239,6 +229,23 @@ void tlkdbg_hpuvcd_word(uint08 id, uint16 value)
 void tlkdbg_hpuvcd_setOpen(bool isOpen)
 {
 	sTlkHpuVcdIsOpen = isOpen;
+	tlkapi_fifo_clear(&sTlkDbgHpuVcdFifo);
+}
+
+_attribute_ram_code_sec_noinline_
+static void tlkdbg_hpuvcd_push(uint08 value, uint08 *pBuffer, uint08 *pOffset)
+{
+	uint08 offset = *pOffset;
+	if(value == TLKDBG_HPU_VCD_HEAD_SIGN){
+		pBuffer[offset++] = TLKDBG_HPU_VCD_ESCAPE_SIGN;
+		pBuffer[offset++] = 0x01;
+	}else if(value == TLKDBG_HPU_VCD_ESCAPE_SIGN){
+		pBuffer[offset++] = TLKDBG_HPU_VCD_ESCAPE_SIGN;
+		pBuffer[offset++] = 0x02;
+	}else{
+		pBuffer[offset++] = value;
+	}
+	*pOffset = offset;
 }
 
 

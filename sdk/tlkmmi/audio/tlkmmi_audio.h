@@ -29,7 +29,7 @@
 
 #define TLKMMI_AUDIO_TIMEOUT          100000 //200ms
 #define TLKMMI_AUDIO_TIMEOUT_MS       100
-#define TLKMMI_AUDIO_TIMER_TIMEOUT    (500000/TLKMMI_AUDIO_TIMEOUT) //Prevent timer termination, which may cause problems
+#define TLKMMI_AUDIO_TIMER_TIMEOUT    (200000/TLKMMI_AUDIO_TIMEOUT) //Prevent timer termination, which may cause problems
 
 #define TLKMMI_AUDIO_INFO_TIMEOUT     (5000000/TLKMMI_AUDIO_TIMEOUT) //5s
 #define TLKMMI_AUDIO_CODEC_IDLE_TIMEOUT    (300000/TLKMMI_AUDIO_TIMEOUT) //If codec is not used for more than this time, codec will automatically shut down

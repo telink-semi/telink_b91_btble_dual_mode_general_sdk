@@ -26,17 +26,20 @@
 
 
 #define BTH_L2CAP_CHN_TIMEOUT           (100000) // 100ms
-#define BTH_L2CAP_CHN_CONN_TIMEOUT      (6000000/BTH_L2CAP_CHN_TIMEOUT)
+#define BTH_L2CAP_CHN_CONN_TIMEOUT      (10000000/BTH_L2CAP_CHN_TIMEOUT)
 #define BTH_L2CAP_CHN_DISC_TIMEOUT      (3000000/BTH_L2CAP_CHN_TIMEOUT)
 
-#define BTH_L2CAP_MTU_DEF_SIZE         672 //The default value is 672 octets. Spec5.2 P1083
-#define BTH_L2CAP_MTU_MAX_SIZE         1024
-#define BTH_L2CAP_MPS_MAX_SIZE         668 //
+#define BTH_L2CAP_MTU_DEF_SIZE          672 //The default value is 672 octets. Spec5.2 P1083
+#define BTH_L2CAP_MTU_MAX_SIZE          1024
+#define BTH_L2CAP_MPS_MAX_SIZE          668 //
 
 /* base frame */
 #define BTH_L2CAP_SIG_CID               0x0001
-#define BTP_L2CAP_CONNECTIONLESS_CID    0x0002
+#define BTH_L2CAP_CONNECTIONLESS_CID    0x0002
 
+
+#define BTH_L2CAP_CFG_EFS_ENABLE        0
+#define BTH_L2CAP_CFG_QOS_ENABLE        0
 
 typedef int  (*bth_l2cap_eventCallback_t)(uint08 evtID, uint16 psmID, uint08 *pData, uint16 dataLen);
 typedef void (*bth_l2cap_rdataCallback_t)(uint16 psmID, uint16 chnID, uint16 handle, uint08 *pData, uint16 dataLen);
@@ -61,15 +64,19 @@ typedef enum{
 	BTH_L2CAP_SIG_FCSTYPE_16bFCS = 0x01,
 }BTH_L2CAP_SIG_FCSTYPE_ENUM;
 typedef enum{
-	BTP_L2CAP_OPTION_TYPE_MTU           = 0x01,
-	BTP_L2CAP_OPTION_TYPE_FLUSH_TIMEOUT = 0x02,
-	BTP_L2CAP_OPTION_TYPE_QOS           = 0x03,
-	BTP_L2CAP_OPTION_TYPE_RTN           = 0x04,
-	BTP_L2CAP_OPTION_TYPE_FCS           = 0x05,
-	BTP_L2CAP_OPTION_TYPE_EXT_FLOW      = 0x06,
-	BTP_L2CAP_OPTION_TYPE_EXT_WINSIZE   = 0x07,
-}BTP_L2CAP_OPTION_TYPE_ENUM;
-
+	BTH_L2CAP_OPTION_TYPE_MTU           = 0x01,
+	BTH_L2CAP_OPTION_TYPE_FLUSH_TIMEOUT = 0x02,
+	BTH_L2CAP_OPTION_TYPE_QOS           = 0x03,
+	BTH_L2CAP_OPTION_TYPE_RTN           = 0x04,
+	BTH_L2CAP_OPTION_TYPE_FCS           = 0x05,
+	BTH_L2CAP_OPTION_TYPE_EXT_FLOW      = 0x06,
+	BTH_L2CAP_OPTION_TYPE_EXT_WINSIZE   = 0x07,
+}BTH_L2CAP_OPTION_TYPE_ENUM;
+typedef enum{
+	BTH_L2CAP_SERVICE_TYPE_NO_TRAFFIC = 0x00,
+	BTH_L2CAP_SERVICE_TYPE_BEST_EFFORT = 0x01, //Default
+	BTH_L2CAP_SERVICE_TYPE_GUARANTEED  = 0x02,
+}BTH_L2CAP_SERVICE_TYPE_ENUM;
 
 //EXTENDED FEATURE MASK <Core5.2.pdf>P1063
 typedef enum{
@@ -84,9 +91,16 @@ typedef enum{
 	BTH_L2CAP_EXT_FEATURE_EXT_WIN_SIZE      = 0x0100, //Extended Window Size
 	BTH_L2CAP_EXT_FEATURE_UNICAST_CONN_DATA = 0x0200, //Unicast Connectionless Data Reception
 	BTH_L2CAP_EXT_FEATURE_ENHANCED_CREDIT   = 0x0400, //Enhanced Credit Based Flow Control Mode
-	
-	BTH_L2CAP_EXT_FEATURE_DEFAULT           = 0x00000000,							
+	BTH_L2CAP_EXT_FEATURE_DEFAULT           = BTH_L2CAP_EXT_FEATURE_FIXED_CHANNELS,							
 }BTH_L2CAP_EXT_FEATURE_ENUM;
+//EXTENDED CHANNEL MASK <Core5.2.pdf>P1063
+typedef enum{
+	BTH_L2CAP_EXT_CHANNEL_NONE                  = 0x0000,
+	BTH_L2CAP_EXT_CHANNEL_SIGNAL                = 0x0001,
+	BTH_L2CAP_EXT_CHANNEL_CONNECTIONLESS_RECEPT = 0x0002,
+	BTH_L2CAP_EXT_CHANNEL_SERCURITY_MANAGER     = 0x0080,
+	BTH_L2CAP_EXT_CHANNEL_DEFAULT               = BTH_L2CAP_EXT_CHANNEL_SIGNAL,							
+}BTH_L2CAP_EXT_CHANNEL_ENUM;
 
 typedef enum{
 	BTP_L2CAP_INFO_TYPE_CONNLESS_MTU        = 0x01,
@@ -111,7 +125,13 @@ typedef enum{
 	BTP_L2CAP_OPTION_FLAG_TIMEOUT = 0x10,
 	BTP_L2CAP_OPTION_FLAG_EXT_FLOW = 0x20,
 	BTP_L2CAP_OPTION_FLAG_EXT_WINSIZE = 0x40,
+	BTP_L2CAP_OPTION_FLAG_RESERVE = 0x80,
 }BTH_L2CAP_OPTION_FLAG_ENUM;
+typedef enum{
+	BTP_L2CAP_CONFIG_FLAG_NONE = 0x0000,
+	BTP_L2CAP_CONFIG_FLAG_CONTINUE = 0x0001,
+}BTH_L2CAP_CONFIG_FLAG_ENUM;
+
 
 typedef enum{
 	BTH_L2CAP_REASON_NONE = 0,
@@ -165,14 +185,14 @@ typedef struct{
 	uint08 busys;
 	uint08 flags;
 	uint08 usrID;
-	uint16 attrs; //Refer to BTH_SIGNAL_ATTRS_ENUM.
+	uint08 attrs; //Refer to BTH_SIGNAL_ATTRS_ENUM.
 	
     uint16 psmID;
 	uint16 mtuSize;
 	uint16 timeout;
 	uint16 aclHandle;
 
-	uint08 cmdOpcode;
+	uint08 rspResult;
 	uint08 rejReason; //reject reason
 	uint08 disReason; //disconnect reason
 	uint08 cmdIdentify;
@@ -182,7 +202,10 @@ typedef struct{
 	tlkapi_timer_t timer;
 
 	//Options
-	uint08 option; //Refer to BTH_L2CAP_OPTION_FLAG_ENUM.
+	uint08 negIsNext; //
+	uint08 cfgOption; //Refer to BTH_L2CAP_OPTION_FLAG_ENUM.
+	uint08 negOption; //negotiation option by both. Refer to BTH_L2CAP_OPTION_FLAG_ENUM.
+	uint08 curOption; //
 	//Flush Timeout.
 	uint16 flushTimeout; 
 	//RETRANSMISSION AND FLOW CONTROL OPTION
@@ -194,6 +217,24 @@ typedef struct{
 	uint16 monTimeout;
 	//FCS
 	uint08 fcsType;
+	//EXTENDED FLOW SPECIFICATION OPTION
+	#if (BTH_L2CAP_CFG_EFS_ENABLE)
+	uint08 efsIdentifier; //Default: 0x01
+	uint08 efsServiceType; //Default: 0x01
+	uint16 efsMaxSduSize; //Default: 0xFFFF
+	uint32 efsSduArrivalTime; //Default: 0xFFFFFFFF
+	uint32 efsAccessLatency; //Default: 0xFFFFFFFF
+	uint32 efsFlushTimeout; //Default: 0xFFFFFFFF
+	#endif
+	#if (BTH_L2CAP_CFG_QOS_ENABLE)
+	uint08 qosFlag;
+	uint08 qosServiceType; //Default: 0x01
+	uint32 qosTokenRate; //
+	uint32 qosTokenBucketSize; //
+	uint32 qosPeekBandWidth; //
+	uint32 qosLatency; //
+	uint32 qosDelayVariation; //
+	#endif
 }bth_l2cap_channel_t;
 typedef struct{
 	uint16 handle;
@@ -318,6 +359,15 @@ uint bth_l2cap_getDefMtuSize(void);
 
 void bth_l2cap_setExtFeature(uint32 feature);
 uint bth_l2cap_getExtFeature(void);
+void bth_l2cap_setExtFeatureBits(uint32 featBits);
+void bth_l2cap_clsExtFeatureBits(uint32 featBits);
+bool bth_l2cap_haveExtFeatureBits(uint32 featBits);
+
+void bth_l2cap_setExtChannel(uint32 channel);
+uint bth_l2cap_getExtChannel(void);
+void bth_l2cap_setExtChannelBits(uint32 channel);
+void bth_l2cap_clsExtChannelBits(uint32 channel);
+bool bth_l2cap_haveExtChannelBits(uint32 channel);
 
 uint bth_l2cap_getValidCID(void);
 

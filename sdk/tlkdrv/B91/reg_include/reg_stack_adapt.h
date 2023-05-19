@@ -55,7 +55,9 @@
 #define	LDOT_RDBK2_1							(0x140eed)
 #define	LDOT_RDBK2_0							(0x140eec)
 #define	RXTCRCPKT								(0x140830)
-#define	BB_PDZB									(0x140b00)
+#define	BB_PDZB									(0x80140b00)
+#define TL_MODEM								(0x80140c00)
+#define TL_RADIO								(0x80140e00)
 
 #define	RADIOCNTL00								(0x160070)
 #define	RADIOCNTL10								(0x160074)

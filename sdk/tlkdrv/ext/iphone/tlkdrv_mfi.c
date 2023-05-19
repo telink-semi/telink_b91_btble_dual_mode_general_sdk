@@ -102,7 +102,7 @@ int tlkdrv_mfi_read(uint08 reg, uint08 *pBuff, uint08 readLen)
 		return -TLK_EFAIL;
 	}
 	for(index = 0; index < readLen; index++){
-		*pBuff++ = tlkdrv_mfi_i2cReadByte(index == (readLen-1));
+		pBuff[index] = tlkdrv_mfi_i2cReadByte(index == (readLen-1));
 	}
 	tlkdrv_mfi_i2cStop();
 
@@ -122,7 +122,7 @@ int tlkdrv_mfi_write(uint08 reg, uint08 *pData, uint08 dataLen)
 	}
 	tlkdrv_mfi_i2cWriteByte(reg);
 	for(index=0; index<dataLen; index++ ){
-		tlkdrv_mfi_i2cWriteByte(*pData++);
+		tlkdrv_mfi_i2cWriteByte(pData[index]);
 	}
 	tlkdrv_mfi_i2cStop();
 	return dataLen;

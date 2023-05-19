@@ -31,7 +31,7 @@
 
 #define TLKAPI_CHIP_STACK_CHACK_OFFSET    256
 #define TLKAPI_CHIP_STACK_CHACK_SIGN      0xAA5533CC
-extern unsigned long _STACK_TOP, _BSS_VMA_END, _BSS_VMA_START, _ZERO_BSS_BEGIN;
+extern unsigned long _STACK_TOP, _BSS_VMA_END;
 static uint32 sTlkApiChipStackStart = 0;
 static uint32 sTlkApiChipStackCurLen = 0;
 static uint16 sTlkApiChipStackLength = 0;

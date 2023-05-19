@@ -27,12 +27,11 @@
 #if (TLK_STK_BTP_ENABLE)
 
 
-#define BTP_TIMER_TIMEOUT               200000
-#define BTP_TIMER_TIMEOUT_MS            200
+#define BTP_TIMER_TIMEOUT                200000
+#define BTP_TIMER_TIMEOUT_MS             200
 
-#define BTP_MAP_L2CAP_ENABLE            0
-#define BTP_PBAP_L2CAP_ENABLE           1
-
+#define BTP_MAP_L2CAP_ENABLE             0
+#define BTP_PBAP_L2CAP_ENABLE            1
 
 #define TLKBTP_CFG_SDP_ENABLE            (1 && TLK_STK_BTP_ENABLE)
 #define TLKBTP_CFG_SDPSRV_ENABLE         (1 && TLK_STK_BTP_ENABLE && TLKBTP_CFG_SDP_ENABLE)
@@ -58,30 +57,33 @@
 #define TLKBTP_CFG_HID_ENABLE            (1 && TLK_STK_BTP_ENABLE)
 #define TLKBTP_CFG_HIDD_ENABLE           (1 && TLKBTP_CFG_HID_ENABLE)
 #define TLKBTP_CFG_HIDH_ENABLE           (0 && TLKBTP_CFG_HID_ENABLE)
+#define TLKBTP_CFG_PTSL2C_ENABLE         (1 && TLK_CFG_TEST_ENABLE)
+#define TLKBTP_CFG_PTSHID_ENABLE         (0 && TLKBTP_CFG_HID_ENABLE && TLK_CFG_TEST_ENABLE)
+#define TLKBTP_CFG_PTSSDP_ENABLE         (0 && TLKBTP_CFG_SDP_ENABLE && TLK_CFG_TEST_ENABLE)
 
-#define TLK_BT_SDP_MAX_NUMB                (TLK_STK_BTACl_NUMB*2+1)
-#define TLK_BT_IAP_MAX_NUMB                (TLK_STK_BTACl_NUMB)
-#define TLK_BT_HID_MAX_NUMB                (TLK_STK_BTACl_NUMB)
-#define TLK_BT_SPP_MAX_NUMB                (TLK_STK_BTACl_NUMB)
-#define TLK_BT_HFP_MAX_NUMB                (TLK_STK_BTACl_NUMB)
-#define TLK_BT_ATT_MAX_NUMB                (1)
-#define TLK_BT_A2DP_MAX_NUMB               (TLK_STK_BTACl_NUMB)
-#define TLK_BT_AVRCP_MAX_NUMB              (TLK_STK_BTACl_NUMB)
-#define TLK_BT_BROWSING_MAX_NUMB           (TLK_STK_BTACl_NUMB)
-#define TLK_BT_RFCOMM_SERVICE_MAX_NUMB     6 //spp, pbap, hfp-ag, hfp-hf
-#define TLK_BT_RFCOMM_SESSION_MAX_NUMB     (TLK_STK_BTACl_NUMB)
-#define TLK_BT_RFCOMM_CHANNEL_MAX_NUMB     (TLK_STK_BTACl_NUMB*6)
-#define TLK_BT_RFCOMM_CHNDICT_MAX_NUMB     (TLK_BT_RFCOMM_CHANNEL_MAX_NUMB+4)
-#define TLK_BT_MAP_MAX_NUMB                (1+TLK_STK_BTACl_NUMB)
-#define TLK_BT_PBAP_MAX_NUMB               (1+TLK_STK_BTACl_NUMB)
+#define TLK_BT_SDP_MAX_NUMB              (TLK_STK_BTACl_NUMB*2+1)
+#define TLK_BT_IAP_MAX_NUMB              (TLK_STK_BTACl_NUMB)
+#define TLK_BT_HID_MAX_NUMB              (TLK_STK_BTACl_NUMB)
+#define TLK_BT_SPP_MAX_NUMB              (TLK_STK_BTACl_NUMB)
+#define TLK_BT_HFP_MAX_NUMB              (TLK_STK_BTACl_NUMB)
+#define TLK_BT_ATT_MAX_NUMB              (1)
+#define TLK_BT_A2DP_MAX_NUMB             (TLK_STK_BTACl_NUMB)
+#define TLK_BT_AVRCP_MAX_NUMB            (TLK_STK_BTACl_NUMB)
+#define TLK_BT_BROWSING_MAX_NUMB         (TLK_STK_BTACl_NUMB)
+#define TLK_BT_RFCOMM_SERVICE_MAX_NUMB   6 //spp, pbap, hfp-ag, hfp-hf
+#define TLK_BT_RFCOMM_SESSION_MAX_NUMB   (TLK_STK_BTACl_NUMB)
+#define TLK_BT_RFCOMM_CHANNEL_MAX_NUMB   (TLK_STK_BTACl_NUMB*6)
+#define TLK_BT_RFCOMM_CHNDICT_MAX_NUMB   (TLK_BT_RFCOMM_CHANNEL_MAX_NUMB+4)
+#define TLK_BT_MAP_MAX_NUMB              (1+TLK_STK_BTACl_NUMB)
+#define TLK_BT_PBAP_MAX_NUMB             (1+TLK_STK_BTACl_NUMB)
 
 
-#define TLKBT_CFG_HS_RFC_CHANNEL           0x02
-#define TLKBT_CFG_HFPHF_RFC_CHANNEL        0x05
-#define TLKBT_CFG_HFPAG_RFC_CHANNEL        0x06
-#define TLKBT_CFG_SPP_RFC_CHANNEL          0x04
-#define TLKBT_CFG_IAP_RFC_CHANNEL          0x07
-#define TLKBT_CFG_PBAP_RFC_CHANNEL         0x09
+#define TLKBT_CFG_HS_RFC_CHANNEL         0x02
+#define TLKBT_CFG_HFPHF_RFC_CHANNEL      0x05
+#define TLKBT_CFG_HFPAG_RFC_CHANNEL      0x06
+#define TLKBT_CFG_SPP_RFC_CHANNEL        0x04
+#define TLKBT_CFG_IAP_RFC_CHANNEL        0x07
+#define TLKBT_CFG_PBAP_RFC_CHANNEL       0x09
 
 
 

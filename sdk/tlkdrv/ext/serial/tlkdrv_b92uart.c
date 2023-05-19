@@ -31,11 +31,10 @@
 extern void tlkdrv_serial_irqErrDone(uint08 port);
 extern void tlkdrv_serial_irqTxDoneWithDma(uint08 port);
 extern void tlkdrv_serial_irqTxDoneWithoutDma(uint08 port);
-extern void tlkdrv_serial_irqRxDoneWithDma(uint08 port, uint recvLen);
-extern void tlkdrv_serial_irqRxDoneWithoutDma(uint08 port, uint08 byte);
+extern void tlkdrv_serial_irqRxDoneWithDma(uint08 port);
+extern void tlkdrv_serial_irqRxDoneWithoutDma(uint08 port);
 
 
-extern unsigned char uart_rx_byte_index[2];
 extern unsigned char uart_dma_tx_chn[2];
 extern unsigned char uart_dma_rx_chn[2];
 
@@ -157,17 +156,10 @@ void tlkdrv_b92uart_irqHandler(uint08 port)
 		tlkdrv_serial_irqTxDoneWithDma(port);
 	}
 	if(uart_get_irq_status(port, UART_RXBUF_IRQ_STATUS)){ //for no dam
-		while(uart_get_rxfifo_num(port) > 0){
-			uint08 rxData = reg_uart_data_buf(port, uart_rx_byte_index[port]) ;
-			uart_rx_byte_index[port] ++;
-			uart_rx_byte_index[port] &= 0x03;
-			tlkdrv_serial_irqRxDoneWithoutDma(port, rxData);
-		}
+		tlkdrv_serial_irqRxDoneWithoutDma(port);
 	}
 	if(uart_get_irq_status(port, UART_RXDONE_IRQ_STATUS)){ //for dma
-		uint recvLen = uart_get_dma_rev_data_len(port, uart_dma_rx_chn[port]);
-		uart_clr_irq_status(port, UART_RXDONE_IRQ_STATUS);
-		tlkdrv_serial_irqRxDoneWithDma(port, recvLen);
+		tlkdrv_serial_irqRxDoneWithDma(port);
 	}
 	if(uart_get_irq_status(port, UART_RX_ERR)){
 		uart_clr_irq_status(port, UART_RXBUF_IRQ_STATUS);

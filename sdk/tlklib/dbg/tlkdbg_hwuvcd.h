@@ -41,7 +41,7 @@ bool tlkdbg_hwuvcd_isBusy(void);
 void tlkdbg_hwuvcd_handler(void);
 
 void tlkdbg_hwuvcd_ref(void);
-void tlkdbg_hwuvcd_sync(bool enable);
+void tlkdbg_hwuvcd_sync(void);
 void tlkdbg_hwuvcd_tick(uint08 id);
 void tlkdbg_hwuvcd_level(uint08 id, uint08 level);
 void tlkdbg_hwuvcd_event(uint08 id);

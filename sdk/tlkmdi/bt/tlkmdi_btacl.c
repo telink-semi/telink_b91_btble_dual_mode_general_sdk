@@ -42,6 +42,8 @@
 #include "tlkmdi/bt/tlkmdi_bta2dp.h"
 
 
+extern void bth_acl_clearSniffPolicy(uint16 aclHandle);
+extern void bth_acl_sendUnSniffReq(uint16 aclHandle);
 
 int tlkmdi_btacl_deleteProf(tlkmdi_btacl_item_t *pItem, uint08 ptype, uint08 usrID);
 
@@ -324,6 +326,8 @@ int tlkmdi_btacl_disconn(uint16 handle, uint08 reason)
 		return -TLK_EHANDLE;
 	}
 
+	bth_acl_clearSniffPolicy(handle);
+	bth_acl_sendUnSniffReq(handle);
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_disconn: 0x%x %d", handle, reason);
 	if(pItem->state == TLK_STATE_OPENED){
 		tlkmdi_btacl_resetItem(pItem);

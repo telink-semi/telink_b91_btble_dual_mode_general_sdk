@@ -61,49 +61,49 @@ typedef enum{
 
 
 
-#define TLKUSB_HID_RPT_DATA_SIZE_MASK                  (0x03)
-#define TLKUSB_HID_RPT_TYPE_MASK                       (0x0C)
-#define TLKUSB_HID_RPT_TAG_MASK                        (0xF0)
+#define TLKUSB_HID_RPT_DATA_SIZE_MASK                   (0x03)
+#define TLKUSB_HID_RPT_TYPE_MASK                        (0x0C)
+#define TLKUSB_HID_RPT_TAG_MASK                         (0xF0)
 
-#define TLKUSB_HID_RPT_TYPE_MAIN                       (0x00)
-#define TLKUSB_HID_RPT_TYPE_GLOBAL                     (0x04)
-#define TLKUSB_HID_RPT_TYPE_LOCAL                      (0x08)
+#define TLKUSB_HID_RPT_TYPE_MAIN                        (0x00)
+#define TLKUSB_HID_RPT_TYPE_GLOBAL                      (0x04)
+#define TLKUSB_HID_RPT_TYPE_LOCAL                       (0x08)
 
-#define TLKUSB_HID_RPT_DATA_BITS_0                     (0x00)
-#define TLKUSB_HID_RPT_DATA_BITS_8                     (0x01)
-#define TLKUSB_HID_RPT_DATA_BITS_16                    (0x02)
-#define TLKUSB_HID_RPT_DATA_BITS_32                    (0x03)
-#define TLKUSB_HID_RPT_DATA_BITS(Data_bits)            TLKUSB_HID_RPT_DATA_BITS_##Data_bits
+#define TLKUSB_HID_RPT_DATA_BITS_0                      (0x00)
+#define TLKUSB_HID_RPT_DATA_BITS_8                      (0x01)
+#define TLKUSB_HID_RPT_DATA_BITS_16                     (0x02)
+#define TLKUSB_HID_RPT_DATA_BITS_32                     (0x03)
+#define TLKUSB_HID_RPT_DATA_BITS(Data_bits)             TLKUSB_HID_RPT_DATA_BITS_##Data_bits
 
 #define TLKUSB_HID_RPT_DATA_ENCODE_0(Data)
-#define TLKUSB_HID_RPT_DATA_ENCODE_8(Data)            , (Data & 0xFF)
-#define TLKUSB_HID_RPT_DATA_ENCODE_16(Data)           TLKUSB_HID_RPT_DATA_ENCODE_8(Data)  TLKUSB_HID_RPT_DATA_ENCODE_8(Data>>8)
-#define TLKUSB_HID_RPT_DATA_ENCODE_32(Data)           TLKUSB_HID_RPT_DATA_ENCODE_16(Data) TLKUSB_HID_RPT_DATA_ENCODE_16(Data>>16)
-#define TLKUSB_HID_RPT_DATA_ENCODE(Data_bits, ...)    TLKUSB_HID_RPT_DATA_ENCODE_##Data_bits(__VA_ARGS__)
+#define TLKUSB_HID_RPT_DATA_ENCODE_8(Data)              , (Data & 0xFF)
+#define TLKUSB_HID_RPT_DATA_ENCODE_16(Data)             TLKUSB_HID_RPT_DATA_ENCODE_8(Data)  TLKUSB_HID_RPT_DATA_ENCODE_8(Data>>8)
+#define TLKUSB_HID_RPT_DATA_ENCODE_32(Data)             TLKUSB_HID_RPT_DATA_ENCODE_16(Data) TLKUSB_HID_RPT_DATA_ENCODE_16(Data>>16)
+#define TLKUSB_HID_RPT_DATA_ENCODE(Data_bits, ...)      TLKUSB_HID_RPT_DATA_ENCODE_##Data_bits(__VA_ARGS__)
 
 
 #define TLKUSB_HID_RPT_DATA_ENTRY(Type, Tag, Data_bits, ...)  \
-												(Type | Tag | TLKUSB_HID_RPT_DATA_BITS(Data_bits)) TLKUSB_HID_RPT_DATA_ENCODE(Data_bits, (__VA_ARGS__))
+			(Type | Tag | TLKUSB_HID_RPT_DATA_BITS(Data_bits)) TLKUSB_HID_RPT_DATA_ENCODE(Data_bits, (__VA_ARGS__))
 
 //data item for Input/Ouput/Feature
-#define TLKUSB_HID_IOF_CONSTANT                        BIT(0)
-#define TLKUSB_HID_IOF_DATA                            (0<<0)
-#define TLKUSB_HID_IOF_VARIABLE                        BIT(1)
-#define TLKUSB_HID_IOF_ARRAY                           (0<<1)
-#define TLKUSB_HID_IOF_RELATIVE                        BIT(2)
-#define TLKUSB_HID_IOF_ABSOLUTE                        (0<<2)
-#define TLKUSB_HID_IOF_WRAP                            BIT(3)
-#define TLKUSB_HID_IOF_NO_WRAP                         (0<<3)
-#define TLKUSB_HID_IOF_NON_LINEAR                      BIT(4)
-#define TLKUSB_HID_IOF_LINEAR                          (0<<4)
-#define TLKUSB_HID_IOF_NO_PREFERRED_STATE              BIT(5)
-#define TLKUSB_HID_IOF_PREFERRED_STATE                 (0<<5)
-#define TLKUSB_HID_IOF_NULLSTATE                       BIT(6)
-#define TLKUSB_HID_IOF_NO_NULL_POSITION                (0<<6)
-#define TLKUSB_HID_IOF_VOLATILE                        BIT(7)
-#define TLKUSB_HID_IOF_NON_VOLATILE                    (0<<7)
-#define TLKUSB_HID_IOF_BUFFERED_BYTES                  BIT(8)
-#define TLKUSB_HID_IOF_BITFIELD                        (0<<8)
+#define TLKUSB_HID_IOF_CONSTANT                          BIT(0)
+#define TLKUSB_HID_IOF_DATA                              (0<<0)
+#define TLKUSB_HID_IOF_VARIABLE                          BIT(1)
+#define TLKUSB_HID_IOF_ARRAY                             (0<<1)
+#define TLKUSB_HID_IOF_RELATIVE                          BIT(2)
+#define TLKUSB_HID_IOF_ABSOLUTE                          (0<<2)
+#define TLKUSB_HID_IOF_WRAP                              BIT(3)
+#define TLKUSB_HID_IOF_NO_WRAP                           (0<<3)
+#define TLKUSB_HID_IOF_NON_LINEAR                        BIT(4)
+#define TLKUSB_HID_IOF_LINEAR                            (0<<4)
+#define TLKUSB_HID_IOF_NO_PREFERRED_STATE                BIT(5)
+#define TLKUSB_HID_IOF_PREFERRED_STATE                   (0<<5)
+#define TLKUSB_HID_IOF_NULLSTATE                         BIT(6)
+#define TLKUSB_HID_IOF_NO_NULL_POSITION                  (0<<6)
+#define TLKUSB_HID_IOF_VOLATILE                          BIT(7)
+#define TLKUSB_HID_IOF_NON_VOLATILE                      (0<<7)
+#define TLKUSB_HID_IOF_BUFFERED_BYTES                    BIT(8)
+#define TLKUSB_HID_IOF_BITFIELD                          (0<<8)
 
 //HID report definitions
 #define TLKUSB_HID_RPT_INPUT(Data_bits, ...)             TLKUSB_HID_RPT_DATA_ENTRY(TLKUSB_HID_RPT_TYPE_MAIN  , 0x80, Data_bits, __VA_ARGS__)

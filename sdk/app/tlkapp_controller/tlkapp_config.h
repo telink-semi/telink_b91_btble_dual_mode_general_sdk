@@ -36,7 +36,7 @@
 #define TLK_CFG_STK_ENABLE           1
 #define TLK_CFG_MDI_ENABLE           0
 #define TLK_CFG_MMI_ENABLE           0
-#define TLK_CFG_DBG_ENABLE           1
+#define TLK_CFG_DBG_ENABLE           0
 #define TLK_CFG_USB_ENABLE           1
 #define TLK_CFG_TEST_ENABLE          0
 #define TLK_CFG_COMM_ENABLE          0

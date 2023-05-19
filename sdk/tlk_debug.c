@@ -38,6 +38,20 @@
 #define nullptr  0
 #endif
 
+typedef struct{
+	unsigned char minorID;
+	unsigned char dbgIsEn;
+	unsigned char vcdIsEn;
+	unsigned char dbgFlag;
+	const char *pDbgSign;
+}tlk_debug_unit_t;
+typedef struct{
+	unsigned char dbgIsEn;
+	unsigned char vcdIsEn;
+	unsigned char dbgFlag;
+	unsigned char unitCnt;
+	tlk_debug_unit_t unit[32];
+}tlk_debug_info_t;
 
 
 static const tlk_debug_info_t scTlkDebugSysInfo = {
@@ -126,6 +140,7 @@ static const tlk_debug_info_t scTlkDebugBtpInfo = {
 		{TLK_MINOR_DBGID_BTP_PBAP,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[PBAP]"},
 		{TLK_MINOR_DBGID_BTP_BROWSE, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[BROWSE]"},
 		{TLK_MINOR_DBGID_BTP_FUNC,   false, false, TLK_DEBUG_DBG_FLAG_ALL, "[FUNC]"},
+		{TLK_MINOR_DBGID_BTP_PTS,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[PTS]"},
 	}
 };
 
@@ -361,30 +376,32 @@ static unsigned long sTlkDebugDbgMask[TLK_MAJOR_DBGID_MAX];
 static unsigned long sTlkDebugVcdMask[TLK_MAJOR_DBGID_MAX];
 #endif
 
-void tlk_debug_dbgLoad(void);
 
-tlk_debug_info_t **tlk_debug_get_dbgInfo()
-{
-	return (tlk_debug_info_t**)&scTlkDebugInfo;
-}
 
-unsigned long *tlk_debug_get_dbgMask()
-{
-	return sTlkDebugDbgMask;
-}
-unsigned long *tlk_debug_get_vcdMask()
-{
-#if (TLK_CFG_VCD_ENABLE)
-	return sTlkDebugVcdMask;
-#else
-	return 0;
-#endif
-}
+
 
 void tlk_debug_init(void)
 {
 	tlk_debug_dbgLoad();
-	#if (TLK_CFG_VCD_ENABLE)
+	tlk_debug_vcdLoad();
+}
+void tlk_debug_dbgLoad(void)
+{
+	unsigned int idxI;
+	unsigned int idxJ;
+	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
+		sTlkDebugDbgMask[idxI] = 0;
+		for(idxJ=0; idxJ<32; idxJ++){
+			if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
+				&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
+				sTlkDebugDbgMask[idxI] |= (1 << idxJ);
+			}
+		}
+	}
+}
+void tlk_debug_vcdLoad(void)
+{
+#if (TLK_CFG_VCD_ENABLE)
 	unsigned int idxI;
 	unsigned int idxJ;
 	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
@@ -396,7 +413,7 @@ void tlk_debug_init(void)
 			}
 		}
 	}
-	#endif
+#endif
 }
 
 
@@ -405,6 +422,7 @@ bool tlk_debug_dbgIsEnable(unsigned int flags, unsigned int dbgFlag)
 {
 	unsigned char majorID = (flags >> 24);
 	unsigned char minorID = (flags >> 16) & 0xFF;
+	if(flags == 0xFFFFFFFF) return true;
 	if((flags & dbgFlag) == 0 || majorID >= TLK_MAJOR_DBGID_MAX || minorID >= 32
 		|| (sTlkDebugDbgMask[majorID] & (1 << minorID)) == 0
 		|| (scTlkDebugInfo[majorID]->dbgFlag & dbgFlag) == 0
@@ -418,6 +436,7 @@ bool tlk_debug_dbgIsEnable1(unsigned int flags)
 {
 	unsigned char majorID = (flags >> 24);
 	unsigned char minorID = (flags >> 16) & 0xFF;
+	if(flags == 0xFFFFFFFF) return true;
 	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= 32 || (sTlkDebugDbgMask[majorID] & (1 << minorID)) == 0){
 		return false;
 	}
@@ -430,6 +449,7 @@ bool tlk_debug_vcdIsEnable(unsigned int flags)
 	#if (TLK_CFG_VCD_ENABLE)
 	unsigned char majorID = (flags >> 24);
 	unsigned char minorID = (flags >> 16) & 0xFF;
+	if(flags == 0xFFFFFFFF) return true;
 	if(/*(flags & 0x01) == 0 || */majorID >= TLK_MAJOR_DBGID_MAX || minorID >= 32
 		|| (sTlkDebugVcdMask[majorID] & (1 << minorID)) == 0){
 		return false;
@@ -451,42 +471,14 @@ char *tlk_debug_getDbgSign(unsigned int flags)
 	return (char*)scTlkDebugInfo[majorID]->unit[minorID].pDbgSign;
 }
 
-void tlk_debug_dbgLoad(void)
-{
-	unsigned int idxI;
-	unsigned int idxJ;
-	for(idxI=0; idxI<TLK_MAJOR_DBGID_MAX; idxI++){
-		sTlkDebugDbgMask[idxI] = 0;
-		for(idxJ=0; idxJ<32; idxJ++){
-			if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
-				&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
-				sTlkDebugDbgMask[idxI] |= (1 << idxJ);
-			}
-		}
-	}
-}
-void tlk_debug_dbgReload(TLK_DEBUG_MAJOR_ID_ENUM majorID)
-{
-	unsigned int idxI;
-	unsigned int idxJ;
-	if((majorID >= TLK_MAJOR_DBGID_MAX) || (scTlkDebugInfo[majorID] == nullptr)){
-		return ;
-	}
-	idxI = majorID;
-	for(idxJ=0; idxJ<32; idxJ++){
-		if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
-			&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
-			sTlkDebugDbgMask[idxI] |= (1 << idxJ);
-		}
-	}
-}
+
 
 bool tlk_debug_dbgEnable(TLK_DEBUG_MAJOR_ID_ENUM majorID)
 {
 	if((majorID >= TLK_MAJOR_DBGID_MAX) || (scTlkDebugInfo[majorID] == nullptr)){
 		return false;
 	}
-	sTlkDebugDbgMask[majorID]  = 0xFFFFFFFF;
+	sTlkDebugDbgMask[majorID] = 0xFFFFFFFF;
 	return true;
 }
 
@@ -520,18 +512,156 @@ bool tlk_debug_dbgEnableItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID
 	{
 		sTlkDebugDbgMask[idxI] |= (1 << idxJ);
 	}
-	/*
-	if(scTlkDebugInfo[idxI] != nullptr && idxJ < scTlkDebugInfo[idxI]->unitCnt
-		&& scTlkDebugInfo[idxI]->dbgIsEn && scTlkDebugInfo[idxI]->unit[idxJ].dbgIsEn){
-		sTlkDebugDbgMask[idxI] |= (1 << idxJ);
-	}
-	else
-	{
-		return false;
-	}
-	*/
 	return true;
 }
+
+
+bool tlk_debug_setDbgMask(TLK_DEBUG_MAJOR_ID_ENUM majorID, unsigned int mask)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX) return false;
+	sTlkDebugDbgMask[majorID] = mask;
+	return true;
+}
+bool tlk_debug_setVcdMask(TLK_DEBUG_MAJOR_ID_ENUM majorID, unsigned int mask)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX) return false;
+	sTlkDebugVcdMask[majorID] = mask;
+	return true;
+#else
+	return false;
+#endif
+}
+
+unsigned int tlk_debug_getDbgMask(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX) return 0;
+	else return sTlkDebugDbgMask[majorID];
+}
+unsigned int tlk_debug_getVcdMask(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX) return 0;
+	else return sTlkDebugVcdMask[majorID];
+#else
+	return 0;
+#endif
+}
+unsigned int tlk_debug_getItemNumb(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX) return 0;
+	return scTlkDebugInfo[majorID]->unitCnt;
+}
+const char *tlk_debug_getItemSign(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return nullptr;
+	}
+	return scTlkDebugInfo[majorID]->unit[minorID].pDbgSign;
+}
+
+bool tlk_debug_dbgItemIsEnable(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return false;
+	}
+	if((sTlkDebugDbgMask[majorID] & (1 << minorID)) != 0) return true;
+	return false;
+}
+bool tlk_debug_vcdItemIsEnable(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return false;
+	}
+	if((sTlkDebugVcdMask[majorID] & (1 << minorID)) != 0) return true;
+	return false;
+#else
+	return false;
+#endif
+}
+bool tlk_debug_enableDbgItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return false;
+	}
+	sTlkDebugDbgMask[majorID] |= (1 << minorID);
+	return true;
+}
+bool tlk_debug_enableVcdItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return false;
+	}
+	sTlkDebugVcdMask[majorID] |= (1 << minorID);
+	return true;
+#else
+	return false;
+#endif
+}
+bool tlk_debug_disableDbgItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return false;
+	}
+	sTlkDebugDbgMask[majorID] &= ~(1 << minorID);
+	return true;
+}
+bool tlk_debug_disableVcdItem(TLK_DEBUG_MAJOR_ID_ENUM majorID, TLK_DEBUG_MINOR_ID_ENUM minorID)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX || minorID >= scTlkDebugInfo[majorID]->unitCnt){
+		return false;
+	}
+	sTlkDebugVcdMask[majorID] &= ~(1 << minorID);
+	return true;
+#else
+	return false;
+#endif
+}
+bool tlk_debug_enableAllDbgItem(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX){
+		return false;
+	}
+	sTlkDebugDbgMask[majorID] = 0xFFFFFFFF;
+	return true;
+}
+bool tlk_debug_enableAllVcdItem(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX){
+		return false;
+	}
+	sTlkDebugVcdMask[majorID] = 0xFFFFFFFF;
+	return true;
+#else
+	return false;
+#endif
+}
+bool tlk_debug_disableAllDbgItem(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+	if(majorID >= TLK_MAJOR_DBGID_MAX){
+		return false;
+	}
+	sTlkDebugDbgMask[majorID] = 0;
+	return true;
+}
+bool tlk_debug_disableAllVcdItem(TLK_DEBUG_MAJOR_ID_ENUM majorID)
+{
+#if (TLK_CFG_VCD_ENABLE)
+	if(majorID >= TLK_MAJOR_DBGID_MAX){
+		return false;
+	}
+	sTlkDebugVcdMask[majorID] = 0;
+	return true;
+#else
+	return false;
+#endif
+}
+
+
 
 
 #endif //#if (TLK_CFG_DBG_ENABLE)

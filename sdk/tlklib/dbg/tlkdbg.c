@@ -574,36 +574,19 @@ void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen)
 
 
 _attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_ref(void)
+void tlkdbg_vcd_sync(void)
 {
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)
-	tlkdbg_usbvcd_ref();
+	tlkdbg_usbvcd_sync();
 	#endif
 	#if (TLKDBG_CFG_HPU_VCD_ENABLE)
-	tlkdbg_hpuvcd_ref();
+	tlkdbg_hpuvcd_sync();
 	#endif
 	#if (TLKDBG_CFG_GSU_VCD_ENABLE)
-	tlkdbg_gsuvcd_ref();
+	tlkdbg_gsuvcd_sync();
 	#endif
 	#if (TLKDBG_CFG_HWU_VCD_ENABLE)
-	tlkdbg_hwuvcd_ref();
-	#endif
-}
-// 4-byte sync word: 00 00 00 00
-_attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_sync(bool enable)
-{
-	#if (TLKDBG_CFG_USB_VCD_ENABLE)
-	tlkdbg_usbvcd_sync(enable);
-	#endif
-	#if (TLKDBG_CFG_HPU_VCD_ENABLE)
-	tlkdbg_hpuvcd_sync(enable);
-	#endif
-	#if (TLKDBG_CFG_GSU_VCD_ENABLE)
-	tlkdbg_gsuvcd_sync(enable);
-	#endif
-	#if (TLKDBG_CFG_HWU_VCD_ENABLE)
-	tlkdbg_hwuvcd_sync(enable);
+	tlkdbg_hwuvcd_sync();
 	#endif
 }
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define

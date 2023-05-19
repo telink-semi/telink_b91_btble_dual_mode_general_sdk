@@ -45,6 +45,7 @@ __attribute__((aligned(4)))
 static uint08 sTlkCommSerialRecvBuffer[TLKMDI_COMM_SERIAL_RBUFF_NUMB*(TLKMDI_COMM_SERIAL_RBUFF_SIZE+4)];
 __attribute__((aligned(4)))
 static uint08 sTlkCommSerialSendBuffer[TLKMDI_COMM_SERIAL_SBUFF_NUMB*(TLKMDI_COMM_SERIAL_SBUFF_SIZE+4)];
+extern uint32 tlkcfg_getSerialBaudrate(void);
 #endif
 
 
@@ -81,7 +82,9 @@ int tlkmdi_comm_init(void)
 {
 	tmemset(&sTlkMdiCommCtrl, 0, sizeof(tlkmdi_comm_ctrl_t));
 	#if (TLK_DEV_SERIAL_ENABLE)
-	tlkdev_serial_mount(TLKMDI_COMM_SERIAL_PORT, TLKMDI_COMM_SERIAL_BAUDRATE,
+	uint32 baudrate = tlkcfg_getSerialBaudrate();
+	if(baudrate == 0xFFFFFFFF) baudrate = TLKMDI_COMM_SERIAL_BAUDRATE;
+	tlkdev_serial_mount(TLKMDI_COMM_SERIAL_PORT, baudrate,
 		TLKMDI_COMM_SERIAL_TX_PIN, TLKMDI_COMM_SERIAL_RX_PIN, 
 		TLKMDI_COMM_SERIAL_TX_DMA, TLKMDI_COMM_SERIAL_RX_DMA, 0, 0);
 	tlkdev_serial_setTxQFifo(TLKMDI_COMM_SERIAL_SBUFF_NUMB, TLKMDI_COMM_SERIAL_SBUFF_SIZE+4,
@@ -117,7 +120,28 @@ bool tlkmdi_comm_pmIsBusy(void)
 	return false;
 	#endif
 }
-
+int tlkmdi_comm_setBaudrate(uint32 baudrate)
+{
+	#if (TLK_DEV_SERIAL_ENABLE)
+	int ret;
+	if(tlkdev_serial_isOpen()){
+		ret = tlkdev_serial_close();
+		if(!ret) ret = tlkdev_serial_setBaudrate(baudrate);
+		if(!ret) ret = tlkdev_serial_open();
+	}else{
+		ret = tlkdev_serial_setBaudrate(baudrate);
+	}
+	return ret;
+	#endif
+	return -TLK_ENOREADY;
+}
+uint32 tlkmdi_comm_getBaudrate()
+{
+	#if (TLK_DEV_SERIAL_ENABLE)
+	return tlkdev_serial_getBuadrate();
+	#endif
+	return -TLK_ENOREADY;
+}
 int tlkmdi_comm_getValidDatID(uint08 *pDatID)
 {
 	uint08 index;

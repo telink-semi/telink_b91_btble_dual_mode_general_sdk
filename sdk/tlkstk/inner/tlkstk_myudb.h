@@ -36,8 +36,7 @@
 extern void tlkdbg_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
 extern void tlkdbg_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
 
-extern void tlkdbg_vcd_ref(void);
-extern void tlkdbg_vcd_sync(bool enable);
+extern void tlkdbg_vcd_sync(void);
 extern void tlkdbg_vcd_tick(uint32 flags, uint08 id);
 extern void tlkdbg_vcd_level(uint32 flags, uint08 id, uint08 level);
 extern void tlkdbg_vcd_event(uint32 flags, uint08 id);
@@ -98,9 +97,6 @@ extern void tlkdbg_vcd_word(uint32 flags, uint08 id, uint16 value);
 
 
 
-#define	log_hw_ref()	tlkdbg_vcd_ref()
-// 4-byte sync word: 00 00 00 00
-#define	log_sync(en)	tlkdbg_vcd_sync(en)
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
 #define	log_tick(en,id)	tlkdbg_vcd_tick(en,id)
 //1-byte (000_id-5bits)
@@ -114,7 +110,7 @@ extern void tlkdbg_vcd_word(uint32 flags, uint08 id, uint16 value);
 
 
 //BLE used only //
-#define	log_sync_mainloop(en)	tlkdbg_vcd_sync(en)
+#define	log_sync_mainloop(en)	tlkdbg_vcd_sync()
 #define	log_tick_mainloop(en,id) tlkdbg_vcd_tick(en,id)
 #define	log_tick_irq(en,id)		tlkdbg_vcd_tick(en,id)
 #define	log_event_irq(en,id) 	tlkdbg_vcd_event(en,id)

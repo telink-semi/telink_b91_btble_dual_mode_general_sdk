@@ -28,7 +28,11 @@
 //#include "btp_sdpInner.h"
 #include "btp_sdp.h"
 #include "../btp_config.h"
-
+#if (TLKBTP_CFG_HID_ENABLE)
+#include "../hid/btp_hid.h"
+#include "../pts/btp_ptsHid.h"
+#include "../../bth/bth_hcicod.h"
+#endif
 
 
 
@@ -78,9 +82,14 @@ const char gcBthSdpA2dpSnkProviderName[] = "Telink";
 const char gcBthSdpA2dpSrcServiceName[] = "Audio/Video Service";
 const char gcBthSdpA2dpSnkServiceName[] = "Audio/Video Service";
 
+#if (TLKBTP_CFG_HID_ENABLE)
+static const char gcBtpSdpHidServiceName[]  = "HID device";
+static const char gcBtpSdpHidProviderName[] = "Telink";
+//SubClass: Refer <HID_v1.1.1.pdf> P66
+#define scBtpSdpHidSubClass    (BTH_COD_PERIPHERAL_KEYBOARD | BTH_COD_PERIPHERAL_KEYBOARD)
+#endif
 
-
-const btp_sdp_serviceItem_t  gcBthSdpSppItem[] = {
+const btp_sdp_serviceItem_t gcBthSdpSppItem[] = {
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,BTP_SDP_ATTR_RECORD_HANDLE, (uint08*)0}, // handle
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_32, BTP_SDP_SPP_HANDLE, (uint08*)0}, // handle
 
@@ -495,8 +504,9 @@ const btp_sdp_serviceItem_t gcBthSdpAvrcpCtItem[] = {
 	    {BTP_SDP_FLAG_STR, 0x0100, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (uint08*)gcBthSdpAvrcpCtServiceName },  // service name string	
 };
 
-const uint08 gcBtpSdpHidDescList[] =
+const uint08 gcBtpSdpHidReportMap[] =
 {
+#if !(TLKBTP_CFG_PTSHID_ENABLE)
     //keyboard report in
 	0x05, 0x01,     // Usage Pg (Generic Desktop)
 	0x09, 0x06,     // Usage (Keyboard)
@@ -551,22 +561,50 @@ const uint08 gcBtpSdpHidDescList[] =
 	0x2a, 0x8c,0x02,  //local, max    0x28c
 	0x81, 0x00,     //main,  input data varible, absolute
 	0xc0,        //main, end collection
+#else
+	BTP_HID_RPT_USAGE_PAGE(8, 0x0C), //Usage Page(Consumer)
+	BTP_HID_RPT_USAGE(8, 0xA5), //Usage(Consumer Control)
+	BTP_HID_RPT_COLLECTION(8, 0x01),//COLLECTION (Application)
+		BTP_HID_RPT_REPORT_ID       (8, BTP_PTSHID_INPUT_REPORT_ID), //Report ID
+		BTP_HID_RPT_USAGE_MINIMUM   (8, 0x00),  //local, min   0
+	    BTP_HID_RPT_USAGE_MAXIMUM   (16, 0x0224), //local, max    548
+		BTP_HID_RPT_LOGICAL_MINIMUM (8, 0x00),//Logical Minimum (0)
+		BTP_HID_RPT_LOGICAL_MAXIMUM (16, 0x0224),//Logical Maximum (548)
+		BTP_HID_RPT_REPORT_COUNT    (8, 0x02),//report count (2)
+		BTP_HID_RPT_REPORT_SIZE     (8, 0x10),//Report Size (16)
+		BTP_HID_RPT_INPUT			(8, BTP_HID_IOF_DATA | BTP_HID_IOF_ARRAY | BTP_HID_IOF_ABSOLUTE),
+	BTP_HID_RPT_END_COLLECTION(0),//end collection
+	BTP_HID_RPT_COLLECTION(8, 0x01),//COLLECTION (Application)
+		BTP_HID_RPT_REPORT_ID       (8, BTP_PTSHID_OUTPUT_REPORT_ID), //Report ID
+		BTP_HID_RPT_LOGICAL_MINIMUM (8, 0x00),//Logical Minimum (0)
+		BTP_HID_RPT_LOGICAL_MAXIMUM (8, 0xFF),//Logical Maximum (255)
+		BTP_HID_RPT_REPORT_SIZE     (8, 0x08),//Report Size (8)
+		BTP_HID_RPT_REPORT_COUNT    (8, 0x14),//report count (20)
+		BTP_HID_RPT_USAGE           (8, 0x00),//Usgae(Vendor defined)
+		BTP_HID_RPT_OUTPUT			(8, BTP_HID_IOF_DATA | BTP_HID_IOF_ARRAY | BTP_HID_IOF_ABSOLUTE),
+	BTP_HID_RPT_END_COLLECTION(0),//end collection
+	BTP_HID_RPT_COLLECTION(8, 0x01),//COLLECTION (Application)
+		BTP_HID_RPT_REPORT_ID       (8, BTP_PTSHID_FEATURE_REPORT_ID), //Report ID		
+		BTP_HID_RPT_LOGICAL_MINIMUM (8, 0x00),//Logical Minimum (0)
+		BTP_HID_RPT_LOGICAL_MAXIMUM (8, 0xFF),//Logical Maximum (255)
+		BTP_HID_RPT_REPORT_SIZE     (8, 0x08),//Report Size (8)
+		BTP_HID_RPT_REPORT_COUNT    (8, 0x14),//report count (20)
+		BTP_HID_RPT_USAGE           (8, 0x00),//Usgae(Vendor defined)
+		BTP_HID_RPT_FEATURE         (8, BTP_HID_IOF_DATA | BTP_HID_IOF_VARIABLE | BTP_HID_IOF_ABSOLUTE),
+	BTP_HID_RPT_END_COLLECTION(0)//end collection
+#endif
 };
 
-const char gcBtpSdpHidServiceName[]  = "HID device";
-const char gcBtpSdpHidProviderName[] = "TELINK";
-
+#if (TLKBTP_CFG_HID_ENABLE)
 const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
 	// Service Record Handle
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE , BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,BTP_SDP_ATTR_RECORD_HANDLE, (unsigned char *) 0 }, // handle
 	    {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE , BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_32, BTP_SDP_HID_DEV_HANDLE, (unsigned char *) 0 }, // handle
-
     // Service Class ID List
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  (unsigned char *) 0 }, //list begin: sv class
     	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (unsigned char *) 0 }, //list begin: 
     	    {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SRV_CLASS_ID_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_SRVCLASS_ID_HID,  (unsigned char *) 0 },  //list item[0]	
         {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_SRV_CLASS_ID_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },               // list end 
-
     // Protocol Descriptor List	
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_PROTO_DESC_LIST,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (unsigned char *) 0 },  //list begin protocol list
@@ -578,7 +616,6 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
         	    {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UUID, BTP_SDP_DSIZE_16,  BTP_SDP_PROTOCOL_HIDP_UUID,  (unsigned char *) 0 }, //list item[0] UUID = RFCOMM
             {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },					 //list end
         {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },               // list end
-
     // Language Base Attribute ID List
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  (unsigned char *) 0 }, //att id =5
     	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_VAR_16, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  (unsigned char *) 0 }, //list begin: sv class
@@ -586,7 +623,6 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
         	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  106,  (unsigned char *) 0 }, // UTF8
         	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_PRIMARY_LANG_BASE,  (unsigned char *) 0 }, //Attr base
     	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },               // list end
-
     // Additional Protocol Descriptor Lists
     {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_ADD_PROTO_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_ADD_PROTO_DESC_LIST,  (unsigned char *) 0 },
 	    {BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_ADD_PROTO_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (unsigned char *) 0 },  //list begin protocol list
@@ -601,7 +637,6 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
                 {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_ADD_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },
             {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_ADD_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_ADD_PROTO_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },               // list end
-
     // Service Name	"HID device"
     {BTP_SDP_FLAG_ATT, 0x0100 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0100,  (unsigned char *) 0 },                          // service name
 	    {BTP_SDP_FLAG_STR, 0x0100, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *)gcBtpSdpHidServiceName },  // service name string
@@ -611,7 +646,6 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
     // Provider Name (O)
     {BTP_SDP_FLAG_ATT, 0x0102 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0102,  (unsigned char *) 0 },                          // service name
 	    {BTP_SDP_FLAG_STR, 0x0102, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *)gcBtpSdpHidProviderName },  // service name string
-	    
     // Bluetooth Profile Descriptor List
     {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_PROFILE_DESC_LIST,  (unsigned char *) 0 }, //list begin: sv class
         {BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL, 0,  (unsigned char *) 0 },
@@ -620,7 +654,6 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
             	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_PROFILE_DESC_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0101,  (unsigned char *) 0 }, ///list item[0]	
             {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROFILE_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_PROFILE_DESC_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },
-
     // Language Base Attribute ID List	
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  (unsigned char *) 0 }, //att id =5
     	{BTP_SDP_FLAG_ATT_LIST_S, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_VAR_16, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  (unsigned char *) 0 }, //list begin: sv class
@@ -628,56 +661,44 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
         	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  106,  (unsigned char *) 0 }, // UTF8
         	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_PRIMARY_LANG_BASE,  (unsigned char *) 0 }, //Attr base
     	{BTP_SDP_FLAG_ATT_LIST_E, BTP_SDP_ATTR_LANG_BASE_ATTR_ID_LIST, BTP_SDP_DTYPE_NULL, BTP_SDP_DSIZE_NULL,  0,  (unsigned char *) 0 },               // list end
-
     // HID Parser Version
     {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SVCDB_STATE,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_SVCDB_STATE,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_SVCDB_STATE,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0111,  (unsigned char *) 0 },
-
     // HID Device Subclass
     {BTP_SDP_FLAG_ATT, 0x0202 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_DEVICE_SUBCLASS,  (unsigned char *) 0 },
-        {BTP_SDP_FLAG_ATT, 0x0202,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8, 0xc0,  (unsigned char *) 0 },
-
+        {BTP_SDP_FLAG_ATT, 0x0202,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8, scBtpSdpHidSubClass,  (unsigned char *) 0 },
     // HIDCountryCode
     {BTP_SDP_FLAG_ATT, 0x0203 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_COUNTRY_CODE,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT, 0x0203,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8, 0x21,  (unsigned char *) 0 },
-
     // HIDVirtualCable
     {BTP_SDP_FLAG_ATT, 0x0204 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_VIRTUAL_CABLE,  (unsigned char *) 0 },
        	{BTP_SDP_FLAG_ATT, 0x0204,  BTP_SDP_DTYPE_BOOL, BTP_SDP_DSIZE_8, 0x00,  (unsigned char *) 0},
-
-
     // HIDReconnectInitiate
     {BTP_SDP_FLAG_ATT, 0x0205,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_RECONNECT_INITIATE,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT, 0x0205,  BTP_SDP_DTYPE_BOOL, BTP_SDP_DSIZE_8, 0x00,  (unsigned char *) 0 },
-
     // HIDNormallyConnectable
     {BTP_SDP_FLAG_ATT, 0x0205 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_NORMALLY_CONNECTABLE,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT, 0x0205 ,  BTP_SDP_DTYPE_BOOL, BTP_SDP_DSIZE_8, TRUE,  (unsigned char *) 0 },
-	
     // HIDSDPDISABLE
     {BTP_SDP_FLAG_ATT, 0x0205 ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_SDP_DISABLE,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT, 0x0205 ,  BTP_SDP_DTYPE_BOOL, BTP_SDP_DSIZE_8, FALSE,  (unsigned char *) 0 },
-
     // HIDDescriptorList
     {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_DESCRIPTOR_LIST,  (unsigned char *) 0 },
-        {BTP_SDP_FLAG_ATT, 0x0206 ,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  sizeof(gcBtpSdpHidDescList) + 6,  (unsigned char *) 0 },
-            {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  sizeof(gcBtpSdpHidDescList) + 4,  (unsigned char *) 0 },
+        {BTP_SDP_FLAG_ATT, 0x0206 ,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  sizeof(gcBtpSdpHidReportMap) + 6,  (unsigned char *) 0 },
+            {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  sizeof(gcBtpSdpHidReportMap) + 4,  (unsigned char *) 0 },
     	    {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8,  0x22,  (unsigned char *) 0 },   // HID REPORT descriptor
-    	    {BTP_SDP_FLAG_HID_DES, 0x0206,  BTP_SDP_DTYPE_STRING, sizeof(gcBtpSdpHidDescList),  0x00,  (unsigned char *) gcBtpSdpHidDescList},
-
+    	    {BTP_SDP_FLAG_HID_DES, 0x0206,  BTP_SDP_DTYPE_STRING, sizeof(gcBtpSdpHidReportMap),  0x00,  (unsigned char *) gcBtpSdpHidReportMap},
     // HIDLANGIDBaseList
     {BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_LANG_ID_BASE_LIST,  (unsigned char *) 0 },
     	{BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  0x08,  (unsigned char *) 0 },
         	{BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  0x06,  (unsigned char *) 0 },
         		{BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0409,  (unsigned char *) 0 },
         		{BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  0x0100,  (unsigned char *) 0 },
-    	    
-	    
     // HIDBootDevice
     {BTP_SDP_FLAG_ATT, 0x020e ,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_BOOT_DEVICE,  (unsigned char *) 0 },
         {BTP_SDP_FLAG_ATT, 0x020e,  BTP_SDP_DTYPE_BOOL, BTP_SDP_DSIZE_8,  0x00,  (unsigned char *) 0 },
 };
-
+#endif
 
 const btp_sdp_serviceItem_t gcBtpServiceDiscoverItem[] = {
 	{BTP_SDP_FLAG_ATT, BTP_SDP_ATTR_RECORD_HANDLE, BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16, BTP_SDP_ATTR_RECORD_HANDLE, (unsigned char *) 0 }, // handle
@@ -896,10 +917,15 @@ const btp_sdp_serviceItem_t gcBtpSdpAttItem[] = {
 
 // Note: BTP_SDP_BUFFER_SIZE.
 const btp_sdp_serviceList_t scBthSdpServiceList[BTP_SDP_SRV_MAX_NUMB] = {
+	#if (TLKBTP_CFG_HIDD_ENABLE)
+	{BTP_SDP_PNP_INFO_HANDLE, sizeof(gcBthSdpPnpInfoItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBthSdpPnpInfoItem},	
+	{BTP_SDP_HID_DEV_HANDLE, sizeof(gcBtpSdpHidItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBtpSdpHidItem},
+	#endif
+	
 	#if (TLKBTP_CFG_SPP_ENABLE)
 	{BTP_SDP_SPP_HANDLE, sizeof(gcBthSdpSppItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBthSdpSppItem},
 	#endif
-
+	
 	#if (TLKBTP_CFG_HFPHF_ENABLE)
 	{BTP_SDP_HFP_HF_HANDLE, sizeof(gcBthSdpHfpHfItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBthSdpHfpHfItem},
 	#endif
@@ -921,17 +947,14 @@ const btp_sdp_serviceList_t scBthSdpServiceList[BTP_SDP_SRV_MAX_NUMB] = {
 	#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
 	{BTP_SDP_BROWSE_GROUP_HANDLE, sizeof(gcBtpBrowseGroupServiceItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBtpBrowseGroupServiceItem},
 	#endif
-
-	#if TLK_CFG_PTS_ENABLE
+	
+	#if TLKBTP_CFG_PTSSDP_ENABLE
 	{BTP_SDP_SERVICE_HANDLE, sizeof(gcBtpServiceDiscoverItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBtpServiceDiscoverItem},
 	#endif
 	#if (TLKBTP_CFG_IAP_ENABLE)
 	{BTP_SDP_IAP_HANDLE, sizeof(gcBtpIap2ServiceItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBtpIap2ServiceItem},
 	#endif
-
-	#if (TLKBTP_CFG_HIDD_ENABLE)
-	{BTP_SDP_HID_DEV_HANDLE, sizeof(gcBtpSdpHidItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBtpSdpHidItem},
-	#endif
+		
 	#if (TLKBTP_CFG_ATTSRV_ENABLE)
 	{BTP_SDP_ATT_HANDLE, sizeof(gcBtpSdpAttItem)/sizeof(btp_sdp_serviceItem_t), (btp_sdp_serviceItem_t *)gcBtpSdpAttItem},
 	#endif

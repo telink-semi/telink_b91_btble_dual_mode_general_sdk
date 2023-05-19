@@ -116,7 +116,7 @@ int tlkdrv_serial_unmount(uint08 port)
 			"tlkdrv_serial_unmount: failure-ErrorParam {port[%d]}", port);
 		return -TLK_EPARAM;
 	}
-	if((sTlkDrvSerial.flags[port] & TLKDRV_SERIAL_FLAG_OPEN) != 0){
+	if((sTlkDrvSerial.flags[port] & TLKDRV_SERIAL_FLAG_OPEN) == 0){
 		tlkapi_error(TLKDRV_SERIAL_DBG_FLAG, TLKDRV_SERIAL_DBG_SIGN,
 			"tlkdrv_serial_unmount: failure-ErrorStatus {Closed}");
 		return -TLK_ESTATUS;
@@ -676,6 +676,7 @@ int tlkdrv_serial_read(uint08 port, uint08 *pBuff, uint16 buffLen)
 _attribute_ram_code_sec_noinline_
 int tlkdrv_serial_send(uint08 port, uint08 *pData, uint16 dataLen)
 {
+	int ret;
 	uint16 flags;
 	
 	if(port >= TLKDRV_SERIAL_MAX_NUMB || pData == nullptr || dataLen == 0){
@@ -686,12 +687,15 @@ int tlkdrv_serial_send(uint08 port, uint08 *pData, uint16 dataLen)
 	if((flags & TLKDRV_SERIAL_FLAG_OPEN) == 0 || (flags & TLKDRV_SERIAL_FLAG_SEND) == 0){
 		return -TLK_ENOREADY;
 	} 
-	
+
+	core_enter_critical();
 	if((flags & TLKDRV_SERIAL_FLAG_TX_DMA) == 0){
-		return tlkdrv_serial_sendWithoutDma(port, pData, dataLen);
+		ret = tlkdrv_serial_sendWithoutDma(port, pData, dataLen);
 	}else{
-		return tlkdrv_serial_sendWithDma(port, pData, dataLen);
+		ret = tlkdrv_serial_sendWithDma(port, pData, dataLen);
 	}
+	core_leave_critical();
+	return ret;
 }
 _attribute_ram_code_sec_noinline_
 static int tlkdrv_serial_sendWithDma(uint08 port, uint08 *pData, uint16 dataLen)

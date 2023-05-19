@@ -27,14 +27,23 @@
 
 
 #define TLK_CONFIG_INFO_SIGN        0x3C
-#define TLK_CONFIG_INFO_VERS        0x01
+#define TLK_CONFIG_INFO_VERS        0x02
 #define TLK_CONFIG_INFO_ADDR        TLK_CFG_FLASH_SYS_CONFIG_ADDR
 #define TLK_CONFIG_INFO_SIZE        16
 
 
+#define TLK_CONFIG_WORK_MODE_OFFSET		0
+#define TLK_CONFIG_WORK_MODE_LENGTH		1
+#define TLK_CONFIG_USB_MODE_OFFSET		TLK_CONFIG_WORK_MODE_OFFSET + TLK_CONFIG_WORK_MODE_LENGTH
+#define TLK_CONFIG_USB_MODE_LENGTH		1
+#define TLK_CONFIG_BAUDRATE_OFFSET		TLK_CONFIG_USB_MODE_OFFSET + TLK_CONFIG_USB_MODE_LENGTH
+#define TLK_CONFIG_BAUDRATE_LENGTH		4
+
+
+
 static uint08 sTlkWorkMode = TLK_WORK_MODE_NORMAL;
 static uint08 sTlkUsbMode = 0;//TLKUSB_MODTYPE_ENUM
-static uint32 sTlkSerialBaudrate;
+static uint32 sTlkSerialBaudrate = 0xFFFFFFFF;
 static tlkapi_save_ctrl_t sTlkConfigSave;
 
 
@@ -46,6 +55,13 @@ int tlkcfg_load(void)
 	tlkapi_save2_init(&sTlkConfigSave, TLK_CONFIG_INFO_SIGN, TLK_CONFIG_INFO_VERS,
 		TLK_CONFIG_INFO_SIZE, TLK_CONFIG_INFO_ADDR);
 	if(tlkapi_save2_load(&sTlkConfigSave, buffer, TLK_CONFIG_INFO_SIZE) <= 0){
+		buffer[TLK_CONFIG_WORK_MODE_OFFSET] = sTlkWorkMode;
+		buffer[TLK_CONFIG_USB_MODE_OFFSET] = sTlkUsbMode;
+		buffer[TLK_CONFIG_BAUDRATE_OFFSET] = (sTlkSerialBaudrate & 0xFF000000) >> 24;
+		buffer[TLK_CONFIG_BAUDRATE_OFFSET+1] = (sTlkSerialBaudrate & 0xFF0000) >> 16;
+		buffer[TLK_CONFIG_BAUDRATE_OFFSET+2] = (sTlkSerialBaudrate & 0xFF00) >> 8;
+		buffer[TLK_CONFIG_BAUDRATE_OFFSET+3] = (sTlkSerialBaudrate & 0xFF);
+		tlkapi_save2_save(&sTlkConfigSave, buffer, TLK_CONFIG_INFO_SIZE);
 		return TLK_ENONE;
 	}
 	#if (TLK_CFG_TEST_ENABLE)
@@ -61,6 +77,7 @@ int tlkcfg_load(void)
 	#endif
 	
 	#if (TLK_DEV_SERIAL_ENABLE)
+	sTlkSerialBaudrate = 0;
 	sTlkSerialBaudrate |= ((buffer[2] & 0xFF) << 24);
 	sTlkSerialBaudrate |= ((buffer[3] & 0xFF) << 16);
 	sTlkSerialBaudrate |= ((buffer[4] & 0xFF) << 8);
@@ -125,6 +142,8 @@ void tlkcfg_setSerialBaudrate(uint32 baudrate)
 	buffer[4] = (sTlkSerialBaudrate & 0xFF00) >> 8;
 	buffer[5] = (sTlkSerialBaudrate & 0xFF);
 	tlkapi_save2_save(&sTlkConfigSave, buffer, TLK_CONFIG_INFO_SIZE);
-	
 	#endif//#if (TLK_DEV_SERIAL_ENABLE)
 }
+
+
+

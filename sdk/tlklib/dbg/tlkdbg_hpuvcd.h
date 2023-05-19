@@ -29,8 +29,22 @@
 //HPU - Hardware Protocol UART
 
 
-#define TLKDBG_HPU_VCD_BUFFER_SIZE       1024
+#define TLKDBG_HPU_VCD_BUFFER_SIZE       2048
 #define TLKDBG_HPU_VCD_CACHE_SIZE        64
+
+#define TLKDBG_HPU_VCD_HEAD_SIGN         0xFA
+#define TLKDBG_HPU_VCD_ESCAPE_SIGN       0xFD
+
+
+typedef enum{
+	TLKDBG_HPU_VCD_TYPE_SYNC = 0, //None ID
+	TLKDBG_HPU_VCD_TYPE_TICK, //id=1~255
+	TLKDBG_HPU_VCD_TYPE_EVENT, //id=0~255
+	TLKDBG_HPU_VCD_TYPE_LEVEL, //id=0~127
+	TLKDBG_HPU_VCD_TYPE_BYTE, //id=0~255
+	TLKDBG_HPU_VCD_TYPE_WORD, //id=0~255
+	TLKDBG_HPU_VCD_TYPE_MAX,
+}TLKDBG_HPU_VCD_TYPE_ENUM;
 
 
 void tlkdbg_hpuvcd_init(void);
@@ -38,8 +52,7 @@ void tlkdbg_hpuvcd_reset(void);
 bool tlkdbg_hpuvcd_isBusy(void);
 void tlkdbg_hpuvcd_handler(void);
 
-void tlkdbg_hpuvcd_ref(void);
-void tlkdbg_hpuvcd_sync(bool enable);
+void tlkdbg_hpuvcd_sync(void);
 void tlkdbg_hpuvcd_tick(uint08 id);
 void tlkdbg_hpuvcd_level(uint08 id, uint08 level);
 void tlkdbg_hpuvcd_event(uint08 id);
