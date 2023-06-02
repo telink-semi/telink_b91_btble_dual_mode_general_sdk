@@ -138,10 +138,14 @@ static int tlkmdi_audsnk_avrcpStatusChangedEvt(uint08 *pData, uint16 dataLen)
 	pEvt = (btp_avrcpStatusChangeEvt_t*)pData;
 	if(!pEvt->isNoty) return TLK_ENONE;
 	if(pEvt->status == BTP_AVRCP_PLAY_STATE_PLAYING){
-		tlkmdi_audio_sendStartEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
+		if(!sTlkMdiSnkCtrl.enable){
+			tlkmdi_audio_sendStartEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
+		}
 	}else if(pEvt->status == BTP_AVRCP_PLAY_STATE_PAUSED || pEvt->status == BTP_AVRCP_PLAY_STATE_STOPPED){
-		tlkmdi_audsnk_switch(pEvt->handle, TLK_STATE_CLOSED);
-		tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
+		if(sTlkMdiSnkCtrl.enable){
+			tlkmdi_audsnk_switch(pEvt->handle, TLK_STATE_CLOSED);
+			tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_SNK, pEvt->handle);
+		}
 	}
 	return TLK_ENONE;
 }
@@ -166,6 +170,9 @@ void tlkmdi_audsnk_timer(void)
 {
 	if(sTlkMdiSnkCtrl.enable && sTlkMdiSnkCtrl.runTimer != 0 
 		&& clock_time_exceed(sTlkMdiSnkCtrl.runTimer, 3000000)){
+		sTlkMdiSnkCtrl.enable = false;
+		sTlkMdiSnkCtrl.runTimer = 0;
+		tlkapi_trace(TLKMDI_AUDSNK_DBG_FLAG, TLKMDI_AUDSNK_DBG_SIGN, "tlkmdi_audsnk_timer: timeout");
 		tlkmdi_audsnk_close(sTlkMdiSnkCtrl.handle);
 	}
 }

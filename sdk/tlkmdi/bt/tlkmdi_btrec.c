@@ -32,8 +32,8 @@
 #include "tlkstk/hci/hci_cmd.h"
 
 
-extern uint8_t bt_ll_access_write_page_scan_activity(pagescan_inr_t interval, pagescan_win_t window);
-extern uint8_t bt_ll_access_write_inquiry_scan_activity(inqscan_inr_t interval, inqscan_win_t window);
+extern uint8_t btc_pscan_setSchParam(pagescan_inr_t interval, pagescan_win_t window);
+extern uint8_t btc_iscan_setSchParam(inqscan_inr_t interval, inqscan_win_t window);
 
 #define TLKMDI_BTREC_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_REC << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_BTREC_DBG_SIGN       "[MDI]"
@@ -494,8 +494,8 @@ static void tlkmdi_btrec_scanProc(tlkmdi_btrec_t *pCtrl)
 {
 	if(pCtrl->stage == TLKMDI_BTREC_STAGE_SCAN_START){
 		if(bth_hci_sendWriteScanEnableCmd(sTlkMdiBtRecCtrl.scanMode) == TLK_ENONE){
-			bt_ll_access_write_page_scan_activity(128, 32);
-			bt_ll_access_write_inquiry_scan_activity(128, 32);
+			btc_pscan_setSchParam(128, 32);
+			btc_iscan_setSchParam(128, 32);
 			pCtrl->stage = TLKMDI_BTREC_STAGE_SCAN_WAIT0;
 			pCtrl->timeout = pCtrl->scanTime+pCtrl->scanStep*pCtrl->scanCount;
 			pCtrl->scanCount ++;

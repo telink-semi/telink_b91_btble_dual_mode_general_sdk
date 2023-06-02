@@ -65,7 +65,7 @@ int		hci_le_encryptChange_evt(u16 connhandle,  u8 encrypt_en);
 int		hci_le_encryptKeyRefresh_evt(u16 connhandle);
 int		hci_remoteNateReqComplete_evt (u8* bd_addr);
 int     hci_readRemoteVerInfoCmpEvt(u8 status, u16 connHandle, u8 version, u16 manuName, u16 supVersion);
-
+int 	hci_sendCmdComplete_evt(u8 numHciCmds, u8 opCode_ocf, u8 opCode_ogf, u8 paraLen, u8 *para);
 #endif /* HCI_EVENT_H_ */
 
 

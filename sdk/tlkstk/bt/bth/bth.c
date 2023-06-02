@@ -159,14 +159,14 @@ int bth_sendEnterSleepCmd(void)
 	pHandle = bth_handle_getFirstConnAcl();
 	if(pHandle == nullptr) return -TLK_ENOOBJECT;
 	if(pHandle->curMode == BTH_LM_SNIFF_MODE || pHandle->curRole == BTH_ROLE_MASTER){
-		return TLK_ENONE;
+		return -TLK_EROLE;
 	}
 	if(sBthSniffSendTimer != 0 && !clock_time_exceed(sBthSniffSendTimer, 1*1000*1000)){
-		return TLK_ENONE;
+		return -TLK_EBUSY;
 	}
 	
-	if(pHandle->state == TLK_STATE_DISCING) return;
-	if(pHandle->curMode == BTH_LM_ACTIVE_MODE && (pHandle->setPolicy & HCI_LP_ENABLE_SNIFF_MODE_MASK) != 0){
+	if(pHandle->state == TLK_STATE_DISCING) return -TLK_ESTATUS;
+	if(pHandle->curMode == BTH_LM_ACTIVE_MODE && (pHandle->curPolicy & HCI_LP_ENABLE_SNIFF_MODE_MASK) != 0){
 		int ret = bth_hci_sendSniffModeCmd(pHandle->aclHandle, HCI_CFG_SNIFF_MAX_INTERVAL,
 			HCI_CFG_SNIFF_MIN_INTERVAL, HCI_CFG_SNIFF_ATTEMPT, HCI_CFG_SNIFF_TIMEOUT);
 		if(ret == TLK_ENONE) sBthSniffSendTimer = clock_time() | 1;
@@ -181,10 +181,10 @@ int bth_sendLeaveSleepCmd(void)
 	pHandle = bth_handle_getFirstConnAcl();
 	if(pHandle == nullptr) return -TLK_ENOOBJECT;
 	if(pHandle->curMode == BTH_LM_ACTIVE_MODE){
-		return TLK_ENONE;
+		return -TLK_ESTATUS;
 	}
 	if(sBthSniffSendTimer != 0 && !clock_time_exceed(sBthSniffSendTimer, 1*1000*1000)){
-		return TLK_ENONE;
+		return -TLK_EBUSY;
 	}
 	if(pHandle->curMode == BTH_LM_SNIFF_MODE){
 		int ret = bth_hci_sendExitSniffModeCmd(pHandle->aclHandle);

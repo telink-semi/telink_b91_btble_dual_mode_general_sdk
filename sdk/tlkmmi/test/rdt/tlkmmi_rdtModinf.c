@@ -31,14 +31,33 @@
 			extern const tlkmmi_rdtModinf_t gTlkMmiRdtT##caseID##Inf
 #define TLKMMI_RDT_MODULE_CALL(caseID)       \
 			&gTlkMmiRdtT##caseID##Inf
+#if (TLKMMI_RDT_CASE_T001_ENABLE)
 TLKMMI_RDT_MODULE_EXT(001);
+#endif
+#if (TLKMMI_RDT_CASE_T002_ENABLE)
 TLKMMI_RDT_MODULE_EXT(002);
+#endif
+#if (TLKMMI_RDT_CASE_T003_ENABLE)
 TLKMMI_RDT_MODULE_EXT(003);
+#endif
+#if (TLKMMI_RDT_CASE_T005_ENABLE)
+TLKMMI_RDT_MODULE_EXT(005);
+#endif
 static const tlkmmi_rdtModinf_t *sTlkMmiRdtTestModule[] =
 {
+	nullptr,
+	#if (TLKMMI_RDT_CASE_T001_ENABLE)
 	TLKMMI_RDT_MODULE_CALL(001),
+	#endif
+	#if (TLKMMI_RDT_CASE_T002_ENABLE)
 	TLKMMI_RDT_MODULE_CALL(002),
+	#endif
+	#if (TLKMMI_RDT_CASE_T003_ENABLE)
 	TLKMMI_RDT_MODULE_CALL(003),
+	#endif
+	#if (TLKMMI_RDT_CASE_T005_ENABLE)
+	TLKMMI_RDT_MODULE_CALL(005),
+	#endif
 };
 static const tlkmmi_rdtModinf_t *tlkmmi_rdt_getModinf(uint caseID);
 

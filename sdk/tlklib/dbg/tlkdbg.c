@@ -188,7 +188,7 @@ void tlkdbg_handler(void)
 }
 
 _attribute_noinline_
-void tlkdbg_warn(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
+void tlkdbg_warn(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_WARN)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -212,7 +212,7 @@ void tlkdbg_warn(uint flags, char *pSign, char *fileName, uint lineNumb, const c
 	va_end(args);
 }
 _attribute_noinline_
-void tlkdbg_info(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
+void tlkdbg_info(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_INFO)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -236,7 +236,7 @@ void tlkdbg_info(uint flags, char *pSign, char *fileName, uint lineNumb, const c
 	va_end(args);
 }
 _attribute_noinline_
-void tlkdbg_trace(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
+void tlkdbg_trace(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_TRACE)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -260,7 +260,7 @@ void tlkdbg_trace(uint flags, char *pSign, char *fileName, uint lineNumb, const 
 	va_end(args);
 }
 _attribute_noinline_
-void tlkdbg_fatal(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
+void tlkdbg_fatal(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_FATAL)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -284,7 +284,7 @@ void tlkdbg_fatal(uint flags, char *pSign, char *fileName, uint lineNumb, const 
 	va_end(args);
 }
 _attribute_noinline_
-void tlkdbg_error(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
+void tlkdbg_error(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ERROR)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -308,7 +308,7 @@ void tlkdbg_error(uint flags, char *pSign, char *fileName, uint lineNumb, const 
 	va_end(args);
 }
 _attribute_noinline_
-void tlkdbg_array(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
+void tlkdbg_array(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ARRAY)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -329,7 +329,7 @@ void tlkdbg_array(uint flags, char *pSign, char *fileName, uint lineNumb, const 
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
+void tlkdbg_assert(bool isAssert, uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ASSERT)) return;
 	if(!isAssert) return;
@@ -354,7 +354,7 @@ void tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint 
 }
 
 _attribute_noinline_
-void tlkdbg_warn1(uint flags, char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
+void tlkdbg_warn1(uint32 flags, char *pSign, char *pHead, char *fileName, uint lineNumb, const char *format, va_list args)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_WARN)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -375,7 +375,7 @@ void tlkdbg_warn1(uint flags, char *pSign, char *pHead, char *fileName, uint lin
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_info1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+void tlkdbg_info1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_INFO)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -396,7 +396,7 @@ void tlkdbg_info1(uint flags, char *pSign, char *fileName, uint lineNumb, const 
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_trace1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+void tlkdbg_trace1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_TRACE)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -417,7 +417,7 @@ void tlkdbg_trace1(uint flags, char *pSign, char *fileName, uint lineNumb, const
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_fatal1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+void tlkdbg_fatal1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_FATAL)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -438,7 +438,7 @@ void tlkdbg_fatal1(uint flags, char *pSign, char *fileName, uint lineNumb, const
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_error1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+void tlkdbg_error1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ERROR)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -459,7 +459,7 @@ void tlkdbg_error1(uint flags, char *pSign, char *fileName, uint lineNumb, const
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_array1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
+void tlkdbg_array1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ARRAY)) return;
 	if(pSign == nullptr) pSign = tlk_debug_getDbgSign(flags);
@@ -480,7 +480,7 @@ void tlkdbg_array1(uint flags, char *pSign, char *fileName, uint lineNumb, const
 	#endif
 }
 _attribute_noinline_
-void tlkdbg_assert1(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
+void tlkdbg_assert1(bool isAssert, uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args)
 {
 	if(!tlk_debug_dbgIsEnable(flags, TLK_DEBUG_DBG_FLAG_ASSERT)) return;
 	if(!isAssert) return;
@@ -503,7 +503,7 @@ void tlkdbg_assert1(bool isAssert, uint flags, char *pSign, char *fileName, uint
 
 
 _attribute_ram_code_sec_noinline_ 
-void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3)
+void tlkdbg_sendU08s(uint32 flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3)
 {
 	if(!tlk_debug_dbgIsEnable1(flags)) return;
 	#if (TLKDBG_CFG_USB_LOG_ENABLE)
@@ -520,7 +520,7 @@ void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 va
 	#endif
 }
 _attribute_ram_code_sec_noinline_ 
-void tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3)
+void tlkdbg_sendU16s(uint32 flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3)
 {
 	if(!tlk_debug_dbgIsEnable1(flags)) return;
 	#if (TLKDBG_CFG_USB_LOG_ENABLE)
@@ -537,7 +537,7 @@ void tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 va
 	#endif
 }
 _attribute_ram_code_sec_noinline_ 
-void tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3)
+void tlkdbg_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3)
 {
 	if(!tlk_debug_dbgIsEnable1(flags)) return;
 	#if (TLKDBG_CFG_USB_LOG_ENABLE)
@@ -554,7 +554,7 @@ void tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 va
 	#endif
 }
 _attribute_ram_code_sec_noinline_
-void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen)
+void tlkdbg_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen)
 {
 	if(!tlk_debug_dbgIsEnable1(flags)) return;
 	#if (TLKDBG_CFG_USB_LOG_ENABLE)
@@ -591,7 +591,7 @@ void tlkdbg_vcd_sync(void)
 }
 //4-byte (001_id-5bits) id0: timestamp align with hardware gpio output; id1-31: user define
 _attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_tick(uint flags, uint08 id)
+void tlkdbg_vcd_tick(uint32 flags, uint08 id)
 {
 	if(!tlk_debug_vcdIsEnable(flags)) return;
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)
@@ -609,7 +609,7 @@ void tlkdbg_vcd_tick(uint flags, uint08 id)
 }
 //1-byte (01x_id-5bits) 1-bit data: b=0 or 1.
 _attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_level(uint flags, uint08 id, uint08 level)
+void tlkdbg_vcd_level(uint32 flags, uint08 id, uint08 level)
 {
 	if(!tlk_debug_vcdIsEnable(flags)) return;
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)
@@ -627,7 +627,7 @@ void tlkdbg_vcd_level(uint flags, uint08 id, uint08 level)
 }
 //1-byte (000_id-5bits)
 _attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_event(uint flags, uint08 id)
+void tlkdbg_vcd_event(uint32 flags, uint08 id)
 {
 	if(!tlk_debug_vcdIsEnable(flags)) return;
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)
@@ -645,7 +645,7 @@ void tlkdbg_vcd_event(uint flags, uint08 id)
 }
 //2-byte (10-id-6bits) 8-bit data
 _attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_byte(uint flags, uint08 id, uint08 value)
+void tlkdbg_vcd_byte(uint32 flags, uint08 id, uint08 value)
 {
 	if(!tlk_debug_vcdIsEnable(flags)) return;
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)
@@ -663,7 +663,7 @@ void tlkdbg_vcd_byte(uint flags, uint08 id, uint08 value)
 }
 //3-byte (11-id-6bits) 16-bit data
 _attribute_ram_code_sec_noinline_
-void tlkdbg_vcd_word(uint flags, uint08 id, uint16 value)
+void tlkdbg_vcd_word(uint32 flags, uint08 id, uint16 value)
 {
 	if(!tlk_debug_vcdIsEnable(flags)) return;
 	#if (TLKDBG_CFG_USB_VCD_ENABLE)

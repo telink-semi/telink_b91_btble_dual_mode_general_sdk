@@ -50,13 +50,8 @@ T005
 功能：
 	校验Profile连接超时
 角色：
-	1. DUT - 处于InquiryScan和PageScan模式，负责与AUT1和AUT2建立连接
-	2. AUT1 - 连接DUT，建立SPP等Profile连接，发送spp数据
-	3. AUT2 - 连接DUT，建立SPP等Profile连接，发送spp数据
+	1. DUT - 发起Page连接手机；
 注意：
-	1. DUT只能与AUT1建立连接；
-	2. DUT可以向AUT1和AUT2发送SPP数据，可选择发送间隔与发送数据长度；
-	3. AUT1可以向DUT发送数据，数据长度与间隔可配置；
-	4. AUT2可以向DUT发送数据，数据长度与间隔可配置。
+	1. DUT与手机之间反复连接与断连，验证Profile测试失败的问题
 
 

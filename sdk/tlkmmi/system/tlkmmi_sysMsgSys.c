@@ -40,6 +40,7 @@ void tlkcfg_setSerialBaudrate(uint32 baudrate);
 #endif
 extern int bth_hci_sendResetCmd(void);
 extern uint tlkcfg_getWorkMode(void);
+extern void tlkcfg_setSerialBaudrate(uint32 baudrate);
 #if (TLK_CFG_COMM_ENABLE)
 extern void delay_ms(unsigned int millisec);
 extern int tlkmdi_comm_setBaudrate(uint32 baudrate);

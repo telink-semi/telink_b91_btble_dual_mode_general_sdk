@@ -87,9 +87,12 @@ static int tlkmmi_bqb_input(uint08 msgID, uint08 *pData, uint16 dataLen)
 }
 static void tlkmmi_bqb_handler(void)
 {
-
+	#if (TLK_CFG_DBG_ENABLE)
 	tlkdbg_handler();
+	#endif
+	#if (TLK_USB_UDB_ENABLE)
 	tlkusb_handler();
+	#endif
 	tlkstk_handler();
 }
 

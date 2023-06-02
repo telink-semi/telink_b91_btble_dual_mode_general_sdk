@@ -43,7 +43,6 @@
 extern bool tlkstk_pmIsBusy(void);
 extern bool tlkapp_pmIsBusy(void);
 
-extern void btc_context_restore(unsigned long * bt_reg, unsigned long * ip_reg, unsigned long * modem_reg, unsigned long * radio_reg, unsigned long * pdzb_reg);
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
 extern int bth_sendEnterSleepCmd(void);
 extern int bth_sendLeaveSleepCmd(void);
@@ -54,16 +53,6 @@ extern void tlkmdi_btmgr_regAclDisconnCB(TlkMmiBtMgrAclDisconnCallback discCB);
 static void tlkapp_pm_btaclDisconnCb(uint16 handle, uint08 reason, uint08 *pBtAddr);
 static void tlkapp_pm_enterSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
 static void tlkapp_pm_leaveSleepHandler(uint08 evtID, uint08 *pData, int dataLen);
-
-
-
-extern unsigned long  DEBUG_BTREG_INIT[];
-extern unsigned long  DEBUG_IPREG_INIT[];
-extern unsigned long  DEBUG_TL_MODEMREG_INIT[];
-extern unsigned long  DEBUG_TL_RADIOREG_INIT[];
-extern unsigned long  DEBUG_TL_PDZB_INIT[];
-
-
 
 static uint08 sTlkAppPmState = TLKAPP_PM_STATE_IDLE;
 static uint08 gTlkAppPmSchIdleCount = 0;
@@ -137,7 +126,7 @@ void tlkapp_pm_handler(void)
 		if(gTlkAppPmSysIdleTimer != 0 && clock_time_exceed(gTlkAppPmSysIdleTimer, 1000000)){
 			gTlkAppPmSysIdleTimer =  0;
 		}else{
-			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE, NULL);
+			btc_pscan_low_power_enable(PSCAN_LOW_POWER_ENABLE);
 			btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
 			btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
 			btble_pm_setWakeupSource(PM_WAKEUP_PAD);

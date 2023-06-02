@@ -14,7 +14,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="elf" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748" name="_TLKAPP_GENERAL_" parent="config.nds.base" postannouncebuildStep="&quot;${workspace_loc:/${ProjName}}/bin_pro.bat&quot; _proj_tws_" postbuildStep="&quot;${workspace_loc:/${ProjName}}/build_lib.sh&quot; tws">
+				<configuration artifactExtension="elf" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748" name="_TLKAPP_GENERAL_" parent="config.nds.base" postannouncebuildStep="&quot;${workspace_loc:/${ProjName}}/bin_pro.bat&quot; _proj_tws_" postbuildStep="">
 					<folderInfo id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748." name="/" resourcePath="">
 						<toolChain id="nds.nds32le-elf-mculib-v5f.base.784347994" name="nds32le-elf-mculib-v5f" superClass="nds.nds32le-elf-mculib-v5f.base">
 							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU.1366997800" name="CPU" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU"/>
@@ -123,7 +123,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="elf" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472" name="_TLKAPP_CONTROLLER_" parent="config.nds.base" postbuildStep="&quot;${workspace_loc:/${ProjName}}/build_lib.sh&quot; sw_nolog">
+				<configuration artifactExtension="elf" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472" name="_TLKAPP_CONTROLLER_" parent="config.nds.base" postbuildStep="">
 					<folderInfo id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472." name="/" resourcePath="">
 						<toolChain id="nds.nds32le-elf-mculib-v5f.base.1131516750" name="nds32le-elf-mculib-v5f" superClass="nds.nds32le-elf-mculib-v5f.base">
 							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU.1682634984" name="CPU" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU"/>
@@ -234,7 +234,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="adx" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.72670464" name="_TLKAPP_BOOTLOADER_" parent="config.nds.base" postannouncebuildStep="&quot;${workspace_loc:/${ProjName}}/bin_pro.bat&quot; _proj_tws_" postbuildStep="&quot;${workspace_loc:/${ProjName}}/build_lib.sh&quot; tws" preannouncebuildStep="" prebuildStep="">
+				<configuration artifactExtension="adx" artifactName="${ConfigName}" buildArtefactType="nds.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=nds.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GCCErrorParser" id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.72670464" name="_TLKAPP_BOOTLOADER_" parent="config.nds.base" postannouncebuildStep="&quot;${workspace_loc:/${ProjName}}/bin_pro.bat&quot; _proj_tws_" postbuildStep="" preannouncebuildStep="" prebuildStep="">
 					<folderInfo id="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.72670464." name="/" resourcePath="">
 						<toolChain errorParsers="" id="nds.nds32le-elf-mculib-v5f.base.531478888" name="nds32le-elf-mculib-v5f" superClass="nds.nds32le-elf-mculib-v5f.base">
 							<option id="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU.136130696" name="CPU" superClass="nds32le-elf-mculib-v5f.managedbuild.option.toolchain.NDS_CPU"/>
@@ -269,6 +269,7 @@
 								<option id="nds.c.compiler.option.include.paths.324479535" name="Include paths (-I)" superClass="nds.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/core}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/common}&quot;"/>
 								</option>
 								<option id="nds.c.compiler.option.preprocessor.def.symbols.114396425" name="Defined symbols (-D)" superClass="nds.c.compiler.option.preprocessor.def.symbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TLKAPP_BOOTLOADER_ENABLE=1"/>
@@ -535,31 +536,19 @@
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.2020679633;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.2020679633.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1128108808;tool.nds.c.compiler.input.1870012195">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1525166367;tool.nds.c.compiler.input.573949083">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1671662551;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1671662551.;tool.nds32le-elf-mculib-v5d.c.compiler.base.742526823;tool.nds.c.compiler.input.1395204684">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.995258630;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.995258630.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1053228126;tool.nds.c.compiler.input.1099351291">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.;tool.nds32le-elf-mculib-v5f.c.compiler.base.412106098;tool.nds.c.compiler.input.696816268">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.72670464;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.72670464.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1794142884;tool.nds.c.compiler.input.57304666">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160.648168514;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160.648168514.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1738657660;tool.nds.c.compiler.input.1569598505">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.689725543;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.689725543.;tool.nds32le-elf-mculib-v5f.c.compiler.base.210797067;tool.nds.c.compiler.input.2131164529">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967.;tool.nds32le-elf-mculib-v5f.c.compiler.base.211134946;tool.nds.c.compiler.input.793518103">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2083617856;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2083617856.;tool.nds32le-elf-mculib-v5f.c.compiler.base.87897889;tool.nds.c.compiler.input.887143446">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.;tool.nds32le-elf-mculib-v5f.c.compiler.base.553227572;tool.nds.c.compiler.input.2140068076">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.;tool.nds32le-elf-mculib-v5f.c.compiler.base.298376409;tool.nds.c.compiler.input.743101493">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.;tool.nds32le-elf-mculib-v5.c.compiler.base.1807951896;tool.nds.c.compiler.input.310277736">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2139162425;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2139162425.;tool.nds32le-elf-mculib-v5f.c.compiler.base.580804919;tool.nds.c.compiler.input.186684758">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.1306742568;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.1306742568.;tool.nds32le-elf-mculib-v5f.c.compiler.base.229248769;tool.nds.c.compiler.input.489347737">
@@ -568,76 +557,91 @@
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847;config.nds32le-elf-mculib-v5.exe.debug.28004847.;tool.nds32le-elf-mculib-v5.c.compiler.exe.debug.1236476430;tool.nds.c.compiler.input.1069150705">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575.1534805473;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575.1534805473.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1041290326;tool.nds.c.compiler.input.333439086">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.;tool.nds32le-elf-mculib-v5f.c.compiler.base.115169990;tool.nds.c.compiler.input.76490958">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1426057703;tool.nds.c.compiler.input.897417504">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1853339969;tool.nds.c.compiler.input.718256125">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.594266050;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.594266050.;tool.nds32le-elf-mculib-v5.c.compiler.base.1313797387;tool.nds.c.compiler.input.102340701">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1488858267;tool.nds.c.compiler.input.1748801649">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1525166367;tool.nds.c.compiler.input.573949083">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.1823933266;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.1823933266.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1355293371;tool.nds.c.compiler.input.1052112360">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.2012279723;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.2012279723.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1313335164;tool.nds.c.compiler.input.261845482">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967.974079768;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967.974079768.;tool.nds32le-elf-mculib-v5f.c.compiler.base.419094357;tool.nds.c.compiler.input.2079881004">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2139162425;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2139162425.;tool.nds32le-elf-mculib-v5f.c.compiler.base.580804919;tool.nds.c.compiler.input.186684758">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.689725543;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.689725543.;tool.nds32le-elf-mculib-v5f.c.compiler.base.210797067;tool.nds.c.compiler.input.2131164529">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.1953345297;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.1953345297.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1395815336;tool.nds.c.compiler.input.1021130028">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1853339969;tool.nds.c.compiler.input.718256125">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1488858267;tool.nds.c.compiler.input.1748801649">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.2012279723;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.2012279723.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1313335164;tool.nds.c.compiler.input.261845482">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.;tool.nds32le-elf-mculib-v5.c.compiler.base.1807951896;tool.nds.c.compiler.input.310277736">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967.974079768;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967.974079768.;tool.nds32le-elf-mculib-v5f.c.compiler.base.419094357;tool.nds.c.compiler.input.2079881004">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1518596258;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1518596258.;tool.nds32le-elf-mculib-v5.c.compiler.base.465888340;tool.nds.c.compiler.input.289146583">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.release.1307062052;config.nds32le-elf-mculib-v5.exe.release.1307062052.;tool.nds32le-elf-mculib-v5.c.compiler.exe.release.823462875;tool.nds.c.compiler.input.1275702147">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.1823933266;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.1823933266.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1355293371;tool.nds.c.compiler.input.1052112360">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.;tool.nds32le-elf-mculib-v5.c.compiler.base.354113725;tool.nds.c.compiler.input.1556502911">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.;tool.nds32le-elf-mculib-v5f.c.compiler.base.298376409;tool.nds.c.compiler.input.743101493">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1426057703;tool.nds.c.compiler.input.897417504">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2083617856;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.2083617856.;tool.nds32le-elf-mculib-v5f.c.compiler.base.87897889;tool.nds.c.compiler.input.887143446">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.594266050;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.594266050.;tool.nds32le-elf-mculib-v5.c.compiler.base.1313797387;tool.nds.c.compiler.input.102340701">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.2020679633;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.2020679633.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1128108808;tool.nds.c.compiler.input.1870012195">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1632835994;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1632835994.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1223389459;tool.nds.c.compiler.input.1711543337">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.20196836;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.20196836.;tool.nds32le-elf-mculib-v5f.c.compiler.base.574353011;tool.nds.c.compiler.input.522706830">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1671662551;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1671662551.;tool.nds32le-elf-mculib-v5d.c.compiler.base.742526823;tool.nds.c.compiler.input.1395204684">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160.648168514;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.846523192.713870160.648168514.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1738657660;tool.nds.c.compiler.input.1569598505">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1330689052;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1330689052.;tool.nds32le-elf-mculib-v5f.c.compiler.base.780398527;tool.nds.c.compiler.input.229332817">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575.1534805473;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1174108575.1534805473.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1041290326;tool.nds.c.compiler.input.333439086">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.478719472.;tool.nds32le-elf-mculib-v5f.c.compiler.base.553227572;tool.nds.c.compiler.input.2140068076">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1332259550;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.1332259550.;tool.nds32le-elf-mculib-v5.c.compiler.base.1596707624;tool.nds.c.compiler.input.565595557">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.290145166;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.290145166.;tool.nds32le-elf-mculib-v5f.c.compiler.base.503652159;tool.nds.c.compiler.input.684706891">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.1211901967.;tool.nds32le-elf-mculib-v5f.c.compiler.base.211134946;tool.nds.c.compiler.input.793518103">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.995258630;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.995258630.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1053228126;tool.nds.c.compiler.input.1099351291">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.release.1307062052;config.nds32le-elf-mculib-v5.exe.release.1307062052.;tool.nds32le-elf-mculib-v5.c.compiler.exe.release.823462875;tool.nds.c.compiler.input.1275702147">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1298533283;tool.nds.c.compiler.input.2114988623">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.;tool.nds32le-elf-mculib-v5.c.compiler.base.354113725;tool.nds.c.compiler.input.1556502911">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.20196836;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.299614649.20196836.;tool.nds32le-elf-mculib-v5f.c.compiler.base.574353011;tool.nds.c.compiler.input.522706830">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.629882172;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.629882172.;tool.nds32le-elf-mculib-v5f.c.compiler.base.866851096;tool.nds.c.compiler.input.499220128">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.889963678.;tool.nds32le-elf-mculib-v5f.c.compiler.base.1298533283;tool.nds.c.compiler.input.2114988623">
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.1141491748.;tool.nds32le-elf-mculib-v5f.c.compiler.base.412106098;tool.nds.c.compiler.input.696816268">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.290145166;config.nds32le-elf-mculib-v5.exe.debug.28004847.1438473168.105987010.871028891.857215948.290145166.;tool.nds32le-elf-mculib-v5f.c.compiler.base.503652159;tool.nds.c.compiler.input.684706891">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.andestech.ide.cdt.managedbuilder.core.ndsManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>

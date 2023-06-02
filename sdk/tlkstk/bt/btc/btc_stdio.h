@@ -35,7 +35,7 @@ extern int btc_init(void);
 
 extern void btc_ll_sniff_ret_clkrestore(void);
 extern void btc_iscan_low_power_enable(int en);
-extern void btc_pscan_low_power_enable(int en, void *func_callback);
+extern void btc_pscan_low_power_enable(int en);
 
 
 #endif //BTC_STDIO_H

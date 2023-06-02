@@ -59,6 +59,7 @@
 #define TL_MODEM								(0x80140c00)
 #define TL_RADIO								(0x80140e00)
 
+#define BTCORE_BASE_ADDR                        0x80160400
 #define	RADIOCNTL00								(0x160070)
 #define	RADIOCNTL10								(0x160074)
 #define RADIOCNTL20								(0x160078)
@@ -85,13 +86,6 @@
  * for BLE: 0x80, for BT: 0x00 */
 #define reg_ct_dint_care_mz		REG_ADDR8(0x80140e79)
 
-/* default value 0x80 */
-#define reg_ntl_cv_mask			REG_ADDR8(0x80140b00)
-#define reg_modem_tx_tl_tctrl       REG_ADDR8(0x140c9a)
-#define reg_radio_tx_pa             REG_ADDR16(0x140e26)
-#define reg_radio_cfg_txrx          REG_ADDR32(0x140e3c)
-#define reg_radio_tx_pa_mode        REG_ADDR8(0x140e3d)
-#define reg_radio_modulation_idx    REG_ADDR8(0x140e3e)
 
 /////////////used in btc_dbgport.h//////////////
 #define reg_bt_dbg_sel      REG_ADDR16(0x140354)

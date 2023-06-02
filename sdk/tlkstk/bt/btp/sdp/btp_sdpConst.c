@@ -684,10 +684,10 @@ const btp_sdp_serviceItem_t  gcBtpSdpHidItem[] = {
         {BTP_SDP_FLAG_ATT, 0x0205 ,  BTP_SDP_DTYPE_BOOL, BTP_SDP_DSIZE_8, FALSE,  (unsigned char *) 0 },
     // HIDDescriptorList
     {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_DESCRIPTOR_LIST,  (unsigned char *) 0 },
-        {BTP_SDP_FLAG_ATT, 0x0206 ,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  sizeof(gcBtpSdpHidReportMap) + 6,  (unsigned char *) 0 },
-            {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  sizeof(gcBtpSdpHidReportMap) + 4,  (unsigned char *) 0 },
+        {BTP_SDP_FLAG_ATT, 0x0206 ,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_16,  sizeof(gcBtpSdpHidReportMap) + 8,  (unsigned char *) 0 },
+            {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_16,  sizeof(gcBtpSdpHidReportMap) + 5,  (unsigned char *) 0 },
     	    {BTP_SDP_FLAG_ATT, 0x0206,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_8,  0x22,  (unsigned char *) 0 },   // HID REPORT descriptor
-    	    {BTP_SDP_FLAG_HID_DES, 0x0206,  BTP_SDP_DTYPE_STRING, sizeof(gcBtpSdpHidReportMap),  0x00,  (unsigned char *) gcBtpSdpHidReportMap},
+    	    {BTP_SDP_FLAG_HID_DES, 0x0206,  BTP_SDP_DTYPE_STRING, sizeof(gcBtpSdpHidReportMap),  0x00,  (unsigned char *)gcBtpSdpHidReportMap},
     // HIDLANGIDBaseList
     {BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_UINT, BTP_SDP_DSIZE_16,  BTP_SDP_ATTR_HID_LANG_ID_BASE_LIST,  (unsigned char *) 0 },
     	{BTP_SDP_FLAG_ATT, 0x0207,  BTP_SDP_DTYPE_DES, BTP_SDP_DSIZE_VAR_8,  0x08,  (unsigned char *) 0 },
@@ -964,10 +964,21 @@ const btp_sdp_serviceList_t scBthSdpServiceList[BTP_SDP_SRV_MAX_NUMB] = {
 
 
 extern void btp_sdpsrv_setList(const btp_sdp_serviceList_t *cpList);
+extern void btp_sdp_setCacheBuffer(uint08 *pBuffer, uint16 buffLen);
+
+//This is used for caching SDP-encoded data
+//The "BTP_SDP_BUFFER_SIZE" is changed flow by the length of "scBthSdpServiceList".
+static uint08 sBtpSdpCacheBuffer[BTP_SDP_BUFFER_SIZE]; 
+
+
 void btp_sdp_constInit(void)
 {
 	btp_sdpsrv_setList(scBthSdpServiceList);
+	btp_sdp_setCacheBuffer(sBtpSdpCacheBuffer, BTP_SDP_BUFFER_SIZE);
 }
+
+
+
 
 
 #endif

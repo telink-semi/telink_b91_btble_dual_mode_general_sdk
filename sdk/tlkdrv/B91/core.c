@@ -37,6 +37,8 @@ static unsigned short sCoreInqCount = 0;
  */
  _attribute_retention_code_ void core_enable_interrupt(void)
 {
+	sCoreInqIsEn = 1;
+	sCoreInqCount = 0;
 #if SUPPORT_PFT_ARCH
 	 plic_set_feature(FLD_FEATURE_VECTOR_MODE_EN | FLD_FEATURE_PREEMPT_PRIORITY_INT_EN);//enable vectored in PLI
 #else

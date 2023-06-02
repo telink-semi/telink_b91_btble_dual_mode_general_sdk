@@ -1,15 +1,5 @@
-# The file can only be opened and edited using VSCode. 
-# Other methods will be encrypted by the encryption system, resulting in the file cannot be correctly parsed.
-# Mtype   msgID   TestClass   Payload(CMD_L   CMD_H ...)  
-
-################################  Description  ###########################
-# 1. The comment is #.
-# 2. The format of each case 'CASE-' + 'case_name' + ':'
-# 3. The format of each command 'CMD-' + 'command_name' + ':' + 'payload'
-
-
-#GLOBAL-PeerAddr: 17 B7 F4 DC 1B 00 
-GLOBAL-PeerAddr: 6C B7 F4 DC 1B 00
+GLOBAL-PeerAddr: 17 B7 F4 DC 1B 00 
+#GLOBAL-PeerAddr: 6C B7 F4 DC 1B 00
 GLOBAL-PeerCOD: 18 04 08
 GLOBAL-PeerSnkCOD: 1C 04 08
 
@@ -31,85 +21,92 @@ CASE-Global Setting:    # msgID, payload
 ####################################
 ############### A2DP ###############
 ####################################
-    #CMD-SetMode: D2 01 06 00 00 02  #Msg[0xD2-CallBtpFunc],FuncID[0x0601],Handle[0x0000],Mode[0x02-SNK]
-	#CMD-ConnectSnk: D2 13 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0613],Handle[0x0000]
-	#CMD-DisconnSnk: D2 14 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0614],Handle[0x0000]
 CASE-A2DP/SNK/AS/BV_01_I:  
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/CC/BV_01_I: 
-	CMD-SetMode: D2 01 06 00 00 02  #Msg[0xD2-CallBtpFunc],FuncID[0x0601],Handle[0x0000],Mode[0x02-SNK]
-	
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/CC/BV_02_I:
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/CC/BV_05_I:
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/CC/BV_06_I:
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/CC/BV_07_I:
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/CC/BV_08_I:
-
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/REL/BV_01_I:
-
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/SDP/BV_02_I:
-
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/SET/BV_01_I:
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/SET/BV_03_I:
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SNK/SET/BV_05_I:
-	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]	
-	#User needs to restart the DUT according to the prompt and send the 'StartScan' command and repeat the above action three times
-CASE-A2DP/SNK/SYN/BV_01_C:	
+	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
+CASE-A2DP/SNK/SYN/BV_01_C:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 	CMD-SendDelayReport: D2 15 06 00 00 E8 03		#Msg[0xD2-CallBtpFunc],FuncID[0x0615],Handle[0x0000],Delay[0x03E8]
-	#User needs to restart the DUT according to the prompt and send the 'SendDelayReport' command and repeat the above action three times
-CASE-A2DP/SRC/AS/BV_01_I:	### @@@@@@ this case not PASS @@@@@@ ###
+CASE-A2DP/SRC/AS/BV_01_I:
+	CMD-SetCapacityParams: D2 22 06 08 02 01 01 04 20 20 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x00],frequency[0x00],allocation_method[0x00],subbands[0x00],block_length[0x12],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	#CMD-SetMode: D2 01 06 00 00 03  #Msg[0xD2-CallBtpFunc],FuncID[0x0601],Handle[0x0000],Mode[0x03-SRC]
-	#CMD-ConnectSrc: D2 11 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0611],Handle[0x0000]
-	#CMD-DisconnSrc: D2 12 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0612],Handle[0x0000]
 	CMD-SendA2DPStart: D2 17 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
-	CMD-SendMediaData: D2 16 06 00 00 	#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
-
+	CMD-SendMediaData: D2 23 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0623],Handle[0x0000]
 CASE-A2DP/SRC/AS/BI_01_I:
+	CMD-SetCapacityParams: D2 22 06 08 02 01 01 04 20 20 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x00],frequency[0x00],allocation_method[0x00],subbands[0x00],block_length[0x12],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	CMD-SendA2DPStart: D2 17 06 00 00	#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
-	CMD-SendMediaData: D2 16 06 00 00	#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
-CASE-A2DP/SRC/CC/BV_09_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendA2DPStart: D2 17 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
+	CMD-SendMediaData: D2 23 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0623],Handle[0x0000]
+CASE-A2DP/SRC/CC/BV_09_I:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	### pts info:If necessary, take action to accept the AVDTP Start operation initiated by the tester.
-CASE-A2DP/SRC/CC/BV_10_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendMediaData: D2 16 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
+CASE-A2DP/SRC/CC/BV_10_I:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	### pts info:If necessary, take action to accept the AVDTP Start operation initiated by the tester.
-CASE-A2DP/SRC/REL/BV_01_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendMediaData: D2 19 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
+CASE-A2DP/SRC/REL/BV_01_I:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	CMD-CloseStreamChannel: D2 12 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0611],Handle[0x0000]  
-CASE-A2DP/SRC/REL/BV_02_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendA2DPClose: D2 21 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0621],Handle[0x0000]
+CASE-A2DP/SRC/REL/BV_02_I:
+	CMD-SetCapacityParams: D2 22 06 08 02 01 01 04 20 20 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x00],frequency[0x00],allocation_method[0x00],subbands[0x00],block_length[0x12],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	CMD-SendStartCommand: D2 17 06 00 00	#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
-	CMD-SendMediaData: D2 16 06 00 00 	#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
+	CMD-SendA2DPStart: D2 17 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
+	CMD-SendMediaData: D2 23 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0623],Handle[0x0000]
 CASE-A2DP/SRC/SDP/BV_01_I:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SRC/SET/BV_01_I:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
 CASE-A2DP/SRC/SET/BV_02_I:
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-CASE-A2DP/SRC/SET/BV_03_I:	### @@@@@@ this case not PASS @@@@@@ ###
+CASE-A2DP/SRC/SET/BV_03_I:
+	CMD-SetCapacityParams: D2 22 06 08 01 02 02 00 12 12 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x08],frequency[0x01],allocation_method[0x02],subbands[0x02],block_length[0x00],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	CMD-SendStartCommand: D2 17 06 00 00	#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
-	CMD-SendMediaData: D2 16 06 00 00 	#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
-CASE-A2DP/SRC/SET/BV_04_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendA2DPStart: D2 17 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
+	CMD-SendMediaData: D2 20 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0620],Handle[0x0000]
+CASE-A2DP/SRC/SET/BV_04_I:
+	CMD-SetCapacityParams: D2 22 06 00 00 00 00 00 12 12 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x00],frequency[0x00],allocation_method[0x00],subbands[0x00],block_length[0x00],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	### pts info:If necessary, take action to accept the AVDTP Start operation initiated by the tester.
-CASE-A2DP/SRC/SET/BV_05_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendMediaData: D2 20 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0620],Handle[0x0000]
+CASE-A2DP/SRC/SET/BV_05_I:
+	CMD-SetCapacityParams: D2 22 06 08 01 02 02 00 12 12 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x08],frequency[0x01],allocation_method[0x02],subbands[0x02],block_length[0x00],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	CMD-SendStartCommand: D2 17 06 00 00	#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
-	CMD-SendMediaData: D2 16 06 00 00 	#Msg[0xD2-CallBtpFunc],FuncID[0x0616],Handle[0x0000]
-CASE-A2DP/SRC/SET/BV_06_I:	### @@@@@@ this case not PASS @@@@@@ ###
+	CMD-SendA2DPStart: D2 17 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0617],Handle[0x0000]
+	CMD-SendMediaData: D2 20 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0620],Handle[0x0000]
+	CMD-SetCapacityParams: D2 22 06 08 01 02 02 00 12 12 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x08],frequency[0x01],allocation_method[0x02],subbands[0x02],block_length[0x00],min_bitpool[0x12],max_bitpool[0x12]
+	CMD-ConnectBT: D1 01 01 PeerAddr PeerCOD 0x00 #Msg[0xD1-CallBthFunc],FuncID[0x0101],InitRole[0x00]
+	CMD-ConnectSrc: D2 11 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0611],Handle[0x0000]
+CASE-A2DP/SRC/SET/BV_06_I:
+	CMD-SetCapacityParams: D2 22 06 00 00 00 00 00 12 12 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x00],frequency[0x00],allocation_method[0x00],subbands[0x00],block_length[0x12],min_bitpool[0x12],max_bitpool[0x12]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
-	### pts info:If necessary, take action to accept the AVDTP Start operation initiated by the tester.
+	CMD-SendMediaData: D2 20 06 00 00		#Msg[0xD2-CallBtpFunc],FuncID[0x0620],Handle[0x0000]
+	CMD-SetCapacityParams: D2 22 06 00 00 00 00 00 12 12 #Msg[0xD2-CallBtpFunc],FuncID[0x0622],chnMode[0x00],frequency[0x00],allocation_method[0x00],subbands[0x00],block_length[0x12],min_bitpool[0x12],max_bitpool[0x12]
 CASE-IOPT/CL/A2DP_SRC/SFC/BV_01_I:
-	CMD-DeleteLinkKey: D1 03 00 #Msg[0xD1-CallBthFunc],FuncID[0x0003]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
+	CMD-DeleteLinkKey: D2 1C 06 PeerAddr
 	CMD-ConnectBT: D1 01 01 PeerAddr PeerCOD 0x00 #Msg[0xD1-CallBthFunc],FuncID[0x0101],InitRole[0x00]
-	CMD-CreateAvdtpSignalChannel: D2 11 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0611],Handle[0x0000]
+	CMD-ConnectSrc: D2 11 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0611],Handle[0x0000]
 CASE-IOPT/CL/A2DP_SNK/SFC/BV_02_I:
-	CMD-DeleteLinkKey: D1 03 00 #Msg[0xD1-CallBthFunc],FuncID[0x0003]
 	CMD-StartScan: D1 01 00 03   #Msg[0xD1-CallBthFunc],FuncID[0x0001],Enable[0x03]
+	CMD-DeleteLinkKey: D2 1C 06 PeerAddr
 	CMD-ConnectBT: D1 01 01 PeerAddr PeerCOD 0x00 #Msg[0xD1-CallBthFunc],FuncID[0x0101],InitRole[0x00]
-	CMD-CreateAvdtpSignalChannel: D2 13 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0613],Handle[0x0000]    
+	CMD-ConnectSrc: D2 11 06 00 00  #Msg[0xD2-CallBtpFunc],FuncID[0x0611],Handle[0x0000]

@@ -72,26 +72,26 @@ void tlkapi_debug_default(void)
 {
 	
 }
-void __attribute__((unused))tlkdbg_warn(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_info(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_trace(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_fatal(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_error(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_array(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_warn(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_info(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_trace(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_fatal(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_error(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_array(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_assert(bool isAssert, uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...) __attribute__((weak, alias("tlkapi_debug_default")));
 
-void __attribute__((unused))tlkdbg_warn1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_info1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_trace1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_fatal1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_error1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_array1(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_assert1(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_warn1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_info1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_trace1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_fatal1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_error1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_array1(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_assert1(bool isAssert, uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, va_list args) __attribute__((weak, alias("tlkapi_debug_default")));
 
-void __attribute__((unused))tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3) __attribute__((weak, alias("tlkapi_debug_default")));
-void __attribute__((unused))tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_sendU08s(uint32 flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_sendU16s(uint32 flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3) __attribute__((weak, alias("tlkapi_debug_default")));
+void __attribute__((unused))tlkdbg_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3) __attribute__((weak, alias("tlkapi_debug_default")));
 
 void __attribute__((unused))tlkdbg_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen) __attribute__((weak, alias("tlkapi_debug_default")));
 void __attribute__((unused))tlkdbg_delayForPrint(uint32 us) __attribute__((weak, alias("tlkapi_debug_default")));
@@ -105,11 +105,11 @@ _attribute_ram_code_sec_
 void tlkdbg_vcd_default(void){}
 void __attribute__((unused))tlkdbg_vcd_ref(void) __attribute__((weak, alias("tlkdbg_vcd_default")));
 void __attribute__((unused))tlkdbg_vcd_sync(void) __attribute__((weak, alias("tlkdbg_vcd_default")));
-void __attribute__((unused))tlkdbg_vcd_tick(uint flags, uint08 id) __attribute__((weak, alias("tlkdbg_vcd_default")));
-void __attribute__((unused))tlkdbg_vcd_level(uint flags, uint08 id, uint08 level) __attribute__((weak, alias("tlkdbg_vcd_default")));
-void __attribute__((unused))tlkdbg_vcd_event(uint flags, uint08 id) __attribute__((weak, alias("tlkdbg_vcd_default")));
-void __attribute__((unused))tlkdbg_vcd_byte(uint flags, uint08 id, uint08 value) __attribute__((weak, alias("tlkdbg_vcd_default")));
-void __attribute__((unused))tlkdbg_vcd_word(uint flags, uint08 id, uint16 value) __attribute__((weak, alias("tlkdbg_vcd_default")));
+void __attribute__((unused))tlkdbg_vcd_tick(uint32 flags, uint08 id) __attribute__((weak, alias("tlkdbg_vcd_default")));
+void __attribute__((unused))tlkdbg_vcd_level(uint32 flags, uint08 id, uint08 level) __attribute__((weak, alias("tlkdbg_vcd_default")));
+void __attribute__((unused))tlkdbg_vcd_event(uint32 flags, uint08 id) __attribute__((weak, alias("tlkdbg_vcd_default")));
+void __attribute__((unused))tlkdbg_vcd_byte(uint32 flags, uint08 id, uint08 value) __attribute__((weak, alias("tlkdbg_vcd_default")));
+void __attribute__((unused))tlkdbg_vcd_word(uint32 flags, uint08 id, uint16 value) __attribute__((weak, alias("tlkdbg_vcd_default")));
 
 
 #endif

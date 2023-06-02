@@ -35,10 +35,10 @@
 static bool tlkmmi_test_timer(tlkapi_timer_t *pTimer, uint32 userArg);
 static void tlkmmi_test_rebootDeal(void);
 
-#if (TLK_CFG_USB_ENABLE)
-extern void tlkusb_handler(void);
-#endif
 extern uint tlkcfg_getWorkMode(void);
+#if (TLK_CFG_SYS_ENABLE)
+static bool tlkmmi_test_pmIsBusy(void);
+#endif
 tlkmmi_test_ctrl_t sTlkMmiTestCtrl;
 
 
@@ -64,6 +64,10 @@ static int tlkmmi_test_init(uint08 procID, uint08 taskID)
 	tlkmmi_test_adaptInit(procID);
 	tlkmmi_test_adaptInitTimer(&sTlkMmiTestCtrl.timer, tlkmmi_test_timer, NULL, TLKMMI_TEST_TIMEOUT);
 	tlkmmi_test_modInit(sTlkMmiTestCtrl.wmode);
+
+	#if (TLK_CFG_SYS_ENABLE)
+	tlksys_pm_appendBusyCheckCB(tlkmmi_test_pmIsBusy, "test");
+	#endif
 
 	return TLK_ENONE;
 }
@@ -98,8 +102,12 @@ static void tlkmmi_test_handler(void)
 {
 	tlkmmi_test_modHandler(sTlkMmiTestCtrl.wmode);
 }
-
-
+#if (TLK_CFG_SYS_ENABLE)
+static bool tlkmmi_test_pmIsBusy(void)
+{
+	return true;
+}
+#endif
 
 void tlkmmi_test_reboot(uint16 timeout)
 {

@@ -167,7 +167,7 @@ int tlkapi_file_read(FIL *pFile, void* buff, uint32 btr, uint32* br)
 	int ret;
 	core_enter_critical();
 	#if (TLK_FS_FAT_ENABLE)
-		ret = f_read(pFile, buff, btr, br);
+		ret = f_read(pFile, buff, btr, (uint*)br);
 	#else
 		ret = -TLK_ENOSUPPORT;
 	#endif
@@ -191,7 +191,7 @@ int tlkapi_file_write(FIL *pFile, const void* buff, uint32 btw, uint32* bw)
 	int ret;
 	core_enter_critical();
 	#if (TLK_FS_FAT_ENABLE)
-		ret = f_write(pFile, buff, btw, bw);
+		ret = f_write(pFile, buff, btw, (uint*)bw);
 	#else
 		ret = -TLK_ENOSUPPORT;
 	#endif

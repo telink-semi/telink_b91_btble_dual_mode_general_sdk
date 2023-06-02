@@ -62,6 +62,12 @@ enum BTP_FUNCID_SET_ENUM{
 	BTP_FUNCID_A2DP_SRC_SEND_MEDIA_DATA = 0x16+BTP_FUNCID_A2DP_START,
 	BTP_FUNCID_A2DP_SRC_SEND_A2DP_START = 0x17+BTP_FUNCID_A2DP_START,
 	BTP_FUNCID_A2DP_SEND_ABORT = 0x18+BTP_FUNCID_A2DP_START,
+		BTP_FUNCID_A2DP_SRC_SEND_MEDIA_DATA01 = 0x19+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SRC_SEND_MEDIA_DATA02 = 0x20+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SRC_SEND_A2DP_CLOSE = 0x21+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SRC_SET_CAPACITY_PARAM = 0x22+BTP_FUNCID_A2DP_START,
+	BTP_FUNCID_A2DP_SRC_SEND_MEDIA_DATA03 = 0x23+BTP_FUNCID_A2DP_START,
+
 	//HID Start
 	BTP_FUNCID_HID_START = 0x0700,
 	BTP_FUNCID_HID_CONNECT = 0x01+BTP_FUNCID_HID_START,
@@ -171,8 +177,12 @@ static int btp_func_a2dpSnkConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSnkDisconn(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSnkDelayReport(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSrcSendMediaData(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcSendMediaData01(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcSendMediaData02(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcSendMediaData03(uint08 *pData, uint16 dataLen);
 static int btp_func_a2dpSrcSendStart(uint08 *pData, uint16 dataLen);
-static int btp_func_a2dpSendAbort(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcSendClose(uint08 *pData, uint16 dataLen);
+static int btp_func_a2dpSrcSetCapacityParam(uint08 *pData, uint16 dataLen);
 
 static int btp_func_avrcpConnect(uint08 *pData, uint16 dataLen);
 static int btp_func_avrcpDisconn(uint08 *pData, uint16 dataLen);

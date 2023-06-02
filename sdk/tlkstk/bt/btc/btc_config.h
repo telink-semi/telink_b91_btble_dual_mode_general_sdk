@@ -27,6 +27,15 @@
 
 
 
+#ifndef BTC_DEVICE_CLASS_DEFAULT
+#define BTC_DEVICE_CLASS_DEFAULT        0x2C0404
+#endif
+#ifndef BTC_DEVICE_NAME_DEFAULT
+#define BTC_DEVICE_NAME_DEFAULT         "A_TLK_IUT0"
+#endif
+#ifndef BTC_DEVICE_ADDR_DEFAULT
+#define BTC_DEVICE_ADDR_DEFAULT         {0x20, 0xcd, 0xc3, 0x67, 0xb5, 0x00}
+#endif
 
 
 

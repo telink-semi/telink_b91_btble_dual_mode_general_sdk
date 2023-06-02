@@ -34,6 +34,7 @@
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 
 
+extern void bth_acl_setConnTimeout(uint16 timeout);
 extern void bth_func_setAclHandle(uint16 aclHandle);
 extern void bth_func_setScoHandle(uint16 scoHandle);
 extern void btp_func_setAclHandle(uint16 aclHandle);
@@ -69,7 +70,8 @@ int tlkmmi_pts_btInit(void)
 	uint08 btAddr[6];
 	uint08 btName[TLK_CFG_FLASH_BT_NAME_LENS+1];
 	uint08 bdaddr[6] = TLKMMI_BTPTS_BDADDR_DEF;
-		
+
+	bth_acl_setConnTimeout(15000);
 	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, btAddr, 6);
 	if(btAddr[0] == 0xFF && btAddr[1] == 0xFF && btAddr[2] == 0xFF){
 		tmemcpy(btAddr, bdaddr, 6);

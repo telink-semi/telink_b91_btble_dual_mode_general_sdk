@@ -253,4 +253,18 @@ u32 		blc_ll_system_tick_acl_conn_isr(u8 sequence_no, int link);
  */
 ble_sts_t 	blc_ll_initAclConnCacheTxFifo(u8 *pTxbuf, int fifo_size, int fifo_number);
 
+/**
+ * @brief      This function is used to obtain the latest average RSSI of ACL connections.
+ * @param[in]  connHandle - ACL connection handle.
+ * @return     The value of latest average RSSI.
+ */
+u8			blc_ll_getAclLatestAvgRSSI(u16 connHandle);
+/**
+ * @brief      This function is used to obtain the latest average RSSI of ACL connections.
+ * @param[in]  connHandle - ACL connection handle.
+ * @param[in]  pOutRssi - Returns a pointer to the RSSI data( -127 to 20)
+ * @return     ble_sts_t
+ */
+ble_sts_t blc_ll_readRssi(u16 connHandle, s8* pOutRssi);
+
 #endif /* LLMS_CONN_H_ */

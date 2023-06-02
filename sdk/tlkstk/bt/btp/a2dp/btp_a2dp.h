@@ -358,6 +358,22 @@ extern int btp_a2dpsnk_delayreport(uint16 aclHandle, uint16 delay);
  * 		If others value is returned means the get process fail.
  *******************************************************************************/
 extern int btp_a2dpsnk_getStatus(uint16 aclHandle);
+/******************************************************************************
+ * Function: btp_a2dpsrc_setCodecCapacity
+ * Descript: Set the capabilities supported by codec.
+ * Params:
+ * 	    @chnMode[IN]-- refer to "BTP_A2DP_CHN_MODE_ENUM".
+ * 	    @frequency[IN]-- 16k->0x08, 32k->0x04, 44.1k->0x02, 48k->0x01.
+ * 	    @allocaMethod[IN]-- SNR->0x02, LOUDNESS->0x01.
+ * 	    @subbands[IN]-- SUBBANDS_4->0x02, SUBBANDS_8->0x01.
+ * 	    @blockLength[IN]-- LENGTH_4->0x08, LENGTH_8->0x04, LENGTH_12->0x02, LENGTH_16->0x01.
+ * 	    @minBitpool[IN]-- refer to A2DP_v1.3.2 Spec Page 19 "SBC".
+ * 	    @maxBitpool[IN]-- refer to A2DP_v1.3.2 Spec Page 19 "SBC".
+ * Return: Returning TLK_ENONE(0x00) means the get process success.
+ * 		If others value is returned means the get process fail.
+ *******************************************************************************/
+extern int btp_a2dpsrc_setCodecCapacity(uint08 chnMode, uint08 frequency, uint08 allocaMethod,
+									uint08 subbands, uint08 blockLength, uint08 minBitpool, uint08 maxBitpool);
 
 #endif //#if (TLKBTP_CFG_A2DPSNK_ENABLE)
 

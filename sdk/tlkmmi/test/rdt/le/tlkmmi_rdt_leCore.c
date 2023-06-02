@@ -31,7 +31,7 @@
 #include "tlkmmi_rdt_leAtt.h"
 
 
-extern void btc_rf_set_le_tx_tp_slice(uint08 slice);
+extern void ext_btrf_setLeTxTpSlice(uint08 slice);
 
 static int tlkmmi_rdt_leCoreEventCB(uint32 evtID, uint08 *pData, int dataLen);
 static int tlkmmi_rdt_leHostEventCB(uint32 evtID, uint08 *pData, int dataLen);
@@ -163,7 +163,7 @@ int tlkmmi_rdt_leCoreInit(void)
 	blc_ll_setAdvEnable(BLC_ADV_DISABLE);
 	//	blc_ll_setAdvCustomedChannel(37, 37, 37); //debug
 	
-	btc_rf_set_le_tx_tp_slice(RF_POWER_P9p11dBm);
+	ext_btrf_setLeTxTpSlice(RF_POWER_P9p11dBm);
 	
 	return TLK_ENONE;
 }

@@ -129,6 +129,20 @@ static inline void rf_ble_set_rx_timeout(u16 tm)
 	reg_rf_rx_timeout = tm;
 }
 
+/**
+ * @brief	This function serve to set the length of preamble for BLE packet.
+ * @param[in]	len		-The value of preamble length.Set the register bit<0>~bit<4>.
+ * @return		none
+ */
+static inline void rf_ble_set_preamble_len(u8 len)
+{
+	write_reg8(0x140802,(read_reg8(0x140802)&0xe0)|(len&0x1f));
+}
+
+static inline int rf_ble_get_preamble_len(void)
+{
+	return (read_reg8(0x140802)&0x1f); //[4:0]: ble/nordic preamble length
+}
 
 
 typedef enum{

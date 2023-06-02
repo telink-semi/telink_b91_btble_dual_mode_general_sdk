@@ -125,7 +125,7 @@ void tlkdbg_hpuvcd_sync(void)
 	uint08 buffLen = 0;
 	uint08 buffer[16];
 	core_interrupt_disable();
-	int tick=clock_time();
+	uint32 tick=clock_time();
 	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
 	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_SYNC << 4) | 0x04;
 	tlkdbg_hpuvcd_push((tick & 0xFF), buffer, &buffLen);
@@ -144,7 +144,7 @@ void tlkdbg_hpuvcd_tick(uint08 id)
 	uint08 buffLen = 0;
 	uint08 buffer[16];
 	core_interrupt_disable();
-	int tick=clock_time();
+	uint32 tick=clock_time();
 	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;
 	buffer[buffLen++] = (TLKDBG_HPU_VCD_TYPE_TICK << 4) | 0x05;
 	tlkdbg_hpuvcd_push(id, buffer, &buffLen);
@@ -164,7 +164,7 @@ void tlkdbg_hpuvcd_level(uint08 id, uint08 level)
 	uint08 buffLen = 0;
 	uint08 buffer[16];
 	core_interrupt_disable();
-	int tick=clock_time();
+	uint32 tick=clock_time();
 	if(level) id |= 0x80;
 	else id &= 0x7F;
 	buffer[buffLen++] = TLKDBG_HPU_VCD_HEAD_SIGN;

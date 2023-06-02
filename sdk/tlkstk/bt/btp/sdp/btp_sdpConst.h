@@ -27,6 +27,7 @@
 
 
 #define BTP_SDPSRV_RSP_ATT_LEN            700
+#define BTP_SDP_BUFFER_SIZE               1500
 
 
 #define BTP_SDP_AIRPODS_ENABLE            0
@@ -235,8 +236,8 @@ typedef enum {
 typedef struct{
 	uint32 flag;
 	uint16 uuid;
-	uint08 dtype; //Refer to BTP_SDP_DTYPE_ENUM
-	uint08 dsize; //Refer to BTP_SDP_DSIZE_ENUM
+	uint16 dtype; //Refer to BTP_SDP_DTYPE_ENUM
+	uint16 dsize; //Refer to BTP_SDP_DSIZE_ENUM
 	uint32 value;
 	uint08 *pValue;
 }btp_sdp_serviceItem_t;

@@ -69,32 +69,32 @@
 #define tlkapi_sendU32s(flags,pStr,val0,val1,val2,val3)   tlkdbg_sendU32s(flags,pStr,(uint32)(val0),(uint32)(val1),(uint32)(val2),(uint32)(val3))
 
 
-extern void tlkdbg_warn(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
-extern void tlkdbg_info(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
-extern void tlkdbg_trace(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
-extern void tlkdbg_fatal(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
-extern void tlkdbg_error(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
-extern void tlkdbg_array(uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
-extern void tlkdbg_assert(bool isAssert, uint flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_warn(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_info(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_trace(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_fatal(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_error(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
+extern void tlkdbg_array(uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, uint08 *pData, uint16 dataLen);
+extern void tlkdbg_assert(bool isAssert, uint32 flags, char *pSign, char *fileName, uint lineNumb, const char *format, ...);
 
 
 extern int  tlkdbg_sprintf(char *pOut, const char *format, ...);
 
-extern void tlkdbg_sendData(uint flags, char *pStr, uint08 *pData, uint16 dataLen);
-extern void tlkdbg_sendU08s(uint flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
-extern void tlkdbg_sendU16s(uint flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
-extern void tlkdbg_sendU32s(uint flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
+extern void tlkdbg_sendData(uint32 flags, char *pStr, uint08 *pData, uint16 dataLen);
+extern void tlkdbg_sendU08s(uint32 flags, void *pStr, uint08 val0, uint08 val1, uint08 val2, uint08 val3);
+extern void tlkdbg_sendU16s(uint32 flags, void *pStr, uint16 val0, uint16 val1, uint16 val2, uint16 val3);
+extern void tlkdbg_sendU32s(uint32 flags, void *pStr, uint32 val0, uint32 val1, uint32 val2, uint32 val3);
 
 extern void tlkdbg_handler(void);
 extern void tlkdbg_delayForPrint(uint32 us);
 
 extern void tlkdbg_vcd_ref(void);
 extern void tlkdbg_vcd_sync(void);
-extern void tlkdbg_vcd_tick(uint flags, uint08 id);
-extern void tlkdbg_vcd_level(uint flags, uint08 id, uint08 level);
-extern void tlkdbg_vcd_event(uint flags, uint08 id);
-extern void tlkdbg_vcd_byte(uint flags, uint08 id, uint08 value);
-extern void tlkdbg_vcd_word(uint flags, uint08 id, uint16 value);
+extern void tlkdbg_vcd_tick(uint32 flags, uint08 id);
+extern void tlkdbg_vcd_level(uint32 flags, uint08 id, uint08 level);
+extern void tlkdbg_vcd_event(uint32 flags, uint08 id);
+extern void tlkdbg_vcd_byte(uint32 flags, uint08 id, uint08 value);
+extern void tlkdbg_vcd_word(uint32 flags, uint08 id, uint16 value);
 
 
 

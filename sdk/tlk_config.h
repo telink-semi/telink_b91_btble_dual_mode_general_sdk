@@ -34,7 +34,7 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010202 //Application, 5.1.2.2
+#define TLK_APP_VERSION              0x05010203 //Application, 5.1.2.3
 #endif
 #define TLK_LIB_VERSION              0x05010200 //Libary, 5.1.2.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
@@ -423,7 +423,10 @@
 #define TLK_CFG_FLASH_LE_SDP_ATT_ADRR         (0xF6000+TLK_CFG_FLASH_CAP-0x100000) //for master: store peer slave device's ATT handle
 #define TLK_CFG_FLASH_LE_SDP_ATT_SIZE         (2*4096) //8K flash for ATT HANLDE storage
 
-
+//NOTE: TLK_CFG_FLASH_BT_CALIBEATION_ADDR can not change
+#define TLK_CFG_FLASH_BT_CALIBEATION_ADDR     (0xDD000+TLK_CFG_FLASH_CAP-0x100000)
+//NOTE: TLK_CFG_FLASH_BT_CALIBEATION_ADDR_NM can not change
+#define TLK_CFG_FLASH_BT_CALIBEATION_ADDR_NM  (0xFE000+TLK_CFG_FLASH_CAP-0x100000)
 
 
 

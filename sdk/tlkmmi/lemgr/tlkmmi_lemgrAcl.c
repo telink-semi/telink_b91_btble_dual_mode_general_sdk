@@ -45,7 +45,7 @@
 #endif
 
 
-
+extern void ext_btrf_setLeTxTpSlice (uint08 slice);
 static int tlkmmi_lemgr_coreEventCB(uint32 evtID, uint08 *pData, int dataLen);
 static int tlkmmi_lemgr_hostEventCB(uint32 evtID, uint08 *pData, int dataLen);
 static int tlkmmi_lemgr_connectCompleteEvt(uint08 *pData, uint16 dataLen);
@@ -323,8 +323,8 @@ int tlkmmi_lemgr_aclInit(void)
 	tlkmmi_lemgr_setAclName(tlkmmi_lemgr_getName(), tlkmmi_lemgr_getNameLen());
 	tlkmmi_lemgr_setAclAddr(tlkmmi_lemgr_getAddr(), 6);
 	//tlkmmi_lemgr_startAdv(0, 0);
-	extern void btc_rf_set_le_tx_tp_slice (uint08 slice);
-	btc_rf_set_le_tx_tp_slice(RF_POWER_P9p11dBm);
+	
+	ext_btrf_setLeTxTpSlice(RF_POWER_P9p11dBm);
 
 	return TLK_ENONE;
 }

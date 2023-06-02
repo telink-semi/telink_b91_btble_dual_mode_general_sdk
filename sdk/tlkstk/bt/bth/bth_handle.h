@@ -36,7 +36,7 @@ typedef struct{
 	uint16 timeout;
 	uint16 aclHandle;
 	uint16 pageTimer;
-	uint16 authTimer; //negetive auth
+	uint16 authSecrTimer; //negetive auth
 	uint16 exitTimer; //Exit Sniffer wait timer in disconnect acl.
 
 	uint08 reason;
