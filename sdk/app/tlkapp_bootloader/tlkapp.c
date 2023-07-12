@@ -1,12 +1,12 @@
 /********************************************************************************************************
- * @file     app.c
+ * @file	tlkapp.c
  *
- * @brief    This is the source file for BTBLE SDK
+ * @brief	This is the source file for BTBLE SDK
  *
- * @author	 BTBLE GROUP
- * @date         2,2022
+ * @author	BTBLE GROUP
+ * @date	2022
  *
- * @par     Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
+ * @par     Copyright (c) 2022, Telink Semiconductor (Shanghai) Co., Ltd. ("TELINK")
  *
  *          Licensed under the Apache License, Version 2.0 (the "License");
  *          you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  *          WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *          See the License for the specific language governing permissions and
  *          limitations under the License.
+ *
  *******************************************************************************************************/
-
 #include "tlkapi/tlkapi_stdio.h"
 #include "tlkapp_config.h"
 #include "tlkapp_irq.h"
@@ -66,7 +66,8 @@ void tlkapp_handler(void)
 
 	if(AAAA_trace02 == 1){
 		tlkapp_dfu_load();
-		AAAA_trace02 = 0;//		TLKAPP_JUMP_TO_APP();
+		AAAA_trace02 = 0;
+//		TLKAPP_JUMP_TO_APP();
 	}
 
 	if(AAAA_trace04 == 1){
