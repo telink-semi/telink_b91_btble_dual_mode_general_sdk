@@ -164,9 +164,9 @@ static int tlkmmi_rdt_t002Aut2AclRequestEvt(uint08 *pData, uint16 dataLen)
 static int tlkmmi_rdt_t002Aut2AclConnectEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 dutAddt[6] = TLKMMI_RDT_T002_BTADDR_DUT;
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		if(sTlkMmiRdtT002Aut2.acl.handle == 0 && sTlkMmiRdtT002Aut2.isStart){
 			uint08 dutAddr[6] = TLKMMI_RDT_T002_BTADDR_DUT;
@@ -215,9 +215,9 @@ static int tlkmmi_rdt_t002Aut2AclEncryptEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t002Aut2AclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	btp_destroy(pEvt->handle);
 	bth_destroy(pEvt->handle);
 	

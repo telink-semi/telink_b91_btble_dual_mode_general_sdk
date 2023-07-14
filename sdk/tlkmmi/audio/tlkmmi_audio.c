@@ -67,7 +67,9 @@ static int tlkmmi_audio_init(uint08 procID, uint08 taskID)
 	#if (TLK_ALG_EQ_ENABLE)
 	tlkalg_eq_loadParam(TLK_CFG_FLASH_EQ_TEST_ADDR, 0xffff, 0);
 	#endif
+	#if (TLK_DEV_CODEC_ENABLE)
 	tlkdev_codec_init();
+	#endif
 
 	#if (TLK_CFG_COMM_ENABLE)
 	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_AUDIO, TLKSYS_TASKID_AUDIO);
@@ -214,7 +216,9 @@ static bool tlkmmi_audio_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 		}
 		gTlkMmiAudioTmrState = 0;
 		sTlkMmiAudioCodecIdleTmrCount = 0;
+		#if (TLK_DEV_CODEC_ENABLE)
 		tlkdev_codec_muteSpk();
+		#endif
 		tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_48M);
 	}
 	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_PLAY || gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_SRC){
@@ -234,7 +238,9 @@ static bool tlkmmi_audio_irqTimer(tlkapi_timer_t *pTimer, uint32 userArg)
 	if(gTlkMmiAudioCurOptype == TLKPTI_AUD_OPTYPE_NONE) return false;
 	
 	if(!tlkmmi_audio_modinfIrqProc(gTlkMmiAudioCurOptype)){
+		#if (TLK_DEV_CODEC_ENABLE)
 		tlkdev_codec_muteSpk();
+		#endif
 		timeIntval = 100000;
 	}else{
 		timeIntval = tlkmmi_audio_modinfIntval(gTlkMmiAudioCurOptype);

@@ -78,14 +78,14 @@ static uint08 sTlkmmiLemgrAclCacheTxFifo[260*16] = {0}; //size must 260, number 
 
 static uint08 sTlkMmiLemgrAdvDataLen = 24;
 static uint08 sTlkMmiLemgrAdvData[31] = {
-	 10, DT_COMPLETE_LOCAL_NAME,   'T','L','K','W','A','T','C','H','0',
+	 10, DT_COMPLETE_LOCAL_NAME,   'T','E','L','I','N','K','-','L','E',
 	 2,	 DT_FLAGS, 								0x05, 					// BLE limited discoverable mode and BR/EDR not supported
 	 3,  DT_APPEARANCE, 						0xC1, 0x03, 			// Generic Keyboard Generic category
 	 5,  DT_INCOMPLT_LIST_16BIT_SERVICE_UUID,	0x12, 0x18, 0x0F, 0x18,	// incomplete list of service class UUIDs (0x1812, 0x180F)
 };
 static uint08 sTlkMmiLemgrScanRspLen = 11;
 static uint08 sTlkMmiLemgrScanRsp[] = {
-	 10, DT_COMPLETE_LOCAL_NAME,   'T','L','K','W','A','T','C','H','0',
+	 10, DT_COMPLETE_LOCAL_NAME,   'T','E','L','I','N','K','-','L','E',
 };
 #if (TLKMMI_LEMGR_OTA_SERVER_ENABLE)
 _attribute_ble_data_retention_	int sTlkMmiLemgrOtaIsWorking = 0;
@@ -110,7 +110,7 @@ _attribute_data_retention_ u8	bls_needSendSecurityReq = 0;
 _attribute_data_retention_ u8	bls_is_ios = 0;
 _attribute_data_retention_ u32 	tick_findAncsSrv;
 _attribute_data_retention_ u32 	tick_encryptionFinish;
-_attribute_data_retention_ u32 	tick_conn_update_parm = 0;
+_attribute_data_retention_ u32 	tick_conn_update_param = 0;
 
 enum{
 	NO_NEED_SEND_SEC_REQ = 0,
@@ -207,22 +207,22 @@ void task_ancsServiceEstablish(){
 		return;  // no connection
 	}
 
-	_attribute_data_retention_ static u8 flag_ancsBuidSrv = 0;
+	_attribute_data_retention_ static u8 flag_ancsBuildSrv = 0;
 	task_findAncsService();///for check ANCS service enable
 
 	if((tick_encryptionFinish & 0x01) && (clock_time_exceed(tick_encryptionFinish, 2 * 1000 * 1000))){
 		ancsFuncSetEnable(1);
 		tick_encryptionFinish = 0x00;
-		flag_ancsBuidSrv = 1;
+		flag_ancsBuildSrv = 1;
 		my_dump_str_data(DUMP_ACL_MSG,"ancs enable", 0, 0);
 	}else{
-		if(flag_ancsBuidSrv){
+		if(flag_ancsBuildSrv){
 			if(ancsGetConnState() == ANCS_CONNECTION_ESTABLISHED){///must be enabled after the ANCS established
 				#if BLE_IOS_AMS_ENABLE
 				amsInit(1);
 				amsFuncSetEnable(1);
 				#endif
-				flag_ancsBuidSrv = 0;
+				flag_ancsBuildSrv = 0;
 			}
 		}
 	}
@@ -495,7 +495,9 @@ static int tlkmmi_lemgr_coreEventCB(uint32 evtID, uint08 *pData, int dataLen)
 			else if (subEvt_code == HCI_SUB_EVT_LE_CONNECTION_UPDATE_COMPLETE)	// connection update
 			{
 				hci_le_connectionUpdateCompleteEvt_t *pUpt = (hci_le_connectionUpdateCompleteEvt_t *)pData;
-				tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN, "ble connect update: connInterval-0X%02X connLatency-0X%02X Timeout-0X%02X", pUpt->connInterval,pUpt->connLatency,pUpt->supervisionTimeout);
+				tlkapi_trace(TLKMMI_LEMGR_DBG_FLAG, TLKMMI_LEMGR_DBG_SIGN,
+					"ble connect update: connInterval-0x%02X connLatency-0x%02X Timeout-0x%02X",
+					pUpt->connInterval,pUpt->connLatency,pUpt->supervisionTimeout);
 				//aa_connLatency_temp = pUpt->connLatency;
 			}
 		}
@@ -551,7 +553,7 @@ static int tlkmmi_lemgr_hostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 		}
 		break;
 		
-		case GAP_EVT_SMP_TK_DISPALY:
+		case GAP_EVT_SMP_TK_DISPLAY:
 		{
 
 
@@ -582,7 +584,7 @@ static int tlkmmi_lemgr_hostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 		}
 		break;
 
-		case GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM:
+		case GAP_EVT_GATT_HANDLE_VALUE_CONFIRM:
 		{
 
 		}
@@ -635,7 +637,7 @@ static int tlkmmi_lemgr_connectCompleteEvt(uint08 *pData, uint16 dataLen)
 		ancs_initial(ANCS_ATT_TYPE_ALL_INCLUDE);
 		app_setSystemType(SYSTEM_TYPE_ANDROID);
 		ancs_setNewsReceivedStatus(ANCS_SET_NO_NEW_NOTICE);
-		tick_conn_update_parm = clock_time() | 1;
+		tick_conn_update_param = clock_time() | 1;
 #endif
 	}
 	

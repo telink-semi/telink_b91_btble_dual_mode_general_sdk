@@ -56,7 +56,7 @@ void tlksys_mutex_deinit(void)
 #if (TLK_CFG_OS_ENABLE)
 	uint08 index;
 	for(index=0; index<TLKSYS_PROC_MAX_NUMB; index++){
-		tlkos_mutex_destory(&sTlkSysMutexList[index].mutex);
+		tlkos_mutex_destroy(&sTlkSysMutexList[index].mutex);
 	}
 #endif
 }

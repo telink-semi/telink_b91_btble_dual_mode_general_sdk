@@ -57,7 +57,7 @@ typedef enum{
 	BTH_L2CAP_SIG_RTNMODE_RTN      = 0x01, //Retransmission mode
 	BTH_L2CAP_SIG_RTNMODE_FLOW     = 0x02, //Flow control mode
 	BTH_L2CAP_SIG_RTNMODE_ENHANCE  = 0x03, //Enhanced Retransmission mode
-	BTH_L2CAP_SIG_RTNMODE_STRAMING = 0x04, //Streaming mode
+	BTH_L2CAP_SIG_RTNMODE_STREAMING = 0x04, //Streaming mode
 }BTH_L2CAP_SIG_RTNMODE_ENUM;
 typedef enum{
 	BTH_L2CAP_SIG_FCSTYPE_NOFCS  = 0x00,
@@ -80,6 +80,7 @@ typedef enum{
 
 //EXTENDED FEATURE MASK <Core5.2.pdf>P1063
 typedef enum{
+	BTH_L2CAP_EXT_FEATURE_NONE              = 0x0000,
 	BTH_L2CAP_EXT_FEATURE_FLOW_CTRL_MODE    = 0x0001, //Flow control mode
 	BTH_L2CAP_EXT_FEATURE_RTN_MODE          = 0x0002, //Retransmission mode
 	BTH_L2CAP_EXT_FEATURE_BI_DIR_QOS        = 0x0004, //Bi-directional QoS
@@ -95,17 +96,18 @@ typedef enum{
 }BTH_L2CAP_EXT_FEATURE_ENUM;
 //EXTENDED CHANNEL MASK <Core5.2.pdf>P1063
 typedef enum{
-	BTH_L2CAP_EXT_CHANNEL_NONE                  = 0x0000,
-	BTH_L2CAP_EXT_CHANNEL_SIGNAL                = 0x0001,
-	BTH_L2CAP_EXT_CHANNEL_CONNECTIONLESS_RECEPT = 0x0002,
-	BTH_L2CAP_EXT_CHANNEL_SERCURITY_MANAGER     = 0x0080,
-	BTH_L2CAP_EXT_CHANNEL_DEFAULT               = BTH_L2CAP_EXT_CHANNEL_SIGNAL,							
+	BTH_L2CAP_EXT_CHANNEL_NONE              = 0x0000,
+	BTH_L2CAP_EXT_CHANNEL_SIGNAL            = 0x0002, //BIT(1)
+	BTH_L2CAP_EXT_CHANNEL_CONNECTIONLESS    = 0x0004, //BIT(2)
+	BTH_L2CAP_EXT_CHANNEL_AMP_MANAGER       = 0x0008, //BIT(3)
+	BTH_L2CAP_EXT_CHANNEL_SERCURITY_MANAGER = 0x0080, //BIT(7)
+	BTH_L2CAP_EXT_CHANNEL_DEFAULT           = BTH_L2CAP_EXT_CHANNEL_SIGNAL,							
 }BTH_L2CAP_EXT_CHANNEL_ENUM;
 
 typedef enum{
 	BTP_L2CAP_INFO_TYPE_CONNLESS_MTU        = 0x01,
-	BTP_L2CAP_INFO_TYPE_EXTENED_FEATURE     = 0x02,
-	BTP_L2CAP_INFO_TYPE_EXTENED_CHANNELS    = 0x03, //FIXED CHANNELS SUPPORTED   <Core5.2.pdf>P1061 and 1064
+	BTP_L2CAP_INFO_TYPE_EXTENDED_FEATURE    = 0x02,
+	BTP_L2CAP_INFO_TYPE_EXTENDED_CHANNELS   = 0x03, //FIXED CHANNELS SUPPORTED   <Core5.2.pdf>P1061 and 1064
 }BTH_L2CAP_INFO_TYPE_ENUM;
 
 
@@ -245,7 +247,6 @@ typedef struct{
 }bth_l2cap_acldata_t;
 
 typedef struct{
-	uint32 sendTimer;
 	uint08 mpsBuffer[BTH_L2CAP_MPS_MAX_SIZE+10];
 	bth_l2cap_service_t service[TLK_STK_BTPSM_NUMB];
 	bth_l2cap_channel_t channel[TLK_STK_BTCHN_NUMB];
@@ -332,7 +333,7 @@ typedef union{
  * Function: bth_l2cap_init
  * Descript: Initial the l2cap control block.
  * Params: None.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_l2cap_init(void);
 
@@ -341,18 +342,17 @@ int bth_l2cap_init(void);
  * Descript: Send l2cap disconnect.
  * Params:
  *        @aclHandle[IN]--The acl link handle.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_l2cap_aclDisconn(uint16 aclHandle);
 
-bool bth_l2cap_isBusy(void);
 
 /******************************************************************************
  * Function: bth_l2cap_setDefMtuSize
  * Descript: Set the Mtu size.
  * Params:
  *     @size[IN]--The mtu size.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_l2cap_setDefMtuSize(uint16 size);
 uint bth_l2cap_getDefMtuSize(void);
@@ -380,7 +380,7 @@ uint bth_l2cap_getValidCID(void);
  *     @usrID[IN]--The user id.
  *     @eventCB[IN]--The l2cap event callback.
  *     @rdataCB[IN]--The read data callback.
- * Reutrn: TLK_ENONE is success, other' value is failure.
+ * Return: TLK_ENONE is success, other' value is failure.
 *******************************************************************************/
 int bth_l2cap_regServiceCB(uint16 psmID, bth_l2cap_eventCallback_t eventCB, bth_l2cap_rdataCallback_t rdataCB);
 
@@ -389,7 +389,7 @@ int bth_l2cap_regServiceCB(uint16 psmID, bth_l2cap_eventCallback_t eventCB, bth_
  * Descript: Set the Mtu size.
  * Params:
  *     @size[IN]--The mtu size.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 int bth_l2cap_sendEvent(uint08 evtID, uint16 psmID, uint08 *pData, uint16 dataLen);
 
@@ -397,7 +397,7 @@ int bth_l2cap_sendEvent(uint08 evtID, uint16 psmID, uint08 *pData, uint16 dataLe
  * Function: bth_l2cap_getIdleService
  * Descript: Get the l2cap service.
  * Params: None.
- * Reutrn: Return L2cap service.
+ * Return: Return L2cap service.
 *******************************************************************************/
 bth_l2cap_service_t *bth_l2cap_getIdleService(void);
 
@@ -405,7 +405,7 @@ bth_l2cap_service_t *bth_l2cap_getIdleService(void);
  * Function: bth_l2cap_getUsedService
  * Descript: Get the Used l2cap service.
  * Params: @psmID[IN]--The psm id.
- * Reutrn: Return L2cap service.
+ * Return: Return L2cap service.
 *******************************************************************************/
 bth_l2cap_service_t *bth_l2cap_getUsedService(uint16 psmID);
 
@@ -413,7 +413,7 @@ bth_l2cap_service_t *bth_l2cap_getUsedService(uint16 psmID);
  * Function: bth_l2cap_getIdleChannel
  * Descript: Get the idle l2cap channel.
  * Params: 
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getIdleChannel(void);
 
@@ -422,7 +422,7 @@ bth_l2cap_channel_t *bth_l2cap_getIdleChannel(void);
  * Descript: Get the init l2cap channel.
  * Params: 
  *     @scid[IN]--The channel id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getInitChannel(uint16 scid);
 
@@ -431,7 +431,7 @@ bth_l2cap_channel_t *bth_l2cap_getInitChannel(uint16 scid);
  * Descript: Get the Used l2cap channel by scid.
  * Params: 
  *     @scid[IN]--The channel id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getUsedChannelByScid(uint16 scid);
 
@@ -440,7 +440,7 @@ bth_l2cap_channel_t *bth_l2cap_getUsedChannelByScid(uint16 scid);
  * Descript: Get the Connect l2cap channel by scid.
  * Params: 
  *     @scid[IN]--The channel id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getConnChannelByScid(uint16 scid);
 
@@ -450,7 +450,7 @@ bth_l2cap_channel_t *bth_l2cap_getConnChannelByScid(uint16 scid);
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @dcid[IN]--The data channel id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getUsedChannelByDcid(uint16 aclHandle, uint16 dcid);
 
@@ -460,7 +460,7 @@ bth_l2cap_channel_t *bth_l2cap_getUsedChannelByDcid(uint16 aclHandle, uint16 dci
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @dcid[IN]--The data channel id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getConnChannelByDcid(uint16 aclHandle, uint16 dcid);
 
@@ -471,7 +471,7 @@ bth_l2cap_channel_t *bth_l2cap_getConnChannelByDcid(uint16 aclHandle, uint16 dci
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
  *     @usrID[ID]--The user id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getUsedChannelByUser(uint16 aclHandle, uint16 psmID, uint08 usrID);
 
@@ -482,7 +482,7 @@ bth_l2cap_channel_t *bth_l2cap_getUsedChannelByUser(uint16 aclHandle, uint16 psm
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
  *     @usrID[ID]--The user id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getConnChannelByUser(uint16 aclHandle, uint16 psmID, uint08 usrID);
 
@@ -492,7 +492,7 @@ bth_l2cap_channel_t *bth_l2cap_getConnChannelByUser(uint16 aclHandle, uint16 psm
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getInitChannelByPsm(uint16 aclHandle, uint16 psmID);
 
@@ -502,7 +502,7 @@ bth_l2cap_channel_t *bth_l2cap_getInitChannelByPsm(uint16 aclHandle, uint16 psmI
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getUsedChannelByPsm(uint16 aclHandle, uint16 psmID);
 
@@ -512,7 +512,7 @@ bth_l2cap_channel_t *bth_l2cap_getUsedChannelByPsm(uint16 aclHandle, uint16 psmI
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getConnChannelByPsm(uint16 aclHandle, uint16 psmID);
 
@@ -522,7 +522,7 @@ bth_l2cap_channel_t *bth_l2cap_getConnChannelByPsm(uint16 aclHandle, uint16 psmI
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getNoConnChannelByPsm(uint16 aclHandle, uint16 psmID);
 
@@ -532,7 +532,7 @@ bth_l2cap_channel_t *bth_l2cap_getNoConnChannelByPsm(uint16 aclHandle, uint16 ps
  * Params: 
  *     @aclHandle[IN]--The acl link handle.
  *     @psmID[IN]--The psm id.
- * Reutrn: Return L2cap Channel.
+ * Return: Return L2cap Channel.
 *******************************************************************************/
 bth_l2cap_channel_t *bth_l2cap_getNoDiscChannelByPsm(uint16 aclHandle, uint16 psmID);
 
@@ -540,7 +540,7 @@ bth_l2cap_channel_t *bth_l2cap_getNoDiscChannelByPsm(uint16 aclHandle, uint16 ps
  * Function: bth_l2cap_getSendFifoNumb
  * Descript: Gets the number of TX-FIFOs that can be used.
  * Params: None.
- * Reutrn: The number of TX-FIFOs.
+ * Return: The number of TX-FIFOs.
 *******************************************************************************/
 int bth_l2cap_getValidTxFifoNumb(void);
 
@@ -553,7 +553,7 @@ int bth_l2cap_getValidTxFifoNumb(void);
  *     @headLen[IN]--The headdata length.
  *     @pData[IN]--The payload data.
  *     @dataLen[IN]--The payload data length.
- * Reutrn: Return TLK_ENONE is success or others value is failure.
+ * Return: Return TLK_ENONE is success or others value is failure.
 *******************************************************************************/
 int	bth_l2cap_sendData(uint16 connHandle, uint08 *pHead, uint16 headLen,
 	uint08 *pData, uint16 dataLen);
@@ -568,7 +568,7 @@ int	bth_l2cap_sendData(uint16 connHandle, uint08 *pHead, uint16 headLen,
  *     @headLen[IN]--The headdata length.
  *     @pData[IN]--The payload data.
  *     @dataLen[IN]--The payload data length.
- * Reutrn: Return TLK_ENONE is success or others value is failure.
+ * Return: Return TLK_ENONE is success or others value is failure.
 *******************************************************************************/
 int	bth_l2cap_sendChannelData(uint16 connHandle, uint16 scid,
 	uint08 *pHead, uint16 headLen, uint08 *pData, uint16 dataLen);
@@ -585,7 +585,7 @@ int	bth_l2cap_sendChannelData(uint16 connHandle, uint16 scid,
  *     @headLen[IN]--The headdata length.
  *     @pData[IN]--The payload data.
  *     @dataLen[IN]--The payload data length.
- * Reutrn: Return TLK_ENONE is success or others value is failure.
+ * Return: Return TLK_ENONE is success or others value is failure.
 *******************************************************************************/
 int	bth_l2cap_sendChannelDataExt(uint16 connHandle, uint16 scid,
 	uint08 *pUsrExt, uint08 extLen, uint08 *pHead, uint16 headLen,
@@ -615,7 +615,7 @@ int bth_l2cap_sendExtSFrame(uint16 connHandle, uint16 scid, uint16 sctrl,
  *     @llid[IN]--The ll id.
  *     @p[IN]--The data.
  *     @len[IN]--The data length.
- * Reutrn: Return TLK_ENONE is success or others value is failure.
+ * Return: Return TLK_ENONE is success or others value is failure.
 *******************************************************************************/
 void bth_l2cap_recvHandler(uint16 handle, uint08 *pData, uint16 dataLen);
 

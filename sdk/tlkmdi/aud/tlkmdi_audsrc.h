@@ -39,7 +39,7 @@
 
 
 typedef struct{
-	uint08 runing;
+	uint08 running;
 	uint08 enable;
 	uint16 handle;
 	uint32 refTime;

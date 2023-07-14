@@ -84,7 +84,7 @@ int btc_hci_sendChangeConnectLinkKeyCompleteEvt(uint08 status, uint16 con_hdl);
 
 int btc_hci_sendIoCapabilityReqEvt(uint08 *bd_addr);
 int btc_hci_sendIoCapabilityRspEvt(uint08 * bd_addr, uint08 io_cap, uint08 oob_data_present, uint08 authen_req);
-int btc_hci_sendUserComfirmReqEvt(uint08 * bd_addr, uint08 * user_cfm);
+int btc_hci_sendUserConfirmReqEvt(uint08 * bd_addr, uint08 * user_cfm);
 int btc_hci_sendUserPasskeyNotifyEvt(uint08 * bd_addr, uint32_t passkey);
 int btc_hci_sendSimplePairingCompleteEvt(uint08 status, uint08 *bd_addr);
 int btc_hci_sendUserPasskeyRequestEvt(uint08 *bd_addr);

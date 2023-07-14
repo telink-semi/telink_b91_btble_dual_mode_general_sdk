@@ -194,8 +194,8 @@ typedef enum{
 	BTP_ATT_OPCODE_EXCHG_MTU_RSP       = 0x03, //ATT Exchange MTU Response
 	BTP_ATT_OPCODE_FIND_INFO_REQ       = 0x04, //ATT Find Information Request
 	BTP_ATT_OPCODE_FIND_INFO_RSP       = 0x05, //ATT Find Information Response
-	BTP_ATT_OPCODE_FIND_TYPE_REQ       = 0x06, //ATT Find By Type Vaue Request
-	BTP_ATT_OPCODE_FIND_TYPE_RSP       = 0x07, //ATT Find By Type Vaue Response
+	BTP_ATT_OPCODE_FIND_TYPE_REQ       = 0x06, //ATT Find By Type Value Request
+	BTP_ATT_OPCODE_FIND_TYPE_RSP       = 0x07, //ATT Find By Type Value Response
 	BTP_ATT_OPCODE_READ_TYPE_REQ       = 0x08, //ATT Read By Type Request
 	BTP_ATT_OPCODE_READ_TYPE_RSP       = 0x09, //ATT Read By Type Response
 	BTP_ATT_OPCODE_READ_REQ            = 0x0A, //ATT Read Request

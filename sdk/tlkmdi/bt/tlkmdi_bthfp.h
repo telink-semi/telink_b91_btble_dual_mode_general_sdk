@@ -109,6 +109,7 @@ typedef struct{
 	uint08 callNum; // 0 or 1
 	uint08 callDir;
 	uint08 numbLen;
+	uint08 number[TLKMDI_HFPHF_NUMBER_MAX_LEN];
 }tlkmdi_hfphf_statusEvt_t;
 
 
@@ -123,7 +124,7 @@ int tlkmdi_bthfp_init(void);
 
 /******************************************************************************
  * Function: tlkmdi_hfphf_destroy.
- * Descript: Reset the HF control block adn release resource.
+ * Descript: Reset the HF control block and release resource.
  * Params: None.
  * Return: None.
  * Others: None.

@@ -106,7 +106,7 @@ typedef enum{
 
 #define TLKALG_EQ_LEFT_SAME_WITH_RIGHT     1 //left eq as same as right
 
-#define TLKALG_EQ_TYPE_LENTH_MAX           80
+#define TLKALG_EQ_TYPE_LENGTH_MAX           80
 #define TLKALG_EQ_DEFAULT_TYPE_MAX         20
 #define TLKALG_EQ_DEFAULT_TYPE_MASK	       0x00ff
 

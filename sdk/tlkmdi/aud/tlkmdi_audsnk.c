@@ -50,8 +50,8 @@
 #define TLKMDI_AUDSNK_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_AUDIO << 24) | (TLK_MINOR_DBGID_MDI_AUD_SNK << 16) | TLK_DEBUG_DBG_FLAG_ALL)
 #define TLKMDI_AUDSNK_DBG_SIGN       "[MDI]"
 
-extern void bt_ll_schedule_acl_bandwith_policy_enter(uint16_t con_handle);
-extern void bt_ll_schedule_acl_bandwith_policy_exit(void);
+extern void bt_ll_schedule_acl_bandwidth_policy_enter(uint16_t con_handle);
+extern void bt_ll_schedule_acl_bandwidth_policy_exit(void);
 
 static int tlkmdi_audsnk_statusChangedEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_audsnk_avrcpStatusChangedEvt(uint08 *pData, uint16 dataLen);
@@ -259,7 +259,7 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 	sTlkMdiSnkCtrl.waitFrame = TLKMDI_AUDSNK_WAIT_FRAMES;
 	tlkapi_qfifo_clear(&spTlkMdiSnkFifo);
 	if(enable){
-		bt_ll_schedule_acl_bandwith_policy_enter(sTlkMdiSnkCtrl.handle);
+		bt_ll_schedule_acl_bandwidth_policy_enter(sTlkMdiSnkCtrl.handle);
 		sTlkMdiSnkCtrl.sampleRate = sampleRate;
 		#if (TLKMDI_AUDSNK_DOUBLE_CHANNEL_ENABLE)
 		tlkdev_codec_open(TLKDEV_CODEC_SUBDEV_SPK, TLKDEV_CODEC_CHANNEL_STEREO, TLKDEV_CODEC_BITDEPTH_16, sampleRate);
@@ -269,7 +269,7 @@ bool tlkmdi_audsnk_switch(uint16 handle, uint08 status)
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SNK, TLK_STATE_OPENED);
 		tlkdev_codec_setSpkOffset(320);
 	}else{
-		bt_ll_schedule_acl_bandwith_policy_exit();
+		bt_ll_schedule_acl_bandwidth_policy_exit();
 		tlkdev_codec_close();
 		tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_A2DP_SNK, TLK_STATE_CLOSED);
 	}
@@ -560,7 +560,7 @@ static int tlkmdi_snk_parseSbcParam(uint08 *data)
 	//read bitpool from data
 	bitPool = data[2];
 	
-    //read channel mode from data&caculate frame length
+    //read channel mode from data&calculate frame length
 	temp = data[1] & TLKMDI_SNK_SBC_TYPE_MASK;
 	if(temp == TLKMDI_SNK_SBC_TYPE_MONO) frameSize = 4 + subBand/2 + (sbcBlock*bitPool)/8;
 	else if (temp == TLKMDI_SNK_SBC_TYPE_DUAL_MODE) frameSize = 4 + subBand + (sbcBlock*bitPool)/4;

@@ -34,9 +34,9 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010203 //Application, 5.1.2.3
+#define TLK_APP_VERSION              0x05010300 //Application, 5.1.2.0
 #endif
-#define TLK_LIB_VERSION              0x05010200 //Libary, 5.1.2.0
+#define TLK_LIB_VERSION              0x05010300 //Library, 5.1.2.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
 #define TLK_PRT_VERSION              0x0100 //Protocol, 1.0.0
 
@@ -213,8 +213,8 @@
 #ifndef TLK_DEV_LCD_ENABLE
 #define TLK_DEV_LCD_ENABLE           (0 && TLK_CFG_DEV_ENABLE)
 #endif
-#ifndef TLK_DEV_SENSOR_ENABLE
-#define TLK_DEV_SENSOR_ENABLE        (0 && TLK_CFG_DEV_ENABLE)
+#ifndef TLK_DEV_GSENSOR_ENABLE
+#define TLK_DEV_GSENSOR_ENABLE       (0 && TLK_CFG_DEV_ENABLE)
 #endif
 #ifndef TLK_DEV_TOUCH_ENABLE
 #define TLK_DEV_TOUCH_ENABLE         (0 && TLK_CFG_DEV_ENABLE)
@@ -227,6 +227,9 @@
 #endif
 #ifndef TLK_DEV_MFI_ENABLE
 #define TLK_DEV_MFI_ENABLE           (0 && TLK_CFG_DEV_ENABLE)
+#endif
+#ifndef TLK_DEV_HEARTRATE_ENABLE
+#define TLK_DEV_HEARTRATE_ENABLE     (0 && TLK_CFG_DEV_ENABLE)
 #endif
 
 /******************************************************************************
@@ -351,6 +354,9 @@
 #ifndef TLKMMI_TEST_ENABLE
 #define TLKMMI_TEST_ENABLE           (1 && TLK_CFG_TEST_ENABLE && TLK_CFG_MMI_ENABLE)
 #endif
+#ifndef TLKMMI_SENSOR_ENABLE
+#define TLKMMI_SENSOR_ENABLE         (0 && TLK_CFG_MMI_ENABLE)
+#endif
 
 /******************************************************************************
  * Macro: TLK_TEST_xxx_ENABLE 
@@ -421,7 +427,7 @@
 #define TLK_CFG_FLASH_LE_ADR_CUSTOM_PAIRING_SIZE     4096
 /* bonding slave GATT service critical information area */
 #define TLK_CFG_FLASH_LE_SDP_ATT_ADRR         (0xF6000+TLK_CFG_FLASH_CAP-0x100000) //for master: store peer slave device's ATT handle
-#define TLK_CFG_FLASH_LE_SDP_ATT_SIZE         (2*4096) //8K flash for ATT HANLDE storage
+#define TLK_CFG_FLASH_LE_SDP_ATT_SIZE         (2*4096) //8K flash for ATT HANDLE storage
 
 //NOTE: TLK_CFG_FLASH_BT_CALIBEATION_ADDR can not change
 #define TLK_CFG_FLASH_BT_CALIBEATION_ADDR     (0xDD000+TLK_CFG_FLASH_CAP-0x100000)

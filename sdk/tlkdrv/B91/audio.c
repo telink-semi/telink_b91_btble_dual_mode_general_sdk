@@ -37,7 +37,7 @@ unsigned char audio_tx_dma_chn;
 dma_chain_config_t g_audio_tx_dma_list_cfg;
 dma_chain_config_t g_audio_rx_dma_list_cfg;
 
-aduio_i2s_codec_config_t audio_i2s_codec_config=
+audio_i2s_codec_config_t audio_i2s_codec_config=
 {
    .audio_in_mode 			=BIT_16_MONO,
    .audio_out_mode			=BIT_16_MONO_FIFO0,
@@ -251,7 +251,7 @@ void audio_set_output_chn(audio_output_chn_e chn)
  * 	@param[in]  chn_wl: select word  length and audio channel number
  * 	@return     none
  */
-void aduio_set_chn_wl(audio_channel_wl_mode_e chn_wl)
+void audio_set_chn_wl(audio_channel_wl_mode_e chn_wl)
 {
 	switch (chn_wl)
 	{
@@ -585,14 +585,14 @@ void audio_tx_dma_add_list_element(dma_chain_config_t *config_addr,dma_chain_con
  */
 void audio_init(audio_flow_mode_e flow_mode,audio_sample_rate_e rate,audio_channel_wl_mode_e channel_wl)
 {
-	aduio_set_chn_wl(channel_wl);
+	audio_set_chn_wl(channel_wl);
 	audio_set_codec_clk(1,16);//from ppl 192/16=12M
 	audio_mux_config(CODEC_I2S,audio_i2s_codec_config.audio_in_mode,audio_i2s_codec_config.audio_in_mode,audio_i2s_codec_config.audio_out_mode);
 	audio_i2s_config(I2S_I2S_MODE,audio_i2s_codec_config.i2s_data_select,audio_i2s_codec_config.i2s_codec_m_s_mode,audio_i2s_codec_config.i2s_data_invert_select);
 	audio_set_i2s_clock(rate,AUDIO_RATE_EQUAL,0);
 	audio_clk_en(1,1);
 	reg_audio_codec_vic_ctr=FLD_AUDIO_CODEC_SLEEP_ANALOG;//active analog sleep mode
-	while(!(reg_audio_codec_stat_ctr&FLD_AUDIO_CODEC_PON_ACK));//wait codec can be configed
+	while(!(reg_audio_codec_stat_ctr&FLD_AUDIO_CODEC_PON_ACK));//wait codec can be configured
 	if(flow_mode<BUF_TO_LINE_OUT)
 	{
 		audio_codec_adc_config(audio_i2s_codec_config.i2s_codec_m_s_mode,(flow_mode%3),rate,audio_i2s_codec_config.codec_data_select,MCU_WREG);
@@ -664,7 +664,7 @@ void audio_i2c_init(codec_type_e codec_type, i2c_sda_pin_e sda_pin,i2c_scl_pin_e
  */
 void audio_init_i2c(audio_flow_mode_e flow_mode,audio_sample_rate_e rate,audio_channel_wl_mode_e channel_wl)
 {
-	aduio_set_chn_wl(channel_wl);
+	audio_set_chn_wl(channel_wl);
 	audio_set_codec_clk(1,16);////from ppl 192/16=12M
 	audio_mux_config(CODEC_I2S,audio_i2s_codec_config.audio_in_mode,audio_i2s_codec_config.audio_in_mode,audio_i2s_codec_config.audio_out_mode);
 	audio_i2s_config(I2S_I2S_MODE,audio_i2s_codec_config.i2s_data_select,audio_i2s_codec_config.i2s_codec_m_s_mode,audio_i2s_codec_config.i2s_data_invert_select);
@@ -672,7 +672,7 @@ void audio_init_i2c(audio_flow_mode_e flow_mode,audio_sample_rate_e rate,audio_c
 	audio_clk_en(1,1);
 	audio_i2c_init(INNER_CODEC,0,0);
 	audio_i2c_codec_write(addr_audio_codec_vic_ctr,FLD_AUDIO_CODEC_SLEEP_ANALOG);//active analog sleep mode
-	while(!(audio_i2c_codec_read(addr_audio_codec_stat_ctr)&FLD_AUDIO_CODEC_PON_ACK));//wait codec can be configed
+	while(!(audio_i2c_codec_read(addr_audio_codec_stat_ctr)&FLD_AUDIO_CODEC_PON_ACK));//wait codec can be configured
 	if(flow_mode<BUF_TO_LINE_OUT)
 	{
 		audio_codec_adc_config(audio_i2s_codec_config.i2s_codec_m_s_mode,(flow_mode%3),rate,audio_i2s_codec_config.codec_data_select,I2C_WREG);
@@ -1244,7 +1244,7 @@ void audio_i2s_init(pwm_pin_e pwm0_pin, i2c_sda_pin_e sda_pin,i2c_scl_pin_e scl_
 	pwm_set(pwm0_pin);
 	audio_i2s_set_pin();
 	audio_i2c_init(EXT_CODEC,sda_pin,scl_pin);
-	aduio_set_chn_wl(MONO_BIT_16);
+	audio_set_chn_wl(MONO_BIT_16);
 	audio_mux_config(IO_I2S,BIT_16_MONO,BIT_16_MONO,BIT_16_MONO_FIFO0);
 	audio_i2s_config(I2S_I2S_MODE,I2S_BIT_16_DATA,I2S_M_CODEC_S,I2S_DATA_INVERT_DIS);
 	audio_set_i2s_clock(AUDIO_32K,AUDIO_RATE_EQUAL,0);
@@ -1435,7 +1435,7 @@ void audio_codec_adc_enable(int en)
 
 void audio_init_mode(audio_flow_mode_e flow_mode, audio_sample_rate_e rate, audio_channel_wl_mode_e channel_wl)
 {
-	aduio_set_chn_wl(channel_wl);
+	audio_set_chn_wl(channel_wl);
 	audio_set_codec_clk(1, 16);//from ppl 192/16=12M
 	audio_mux_config(CODEC_I2S,audio_i2s_codec_config.audio_in_mode,audio_i2s_codec_config.audio_in_mode,audio_i2s_codec_config.audio_out_mode);
 	//audio_i2s_config(I2S_I2S_MODE,audio_i2s_codec_config.i2s_data_select,audio_i2s_codec_config.i2s_codec_m_s_mode,audio_i2s_codec_config.i2s_data_invert_select);

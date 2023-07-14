@@ -324,7 +324,7 @@ static int tlkmmi_lemst_hostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 		}
 		break;
 		
-		case GAP_EVT_SMP_TK_DISPALY:
+		case GAP_EVT_SMP_TK_DISPLAY:
 		{
 
 
@@ -355,7 +355,7 @@ static int tlkmmi_lemst_hostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 		}
 		break;
 
-		case GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM:
+		case GAP_EVT_GATT_HANDLE_VALUE_CONFIRM:
 		{
 
 		}

@@ -40,10 +40,7 @@
 #include "service/uuid.h"
 
 
-/*********************************************************/
-//Remove when file merge to SDK //
 
-/*********************************************************/
 
 /***********Customized configuration, Begin **************/
 #define  BLE_DELAY_REPORT_DISCONNECT_EV		0   //

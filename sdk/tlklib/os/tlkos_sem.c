@@ -101,14 +101,14 @@ int tlkos_sem_create(tlkos_sem_t *pSem, uint maxCount, uint iniCount)
 }
 
 /******************************************************************************
- * Function: tlkos_sem_destory
+ * Function: tlkos_sem_destroy
  * Descript: Destroy semaphore.
  * Params:
  *     @pSem[IN]--Seamphore control structure.
  * Return: Operating results, TLK_ENONE means success and others mean failure.
  * Others: None.
 *******************************************************************************/
-int tlkos_sem_destory(tlkos_sem_t *pSem)
+int tlkos_sem_destroy(tlkos_sem_t *pSem)
 {
 	if(pSem == nullptr) return -TLK_EPARAM;
 #if (TLK_OS_FREERTOS_ENABLE)

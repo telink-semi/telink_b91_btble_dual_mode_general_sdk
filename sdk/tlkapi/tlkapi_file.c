@@ -183,7 +183,7 @@ int tlkapi_file_read(FIL *pFile, void* buff, uint32 btr, uint32* br)
  *      @pFile[IN]--The file.
  *      @buff[IN]--The buff stored the write data.
  *      @btr[IN]--Num of bytes to write.
- *      @bt[IN]--Num of bytes actully to write.
+ *      @bt[IN]--Num of bytes actually to write.
  * Return: Return the result.
  * Others: None.
 *******************************************************************************/

@@ -129,7 +129,7 @@ void tlkmdi_tone_close(void);
 
 /******************************************************************************
  * Function: tlkmdi_tone_setParam
- * Descript: Set the playing paramter. 
+ * Descript: Set the playing parameter. 
  * Params: 
  *        @playIndex[IN]--Theplay index.
  *        @playcount[IN]--The play count.

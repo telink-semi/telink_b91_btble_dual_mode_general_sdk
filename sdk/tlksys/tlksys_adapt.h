@@ -32,7 +32,7 @@
  * Descript: Initializes the adapter control parameters.
  * Params:
  *     @procID[IN]--Id of the process to which the adapter belongs.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlksys_adapt_init(uint08 procID);
@@ -70,7 +70,7 @@ uint tlksys_adapt_interval(uint08 procID);
  *     @timeout[IN]--Scheduling interval set by the user. Unit:us.
  *     @timerCB[IN]--The callback interface after the time has arrived.
  *     @queueCB[IN]--The callback interface for the work to be executed.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlksys_adapt_initTimer(uint08 procID, tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
@@ -97,7 +97,7 @@ bool tlksys_adapt_isHaveQueue(uint08 procID, tlkapi_queue_t *pQueue);
  * Params:
  *     @procID[IN]--Id of the process to which the adapter belongs.
  *     @pQueue[IN]--Work queue node.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlksys_adapt_appendQueue(uint08 procID, tlkapi_queue_t *pQueue);
@@ -112,7 +112,7 @@ int  tlksys_adapt_removeQueue(uint08 procID, tlkapi_queue_t *pQueue);
  *     @pTimer[IN]--Timer scheduling node.
  *     @isUpdate[IN]--True,Timer recount; False,Depending on the state of the
  *       other parameters, the timer may continue the previous counting logic.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlksys_adapt_updateTimer(uint08 procID, tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);

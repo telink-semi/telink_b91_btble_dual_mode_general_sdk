@@ -344,9 +344,9 @@ static int tlkmmi_rdt_t003DutAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 aut1Addt[6] = TLKMMI_RDT_T003_BTADDR_AUT;
 	uint08 aut2Addt[6] = TLKMMI_RDT_T003_BTADDR_AUT2;
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		bth_hci_sendWriteScanEnableCmd(BOTH_SCAN_ENABLE);
 		return TLK_ENONE;
@@ -395,9 +395,9 @@ static int tlkmmi_rdt_t003DutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 aut1Addt[6] = TLKMMI_RDT_T003_BTADDR_AUT;
 	uint08 aut2Addt[6] = TLKMMI_RDT_T003_BTADDR_AUT2;
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	if(tmemcmp(pEvt->peerMac, aut1Addt, 6) == 0){
 		sTlkMmiRdtT003Dut.aut1.handle = 0;
 		sTlkMmiRdtT003Dut.aut1.busys = TLKMMI_RDT_T003_BUSY_NONE;

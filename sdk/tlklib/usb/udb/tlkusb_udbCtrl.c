@@ -34,7 +34,7 @@
 
 
 
-extern void tlkusb_udb_recvHander(void);
+extern void tlkusb_udb_recvHandler(void);
 
 static int tlkusb_udbctrl_init(void);
 static void tlkusb_udbctrl_reset(void);
@@ -94,8 +94,8 @@ static void tlkusb_udbctrl_deinit(void)
 
 static void tlkusb_udbctrl_handler(void)
 {
-//	tlkusb_udb_sendHander();
-	tlkusb_udb_recvHander();
+//	tlkusb_udb_sendHandler();
+	tlkusb_udb_recvHandler();
 }
 
 

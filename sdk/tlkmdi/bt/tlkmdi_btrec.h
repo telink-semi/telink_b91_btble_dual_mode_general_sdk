@@ -220,8 +220,8 @@ bool tlkmdi_btrec_isInStop(void);
 uint08 *tlkmdi_btrec_getPageAddr(void);
 
 /******************************************************************************
- * Function: Set the scan paramter.
- * Descript: Set the reconnect paramter.
+ * Function: Set the scan parameter.
+ * Descript: Set the reconnect parameter.
  * Params: None.
  * Return: TLK_ENONE is success,other value is failure.
  * Others: None.

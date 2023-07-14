@@ -138,19 +138,19 @@ int bth_signal_setQosServiceType(uint16 aclHandle, uint16 scid, uint08 serviceTy
  *        @aclHandle[IN]--The acl handle.
  *        @psmID[IN]--The psm id.
  *        @usrID[IN]--The user id.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_createConnect(uint16 aclHandle, uint16 psmID, uint08 usrID, uint16 *pScid);
 
 /******************************************************************************
- * Function: bth_signal_destoryConnect
+ * Function: bth_signal_destroyConnect
  * Descript: Disconnect a profile connection.
  * Params: 
  *        @aclHandle[IN]--The acl handle.
  *        @psmID[IN]--The psm id.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
-int bth_signal_destoryConnect(uint16 aclHandle, uint16 psmID);
+int bth_signal_destroyConnect(uint16 aclHandle, uint16 psmID);
 
 /******************************************************************************
  * Function: bth_signal_disconnChannel
@@ -158,7 +158,7 @@ int bth_signal_destoryConnect(uint16 aclHandle, uint16 psmID);
  * Params: 
  *        @aclHandle[IN]--The acl handle.
  *        @chnID[IN]--The channel id.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_disconnChannel(uint16 aclHandle, uint16 chnID);
 
@@ -169,7 +169,7 @@ int bth_signal_disconnChannel(uint16 aclHandle, uint16 chnID);
  *        @aclHandle[IN]--The acl handle.
  *        @psmID[IN]--The psm id.
  *        @usrID[IN]--The user id.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_disconnChannelByUsrID(uint16 aclHandle, uint16 psmID, uint08 usrID);
 
@@ -180,7 +180,7 @@ int bth_signal_disconnChannelByUsrID(uint16 aclHandle, uint16 psmID, uint08 usrI
  *        @aclHandle[IN]--The acl handle.
  *        @psmID[IN]--The psm id.
  *        @usrID[IN]--The user id.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_destroyConnectByUsrID(uint16 aclHandle, uint16 psmID, uint08 usrID);
 
@@ -190,7 +190,7 @@ int bth_signal_destroyConnectByUsrID(uint16 aclHandle, uint16 psmID, uint08 usrI
  * Descript: handle close event.
  * Params: 
  *        @pChannel[IN]--The l2cap channel.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendClosedEvt(bth_l2cap_channel_t *pChannel);
 
@@ -200,7 +200,7 @@ int bth_signal_sendClosedEvt(bth_l2cap_channel_t *pChannel);
  * Params: 
  *        @psmID[IN]--The psm id.
  *        @handle[IN]--The acl handle.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendRequestEvt(uint16 psmID, uint16 handle, uint16 scid);
 
@@ -209,7 +209,7 @@ int bth_signal_sendRequestEvt(uint16 psmID, uint16 handle, uint16 scid);
  * Descript: handle connect event.
  * Params: 
  *        @pChannel[IN]--The l2cap channel.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendConnectEvt(bth_l2cap_channel_t *pChannel);
 
@@ -218,7 +218,7 @@ int bth_signal_sendConnectEvt(bth_l2cap_channel_t *pChannel);
  * Descript: handle disconnect event.
  * Params: 
  *        @pChannel[IN]--The l2cap channel.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendDisconnEvt(bth_l2cap_channel_t *pChannel);
 
@@ -230,7 +230,7 @@ int bth_signal_sendDisconnEvt(bth_l2cap_channel_t *pChannel);
  *        @aclHandle[IN]--The acl handle.
  *        @psmID[IN]--The psm id.
  *        @usrID[IN]--The user id.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int  bth_signal_chnStart(bth_l2cap_channel_t *pChannel, uint16 aclHandle, uint16 psmID, uint08 usrID);
 
@@ -240,7 +240,7 @@ int  bth_signal_chnStart(bth_l2cap_channel_t *pChannel, uint16 aclHandle, uint16
  * Params: 
  *        @pChannel[IN]--The l2cap channel.
  *        @isForce[IN]--is Force.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int  bth_signal_chnClose(bth_l2cap_channel_t *pChannel, uint08 isForce);
 
@@ -249,7 +249,7 @@ int  bth_signal_chnClose(bth_l2cap_channel_t *pChannel, uint08 isForce);
  * Descript: reset a l2cap channel.
  * Params: 
  *        @pChannel[IN]--The l2cap channel.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 void bth_signal_chnReset(bth_l2cap_channel_t *pChannel);
 
@@ -259,7 +259,7 @@ void bth_signal_chnReset(bth_l2cap_channel_t *pChannel);
  * Params: 
  *        @pTimer[IN]--The l2cap channel timer.
  *        @userArg[IN]--The data need to handle.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 bool bth_signal_chnTimer(tlkapi_timer_t *pTimer, uint32 userArg);
 
@@ -270,7 +270,7 @@ bool bth_signal_chnTimer(tlkapi_timer_t *pTimer, uint32 userArg);
  *        @handle[IN]--The l2cap handle.
  *        @pData[IN]--The data need to handle.
  *        @dataLen[IN]--The data length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 void bth_signal_recvData(uint16 handle, uint08 *pData, uint16 dataLen);
 void bth_signal_recvHandler(uint16 handle, uint08 *pData, uint16 dataLen);
@@ -281,7 +281,7 @@ void bth_signal_recvHandler(uint16 handle, uint08 *pData, uint16 dataLen);
  * Descript:L2cap signal busy event handler.
  * Params: 
  *        @pChannel[IN]--The l2cap channel.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 void bth_signal_busyProc(bth_l2cap_channel_t *pChannel);
 
@@ -292,7 +292,7 @@ void bth_signal_busyProc(bth_l2cap_channel_t *pChannel);
  *        @handle[IN]--The acl link handle.
  *        @identify[IN]--The identify.
  *        @infoType[IN]--The info type.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendInfoReq(uint16 handle, uint08 identify, uint16 infoType);
 
@@ -306,7 +306,7 @@ int bth_signal_sendInfoReq(uint16 handle, uint08 identify, uint16 infoType);
  *        @result[IN]--The result.
  *        @pData[IN]--The payload.
  *        @dataLen[IN]--The payload length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendInfoRsp(uint16 handle, uint08 identify, uint16 infoType, uint16 result, uint08 *pData, uint16 dataLen);
 
@@ -318,7 +318,7 @@ int bth_signal_sendInfoRsp(uint16 handle, uint08 identify, uint16 infoType, uint
  *        @identify[IN]--The identify.
  *        @pData[IN]--The payload.
  *        @dataLen[IN]--The payload length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendEchoReq(uint16 handle, uint08 identify, uint08 *pData, uint16 dataLen);
 
@@ -330,7 +330,7 @@ int bth_signal_sendEchoReq(uint16 handle, uint08 identify, uint08 *pData, uint16
  *        @identify[IN]--The identify.
  *        @pData[IN]--The payload.
  *        @dataLen[IN]--The payload length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendEchoRsp(uint16 handle, uint08 identify, uint08 *pData, uint16 dataLen);
 
@@ -342,7 +342,7 @@ int bth_signal_sendEchoRsp(uint16 handle, uint08 identify, uint08 *pData, uint16
  *        @identify[IN]--The identify.
  *        @psm[IN]--The psm id.
  *        @scid[IN]--The scid.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendConnectReq(uint16 handle, uint08 identify, uint16 psm, uint16 scid);
 
@@ -356,7 +356,7 @@ int bth_signal_sendConnectReq(uint16 handle, uint08 identify, uint16 psm, uint16
  *        @dcid[IN]--The dcid.
  *        @result[IN]--The result.
  *        @status[IN]--The status.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendConnectRsp(uint16 handle, uint08 identify, uint16 scid, uint16 dcid, uint16 result, uint16 status);
 
@@ -368,7 +368,7 @@ int bth_signal_sendConnectRsp(uint16 handle, uint08 identify, uint16 scid, uint1
  *        @identify[IN]--The identify.
  *        @scid[IN]--The scid.
  *        @dcid[IN]--The dcid.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendDisconnReq(uint16 handle, uint08 identify, uint16 dcid, uint16 scid);
 
@@ -380,7 +380,7 @@ int bth_signal_sendDisconnReq(uint16 handle, uint08 identify, uint16 dcid, uint1
  *        @identify[IN]--The identify.
  *        @scid[IN]--The scid.
  *        @dcid[IN]--The dcid.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendDisconnRsp(uint16 handle, uint08 identify, uint16 dcid, uint16 scid);
 
@@ -394,7 +394,7 @@ int bth_signal_sendDisconnRsp(uint16 handle, uint08 identify, uint16 dcid, uint1
  *        @flags[IN]--The flags.
  *        @pData[IN]--The payload.
  *        @dataLen[IN]--The data length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendConfigReq(uint16 handle, uint08 identify, uint16 dcid, uint16 flags, uint08 *pData, uint16 dataLen);
 
@@ -409,7 +409,7 @@ int bth_signal_sendConfigReq(uint16 handle, uint08 identify, uint16 dcid, uint16
  *        @result[IN]--The result.
  *        @pData[IN]--The payload.
  *        @dataLen[IN]--The data length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendConfigRsp(uint16 handle, uint08 identify, uint16 dcid, uint16 flags, uint16 result, uint08 *pData, uint16 dataLen);
 
@@ -422,7 +422,7 @@ int bth_signal_sendConfigRsp(uint16 handle, uint08 identify, uint16 dcid, uint16
  *        @reason[IN]--The reason for reject.
  *        @pData[IN]--The payload.
  *        @dataLen[IN]--The data length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_signal_sendRejectRsp(uint16 handle, uint08 identify, uint16 reason, uint08 *pData, uint16 dataLen);
 

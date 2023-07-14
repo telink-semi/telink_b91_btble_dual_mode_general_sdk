@@ -121,8 +121,8 @@ static void tlkdrv_st77903_cfgScanMode(uint32 foreImgAddr, uint32 backImgAddr, u
 static int tlkdrv_st77903_getColorDeal(uint32 param0, uint32 param1);
 static int tlkdrv_st77903_getWidthDeal(uint32 param0, uint32 param1);
 static int tlkdrv_st77903_getHeightDeal(uint32 param0, uint32 param1);
-static int tlkdrv_st77903_setForegroudDeal(uint32 param0, uint32 param1);
-static int tlkdrv_st77903_setBackgroudDeal(uint32 param0, uint32 param1);
+static int tlkdrv_st77903_setForegroundDeal(uint32 param0, uint32 param1);
+static int tlkdrv_st77903_setBackgroundDeal(uint32 param0, uint32 param1);
 
 
 

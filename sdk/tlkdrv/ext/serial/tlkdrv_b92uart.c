@@ -24,7 +24,7 @@
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_SERIAL_ENABLE)
 #include "tlkdrv_serial.h"
-#if (TLKDRV_SERIAL_B92_UART_EANBLE)
+#if (TLKDRV_SERIAL_B92_UART_ENABLE)
 #include "tlkdrv_b92uart.h"
 #include "drivers.h"
 
@@ -34,10 +34,6 @@ extern void tlkdrv_serial_irqTxDoneWithDma(uint08 port);
 extern void tlkdrv_serial_irqTxDoneWithoutDma(uint08 port);
 extern void tlkdrv_serial_irqRxDoneWithDma(uint08 port);
 extern void tlkdrv_serial_irqRxDoneWithoutDma(uint08 port);
-
-
-extern unsigned char uart_dma_tx_chn[2];
-extern unsigned char uart_dma_rx_chn[2];
 
 
 
@@ -59,14 +55,6 @@ int tlkdrv_b92uart_open(uint08 port, uint32 baudRate, uint16 txPin,
 
 	if(port == UART0) plic_interrupt_disable(IRQ19_UART0);
 	else if(port == UART1) plic_interrupt_disable(IRQ18_UART1);
-	if(uart_dma_tx_chn[port] != 0){
-		dma_chn_dis(uart_dma_tx_chn[port]);
-		dma_clr_irq_mask(uart_dma_tx_chn[port], TC_MASK|ABT_MASK|ERR_MASK);
-	}
-	if(uart_dma_rx_chn[port] != 0){
-		dma_chn_dis(uart_dma_rx_chn[port]);
-		dma_clr_irq_mask(uart_dma_rx_chn[port], TC_MASK|ABT_MASK|ERR_MASK);
-	}
 	
 	uart_reset(port);
 	uart_set_pin(port, txPin, rxPin);
@@ -123,13 +111,13 @@ int tlkdrv_b92uart_close(uint08 port, uint08 txDma, uint08 rxDma)
 	uart_reset(port);
 	if(port == UART0) plic_interrupt_disable(IRQ19_UART0);
 	else if(port == UART1) plic_interrupt_disable(IRQ18_UART1);
-	if(uart_dma_tx_chn[port] != 0){
-		dma_chn_dis(uart_dma_tx_chn[port]);
-		dma_clr_irq_mask(uart_dma_tx_chn[port], TC_MASK|ABT_MASK|ERR_MASK);
+	if(txDma != 0){
+		dma_chn_dis(txDma);
+		dma_clr_irq_mask(txDma, TC_MASK|ABT_MASK|ERR_MASK);
 	}
-	if(uart_dma_rx_chn[port] != 0){
-		dma_chn_dis(uart_dma_rx_chn[port]);
-		dma_clr_irq_mask(uart_dma_rx_chn[port], TC_MASK|ABT_MASK|ERR_MASK);
+	if(rxDma != 0){
+		dma_chn_dis(rxDma);
+		dma_clr_irq_mask(rxDma, TC_MASK|ABT_MASK|ERR_MASK);
 	}
 	uart_clr_irq_status(port, UART_TXDONE_IRQ_STATUS);
 	uart_clr_irq_status(port, UART_RXDONE_IRQ_STATUS);
@@ -173,7 +161,7 @@ void tlkdrv_b92uart_irqHandler(uint08 port)
 
 
 
-#endif //#if (TLKDRV_SERIAL_B92_UART_EANBLE)
+#endif //#if (TLKDRV_SERIAL_B92_UART_ENABLE)
 #endif //#if (TLK_DEV_SERIAL_ENABLE)
 
 

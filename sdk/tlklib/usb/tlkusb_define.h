@@ -57,7 +57,7 @@ typedef enum{
 #define TLKUSB_EDP_TYPE_INTERRUPT        3
 /**If Isochronous endpoint,
 Bits 3..2 = Synchronisation Type (Iso Mode)
-00 = No Synchonisation
+00 = No Synchronisation
 01 = Asynchronous
 10 = Adaptive
 11 = Synchronous

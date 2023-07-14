@@ -35,7 +35,7 @@ static tlkapi_adapt_t sTlkOsAdapt;
  * Function: tlkos_adapt_init
  * Descript: Initializes the adapter control parameters.
  * Params: None.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkos_adapt_init(void)
@@ -67,7 +67,7 @@ void tlkos_adapt_handler(void)
  *     @timeout[IN]--Scheduling interval set by the user. Unit:us.
  *     @timerCB[IN]--The callback interface after the time has arrived.
  *     @queueCB[IN]--The callback interface for the work to be executed.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkos_adapt_initTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout)
@@ -112,7 +112,7 @@ bool tlkos_adapt_isHaveQueue(tlkapi_queue_t *pQueue)
  * Descript: Implement the function of adding and deleting work queues.
  * Params:
  *     @pQueue[IN]--Work queue node.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkos_adapt_appendQueue(tlkapi_queue_t *pQueue)
@@ -132,7 +132,7 @@ int tlkos_adapt_removeQueue(tlkapi_queue_t *pQueue)
  *     @pTimer[IN]--Timer scheduling node.
  *     @isUpdate[IN]--True,Timer recount; False,Depending on the state of the
  *       other parameters, the timer may continue the previous counting logic.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkos_adapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert)

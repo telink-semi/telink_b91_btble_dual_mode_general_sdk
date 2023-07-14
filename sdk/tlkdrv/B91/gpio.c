@@ -400,8 +400,8 @@ void gpio_set_up_down_res(gpio_pin_e pin, gpio_pull_type_e up_down_res)
 }
 
 /**
- * @brief     This function set pin's 30k pull-up registor.
- * @param[in] pin - the pin needs to set its pull-up registor.
+ * @brief     This function set pin's 30k pull-up register.
+ * @param[in] pin - the pin needs to set its pull-up register.
  * @return    none.
   * @attention  This function sets the digital pull-up, it will not work after entering low power consumption.
  */

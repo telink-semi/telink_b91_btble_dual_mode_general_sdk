@@ -66,7 +66,7 @@ typedef enum {
  *  @attention  1. if user set "SLEEP_DEEPSLEEP_RETENTION", MCU not always enter this sleep mode, it will meet some other
  *                 condition for this mode, e.g. stack support this mode, and sleep timing is big enough
  *              2. deepsleep mode(deepsleep without retention) is not maintained by stack PM module, if user want use
- *                 this sleep type, should call dirver API "cpu_sleep_wakeup" directly in main_loop
+ *                 this sleep type, should call driver API "cpu_sleep_wakeup" directly in main_loop
  *
  */
 typedef enum {

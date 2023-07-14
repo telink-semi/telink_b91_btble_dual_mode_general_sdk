@@ -24,15 +24,15 @@
 #include "tlkapi/tlkapi_stdio.h"
 #if (TLK_DEV_SERIAL_ENABLE)
 #include "tlkdrv_serial.h"
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 #include "tlkdrv_b91uart.h"
 #endif
-#if (TLKDRV_SERIAL_B92_UART_EANBLE)
+#if (TLKDRV_SERIAL_B92_UART_ENABLE)
 #include "tlkdrv_b92uart.h"
 #endif
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 #include "tlkdrv_b91uart.h"
-#elif (TLKDRV_SERIAL_B92_UART_EANBLE)
+#elif (TLKDRV_SERIAL_B92_UART_ENABLE)
 #include "tlkdrv_b92uart.h"
 #else
 #error "The driver of serial being selected is not supported."
@@ -170,10 +170,10 @@ int tlkdrv_serial_open(uint08 port)
 	sTlkDrvSerial.flags[port] &= ~TLKDRV_SERIAL_FLAG_RX_BUSY;
 	tlkdrv_serial_clear(port);
 	pPort = &sTlkDrvSerial.port[port];
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 	ret = tlkdrv_b91uart_open(port, pPort->baudRate, pPort->txPin, pPort->rxPin,
 		pPort->txDma, pPort->rxDma, pPort->rtsPin, pPort->ctsPin);
-#elif (TLKDRV_SERIAL_B92_UART_EANBLE)
+#elif (TLKDRV_SERIAL_B92_UART_ENABLE)
 	ret = tlkdrv_b92uart_open(port, pPort->baudRate, pPort->txPin, pPort->rxPin,
 		pPort->txDma, pPort->rxDma, pPort->rtsPin, pPort->ctsPin);
 #else
@@ -213,9 +213,9 @@ int tlkdrv_serial_close(uint08 port)
 	}
 
 	pPort = &sTlkDrvSerial.port[port];
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 	ret = tlkdrv_b91uart_close(port, pPort->txDma, pPort->rxDma);
-#elif (TLKDRV_SERIAL_B92_UART_EANBLE)
+#elif (TLKDRV_SERIAL_B92_UART_ENABLE)
 	ret = tlkdrv_b92uart_close(port, pPort->txDma, pPort->rxDma);
 #else
 	ret = -TLK_ENOSUPPORT;
@@ -515,7 +515,8 @@ bool tlkdrv_serial_isBusy(uint08 port)
 	}
 	return false;
 }
-void tlkdrv_serial_wakeup(uint08 port)
+
+void tlkdrv_serial_sleep(uint08 port)
 {
 	uint16 flags;
 	
@@ -524,17 +525,39 @@ void tlkdrv_serial_wakeup(uint08 port)
 	flags = sTlkDrvSerial.flags[port];
 	if((flags & TLKDRV_SERIAL_FLAG_OPEN) == 0) return;
 	
-	uart_clr_tx_index(port);
-	uart_clr_rx_index(port);
+	sTlkDrvSerial.flags[port] |= TLKDRV_SERIAL_FLAG_SLEEP;
+	if((flags & TLKDRV_SERIAL_FLAG_SEND) != 0 && (flags & TLKDRV_SERIAL_FLAG_TX_DMA) != 0){
+		dma_chn_dis(sTlkDrvSerial.port[port].txDma);
+		dma_clr_irq_mask(sTlkDrvSerial.port[port].txDma, TC_MASK|ABT_MASK|ERR_MASK);
+	}
+	if((flags & TLKDRV_SERIAL_FLAG_RECV) != 0 && (flags & TLKDRV_SERIAL_FLAG_RX_DMA) != 0){
+		dma_chn_dis(sTlkDrvSerial.port[port].rxDma);
+		dma_clr_irq_mask(sTlkDrvSerial.port[port].rxDma, TC_MASK|ABT_MASK|ERR_MASK);
+	}
+}
+void tlkdrv_serial_wakeup(uint08 port)
+{
+	uint16 flags;
+	
+	if(port >= TLKDRV_SERIAL_MAX_NUMB) return;
+	
+	flags = sTlkDrvSerial.flags[port];
+	if((flags & TLKDRV_SERIAL_FLAG_OPEN) == 0) return;
+
+	sTlkDrvSerial.flags[port] &= ~TLKDRV_SERIAL_FLAG_SLEEP;
 	sTlkDrvSerial.flags[port] &= ~TLKDRV_SERIAL_FLAG_TX_BUSY;
 	sTlkDrvSerial.flags[port] &= ~TLKDRV_SERIAL_FLAG_RX_BUSY;
 
 	tlkdrv_serial_clear(port);
-	if((flags & TLKDRV_SERIAL_FLAG_SEND) != 0 && (flags & TLKDRV_SERIAL_FLAG_TX_DMA) == 0){
+	if((flags & TLKDRV_SERIAL_FLAG_SEND) != 0 && (flags & TLKDRV_SERIAL_FLAG_TX_DMA) != 0){
 		tlkdrv_serial_setTxDmaBuffer(port);
+	}else{
+		uart_clr_tx_index(port);
 	}
 	if((flags & TLKDRV_SERIAL_FLAG_RECV) != 0 && (flags & TLKDRV_SERIAL_FLAG_RX_DMA) != 0){
 		tlkdrv_serial_setRxDmaBuffer(port);
+	}else{
+		uart_clr_rx_index(port);
 	}
 }
 bool tlkdrv_serial_sfifoIsMore60(uint08 port, uint16 dataLen)
@@ -687,7 +710,10 @@ int tlkdrv_serial_send(uint08 port, uint08 *pData, uint16 dataLen)
 	flags = sTlkDrvSerial.flags[port];
 	if((flags & TLKDRV_SERIAL_FLAG_OPEN) == 0 || (flags & TLKDRV_SERIAL_FLAG_SEND) == 0){
 		return -TLK_ENOREADY;
-	} 
+	}
+	if((sTlkDrvSerial.flags[port] & TLKDRV_SERIAL_FLAG_SLEEP) != 0){
+		return -TLK_EBUSY;
+	}
 
 	core_enter_critical();
 	if((flags & TLKDRV_SERIAL_FLAG_TX_DMA) == 0){
@@ -735,9 +761,9 @@ static int tlkdrv_serial_sendWithDma(uint08 port, uint08 *pData, uint16 dataLen)
 }
 static int tlkdrv_serial_sendWithoutDma(uint08 port, uint08 *pData, uint16 dataLen)
 {
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 	return tlkdrv_b91uart_sendWithoutDma(port, sTlkDrvSerial.port[port].rtsPin, pData, dataLen);
-#elif (TLKDRV_SERIAL_B92_UART_EANBLE)
+#elif (TLKDRV_SERIAL_B92_UART_ENABLE)
 	return tlkdrv_b92uart_sendWithoutDma(port, sTlkDrvSerial.port[port].rtsPin, pData, dataLen);
 #else
 	return -TLK_ENOSUPPORT;
@@ -856,9 +882,9 @@ static void tlkdrv_serial_setRxDmaBuffer(uint08 port)
 _attribute_ram_code_sec_
 void uart0_irq_handler(void)
 {
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 	tlkdrv_b91uart_irqHandler(UART0);
-#elif (TLKDRV_SERIAL_B92_UART_EANBLE)
+#elif (TLKDRV_SERIAL_B92_UART_ENABLE)
 	tlkdrv_b92uart_irqHandler(UART0);
 #endif
 }
@@ -867,9 +893,9 @@ void uart0_irq_handler(void)
 _attribute_ram_code_sec_
 void uart1_irq_handler(void)
 {
-#if (TLKDRV_SERIAL_B91_UART_EANBLE)
+#if (TLKDRV_SERIAL_B91_UART_ENABLE)
 	tlkdrv_b91uart_irqHandler(UART1);
-#elif (TLKDRV_SERIAL_B92_UART_EANBLE)
+#elif (TLKDRV_SERIAL_B92_UART_ENABLE)
 	tlkdrv_b92uart_irqHandler(UART1);
 #endif
 }

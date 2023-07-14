@@ -45,7 +45,7 @@ typedef enum{
 typedef enum{
 	TLKUSB_HID_DESC_HID = 0x21,
 	TLKUSB_HID_DESC_REPORT = 0x22,
-	TLKUSB_HID_DESC_PHISICAL = 0x23,
+	TLKUSB_HID_DESC_PHYSICAL = 0x23,
 }TLKUSB_HID_DESC_ENUM;
 
 
@@ -86,7 +86,7 @@ typedef enum{
 #define TLKUSB_HID_RPT_DATA_ENTRY(Type, Tag, Data_bits, ...)  \
 			(Type | Tag | TLKUSB_HID_RPT_DATA_BITS(Data_bits)) TLKUSB_HID_RPT_DATA_ENCODE(Data_bits, (__VA_ARGS__))
 
-//data item for Input/Ouput/Feature
+//data item for Input/Output/Feature
 #define TLKUSB_HID_IOF_CONSTANT                          BIT(0)
 #define TLKUSB_HID_IOF_DATA                              (0<<0)
 #define TLKUSB_HID_IOF_VARIABLE                          BIT(1)

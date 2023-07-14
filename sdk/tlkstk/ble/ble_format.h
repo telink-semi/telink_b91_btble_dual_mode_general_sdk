@@ -254,7 +254,7 @@ typedef struct{
 	u8  rf_len;				//LEN(6)_RFU(2)
 	u8	initA[6];			//
 	u8	advA[6];			//
-	u32	acces_code;			// access code
+	u32	access_code;			// access code
 	u8	crcinit[3];
 	u8	wsize;
 	u16	woffset;

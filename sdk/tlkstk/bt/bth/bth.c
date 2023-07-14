@@ -31,8 +31,6 @@
 #include "bth.h"
 #include "bth_acl.h"
 
-static uint32 sBthSniffSendTimer = 0;
-
 
 /******************************************************************************
  * Function: BTH Init interface
@@ -54,16 +52,14 @@ int bth_init(void)
 
 bool bth_isBusy(void)
 {
-	return bth_l2cap_isBusy();
+	return false;
 }
 
 bool bth_pmIsBusy(void)
 {
 	uint08 count;
 	bth_acl_handle_t *pHandle;
-
-	if(bth_l2cap_isBusy()) return true;
-	
+		
 	count = bth_handle_getUsedAclCount();
 	if(count == 0) return false;
 	if(count != 1) return true;
@@ -150,48 +146,6 @@ uint08 bth_devClassToDevType(uint32 devClass)
 		dtype = BTH_REMOTE_DTYPE_OTHER;
 	}
 	return dtype;
-}
-
-int bth_sendEnterSleepCmd(void)
-{
-	bth_acl_handle_t *pHandle;
-	
-	pHandle = bth_handle_getFirstConnAcl();
-	if(pHandle == nullptr) return -TLK_ENOOBJECT;
-	if(pHandle->curMode == BTH_LM_SNIFF_MODE || pHandle->curRole == BTH_ROLE_MASTER){
-		return -TLK_EROLE;
-	}
-	if(sBthSniffSendTimer != 0 && !clock_time_exceed(sBthSniffSendTimer, 1*1000*1000)){
-		return -TLK_EBUSY;
-	}
-	
-	if(pHandle->state == TLK_STATE_DISCING) return -TLK_ESTATUS;
-	if(pHandle->curMode == BTH_LM_ACTIVE_MODE && (pHandle->curPolicy & HCI_LP_ENABLE_SNIFF_MODE_MASK) != 0){
-		int ret = bth_hci_sendSniffModeCmd(pHandle->aclHandle, HCI_CFG_SNIFF_MAX_INTERVAL,
-			HCI_CFG_SNIFF_MIN_INTERVAL, HCI_CFG_SNIFF_ATTEMPT, HCI_CFG_SNIFF_TIMEOUT);
-		if(ret == TLK_ENONE) sBthSniffSendTimer = clock_time() | 1;
-	}
-	
-	return TLK_ENONE;
-}
-int bth_sendLeaveSleepCmd(void)
-{
-	bth_acl_handle_t *pHandle;
-
-	pHandle = bth_handle_getFirstConnAcl();
-	if(pHandle == nullptr) return -TLK_ENOOBJECT;
-	if(pHandle->curMode == BTH_LM_ACTIVE_MODE){
-		return -TLK_ESTATUS;
-	}
-	if(sBthSniffSendTimer != 0 && !clock_time_exceed(sBthSniffSendTimer, 1*1000*1000)){
-		return -TLK_EBUSY;
-	}
-	if(pHandle->curMode == BTH_LM_SNIFF_MODE){
-		int ret = bth_hci_sendExitSniffModeCmd(pHandle->aclHandle);
-		if(ret == TLK_ENONE) sBthSniffSendTimer = clock_time() | 1;
-	}
-
-	return TLK_ENONE;
 }
 
 

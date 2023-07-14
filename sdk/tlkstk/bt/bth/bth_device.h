@@ -98,7 +98,7 @@ void bth_device_update(uint08 *pDevAddr);
  *        @devClass[IN]--The class type of device.
  *        @pDevAddr[IN]--The peer address of device.
  *        @pLinkKey[IN]--The link Key. 
- * Reutrn: TLK_ENONE is success, other value failure.
+ * Return: TLK_ENONE is success, other value failure.
 *******************************************************************************/
 int  bth_device_addItem(uint32 devClass, uint08 *pDevAddr, uint08 *pLinkKey);
 
@@ -107,7 +107,7 @@ int  bth_device_addItem(uint32 devClass, uint08 *pDevAddr, uint08 *pLinkKey);
  * Descript: delete the information of a bonded device.
  * Params: 
  *        @pDevAddr[IN]--The peer address of device.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_device_delItem(uint08 *pDevAddr);
 
@@ -116,7 +116,7 @@ void bth_device_delItem(uint08 *pDevAddr);
  * Descript: clean all stored section.
  * Params: 
  *        @pDevAddr[IN]--The peer address of device.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_device_clsItem(void);
 
@@ -125,7 +125,7 @@ void bth_device_clsItem(void);
  * Descript: Get the stored device info.
  * Params: 
  *        @index[IN]--The index of a stored device.
- * Reutrn: Bt device item.
+ * Return: Bt device item.
 *******************************************************************************/
 bth_device_item_t *bth_device_getInfo(uint08 index);
 
@@ -135,7 +135,7 @@ bth_device_item_t *bth_device_getInfo(uint08 index);
  * Params: 
  *        @pDevAddr[IN]--The device bt address.
  *        @index[IN]--The index of a stored device.
- * Reutrn: Bt device item.
+ * Return: Bt device item.
 *******************************************************************************/
 bth_device_item_t *bth_device_getItem(uint08 *pDevAddr, uint08 *pIndex);
 
@@ -144,7 +144,7 @@ bth_device_item_t *bth_device_getItem(uint08 *pDevAddr, uint08 *pIndex);
  * Descript: Get specified device info.
  * Params: 
  *        @pDevAddr[IN]--The device bt address.
- * Reutrn: Bt device item.
+ * Return: Bt device item.
 *******************************************************************************/
 uint08 *bth_device_getLinkKey(uint08 *pDevAddr);
 
@@ -152,7 +152,7 @@ uint08 *bth_device_getLinkKey(uint08 *pDevAddr);
  * Function: bth_device_getLast
  * Descript: Get The last device info.
  * Params: None.
- * Reutrn: Bt device item.
+ * Return: Bt device item.
 *******************************************************************************/
 bth_device_item_t *bth_device_getLast(void);
 
@@ -161,7 +161,7 @@ bth_device_item_t *bth_device_getLast(void);
  * Descript: Get device info.
  * Params: 
  *        @type[IN]--The device class type.
- * Reutrn: Bt device item.
+ * Return: Bt device item.
 *******************************************************************************/
 bth_device_item_t *bth_device_getLastByType(uint08 type);
 

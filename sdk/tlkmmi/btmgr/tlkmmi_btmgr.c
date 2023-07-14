@@ -37,7 +37,9 @@
 #include "tlkmdi/bt/tlkmdi_bt.h"
 #include "tlkstk/bt/bth/bth_stdio.h"
 #include "tlkstk/bt/bth/bth_device.h"
-
+#if (TLK_MDI_BTIAP_ENABLE)
+#include "tlkmdi/bt/tlkmdi_btiap.h"
+#endif
 
 
 TLKSYS_MMI_TASK_DEFINE(btmgr, Btmgr);
@@ -45,8 +47,6 @@ TLKSYS_MMI_TASK_DEFINE(btmgr, Btmgr);
 
 static int tlkmmi_btmgr_init(uint08 procID, uint08 taskID)
 {
-	bth_device_item_t *pDevice;
-
 	#if (TLK_CFG_COMM_ENABLE)
 	tlkmdi_comm_regCmdCB(TLKPRT_COMM_MTYPE_BT, TLKSYS_TASKID_BTMGR);
 	#endif
@@ -68,7 +68,12 @@ static int tlkmmi_btmgr_init(uint08 procID, uint08 taskID)
 	
 	bth_hci_sendWriteClassOfDeviceCmd(TLKMMI_BTMGR_DEVICE_CLASS);
     bth_hci_sendWriteSimplePairingModeCmd(1);// enable simple pairing mode
-
+	
+	return TLK_ENONE;
+}
+static int tlkmmi_btmgr_start(void)
+{
+	bth_device_item_t *pDevice;
 	pDevice = bth_device_getLast();
 	if(pDevice != nullptr){
 		#if TLKMMI_BTMGR_BTREC_ENABLE
@@ -79,11 +84,6 @@ static int tlkmmi_btmgr_init(uint08 procID, uint08 taskID)
 		tlkmmi_btmgr_recStart(nullptr, 0, false, false);
 		#endif
 	}
-
-	return TLK_ENONE;
-}
-static int tlkmmi_btmgr_start(void)
-{
 	return TLK_ENONE;
 }
 static int tlkmmi_btmgr_pause(void)

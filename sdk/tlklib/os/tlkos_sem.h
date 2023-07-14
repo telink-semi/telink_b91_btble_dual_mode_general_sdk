@@ -79,7 +79,7 @@ int tlkos_sem_create(tlkos_sem_t *pSem, uint maxCount, uint iniCount);
  * Return: Operating results, TLK_ENONE means success and others mean failure.
  * Others: None.
 *******************************************************************************/
-int tlkos_sem_destory(tlkos_sem_t *pSem);
+int tlkos_sem_destroy(tlkos_sem_t *pSem);
 
 /******************************************************************************
  * Function: tlkos_sem_take

@@ -44,7 +44,7 @@ typedef struct {
 
 typedef struct {
 	u32 bond_flash_idx[USER_PAIR_SLAVE_MAX_NUM];  //mark paired slave mac address in flash
-	macAddr_t bond_device[USER_PAIR_SLAVE_MAX_NUM];  //macAddr_t alreay defined in ble stack
+	macAddr_t bond_device[USER_PAIR_SLAVE_MAX_NUM];  //macAddr_t already defined in ble stack
 	u8 curNum;
 } user_salveMac_t;
 extern user_salveMac_t user_tbl_slaveMac;

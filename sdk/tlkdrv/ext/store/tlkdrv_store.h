@@ -57,6 +57,7 @@ typedef struct{
 	int(*SDRead)(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb);
 	int(*SDWrite)(uint08 *pData, uint32 blkOffs, uint16 blkNumb);
 	int(*Handler)(uint16 opcode, uint32 param0, uint32 param1);
+	void(*ShutDown)(void);
 }tlkdrv_store_modinf_t;
 
 
@@ -73,6 +74,7 @@ int tlkdrv_store_format(TLKDRV_STORE_DEV_ENUM dev);
 int tlkdrv_store_sdread(TLKDRV_STORE_DEV_ENUM dev, uint08 *pBuff, uint32 blkOffs, uint16 blkNumb);
 int tlkdrv_store_sdwrite(TLKDRV_STORE_DEV_ENUM dev, uint08 *pData, uint32 blkOffs, uint16 blkNumb);
 int tlkdrv_store_handler(TLKDRV_STORE_DEV_ENUM dev, uint16 opcode, uint32 param0, uint32 param1);
+void tlkdrv_store_shutDown(TLKDRV_STORE_DEV_ENUM dev);
 
 int tlkdrv_store_getPageSize(TLKDRV_STORE_DEV_ENUM dev);
 int tlkdrv_store_getPageNumb(TLKDRV_STORE_DEV_ENUM dev);

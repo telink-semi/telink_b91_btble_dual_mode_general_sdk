@@ -41,13 +41,8 @@
 #include "tlkstk/btble/btble_pm.h"
 #include "tlkstk/tlkstk.h"
 
-extern bool tlkstk_pmIsBusy(void);
-extern bool tlkapp_pmIsBusy(void);
 
 extern void btc_ll_set_sniff_lp_mode(bt_sniff_lp_mode_t mode);
-extern int bth_sendEnterSleepCmd(void);
-extern int bth_sendLeaveSleepCmd(void);
-extern uint bth_getAclCount(void);
 extern bool tlkmmi_btmgr_recIsBusy(void);
 extern void tlkmdi_btmgr_regAclDisconnCB(TlkMmiBtMgrAclDisconnCallback discCB);
 
@@ -70,7 +65,6 @@ static uint32 sTlkAppPmTraceTimer = 0;
 *******************************************************************************/
 int tlkapp_pm_init(void)
 {
-	btble_pm_initPowerManagement_module();
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SLEEP_ENTER,  tlkapp_pm_enterSleepHandler);
 	btble_contr_registerControllerEventCallback(CONTR_EVT_PM_SUSPEND_EXIT, tlkapp_pm_leaveSleepHandler);
 	tlkmdi_btmgr_regAclDisconnCB(tlkapp_pm_btaclDisconnCb);
@@ -104,7 +98,7 @@ void tlkapp_pm_handler(void)
 	if(!isBusy && tlksys_pm_isBusy()) isBusy = true;
 	#endif
 	
-	if(sTlkAppPmTraceTimer == 0 || clock_time_exceed(sTlkAppPmTraceTimer, 1000000)){
+	if(sTlkAppPmTraceTimer == 0 || clock_time_exceed(sTlkAppPmTraceTimer, 3000000)){
 		sTlkAppPmTraceTimer = clock_time()|1;
 		tlkapi_trace(TLKAPP_DBG_FLAG, TLKAPP_DBG_SIGN, "PM-BUSY:%d %d %d %d", 
 			isBusy, tlkapp_pmIsBusy(), tlkstk_pmIsBusy(), !gpio_read(TLKAPP_WAKEUP_PIN));
@@ -116,7 +110,6 @@ void tlkapp_pm_handler(void)
 	
 	if(isBusy){
 		btble_pm_setSleepEnable(SLEEP_DISABLE);
-		bth_sendLeaveSleepCmd();
 		gTlkAppPmSysIdleTimer = clock_time()|1;
 	}else{		
 		//enter deepsleep when system is idle
@@ -131,7 +124,6 @@ void tlkapp_pm_handler(void)
 			btc_iscan_low_power_enable(ISCAN_LOW_POWER_ENABLE);
 			btble_pm_setSleepEnable(SLEEP_BT_ACL_SLAVE | SLEEP_BT_INQUIRY_SCAN | SLEEP_BT_PAGE_SCAN | SLEEP_BLE_LEG_ADV | SLEEP_BLE_ACL_SLAVE);
 			btble_pm_setWakeupSource(PM_WAKEUP_PAD);
-			bth_sendEnterSleepCmd();
 		}
 	}
 }

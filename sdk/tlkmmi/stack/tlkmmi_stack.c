@@ -28,6 +28,7 @@
 #include "tlkmmi_stackAdapt.h"
 #include "tlkstk/tlkstk_stdio.h"
 
+extern void btble_pm_initPowerManagement_module(void);
 
 TLKSYS_MMI_TASK_DEFINE(stack, Stack);
 
@@ -36,6 +37,10 @@ static int tlkmmi_stack_init(uint08 procID, uint08 taskID)
 {
 	tlkmmi_stack_adaptInit(procID);
 	tlkstk_init();
+	
+	#if (TLK_CFG_PM_ENABLE)
+	btble_pm_initPowerManagement_module();
+	#endif
 	
 	return TLK_ENONE;
 }

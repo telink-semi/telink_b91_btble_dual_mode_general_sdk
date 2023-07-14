@@ -43,7 +43,7 @@ void tlkapi_chip_switchClock(TLKAPI_CHIP_CLOCK_ENUM clock)
 	/* HCLK & PCLK can not change, because some important peripherals clock is derive from HCLK & PCLK,
 	 * such as UART/IIC/SPI. If HCLK & PCLK are changed, make sure that peripherals clock should re_init */
 	if(clock == TLKAPI_CHIP_CLOCK_96M){
-	    CCLK_96M_HCLK_48M_PCLK_24M;
+	    CCLK_96M_HCLK_48M_PCLK_24M_48M_MSPI;
 	}else if(clock == TLKAPI_CHIP_CLOCK_48M){
 	    CCLK_48M_HCLK_48M_PCLK_24M;
 	}else if(clock == TLKAPI_CHIP_CLOCK_32M){

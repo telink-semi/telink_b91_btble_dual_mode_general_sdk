@@ -148,7 +148,7 @@ typedef struct {
 typedef enum {
 	LL_ROLE_MASTER 	= 0,
 	LL_ROLE_SLAVE 	= 1,
-} acl_conection_role_t;
+} acl_connection_role_t;
 
 /**
  *  @brief  Event Parameters for "7.7.65.2 LE Advertising Report event"
@@ -458,7 +458,7 @@ typedef struct {
 typedef struct {
 	u8         subEventCode;
 	u16        connHandle;
-	u8		   channel_selection_algotihm;
+	u8		   channel_selection_algorithm;
 } hci_le_chnSelectAlgorithmEvt_t;
 
 

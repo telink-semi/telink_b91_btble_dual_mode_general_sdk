@@ -521,7 +521,7 @@ static void tlkmdi_file_recvDatDeal(uint08 optChn, uint16 handle, uint08 *pHead,
 		return;
 	}
 	if(pUnit->tranRole != TLKMDI_FILE_TRAN_ROLE_CLIENT || (pUnit->flags & TLKMDI_FILE_FLAG_DATA) == 0){
-		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvDatDeal: unexpect packet");
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvDatDeal: unexpected packet");
 		return;
 	}
 	
@@ -744,7 +744,7 @@ static void tlkmdi_file_recvStartAuthCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 c
 		return;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_WAIT_START_AUTH) == 0){
-		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvStartAuthCmdDeal: unexpect packet");
+		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvStartAuthCmdDeal: unexpected packet");
 		return;
 	}
 	pUnit->flags &= ~TLKMDI_FILE_FLAG_WAIT_START_AUTH;
@@ -787,7 +787,7 @@ static void tlkmdi_file_recvCryptShakeCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 
 		return;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_WAIT_CRYPT_SHAKE) == 0){
-		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvCryptShakeCmdDeal: unexpect packet");
+		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvCryptShakeCmdDeal: unexpected packet");
 		return;
 	}
 	pUnit->flags &= ~TLKMDI_FILE_FLAG_WAIT_CRYPT_SHAKE;
@@ -837,7 +837,7 @@ static void tlkmdi_file_recvSetDataSchCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 
 		return;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_WAIT_SET_DATA_SCH) == 0){
-		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvSetDataSchCmdDeal: unexpect packet");
+		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvSetDataSchCmdDeal: unexpected packet");
 		return;
 	}
 	pUnit->flags &= ~TLKMDI_FILE_FLAG_WAIT_SET_DATA_SCH;
@@ -883,7 +883,7 @@ static void tlkmdi_file_recvSetFileNameCmdDeal(tlkmdi_file_unit_t *pUnit, uint08
 		return;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_WAIT_SET_FILE_NAME) == 0){
-		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvSetFileNameCmdDeal: unexpect packet");
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvSetFileNameCmdDeal: unexpected packet");
 		return;
 	}
 	pUnit->flags &= ~TLKMDI_FILE_FLAG_WAIT_SET_FILE_NAME;
@@ -919,7 +919,7 @@ static void tlkmdi_file_recvFastStartCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 c
 		return;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_WAIT_FAST_START) == 0){
-		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvFastStartCmdDeal: unexpect packet");
+		tlkapi_trace(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvFastStartCmdDeal: unexpected packet");
 		return;
 	}
 	pUnit->flags = TLKMDI_FILE_FLAG_NONE;
@@ -972,7 +972,7 @@ static void tlkmdi_file_recvStartDataCmdDeal(tlkmdi_file_unit_t *pUnit, uint08 c
 		return;
 	}
 	if((pUnit->flags & TLKMDI_FILE_FLAG_WAIT_START_DATA) == 0){
-		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvStartDataCmdDeal: unexpect packet");
+		tlkapi_error(TLKMDI_FILE_DBG_FLAG, TLKMDI_FILE_DBG_SIGN, "tlkmdi_file_recvStartDataCmdDeal: unexpected packet");
 		return;
 	}
 	pUnit->flags = TLKMDI_FILE_FLAG_NONE;
@@ -1598,22 +1598,22 @@ static int tlkmdi_file_authSignDefault(uint16 schCode, tlkmdi_file_unit_t *pUnit
 	if(schCode == 0x8101){
 		uint08 sign0[16] = {0};
 		uint08 sign1[16] = {0};
-		tlkalg_md5_contex_t contex;
+		tlkalg_md5_context_t context;
 		tlkalg_md5_digest_t digest;
-		tlkalg_md5_init(&contex);
-		tlkalg_md5_update(&contex, pUnit->param.rand.iniRand0, 16);
-		tlkalg_md5_update(&contex, sTlkMdiFileCtrl.usrAuthCode, 16);
-		tlkalg_md5_finish(&contex, &digest);
+		tlkalg_md5_init(&context);
+		tlkalg_md5_update(&context, pUnit->param.rand.iniRand0, 16);
+		tlkalg_md5_update(&context, sTlkMdiFileCtrl.usrAuthCode, 16);
+		tlkalg_md5_finish(&context, &digest);
 		tmemcpy(sign0, digest.value, 16);
-		tlkalg_md5_init(&contex);
-		tlkalg_md5_update(&contex, pUnit->param.rand.acpRand0, 16);
-		tlkalg_md5_update(&contex, sTlkMdiFileCtrl.usrAuthCode, 16);
-		tlkalg_md5_finish(&contex, &digest);
+		tlkalg_md5_init(&context);
+		tlkalg_md5_update(&context, pUnit->param.rand.acpRand0, 16);
+		tlkalg_md5_update(&context, sTlkMdiFileCtrl.usrAuthCode, 16);
+		tlkalg_md5_finish(&context, &digest);
 		tmemcpy(sign1, digest.value, 16);
-		tlkalg_md5_init(&contex);
-		tlkalg_md5_update(&contex, sign0, 16);
-		tlkalg_md5_update(&contex, sign1, 16);
-		tlkalg_md5_finish(&contex, &digest);
+		tlkalg_md5_init(&context);
+		tlkalg_md5_update(&context, sign0, 16);
+		tlkalg_md5_update(&context, sign1, 16);
+		tlkalg_md5_finish(&context, &digest);
 		tmemcpy(pUnit->authCode, digest.value, 16);
 	}
 	else{
@@ -1630,41 +1630,41 @@ static int tlkmdi_file_authCrypDefault(uint16 schCode, tlkmdi_file_unit_t *pUnit
 static int tlkmdi_file_crypSignDefault(uint16 schCode, tlkmdi_file_unit_t *pUnit, uint08 stage)
 {
 	if(schCode == 0x9101){
-		tlkalg_md5_contex_t contex;
+		tlkalg_md5_context_t context;
 		tlkalg_md5_digest_t digest;
 		if(stage == TLKMDI_FILE_CRYP_STAGE_GEN_INI_SIGN){
-			tlkalg_md5_init(&contex);
-			tlkalg_md5_update(&contex, pUnit->authCode, 16);
-			tlkalg_md5_update(&contex, pUnit->param.rand.iniRand1, 16);
-			tlkalg_md5_update(&contex, sTlkMdiFileCtrl.usrCrypCode, 16);
-			tlkalg_md5_finish(&contex, &digest);
+			tlkalg_md5_init(&context);
+			tlkalg_md5_update(&context, pUnit->authCode, 16);
+			tlkalg_md5_update(&context, pUnit->param.rand.iniRand1, 16);
+			tlkalg_md5_update(&context, sTlkMdiFileCtrl.usrCrypCode, 16);
+			tlkalg_md5_finish(&context, &digest);
 			tmemcpy(pUnit->param.sign.iniCrypt, digest.value, 16);
 		}
 		else if(stage == TLKMDI_FILE_CRYP_STAGE_GEN_ACP_SIGN){
-			tlkalg_md5_init(&contex);
-			tlkalg_md5_update(&contex, pUnit->authCode, 16);
-			tlkalg_md5_update(&contex, pUnit->param.rand.acpRand1, 16);
-			tlkalg_md5_update(&contex, sTlkMdiFileCtrl.usrCrypCode, 16);
-			tlkalg_md5_finish(&contex, &digest);
+			tlkalg_md5_init(&context);
+			tlkalg_md5_update(&context, pUnit->authCode, 16);
+			tlkalg_md5_update(&context, pUnit->param.rand.acpRand1, 16);
+			tlkalg_md5_update(&context, sTlkMdiFileCtrl.usrCrypCode, 16);
+			tlkalg_md5_finish(&context, &digest);
 			tmemcpy(pUnit->param.sign.acpCrypt, digest.value, 16);
 		}
 		else if(stage == TLKMDI_FILE_CRYP_STAGE_GEN_CRYPT_CODE){
 			uint08 sign0[16] = {0};
 			uint08 sign1[16] = {0};
-			tlkalg_md5_init(&contex);
-			tlkalg_md5_update(&contex, pUnit->param.sign.iniCrypt, 16);
-			tlkalg_md5_update(&contex, pUnit->param.sign.acpCrypt, 16);
-			tlkalg_md5_finish(&contex, &digest);
+			tlkalg_md5_init(&context);
+			tlkalg_md5_update(&context, pUnit->param.sign.iniCrypt, 16);
+			tlkalg_md5_update(&context, pUnit->param.sign.acpCrypt, 16);
+			tlkalg_md5_finish(&context, &digest);
 			tmemcpy(sign0, digest.value, 16);
-			tlkalg_md5_init(&contex);
-			tlkalg_md5_update(&contex, pUnit->authCode, 16);
-			tlkalg_md5_update(&contex, sTlkMdiFileCtrl.usrCrypCode, 16);
-			tlkalg_md5_finish(&contex, &digest);
+			tlkalg_md5_init(&context);
+			tlkalg_md5_update(&context, pUnit->authCode, 16);
+			tlkalg_md5_update(&context, sTlkMdiFileCtrl.usrCrypCode, 16);
+			tlkalg_md5_finish(&context, &digest);
 			tmemcpy(sign1, digest.value, 16);
-			tlkalg_md5_init(&contex);
-			tlkalg_md5_update(&contex, sign0, 16);
-			tlkalg_md5_update(&contex, sign1, 16);
-			tlkalg_md5_finish(&contex, &digest);
+			tlkalg_md5_init(&context);
+			tlkalg_md5_update(&context, sign0, 16);
+			tlkalg_md5_update(&context, sign1, 16);
+			tlkalg_md5_finish(&context, &digest);
 			tmemcpy(pUnit->param.code.crypCode, digest.value, 16);
 		}
 		else{
@@ -1684,13 +1684,13 @@ static int tlkmdi_file_crypCrypDefault(uint16 schCode, tlkmdi_file_unit_t *pUnit
 }
 static int tlkmdi_file_fastSignDefault(uint16 schCode, tlkmdi_file_unit_t *pUnit)
 {
-	tlkalg_md5_contex_t contex;
+	tlkalg_md5_context_t context;
 	tlkalg_md5_digest_t digest;
-	tlkalg_md5_init(&contex);
-	tlkalg_md5_update(&contex, pUnit->fileName, pUnit->nameLens);
-	tlkalg_md5_update(&contex, pUnit->param.sign.iniCrypt, 16);
-	tlkalg_md5_update(&contex, pUnit->param.sign.acpCrypt, 16);
-	tlkalg_md5_finish(&contex, &digest);
+	tlkalg_md5_init(&context);
+	tlkalg_md5_update(&context, pUnit->fileName, pUnit->nameLens);
+	tlkalg_md5_update(&context, pUnit->param.sign.iniCrypt, 16);
+	tlkalg_md5_update(&context, pUnit->param.sign.acpCrypt, 16);
+	tlkalg_md5_finish(&context, &digest);
 	tmemcpy(pUnit->param.code.fastCode, digest.value, 16);
 	return TLK_ENONE;
 }

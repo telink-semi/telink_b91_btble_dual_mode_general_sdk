@@ -40,8 +40,8 @@ typedef enum{
 	TLKDRV_LCD_OPCODE_GET_COLOR,
 	TLKDRV_LCD_OPCODE_GET_WIDTH,
 	TLKDRV_LCD_OPCODE_GET_HEIGHT,
-	TLKDRV_LCD_OPCODE_SET_FOREGROUD,
-	TLKDRV_LCD_OPCODE_SET_BACKGROUD,
+	TLKDRV_LCD_OPCODE_SET_FOREGROUND,
+	TLKDRV_LCD_OPCODE_SET_BACKGROUND,
 }TLKDRV_LCD_OPCODE_ENUM;
 typedef enum{
 	TLKDRV_LCD_PAINT_NONE = 0,
@@ -186,7 +186,7 @@ typedef struct{
 	int(*Handler)(uint16 opcode, uint32 param0, uint32 param1);
 }tlkdrv_lcd_modinf_t;
 
-//alpha==100, operate backgroud
+//alpha==100, operate background
 bool tlkdrv_lcd_isOpen(TLKDRV_LCD_DEV_ENUM dev);
 
 int tlkdrv_lcd_init(TLKDRV_LCD_DEV_ENUM dev);

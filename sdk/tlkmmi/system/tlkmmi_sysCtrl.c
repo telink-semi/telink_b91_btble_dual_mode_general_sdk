@@ -50,7 +50,7 @@ int tlkmmi_sys_ctrlInit(void)
 
 /******************************************************************************
  * Function: tlkmmi_sys_commHandler
- * Descript: This function to control the mechine power off or restart 
+ * Descript: This function to control the machine power off or restart 
  *           and register the heart beat.
  * Params: None.
  * Return: None.
@@ -134,7 +134,7 @@ void tlkmmi_sys_restoreFactorySettings(void)
 		tlkapi_flash_eraseSector(TLK_CFG_FLASH_PBAP_LIST_ADDR + i * 0x1000);
 	}
 
-	//factory parm
+	//factory param
 	tlkapi_flash_eraseSector(TLK_CFG_FLASH_FACTORY_ADDR);
 
 	//volume

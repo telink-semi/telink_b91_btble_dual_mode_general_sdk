@@ -192,7 +192,7 @@ typedef struct {
 	unsigned char  out_analog_gain;
 	unsigned char  mic_input_mode_select;  //0 single-ended input, 1 differential input
 	unsigned char  dac_output_chn_select;
-}aduio_i2s_codec_config_t;
+}audio_i2s_codec_config_t;
 
 
 typedef struct {

@@ -132,7 +132,7 @@ bool tlkmdi_play_next(void);
 
 /******************************************************************************
  * Function: tlkmdi_play_setParam
- * Descript: Set the audio Paramter. 
+ * Descript: Set the audio Parameter. 
  * Params: None.
  * Return: None.
 *******************************************************************************/

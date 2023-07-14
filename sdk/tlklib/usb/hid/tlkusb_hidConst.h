@@ -110,17 +110,17 @@ const uint08 cTlkUsbHidMouseDesc[] = {
 	    TLKUSB_HID_RPT_LOGICAL_MAXIMUM(16, 0x029c),     //global, max  0x029c
 	    TLKUSB_HID_RPT_USAGE_MINIMUM(8, 0x01),          //local, min   0x01
 	    TLKUSB_HID_RPT_USAGE_MAXIMUM(16, 0x028c),       //local, max    0x28c
-	    TLKUSB_HID_RPT_INPUT(8, TLKUSB_HID_IOF_ABSOLUTE), //main,  input data varible, absolute
+	    TLKUSB_HID_RPT_INPUT(8, TLKUSB_HID_IOF_ABSOLUTE), //main,  input data variable, absolute
     TLKUSB_HID_RPT_END_COLLECTION(0),               //main, end collection
 
-	TLKUSB_HID_RPT_USAGE_PAGE(8, 0x01),             //gobal,  USAGE_PAGE 1 (Generic Desktop)
+	TLKUSB_HID_RPT_USAGE_PAGE(8, 0x01),             //global,  USAGE_PAGE 1 (Generic Desktop)
 	TLKUSB_HID_RPT_USAGE(8, 0x80),                  //local, usage ID 0x80 system control
-	TLKUSB_HID_RPT_COLLECTION(8, 0x01),             //main conllection
+	TLKUSB_HID_RPT_COLLECTION(8, 0x01),             //main collection
 	    TLKUSB_HID_RPT_REPORT_ID(8, TLKUSB_HID_REPORT_ID_KB_SYS),    //Report ID
 		TLKUSB_HID_RPT_REPORT_SIZE(8, 0x02),            //global, report size 2
 		TLKUSB_HID_RPT_REPORT_COUNT(8, 0x01),           //report count  1
 		TLKUSB_HID_RPT_LOGICAL_MINIMUM(8, 0x01),        //global min 1
-	    TLKUSB_HID_RPT_LOGICAL_MAXIMUM(8, 0x03),        //gobal, max 3
+	    TLKUSB_HID_RPT_LOGICAL_MAXIMUM(8, 0x03),        //global, max 3
 		TLKUSB_HID_RPT_USAGE(8, 0x81),					//local usage ID 0x81 system power down
 	    TLKUSB_HID_RPT_USAGE(8, 0x82),                  //local usage ID 0x82 system sleep
 	    TLKUSB_HID_RPT_USAGE(8, 0x83),                  //local usage ID 0x83 system wakeup

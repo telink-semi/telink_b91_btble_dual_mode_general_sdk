@@ -92,7 +92,7 @@ void tlkapi_fifo_clear(tlkapi_fifo_t *pFifo);
  * Descript: verify FIFO is empty.
  * Params:
  *     @fifo[]--Fifo management handle.
- * Return: ture is null, other means have data in fifo.
+ * Return: true is null, other means have data in fifo.
  * Others: None.
 *******************************************************************************/
 bool tlkapi_fifo_isEmpty(tlkapi_fifo_t *pFifo);

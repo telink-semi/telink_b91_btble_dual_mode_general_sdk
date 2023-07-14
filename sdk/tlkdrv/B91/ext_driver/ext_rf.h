@@ -99,7 +99,7 @@ static inline void rf_set_ble_access_code_value (unsigned int ac)
 }
 
 /**
- * @brief   This function serves to triggle accesscode in coded Phy mode.
+ * @brief   This function serves to trigger accesscode in coded Phy mode.
  * @param   none.
  * @return  none.
  */

@@ -34,7 +34,7 @@
 /*
  * Inline nested interrupt entry/exit macros
  */
-/* Svae/Restore macro */
+/* Save/Restore macro */
 #define SAVE_CSR(r)             long __##r = read_csr(r);
 #define RESTORE_CSR(r)          write_csr(r, __##r);
 

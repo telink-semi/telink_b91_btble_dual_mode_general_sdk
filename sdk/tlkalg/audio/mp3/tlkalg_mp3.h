@@ -89,10 +89,10 @@ typedef struct
     int mdct_overlap_i[2][9 * 32];
     int qmf_state_i[15 * 2 * 32];
 #endif // FIXED_POINT
-    int reserv;
+    int reserve;
     int free_format_bytes;
     unsigned char header[4];
-    unsigned char reserv_buf[511];
+    unsigned char reserve_buf[511];
 } mp3dec_t;
 
 typedef int16_t mp3d_sample_t;

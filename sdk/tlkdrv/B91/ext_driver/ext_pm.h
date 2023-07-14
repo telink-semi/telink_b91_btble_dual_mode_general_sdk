@@ -39,4 +39,15 @@ extern	unsigned int 			g_sleep_stimer_tick;
 extern	unsigned int		ota_program_bootAddr;
 extern	unsigned int		ota_program_offset;
 
+
+/**
+ * @brief   internal oscillator calibration for environment change such as voltage, temperature
+ * 			to keep some critical PM or RF performance stable
+ * 			attention: this is a stack API, user can not call it
+ * @param	none
+ * @return	none
+ */
+void mcu_oscillator_crystal_calibration(void);
+
+
 #endif /* DRIVERS_B91_DRIVER_EXT_EXT_PM_H_ */

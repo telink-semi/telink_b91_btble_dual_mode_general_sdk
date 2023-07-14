@@ -389,7 +389,7 @@ void tlkmdi_comm_input(uint08 *pData, uint16 dataLen)
 			if(datID <= TLKMDI_COMM_DATA_CHANNEL_MAX && sTlkMdiCommDatCB[datID] != nullptr){
 				sTlkMdiCommDatCB[datID](datID, numb, sTlkMdiCommCtrl.recvFrame+9, lens);
 			}else{
-				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Unexpect: not used - datID[%d]", datID);
+				tlkapi_error(TLKMDI_COMM_DBG_FLAG, TLKMDI_COMM_DBG_SIGN, "Recv DatPkt Unexpected: not used - datID[%d]", datID);
 			}
 		}
 		else{

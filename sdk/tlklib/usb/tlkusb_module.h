@@ -45,7 +45,7 @@ typedef struct{
 	int(*Init)(void);//Init
 	void(*Reset)(void);//Reset
 	void(*Deinit)(void);//Deinit
-	void(*Handler)(void);//Hander
+	void(*Handler)(void);//Handler
 	int(*GetClassInf)(tlkusb_setup_req_t *pSetup, uint08 infNumb);//GetClassInf
 	int(*SetClassInf)(tlkusb_setup_req_t *pSetup, uint08 infNumb);//SetClassInf
 	int(*GetClassEdp)(tlkusb_setup_req_t *pSetup, uint08 edpNumb);//GetClassEdp

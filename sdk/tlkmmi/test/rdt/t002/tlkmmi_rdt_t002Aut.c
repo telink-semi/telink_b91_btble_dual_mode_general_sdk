@@ -250,9 +250,9 @@ static int tlkmmi_rdt_t002AutAclRequestEvt(uint08 *pData, uint16 dataLen)
 static int tlkmmi_rdt_t002AutAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 dutAddt[6] = TLKMMI_RDT_T002_BTADDR_DUT;
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		if(sTlkMmiRdtT002Aut.acl.handle == 0 && sTlkMmiRdtT002Aut.isStart){
 			uint08 dutAddr[6] = TLKMMI_RDT_T002_BTADDR_DUT;
@@ -304,9 +304,9 @@ static int tlkmmi_rdt_t002AutAclEncryptEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t002AutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	btp_destroy(pEvt->handle);
 	bth_destroy(pEvt->handle);
 	
@@ -330,9 +330,9 @@ static int tlkmmi_rdt_t002AutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t002AutScoConnectEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoConnComplateEvt_t *pEvt;
+	bth_scoConnCompleteEvt_t *pEvt;
 
-	pEvt = (bth_scoConnComplateEvt_t*)pData;
+	pEvt = (bth_scoConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		if(sTlkMmiRdtT002AutSco.enable){
 			bth_sco_connect(sTlkMmiRdtT002Aut.acl.handle, TLK_SCO_LINK_TYPE_ESCO, TLK_SCO_AIRMODE_CVSD);
@@ -361,10 +361,10 @@ static int tlkmmi_rdt_t002AutScoConnectEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t002AutScoDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoDiscComplateEvt_t *pEvt;
+	bth_scoDiscCompleteEvt_t *pEvt;
 
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002AutScoDisconnEvt");
-	pEvt = (bth_scoDiscComplateEvt_t*)pData;
+	pEvt = (bth_scoDiscCompleteEvt_t*)pData;
 	if(sTlkMmiRdtT002Aut.sco.handle == pEvt->scoHandle){
 		sTlkMmiRdtT002Aut.sco.handle = 0;
 		sTlkMmiRdtT002Aut.sco.timer = 0;

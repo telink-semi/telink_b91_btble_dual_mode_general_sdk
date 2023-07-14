@@ -28,19 +28,23 @@
 #define BTH_ACL_TIMEOUT           (100000)
 #define BTH_ACL_TIMEOUT_MS        (100)
 #define BTH_ACL_CONN_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_RSW_TIMEOUT       (3000000/BTH_ACL_TIMEOUT)
 #define BTH_ACL_DISC_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
 #define BTH_ACL_CANCEL_TIMEOUT    (2000000/BTH_ACL_TIMEOUT)
 #define BTH_ACL_AUTH_SECR_TIMEOUT (3000000/BTH_ACL_TIMEOUT)
-#define BTH_ACL_EXIT_TIMEOUT      (1500000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_EXIT_TIMEOUT      (5000000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_ENTER_SNIFF_TIMEOUT    (1500000/BTH_ACL_TIMEOUT)
+#define BTH_ACL_LEAVE_SNIFF_TIMEOUT    (200000/BTH_ACL_TIMEOUT)
 
 typedef enum{
-	BTH_ACL_ATTR_NONE = 0x00,
-	BTH_ACL_ATTR_CONN = 0x01,
+	BTH_ACL_ATTR_NONE      = 0x00,
+	BTH_ACL_ATTR_CONN      = 0x01,
 	BTH_ACL_ATTR_PAIR_DONE = 0x02,
 	BTH_ACL_ATTR_AUTH_DONE = 0x04,
-	BTH_ACL_ATTR_ENC_DONE = 0x08,
+	BTH_ACL_ATTR_ENC_DONE  = 0x08,
+	BTH_ACL_ATTR_CONN_EVT  = 0x80,
 	BTH_ACL_ATTR_LK_NOTI_DONE = 0x10,
-	BTH_ACL_ATTR_CONN_EVT = 0x80,
+	BTH_ACL_ATTR_ALLOW_SNIFF  = 0x20,
 }BTH_ACL_ATTRS_ENUM;
 typedef enum{
 	BTH_ACL_BUSY_NONE               = 0x0000,
@@ -68,6 +72,8 @@ typedef enum{
 	BTH_ACL_FLAG_WAIT_CRYP_RESULT = 0x0008,
 	BTH_ACL_FLAG_WAIT_DISC_RESULT = 0x0010,
 	BTH_ACL_FLAG_WAIT_UNSNIFF_RESULT = 0x0020,
+	BTH_ACL_FLAG_WAIT_GET_NAME    = 0x0040,
+	BTH_ACL_FLAG_CONN_CANCEL_BY_USER = 0x0080,
 }BTH_ACL_FLAGS_ENUM;
 typedef enum{
 	BTH_ACL_OTH_BUSY_NONE  = 0x00,
@@ -75,24 +81,27 @@ typedef enum{
 	BTH_ACL_OTH_BUSY_SEND_INFO_RSP = 0x02,
 	BTH_ACL_OTH_BUSY_SEND_SNIFF_REQ   = 0x04,
 	BTH_ACL_OTH_BUSY_SEND_UNSNIFF_REQ = 0x08,
+	BTH_ACL_OTH_BUSY_ENTER_SNIFF   = 0x10,
+	BTH_ACL_OTH_BUSY_LEAVE_SNIFF   = 0x20,
+	BTH_ACL_OTH_BUSY_SEND_GET_NAME_REQ = 0x40,
 }BTH_ACL_OTH_BUSYS_ENUM;
 
 
 /******************************************************************************
- * Function: bth_acl_setConnTimeout
+ * Function: bth_acl_setWaitTimeout
  * Descript: Set the time from establishment of the ACL to connection timeout.
  * Params: 
  *     @timeout[IN]--The time of connection timeout. Unit-ms, Range[3000~15000].
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
-void bth_acl_setConnTimeout(uint16 timeout);
+void bth_acl_setWaitTimeout(uint16 timeout);
 
 /******************************************************************************
  * Function: bth_acl_setInitRole
  * Descript: This interface be used to set the role of acl link.
  * Params: @btaddr[IN]--The device bt address.
  *         @initRole[IN]--The role of acl link.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_acl_setInitRole(uint08 btaddr[6], uint08 initRole);
 
@@ -101,7 +110,7 @@ int  bth_acl_setInitRole(uint08 btaddr[6], uint08 initRole);
  * Descript: This interface be used to set the pin code to do auth.
  * Params: @btaddr[IN]--The device bt address.
  *         @pinCode[IN]--The pin code.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_acl_setPinCode(uint08 btaddr[6], uint08 pinCode[6]);
 
@@ -110,18 +119,10 @@ int  bth_acl_setPinCode(uint08 btaddr[6], uint08 pinCode[6]);
  * Descript: This interface be used to set the link key to auth.
  * Params: @btaddr[IN]--The device bt address.
  *         @linkKey[IN]--The link key.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_acl_setLinkKey(uint08 btaddr[6], uint08 linkKey[16]);
 
-/******************************************************************************
- * Function: bth_acl_enableSniffSet
- * Descript: This interface be used to enable sniff setting.
- * Params: @aclHandle[IN]--The acl link handle.
- *         @enable[IN]--True-enable, false-disable.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
-*******************************************************************************/
-int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
 
 /******************************************************************************
  * Function: bth_acl_connect
@@ -129,17 +130,17 @@ int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
  * Params: @btaddr[IN]--The device bt address.
  *         @devClass[IN]--The device class.
  *         @initRole[IN]--The role of acl link.
- *         @timeout[IN]--The acl setup timeout. Unit:ms. Range: 0.625ms to 40.9s.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ *         @timeout[IN]--The acl setup timeout. Unit:ms. Range:3000~3600000
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
-int  bth_acl_connect(uint08 btaddr[6], uint32 devClass, uint08 initRole, uint16 timeout); //timeout - ms
+int  bth_acl_connect(uint08 btaddr[6], uint32 devClass, uint08 initRole, uint32 timeout); //timeout - ms
 
 /******************************************************************************
  * Function: bth_acl_disconn
  * Descript: This interface be used to tear up the acl link which specify 
  *           by aclhandle.
  * Params: @aclHandle[IN]--The acl link handle.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_acl_disconn(uint16 aclHandle, uint08 reason);
 
@@ -148,7 +149,7 @@ int  bth_acl_disconn(uint16 aclHandle, uint08 reason);
  * Descript: This interface be used to release the acl link resource which
  *           specify by aclhandle.
  * Params: @aclHandle[IN]--The acl link handle.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_destroy(uint16 aclHandle);
 
@@ -157,7 +158,7 @@ void bth_acl_destroy(uint16 aclHandle);
  * Descript: This interface be used to cancel the acl link connect which
  *           specify by bt address.
  * Params: @btaddr[IN]--The peer device address.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_acl_connectCancel(uint08 btaddr[6]);
 
@@ -165,16 +166,68 @@ int  bth_acl_connectCancel(uint08 btaddr[6]);
  * Function: bth_acl_disconnByAddr
  * Descript: This interface be used to disconnect the acl link which
  *           specify by bt address.
- * Params: @btaddr[IN]--The peer device address.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Params: 
+ *     @btaddr[IN]--The peer device address.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_acl_disconnByAddr(uint08 btaddr[6]);
 
-void bth_acl_sendSniffReq(uint16 aclHandle);
-void bth_acl_sendUnSniffReq(uint16 aclHandle);
+/******************************************************************************
+ * Function: bth_acl_enableSniff
+ * Descript: This interface be used to enable sniff setting.
+ * Params: 
+ *     @aclHandle[IN]--The acl link handle.
+ *     @enable[IN]--True-enable, false-disable.
+ * Return: TLK_ENONE is set success, others means failure.
+ * Note:
+ *     1.Before using "bth_acl_enterSniff", you need to call "bth_acl_enableSniff"
+ *       to enable a sniff mechanism.
+*******************************************************************************/
+int bth_acl_enableSniff(uint16 aclHandle, bool enable);
 
-void bth_acl_clearSniffPolicy(uint16 aclHandle);
+/******************************************************************************
+ * Function: bth_acl_enterSniff
+ * Descript: 
+ * Params: 
+ *     @aclHandle[IN]--The acl link handle.
+ *     @isForce[IN]--Whether to force a switchover to enter mode when a sniff
+ *         is in the exit state.
+ * Return: NONE.
+ * Note:
+ *     1.Before using "bth_acl_enterSniff", you need to call "bth_acl_enableSniff"
+ *       to enable a sniff mechanism.
+ *     2.By default, the system enables a sniff mechanism and automatically 
+ *       manages in-and-out latency after encryption is complete.
+ *     3.Users should be cautious about calling the interface with isForce=true, 
+ *       because it will clear the bth_acl_leaveSniff parameter.
+*******************************************************************************/
+void bth_acl_enterSniff(uint16 aclHandle, bool isForce);
 
+/******************************************************************************
+ * Function: bth_acl_leaveSniff
+ * Descript: Makes the system exit sniff. The BusyTime parameter can be used to
+ *           preset the busy time of the system, so as to reasonably control 
+ *           the transmission of system data.
+ * Params: 
+ *     @aclHandle[IN]--The acl link handle.
+ *     @busyTime[IN]--sniff estimated busy time after exiting. Unit:ms.
+ * Return: NONE.
+ * Note:
+ *     1.Different from bth_acl_sendUnSniffReq, bth_acl_enterSniff is automatically
+ *       managed by the system. It is recommended to sniff bth_acl_leaveSniff 
+ *       instead of bth_acl_sendUnSniffReq.
+*******************************************************************************/
+void bth_acl_leaveSniff(uint16 aclHandle, uint16 busyTime);
+
+
+/******************************************************************************
+ * Function: bth_acl_clearSniffPolicy
+ * Descript: 
+ * Params: 
+ *     @aclHandle[IN]--The acl link handle.
+ *     @mask[IN]--
+ * Return: NONE.
+*******************************************************************************/
 void bth_acl_clsLinkPolicyBit(uint16 aclHandle, uint08 mask);
 void bth_acl_setLinkPolicyBit(uint16 aclHandle, uint08 mask);
 
@@ -185,7 +238,7 @@ void bth_acl_setLinkPolicyBit(uint16 aclHandle, uint08 mask);
  * Params: 
  *         @status[IN]--The status from HCI
  *         @btaddr[IN]--The peer device address.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_connCancelComplete(uint08 status, uint08 btaddr[6]);
 
@@ -196,7 +249,7 @@ void bth_acl_connCancelComplete(uint08 status, uint08 btaddr[6]);
  * Params:
  *         @status[IN]--The status from HCI
  *         @btaddr[IN]--The peer device address.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_hci_linkkeyReqReplyComplete(uint08 status, uint08 btaddr[6]);
 
@@ -207,7 +260,7 @@ void bth_hci_linkkeyReqReplyComplete(uint08 status, uint08 btaddr[6]);
  * Params: 
  *         @btaddr[IN]--The peer device address.
  *         @devClass[IN]--The device class type.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_connectRequestEvt(uint08 btaddr[6], uint32 devClass);
 
@@ -220,7 +273,7 @@ void bth_acl_connectRequestEvt(uint08 btaddr[6], uint32 devClass);
  *        @handle[IN]--The handle of the acl link.
  *        @btaddr[IN]--The peer device address.
  *        @isEncrypt[IN]--is encrypt or not.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_connectCompleteEvt(uint08 status, uint16 handle, uint08 btaddr[6], uint08 isEncrypt);
 
@@ -232,7 +285,7 @@ void bth_acl_connectCompleteEvt(uint08 status, uint16 handle, uint08 btaddr[6], 
  * Params:
  *        @handle[IN]--The handle of acl link.
  *        @reason[IN]--The reason of disconnect.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_disconnCompleteEvt(uint16 handle, uint08 reason);
 
@@ -243,7 +296,7 @@ void bth_acl_disconnCompleteEvt(uint16 handle, uint08 reason);
  *        @btaddr[IN]--The peer device address.
  *        @status[IN]--The status of acl link.
  *        @newRole[IN]--The role of acl link.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_roleChangeEvt(uint08 btaddr[6], uint08 status, uint08 newRole);
 
@@ -254,7 +307,7 @@ void bth_acl_roleChangeEvt(uint08 btaddr[6], uint08 status, uint08 newRole);
  *        @handle[IN]--The acl link handle.
  *        @status[IN]--The status of acl link.
  *        @curMode[IN]--The current mode of acl link.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_modeChangeEvt(uint16 handle, uint08 status, uint08 curMode);
 /******************************************************************************
@@ -263,7 +316,7 @@ void bth_acl_modeChangeEvt(uint16 handle, uint08 status, uint08 curMode);
  * Params:
  *        @handle[IN]--The acl link handle.
  *        @status[IN]--The status of acl link.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_simplePairingCompleteEvt(uint08 btaddr[6], uint08 status);
 /******************************************************************************
@@ -272,7 +325,7 @@ void bth_acl_simplePairingCompleteEvt(uint08 btaddr[6], uint08 status);
  * Params: 
  *        @handle[IN]--The acl link handle.
  *        @status[IN]--The status of acl link.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_authenCompleteEvt(uint16 handle, uint08 status);
 
@@ -283,7 +336,7 @@ void bth_acl_authenCompleteEvt(uint16 handle, uint08 status);
  *        @handle[IN]--The acl link handle.
  *        @status[IN]--The status of acl link.
  *        @enable[IN]--enable or not
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_encryptChangeEvt(uint16 handle, uint08 status, uint08 enable);
 
@@ -293,7 +346,7 @@ void bth_acl_encryptChangeEvt(uint16 handle, uint08 status, uint08 enable);
  * Descript: This interface be used to handle pincode request event.
  * Params: 
  *        @btaddr[IN]--The bt address.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_pinCodeReqEvt(uint08 btaddr[6]);
 
@@ -302,7 +355,7 @@ void bth_acl_pinCodeReqEvt(uint08 btaddr[6]);
  * Descript: This interface be used to handle link key request event.
  * Params: 
  *        @btaddr[IN]--The bt address.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_linkKeyReqEvt(uint08 btaddr[6]);
 
@@ -311,7 +364,7 @@ void bth_acl_linkKeyReqEvt(uint08 btaddr[6]);
  * Descript: This interface be used to handle io capability request event.
  * Params: 
  *        @btaddr[IN]--The bt address.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_ioCapReqEvt(uint08 btaddr[6]);
 
@@ -321,23 +374,27 @@ void bth_acl_ioCapReqEvt(uint08 btaddr[6]);
  * Params: 
  *        @btaddr[IN]--The bt address.
  *        @number[IN]--The number use to pair.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_acl_userCfmReqEvt(uint08 btaddr[6], uint32 number);
+
+void bth_acl_getNameEvt(uint08 status, uint08 btaddr[6], uint08 *pName, uint08 nameLen);
 
 /******************************************************************************
  * Function: bth_acl_sendInfoRsp
  * Descript: Send l2cap info response.
  * Params: 
- *        @handle[IN]--The acl link handle.
- *        @identify[IN]--The identify.
- *        @infoType[IN]--The info type.
- *        @result[IN]--The result.
- *        @pData[IN]--The payload.
- *        @dataLen[IN]--The payload length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ *     @handle[IN]--The acl link handle.
+ *     @identify[IN]--The identify.
+ *     @infoType[IN]--The info type.
+ *     @result[IN]--The result.
+ *     @pData[IN]--The payload.
+ *     @dataLen[IN]--The payload length.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 void bth_acl_sendInfoRsp(uint16 handle, uint08 identify, uint16 infoType, uint16 result, uint08 *pData, uint16 dataLen);
+
+void bth_acl_sendGetNameReq(uint16 handle);
 
 int bth_acl_setPeerExtFeature(uint16 handle, uint32 extFeature);
 int bth_acl_getPeerExtFeature(uint16 handle, uint32 *pExtFeature);

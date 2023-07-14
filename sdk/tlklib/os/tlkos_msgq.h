@@ -52,14 +52,14 @@ typedef struct{
 int tlkos_msgq_create(tlkos_msgq_t *pMsgq, uint numb, uint size);
 
 /******************************************************************************
- * Function: tlkos_msgq_destory
+ * Function: tlkos_msgq_destroy
  * Descript: Destroy message queue.
  * Params:
  *     @pMsgq[IN]--Message queue control structure.
  * Return: Operating results, TLK_ENONE means success and others mean failure.
  * Others: None.
 *******************************************************************************/
-int tlkos_msgq_destory(tlkos_msgq_t *pMsgq);
+int tlkos_msgq_destroy(tlkos_msgq_t *pMsgq);
 
 /******************************************************************************
  * Function: tlkos_msgq_send

@@ -38,15 +38,15 @@ typedef struct{
     uint32 d;
     uint08 buff[64];
     uint32 block[16];
-}tlkalg_md5_contex_t;
+}tlkalg_md5_context_t;
 typedef struct{
 	uint08 value[TLKALG_MD5_HASH_SIZE];
 }tlkalg_md5_digest_t;
 
 
-void tlkalg_md5_init(tlkalg_md5_contex_t *pContext);
-void tlkalg_md5_update(tlkalg_md5_contex_t *pContext, uint08 *pData, uint32 dataLen);
-void tlkalg_md5_finish(tlkalg_md5_contex_t *pContext, tlkalg_md5_digest_t *pDigest);
+void tlkalg_md5_init(tlkalg_md5_context_t *pContext);
+void tlkalg_md5_update(tlkalg_md5_context_t *pContext, uint08 *pData, uint32 dataLen);
+void tlkalg_md5_finish(tlkalg_md5_context_t *pContext, tlkalg_md5_digest_t *pDigest);
 void tlkalg_md5_result(uint08 *pData, uint16 dataLen, tlkalg_md5_digest_t *pDigest);
 
 

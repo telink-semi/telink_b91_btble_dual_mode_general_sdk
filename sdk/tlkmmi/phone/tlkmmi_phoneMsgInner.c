@@ -129,21 +129,19 @@ int tlkmmi_phone_innerMsgHandler(uint08 msgID, uint08 *pData, uint08 dataLen)
 static void tlkmmi_phone_hfCallCloseEvtDeal(uint08 *pData, uint08 dataLen)
 {
 	uint08 buffLen;
-	uint08 *pNumber;
 	uint08 buffer[4+TLKMDI_HFPHF_NUMBER_MAX_LEN];
 	tlkmdi_hfphf_statusEvt_t *pEvt;
 	
 	pEvt = (tlkmdi_hfphf_statusEvt_t*)pData;
 
-	pNumber = tlkmdi_bthfp_getHfCallNumber(pEvt->handle,pEvt->callNum);
-	if(pNumber == nullptr) pEvt->numbLen = 0;
+	if(pEvt->number == nullptr) pEvt->numbLen = 0;
 
 	buffLen = 0;
 	buffer[buffLen++] = TLKPRT_COMM_CALL_ROLE_CLIENT;
 	buffer[buffLen++] = pEvt->callDir;
 	buffer[buffLen++] = pEvt->numbLen;
 	if(pEvt->numbLen != 0){
-		tmemcpy(buffer+buffLen, pNumber, pEvt->numbLen);
+		tmemcpy(buffer+buffLen, pEvt->number, pEvt->numbLen);
 		buffLen += pEvt->numbLen;
 	}
 	buffer[buffLen++] = 0; //NameLen

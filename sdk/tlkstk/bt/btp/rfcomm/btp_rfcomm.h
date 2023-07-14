@@ -156,7 +156,7 @@ typedef struct rfcomm_msc {
 
 
 enum rfcomm_session_state_enum {
-    SESSION_CLOSE,          /*l2cap connection closed, wait for openning, and then can send out sabm request*/
+    SESSION_CLOSE,          /*l2cap connection closed, wait for opening, and then can send out sabm request*/
     SESSION_CONNECT,      /*l2cap channel created*/
     SESSION_WAITING_OPEN, /*has sent sabm of dlci 0, wait ack*/
     SESSION_OPEN ,            /* rfcomm session created, means dlci 0 created ok */

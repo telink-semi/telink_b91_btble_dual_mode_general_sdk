@@ -174,11 +174,11 @@ typedef struct{
 typedef struct{
 	uint16 handle;
 	uint08 isNoty;
-	uint08 status; // 0-Stoped, 1-PLAYING, 2-PAUSED, 3-FWD_SEEK, 4-REV_SEEK, Refer to BTP_AVRCP_PLAY_STATE_ENUM.
+	uint08 status; // 0-Stopped, 1-PLAYING, 2-PAUSED, 3-FWD_SEEK, 4-REV_SEEK, Refer to BTP_AVRCP_PLAY_STATE_ENUM.
 }btp_avrcpStatusChangeEvt_t;
 typedef struct{
 	uint16 handle;
-	uint32 evtMask;
+	uint32 evtMask; //Refer BTP_AVRCP_EVTMSK_ENUM
 }btp_avrcpPeerEvtMaskEvt_t;
 typedef struct{
 	uint16 handle;

@@ -35,7 +35,7 @@
 #include "tlkstk/bt/btp/avrcp/btp_avrcp.h"
 
 
-extern void bth_acl_setConnTimeout(uint16 timeout);
+extern void bth_acl_setWaitTimeout(uint16 timeout);
 extern void bth_func_setAclHandle(uint16 aclHandle);
 extern void bth_func_setScoHandle(uint16 scoHandle);
 extern void btp_func_setAclHandle(uint16 aclHandle);
@@ -72,7 +72,7 @@ int tlkmmi_pts_btInit(void)
 	uint08 btName[TLK_CFG_FLASH_BT_NAME_LENS+1];
 	uint08 bdaddr[6] = TLKMMI_BTPTS_BDADDR_DEF;
 
-	bth_acl_setConnTimeout(15000);
+	bth_acl_setWaitTimeout(15000);
 	tlkapi_flash_read(TLK_CFG_FLASH_BT_ADDR_ADDR, btAddr, 6);
 	if(btAddr[0] == 0xFF && btAddr[1] == 0xFF && btAddr[2] == 0xFF){
 		tmemcpy(btAddr, bdaddr, 6);
@@ -158,9 +158,9 @@ static int tlkmmi_pts_btAclRequestEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_pts_btAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != TLK_ENONE){
 		tlkapi_error(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btAclConnectEvt: failure -- %d", pEvt->status);
 		return TLK_ENONE;
@@ -180,9 +180,9 @@ static int tlkmmi_pts_btAclEncryptEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_pts_btAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 
 	btp_destroy(pEvt->handle);
 	bth_destroy(pEvt->handle);
@@ -204,9 +204,9 @@ static int tlkmmi_pts_btScoRequestEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_pts_btScoConnectEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoConnComplateEvt_t *pEvt;
+	bth_scoConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_scoConnComplateEvt_t*)pData;
+	pEvt = (bth_scoConnCompleteEvt_t*)pData;
 	if(pEvt->status != TLK_ENONE){
 		tlkapi_error(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btScoConnectEvt: failure -- %d", pEvt->status);
 		return TLK_ENONE;
@@ -221,9 +221,9 @@ static int tlkmmi_pts_btScoConnectEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_pts_btScoDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoDiscComplateEvt_t *pEvt;
+	bth_scoDiscCompleteEvt_t *pEvt;
 
-	pEvt = (bth_scoDiscComplateEvt_t*)pData;
+	pEvt = (bth_scoDiscCompleteEvt_t*)pData;
 
 	tlkapi_trace(TLKMMI_PTS_DBG_FLAG, TLKMMI_PTS_DBG_SIGN, "tlkmmi_pts_btScoDisconnEvt: success - 0x%x", pEvt->scoHandle);
 

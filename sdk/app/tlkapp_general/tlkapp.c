@@ -67,7 +67,7 @@ int tlkapp_init(void)
 	flash_plic_preempt_config(1, 1);
 	trng_init();
 	tlkbt_set_workMode(1);
-	tlkapi_setSysMemBuffer(false, sTlkAppMemBuffer, TLKAPP_MEM_TOTAL_SIZE);
+	tlkapi_setSysMemBuffer(false, true, sTlkAppMemBuffer, TLKAPP_MEM_TOTAL_SIZE);
 
 	tlkapp_irq_init();
 
@@ -78,9 +78,9 @@ int tlkapp_init(void)
 #if(TLK_CFG_PM_ENABLE)
 	tlkapp_pm_init();
 #endif
-	#if (TLK_CFG_SYS_ENABLE)
+#if (TLK_CFG_SYS_ENABLE)
 	tlksys_pm_appendBusyCheckCB(tlkapp_pmIsBusy, "tlkapp");
-	#endif
+#endif
 	
 	sTlkAppTimer = clock_time()|1;
 
@@ -171,6 +171,9 @@ extern const tlksys_funcs_t gTlkMmiTestTask;
 #if (TLKMMI_VIEW_ENABLE)
 extern const tlksys_funcs_t gTlkMmiViewTask;
 #endif
+#if (TLKMMI_SENSOR_ENABLE)
+extern const tlksys_funcs_t gTlkMmiSensorTask;
+#endif
 static void tlkapp_sysProcInit(void)
 {
 	tlksys_proc_mount(TLKSYS_PROCID_SYSTEM, 1, 1024); //System processes must come first
@@ -182,6 +185,9 @@ static void tlkapp_sysProcInit(void)
 		tlksys_proc_mount(TLKSYS_PROCID_TEST,   1, 1024);
 		return;
 	}
+	#endif
+	#if (TLKMMI_SENSOR_ENABLE)
+	tlksys_proc_mount(TLKSYS_PROCID_DEVICE, 2, 1024);
 	#endif
 	tlksys_proc_mount(TLKSYS_PROCID_AUDIO,  3, 1024);
 	#if (TLK_CFG_FS_ENABLE)
@@ -226,6 +232,9 @@ static void tlkapp_sysTaskInit(void)
 	#endif
 	#if (TLKMMI_VIEW_ENABLE)
 	tlksys_task_mount(TLKSYS_PROCID_VIEW,   TLKSYS_TASKID_VIEW,   &gTlkMmiViewTask);
+	#endif
+	#if (TLKMMI_SENSOR_ENABLE)
+	tlksys_task_mount(TLKSYS_PROCID_DEVICE, TLKSYS_TASKID_SENSOR, &gTlkMmiSensorTask);
 	#endif
 }
 

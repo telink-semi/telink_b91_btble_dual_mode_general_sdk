@@ -106,6 +106,7 @@ static int tlkdrv_xtsd01g_sdinit(void);
 static int tlkdrv_xtsd01g_sdread(uint08 *pBuff, uint32 blkOffs, uint16 blkNumb);
 static int tlkdrv_xtsd01g_sdwrite(uint08 *pData, uint32 blkOffs, uint16 blkNumb);
 static int tlkdrv_xtsd01g_handler(uint16 opcode, uint32 param0, uint32 param1);
+static void tlkdrv_xtsd01g_shutDown(void);
 
 
 

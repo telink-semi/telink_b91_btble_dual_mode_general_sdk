@@ -290,9 +290,9 @@ static int tlkmmi_rdt_t003AutAclRequestEvt(uint08 *pData, uint16 dataLen)
 static int tlkmmi_rdt_t003AutAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 dutAddt[6] = TLKMMI_RDT_T003_BTADDR_DUT;
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		if(sTlkMmiRdtT003Aut.dut.handle == 0 && sTlkMmiRdtT003Aut.isStart){
 			uint08 dutAddr[6] = TLKMMI_RDT_T003_BTADDR_DUT;
@@ -333,11 +333,11 @@ static int tlkmmi_rdt_t003AutAclEncryptEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t003AutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t003AutAclDisconnEvt");
 
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	btp_destroy(pEvt->handle);
 	bth_destroy(pEvt->handle);
 	if(sTlkMmiRdtT003Aut.dut.handle == pEvt->handle){

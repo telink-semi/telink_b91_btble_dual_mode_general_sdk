@@ -67,7 +67,7 @@ void btp_ptsl2c_enableRtn(bool isEnable, uint08 rtnMode)
 	sBtPtsL2capCtrl.user.rtnMode = rtnMode;
 	if(isEnable){
 		bth_l2cap_setExtFeatureBits(BTH_L2CAP_EXT_FEATURE_ENHANCED_RTN_MODE | BTH_L2CAP_EXT_FEATURE_FCS_OPTION);
-		if(rtnMode == BTH_L2CAP_SIG_RTNMODE_STRAMING){
+		if(rtnMode == BTH_L2CAP_SIG_RTNMODE_STREAMING){
 			bth_l2cap_setExtFeatureBits(BTH_L2CAP_EXT_FEATURE_STREAMING_MODE);
 		}
 	}
@@ -289,7 +289,7 @@ static bool btp_ptsl2c_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 		uint16 handle = pPtsL2c->handle;
 		tlkapi_trace(BTP_PTSL2C_DBG_FLAG, BTP_PTSL2C_DBG_SIGN, "btp_ptsl2c_timer: CONNING - timeout");
 		btp_ptsl2c_resetNode(pPtsL2c);
-		bth_signal_destoryConnect(handle, BTP_PSMID_PTS_L2C);
+		bth_signal_destroyConnect(handle, BTP_PSMID_PTS_L2C);
 		btp_send_connectEvt(TLK_ETIMEOUT, BTP_PTYPE_PTS_L2C, BTP_USRID_NONE, handle, 0);
 	}
 	if(pPtsL2c->state == TLK_STATE_CLOSED) return false;
@@ -382,7 +382,7 @@ static int btp_ptsl2c_eventCB(uint08 evtID, uint16 psmID, uint08 *pData, uint16 
 		 * Streaming mode.
 		*******************************************************************************/
 		if(bth_signal_getFcsType(pEvt->handle, pEvt->scid, &fcsType) != TLK_ENONE){
-			if(pPtsL2c->rtnMode == BTH_L2CAP_SIG_RTNMODE_ENHANCE || pPtsL2c->rtnMode == BTH_L2CAP_SIG_RTNMODE_STRAMING){
+			if(pPtsL2c->rtnMode == BTH_L2CAP_SIG_RTNMODE_ENHANCE || pPtsL2c->rtnMode == BTH_L2CAP_SIG_RTNMODE_STREAMING){
 				pPtsL2c->fscIsEn = true;
 			}
 		}else{

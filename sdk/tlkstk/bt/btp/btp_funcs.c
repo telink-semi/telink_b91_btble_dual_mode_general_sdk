@@ -126,7 +126,7 @@ static const btp_func_item_t scBtpFunSet[] = {
 	{BTP_FUNCID_HFP_AG_CONNECT, btp_func_hfpAgConnect},
 	{BTP_FUNCID_HFP_AG_DISCONN, btp_func_hfpAgDisconn},
 	{BTP_FUNCID_HFP_AG_SET_FEATURE, btp_func_hfpAgSetFeature},
-	{BTP_FUNCID_HFP_AG_PALCE_CALL, btp_func_hfpAgPlaceCall},
+	{BTP_FUNCID_HFP_AG_PLACE_CALL, btp_func_hfpAgPlaceCall},
 	{BTP_FUNCID_HFP_AG_REMOVE_CALL, btp_func_hfpAgRemoveCall},
 	{BTP_FUNCID_HFP_AG_ACTIVE_CALL, btp_func_hfpAgActiveCall},
 	//PBAP

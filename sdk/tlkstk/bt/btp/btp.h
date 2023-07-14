@@ -39,7 +39,7 @@ void btp_destroy(uint16 aclHandle);
  * Descript: Set the time from establishment of the Profile to connection timeout.
  * Params: 
  *     @timeout[IN]--The time of connection timeout. Unit-ms, Range[3000~15000].
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void btp_setConnTimeout(uint16 timeout);
 void btp_setDiscTimeout(uint16 timeout);

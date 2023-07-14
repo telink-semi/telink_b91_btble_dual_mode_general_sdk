@@ -78,10 +78,5 @@
 #include "tlkstk/ble/crypto/crypto_alg.h"
 
 
-/*********************************************************/
-#include "tlkstk/ble/debug.h"
-#include "tlkstk/ble/trace.h"
-
-/*********************************************************/
 
 #endif /* BLE_H_ */

@@ -22,7 +22,7 @@
  *
  *******************************************************************************************************/
 #include "tlkapi/tlkapi_stdio.h"
-#if (TLK_MDI_BTHFP_ENABLE)
+#if (TLK_MDI_BTA2DP_ENABLE)
 #include "tlksys/tlksys_stdio.h"
 #include "tlkmdi/bt/tlkmdi_bta2dp.h"
 

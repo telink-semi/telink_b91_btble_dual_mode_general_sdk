@@ -300,10 +300,10 @@ static int tlkdrv_sh8610z_handler(uint16 opcode, uint32 param0, uint32 param1)
 			return tlkdrv_sh8610z_getWidthDeal(param0, param1);
 		case TLKDRV_LCD_OPCODE_GET_HEIGHT:
 			return tlkdrv_sh8610z_getHeightDeal(param0, param1);
-		case TLKDRV_LCD_OPCODE_SET_FOREGROUD:
-			return tlkdrv_sh8610z_setForegroudDeal(param0, param1);
-		case TLKDRV_LCD_OPCODE_SET_BACKGROUD:
-			return tlkdrv_sh8610z_setBackgroudDeal(param0, param1);
+		case TLKDRV_LCD_OPCODE_SET_FOREGROUND:
+			return tlkdrv_sh8610z_setForegroundDeal(param0, param1);
+		case TLKDRV_LCD_OPCODE_SET_BACKGROUND:
+			return tlkdrv_sh8610z_setBackgroundDeal(param0, param1);
 	}
 	return -TLK_ENOSUPPORT;
 }
@@ -320,11 +320,11 @@ static int tlkdrv_sh8610z_getHeightDeal(uint32 param0, uint32 param1)
 {
 	return TLKDRV_SH8610Z_HEIGHT;
 }
-static int tlkdrv_sh8610z_setForegroudDeal(uint32 param0, uint32 param1)
+static int tlkdrv_sh8610z_setForegroundDeal(uint32 param0, uint32 param1)
 {
 	return -TLK_ENOSUPPORT;
 }
-static int tlkdrv_sh8610z_setBackgroudDeal(uint32 param0, uint32 param1)
+static int tlkdrv_sh8610z_setBackgroundDeal(uint32 param0, uint32 param1)
 {
 	return -TLK_ENOSUPPORT;
 }

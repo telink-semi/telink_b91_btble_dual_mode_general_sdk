@@ -57,6 +57,8 @@ bool tlkdev_serial_sfifoIsMore60(uint16 dataLen);
 bool tlkdev_serial_sfifoIsMore80(uint16 dataLen);
 
 bool tlkdev_serial_isBusy(void);
+
+void tlkdev_serial_sleep(uint mode);
 void tlkdev_serial_wakeup(uint wakeSrc);
 
 void tlkdev_serial_handler(void);

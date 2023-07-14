@@ -123,7 +123,7 @@ static const uint08 sTlkmmiRdtLeHidReportMap[] =
 	0x26,0x8c,0x02,  //global, max  0x28c
 	0x19,0x01,     //local, min   0x01
 	0x2a,0x8c,0x02,  //local, max    0x28c
-	0x81,0x00,     //main,  input data varible, absolute
+	0x81,0x00,     //main,  input data variable, absolute
 	0xc0,        //main, end collection
 };
 
@@ -138,7 +138,7 @@ static const uint08 sTlkmmiRdtLeDevNameChar[5] = {
 static const uint16 sTlkmmiRdtLeAppearance = GAP_APPEARE_UNKNOWN;
 static const uint08 sTlkmmiRdtLeAppearanceChar[5] = {
 	CHAR_PROP_READ,
-	U16_LO(RDT_LEATT_GAP_APPERANCE_DATA), U16_HI(RDT_LEATT_GAP_APPERANCE_DATA),
+	U16_LO(RDT_LEATT_GAP_APPEARANCE_DATA), U16_HI(RDT_LEATT_GAP_APPEARANCE_DATA),
 	U16_LO(GATT_UUID_APPEARANCE), U16_HI(GATT_UUID_APPEARANCE)
 };
 static const tlkmmi_rdt_leConnParam_t sTlkmmiRdtLeConnParamVal = {20, 40, 0, 1000};

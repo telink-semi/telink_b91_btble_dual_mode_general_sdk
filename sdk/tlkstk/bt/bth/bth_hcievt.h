@@ -33,7 +33,7 @@
  * Function: bth_hcievt_init
  * Descript: Initial the hci event callback.
  * Params: None.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_hcievt_init(void);
 

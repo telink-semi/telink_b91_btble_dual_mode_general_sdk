@@ -30,7 +30,7 @@
 #define TLKDRV_RTL2108_GPIO_SYS               GPIO_PB3//output high active
 #define TLKDRV_RTL2108_GPIO_RESET             GPIO_PE7//output high active
 #define TLKDRV_RTL2108_GPIO_INIT_READY        GPIO_PD5//input 500ms init 
-#define TLKDRV_RTL2108_GPIO_I2S_READY         GPIO_PD4//output high actice
+#define TLKDRV_RTL2108_GPIO_I2S_READY         GPIO_PD4//output high active
 #define TLKDRV_RTL2108_GPIO_POWER_SWITCH      GPIO_PA4//input for power off
 
 

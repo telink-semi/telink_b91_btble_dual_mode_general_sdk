@@ -59,7 +59,7 @@ static void tlkmdi_tone_fillHandler(void);
 
 
 typedef struct{
-	uint08 runing;
+	uint08 running;
 	uint08 enable;
 	uint08 curState;
 	uint08 playNumb;
@@ -166,7 +166,7 @@ int tlkmdi_audtone_start(uint16 handle, uint32 param)
 int tlkmdi_audtone_close(uint16 handle)
 {
 	tlkapi_trace(TLKMDI_AUDTONE_DBG_FLAG, TLKMDI_AUDTONE_DBG_SIGN, "tlkmdi_audtone_close");
-	sTlkMdiToneCtrl.runing = false;
+	sTlkMdiToneCtrl.running = false;
 	tlkmdi_audtone_switch(handle, TLK_STATE_CLOSED);
 	tlkmdi_audio_sendCloseEvt(TLKPTI_AUD_OPTYPE_TONE, handle);
 	return TLK_ENONE;
@@ -265,7 +265,7 @@ bool tlkmdi_audtone_switch(uint16 handle, uint08 status)
 	else tlkmdi_audio_sendStatusChangeEvt(TLKPRT_COMM_AUDIO_CHN_TONE, TLK_STATE_CLOSED);
 	
 	sTlkMdiToneCtrl.enable = enable;
-	sTlkMdiToneCtrl.runing = enable;
+	sTlkMdiToneCtrl.running = enable;
 	sTlkMdiToneCtrl.playNumb = 0;
 	#if (TLKMDI_AUDTONE_DECODE_MP3)
 	sTlkMdiToneCtrl.curState = TLKMDI_MP3_STATUS_IDLE;
@@ -284,7 +284,7 @@ bool tlkmdi_audtone_switch(uint16 handle, uint08 status)
 *******************************************************************************/
 bool tlkmdi_audtone_isBusy(void)
 {
-	return (sTlkMdiToneCtrl.enable && sTlkMdiToneCtrl.runing);
+	return (sTlkMdiToneCtrl.enable && sTlkMdiToneCtrl.running);
 }
 
 /******************************************************************************
@@ -296,7 +296,7 @@ bool tlkmdi_audtone_isBusy(void)
 *******************************************************************************/
 uint tlkmdi_audtone_intval(void)
 {
-	if(!sTlkMdiToneCtrl.runing) return 0;
+	if(!sTlkMdiToneCtrl.running) return 0;
 	#if (TLKMDI_AUDTONE_DECODE_MP3)
 		if(tlkdev_codec_getSpkDataLen() < (TLK_DEV_SPK_BUFF_SIZE>>1)){
 			return 1000;
@@ -322,13 +322,13 @@ bool tlkmdi_audtone_irqProc(void)
 	tlkmdi_tone_mp3Handler();
 	#endif
 	tlkmdi_tone_fillHandler();
-	if(sTlkMdiToneCtrl.runing) return true;
+	if(sTlkMdiToneCtrl.running) return true;
 	else return false;
 }
 
 /******************************************************************************
  * Function: tlkmdi_tone_setParam
- * Descript: Set the playing paramter. 
+ * Descript: Set the playing parameter. 
  * Params: 
  *        @playIndex[IN]--Theplay index.
  *        @playcount[IN]--The play count.
@@ -381,7 +381,7 @@ void tlkmdi_tone_close(void)
 {
 	tlkdev_codec_muteSpk();
 	tlkmdi_mp3_close();
-	sTlkMdiToneCtrl.runing = false;
+	sTlkMdiToneCtrl.running = false;
 	sTlkMdiToneCtrl.curState = TLKMDI_MP3_STATUS_IDLE;
 }
 #endif //#if (TLKMDI_AUDTONE_DECODE_MP3)
@@ -390,10 +390,10 @@ void tlkmdi_tone_close(void)
 #if (TLKMDI_AUDTONE_DECODE_MP3)
 static void tlkmdi_tone_mp3Handler(void)
 {
-	if(!sTlkMdiToneCtrl.runing) return;
+	if(!sTlkMdiToneCtrl.running) return;
 	if(sTlkMdiToneCtrl.curState == TLKMDI_MP3_STATUS_IDLE){
 		tlkmdi_tone_start(sTlkMdiToneCtrl.playIndex);
-		if(!sTlkMdiToneCtrl.runing) return;
+		if(!sTlkMdiToneCtrl.running) return;
 		if(tlkmdi_mp3_getSampleRate() != sTlkMdiToneCtrl.sampleRate){
 			sTlkMdiToneCtrl.sampleRate = tlkmdi_mp3_getSampleRate();
 			tlkdev_codec_close();
@@ -410,7 +410,7 @@ static void tlkmdi_tone_mp3Handler(void)
 		}else{
 			tlkdev_codec_muteSpk();
 			if(sTlkMdiToneCtrl.curState == TLKMDI_MP3_STATUS_DONE){
-				sTlkMdiToneCtrl.runing = false;
+				sTlkMdiToneCtrl.running = false;
 				tlkapi_trace(TLKMDI_AUDTONE_DBG_FLAG, TLKMDI_AUDTONE_DBG_SIGN, "tlkmdi_tone_play is over");
 			}else{
 				sTlkMdiToneCtrl.curState = TLKMDI_MP3_STATUS_IDLE;
@@ -443,7 +443,7 @@ static void tlkmdi_tone_fillHandler(void)
 	uint16 pcm[256];
 	sint16 *ptr = NULL;
 
-	if(!sTlkMdiToneCtrl.runing) return;
+	if(!sTlkMdiToneCtrl.running) return;
 //	tlkapi_trace(TLKMDI_AUDTONE_DBG_FLAG, TLKMDI_AUDTONE_DBG_SIGN, "tlkmdi_tone_fillHandler:");
 	
 	needLen = tlkmdi_mp3_getChannels() == 2 ? 128*4 : 128*2;
@@ -472,7 +472,7 @@ static void tlkmdi_tone_fillHandler(void)
 		}
 	}
 #else
-	if(!sTlkMdiToneCtrl.runing) return;
+	if(!sTlkMdiToneCtrl.running) return;
 	if(sTlkMdiToneCtrl.curState == TLKMDI_TONE_STATUS_IDLE){
 		sTlkMdiToneCtrl.playNumb ++;
 		sTlkMdiToneCtrl.curState = TLKMDI_TONE_STATUS_PLAY;
@@ -485,7 +485,7 @@ static void tlkmdi_tone_fillHandler(void)
 		}else{
 			tlkdev_codec_muteSpk();
 			if(sTlkMdiToneCtrl.curState == TLKMDI_TONE_STATUS_DONE){
-				sTlkMdiToneCtrl.runing = false;
+				sTlkMdiToneCtrl.running = false;
 				tlkapi_trace(TLKMDI_AUDTONE_DBG_FLAG, TLKMDI_AUDTONE_DBG_SIGN, "tlkmdi_tone_play is over");
 			}else{
 				sTlkMdiToneCtrl.curState = TLKMDI_TONE_STATUS_IDLE;

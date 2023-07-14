@@ -51,6 +51,7 @@ typedef enum{
 	BTH_EVTID_LINKKEY_NOTIFY,
 	BTH_EVTID_ACL_ESTABLISH, //Private Protocol
 	BTH_EVTID_EXT_FEATURE_CHANGED,
+	BTH_EVTID_ACL_GETNAME_REPORT,
 	
 	//Signal Event
 	BTH_EVTID_SIGNAL_CONNREQ,
@@ -93,7 +94,7 @@ typedef struct{
 	uint16 handle;
 	uint08 isEncrypt;
 	uint08 peerMac[6];
-}bth_aclConnComplateEvt_t;
+}bth_aclConnCompleteEvt_t;
 typedef struct{
 	uint08 status;
 	uint08 linkType; //Refer TLK_SCO_LINK_TYPE_ENUM.
@@ -101,19 +102,19 @@ typedef struct{
 	uint16 aclHandle;
 	uint16 scoHandle;
 	uint08 peerMac[6];
-}bth_scoConnComplateEvt_t;
+}bth_scoConnCompleteEvt_t;
 typedef struct{
 	uint16 handle;
 	uint08 reason;
 	uint08 peerMac[6];
-}bth_aclDiscComplateEvt_t;
+}bth_aclDiscCompleteEvt_t;
 typedef struct{
 	uint08 reason;
 	uint08 linkType;
 	uint16 aclHandle;
 	uint16 scoHandle;
 	uint08 peerMac[6];
-}bth_scoDiscComplateEvt_t;
+}bth_scoDiscCompleteEvt_t;
 
 typedef struct{
 	uint08 status;
@@ -157,6 +158,14 @@ typedef struct{
 	uint32 mineExtFeature; //Refer BTH_L2CAP_EXT_FEATURE_ENUM
 }bth_extFeatureChangedEvt_t;
 
+typedef struct{
+	uint16 handle;
+	uint08 status;
+	uint08 nameLen;
+	uint08 btaddr[6];
+	uint08 *pName;
+}bth_aclGetNameReportEvt_t;
+
 
 typedef struct{
 	uint16 handle;
@@ -170,7 +179,7 @@ typedef struct{
  * Function: bth_event_init
  * Descript: Initial the event control block.
  * Params: None.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int  bth_event_init(void);
 
@@ -180,7 +189,7 @@ int  bth_event_init(void);
  * Params:
  *        @evtID[IN]--The event id.
  *        @func[IN]--The callback function.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_event_regCB(uint16 evtID, bth_event_func func);
 
@@ -191,7 +200,7 @@ void bth_event_regCB(uint16 evtID, bth_event_func func);
  *        @evtID[IN]--The event id.
  *        @pData[IN]--The callback data.
  *        @dataLen[IN]--The data len.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int  bth_send_event(uint16 evtID, uint08 *pData, uint16 dataLen);
 
@@ -202,7 +211,7 @@ int  bth_send_event(uint16 evtID, uint08 *pData, uint16 dataLen);
  * Params:
  *        @devClass[IN]--The device class.
  *        @btaddr[IN]--The bt address.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_aclConnRequestEvt(uint32 devClass, uint08 btaddr[6]);
 
@@ -215,7 +224,7 @@ int bth_send_aclConnRequestEvt(uint32 devClass, uint08 btaddr[6]);
  *        @active[IN]--The acl link is active.
  *        @isEncrypt[IN]--is encrypt.
  *        @btaddr[IN]--The device bt address.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_aclConnCompleteEvt(uint16 handle, uint08 status, uint08 active, uint08 isEncrypt, uint08 btaddr[6]);
 
@@ -226,7 +235,7 @@ int bth_send_aclConnCompleteEvt(uint16 handle, uint08 status, uint08 active, uin
  *        @aclHandle[IN]--The acl link handle.
  *        @reason[IN]--The disconnect reason.
  *        @btaddr[IN]--The device bt address.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_aclDiscCompleteEvt(uint16 handle, uint08 reason, uint08 btaddr[6]);
 
@@ -237,7 +246,7 @@ int bth_send_aclDiscCompleteEvt(uint16 handle, uint08 reason, uint08 btaddr[6]);
  *        @devClass[IN]--The device class.
  *        @linkType[IN]--The link type.
  *        @btaddr[IN]--The bt address.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_scoConnRequestEvt(uint32 devClass, uint08 linkType, uint08 btaddr[6]);
 
@@ -251,7 +260,7 @@ int bth_send_scoConnRequestEvt(uint32 devClass, uint08 linkType, uint08 btaddr[6
  *        @linkType[IN]--The link type. Refer TLK_SCO_LINK_TYPE_ENUM.
  *        @airMode[IN]--Refer TLK_SCO_AIRMODE_ENUM.
  *        @btaddr[IN]--The device bt address.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_scoConnCompleteEvt(uint16 aclHandle, uint16 scoHandle,
 	uint08 status, uint08 linkType, uint08 airMode, uint08 btaddr[6]);
@@ -265,7 +274,7 @@ int bth_send_scoConnCompleteEvt(uint16 aclHandle, uint16 scoHandle,
  *        @reason[IN]--The sco link disconnect reason.
  *        @linkType[IN]--The link type.
  *        @btaddr[IN]--The device bt address.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_scoDiscCompleteEvt(uint16 aclHandle, uint16 scoHandle, uint08 reason, uint08 linkType, uint08 btaddr[6]);
 
@@ -274,8 +283,8 @@ int bth_send_scoDiscCompleteEvt(uint16 aclHandle, uint16 scoHandle, uint08 reaso
  * Descript: Send the authenticate complete event via callback.
  * Params:
  *        @aclHandle[IN]--The acl link handle.
- *        @status[IN]--The status of authencate.
- * Reutrn: TLK_ENONE is success, other value if false.
+ *        @status[IN]--The status of authenticate.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_authenCompleteEvt(uint16 handle, uint08 status);
 
@@ -284,9 +293,9 @@ int bth_send_authenCompleteEvt(uint16 handle, uint08 status);
  * Descript: Send the encrypt complete event via callback.
  * Params:
  *        @aclHandle[IN]--The acl link handle.
- *        @status[IN]--The status of authencate.
+ *        @status[IN]--The status of authenticate.
  *        @enable[IN]--is encrypt enable.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_encryptCompleteEvt(uint16 handle, uint08 status, uint08 enable);
 
@@ -296,7 +305,7 @@ int bth_send_encryptCompleteEvt(uint16 handle, uint08 status, uint08 enable);
  * Params:
  *        @handle[IN]--The handle of acl link.
  *        @btaddr[IN]--The bt addr.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_pinCodeRequestEvt(uint16 handle, uint08 btaddr[6]);
 
@@ -306,7 +315,7 @@ int bth_send_pinCodeRequestEvt(uint16 handle, uint08 btaddr[6]);
  * Params:
  *        @handle[IN]--The handle of acl link.
  *        @btaddr[IN]--The bt addr.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_linkKeyRequestEvt(uint16 handle, uint08 btaddr[6]);
 
@@ -317,7 +326,7 @@ int bth_send_linkKeyRequestEvt(uint16 handle, uint08 btaddr[6]);
  *        @keyType[IN]--The link key type.
  *        @btaddr[IN]--The bt addr.
  *        @linkKey[IN]--The link key.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_linkKeyNotifyEvt(uint08 keyType, uint08 btaddr[6], uint08 linkKey[16]);
 
@@ -327,7 +336,7 @@ int bth_send_linkKeyNotifyEvt(uint08 keyType, uint08 btaddr[6], uint08 linkKey[1
  * Params:
  *        @pData[IN]--The event data.
  *        @dataLen[IN]--The data length.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_aclEstablishEvt(uint08 *pData, uint16_t dataLen);
 
@@ -335,13 +344,22 @@ int bth_send_aclEstablishEvt(uint08 *pData, uint16_t dataLen);
  * Function: bth_send_extFeatureChangedEvt
  * Descript: 
  * Params:
- *        @handle[IN]--The handle of acl link.
- *        @peerFeature[IN]--Refer BTH_L2CAP_EXT_FEATURE_ENUM.
- *        @mineFeature[IN]--Refer BTH_L2CAP_EXT_FEATURE_ENUM.
- * Reutrn: TLK_ENONE is success, other value if false.
+ *     @handle[IN]--The handle of acl link.
+ *     @peerFeature[IN]--Refer BTH_L2CAP_EXT_FEATURE_ENUM.
+ *     @mineFeature[IN]--Refer BTH_L2CAP_EXT_FEATURE_ENUM.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_send_extFeatureChangedEvt(uint16 handle, uint32 peerFeature, uint32 mineFeature);
 
+
+/******************************************************************************
+ * Function: bth_send_aclGetNameReqEvt
+ * Descript: 
+ * Params:
+ *     @handle[IN]--The handle of acl link.
+ * Return: TLK_ENONE is success, other value if false.
+*******************************************************************************/
+int bth_send_aclGetNameReqEvt(uint16 handle, uint08 status, uint08 btaddr[6], uint08 *pName, uint08 nameLen);
 
 
 

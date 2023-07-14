@@ -97,7 +97,7 @@ void uart1_debug_num(unsigned char c) {
 
 
 /**
- * @brief      This function serves to foramt string.
+ * @brief      This function serves to format string.
  * @param[in]  w  -  a integer need to print
  * @return     none.
  */

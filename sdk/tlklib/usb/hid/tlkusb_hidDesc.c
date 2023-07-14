@@ -140,7 +140,7 @@ static const tlkusb_hidConfigDesc_t sMmiUsbHidConfigDesc = {
 		1, // bNumEndpoints
 		TLKUSB_HID_CSCP_HIDClass,//class
 		TLKUSB_HID_CSCP_BootSubclass,//subclass
-		TLKUSB_HID_CSCP_KeyboardBootProtocol,//protocal
+		TLKUSB_HID_CSCP_KeyboardBootProtocol,//protocol
 		TLKUSB_NO_DESCRIPTOR	//string descriptor
 	}, 
 	// keyboard_hid
@@ -207,7 +207,7 @@ static uint16 tlkusb_hiddesc_getInfDesLens(tlkusb_setup_req_t *pSetup)
 		}
 		#endif
 	}
-	else if(value_h == TLKUSB_HID_DESC_PHISICAL){
+	else if(value_h == TLKUSB_HID_DESC_PHYSICAL){
 
 	}
 	return length;
@@ -252,7 +252,7 @@ static uint08 *tlkusb_hiddesc_getInfDesDesc(tlkusb_setup_req_t *pSetup)
 		}
 		#endif
 	}
-	else if(value_h == TLKUSB_HID_DESC_PHISICAL){
+	else if(value_h == TLKUSB_HID_DESC_PHYSICAL){
 
 	}
 	return pData;

@@ -87,7 +87,7 @@ static bool tlkapp_dfu_dataCheck(tlkapp_dfu_ctrl_t *pCtrl)
 	uint32 dealSize;
 	uint08 buffer[256];
 	uint08 value[TLKALG_SHA1_HASH_SIZE] = {0};
-	tlkalg_sha1_contex_t contex;
+	tlkalg_sha1_context_t context;
 	tlkalg_sha1_digest_t digest;
 	
 	dataAddr = pCtrl->saveParam.dataAddr;
@@ -95,14 +95,14 @@ static bool tlkapp_dfu_dataCheck(tlkapp_dfu_ctrl_t *pCtrl)
 	dealSize = pCtrl->saveParam.dealSize-TLKALG_SHA1_HASH_SIZE;
 	flash_read_page(dataAddr+dealSize, TLKALG_SHA1_HASH_SIZE, value);
 	
-	tlkalg_sha1_init(&contex);
+	tlkalg_sha1_init(&context);
 	for(offset=0; offset<dealSize; offset += 256){
 		flash_read_page(dataAddr+offset, 256, buffer);
 		if(offset+256 <= dealSize) chkLens = 256;
 		else chkLens = dealSize-offset;
-		tlkalg_sha1_update(&contex, buffer, chkLens);
+		tlkalg_sha1_update(&context, buffer, chkLens);
 	}
-	tlkalg_sha1_finish(&contex, &digest);
+	tlkalg_sha1_finish(&context, &digest);
 	if(tmemcmp(digest.value, value, TLKALG_SHA1_HASH_SIZE) != TLK_ENONE){
 		return false;
 	}

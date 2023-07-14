@@ -32,7 +32,7 @@
  * Function: tlkmmi_phone_adaptInit
  * Descript: Initializes the adapter control parameters.
  * Params: None.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmmi_phone_adaptInit(uint08 procID);
@@ -67,7 +67,7 @@ uint tlkmmi_phone_adaptInterval(void);
  *     @timeout[IN]--Scheduling interval set by the user. Unit:us.
  *     @timerCB[IN]--The callback interface after the time has arrived.
  *     @queueCB[IN]--The callback interface for the work to be executed.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmmi_phone_adaptInitTimer(tlkapi_timer_t *pTimer, TlkApiTimerCB timerCB, uint32 userArg, uint32 timeout);
@@ -92,7 +92,7 @@ bool tlkmmi_phone_adaptIsHaveQueue(tlkapi_queue_t *pProcs);
  * Descript: Implement the function of adding and deleting work queues.
  * Params:
  *     @pQueue[IN]--Work queue node.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmmi_phone_adaptAppendQueue(tlkapi_queue_t *pProcs);
@@ -106,7 +106,7 @@ int  tlkmmi_phone_adaptRemoveQueue(tlkapi_queue_t *pProcs);
  *     @pTimer[IN]--Timer scheduling node.
  *     @isUpdate[IN]--True,Timer recount; False,Depending on the state of the
  *       other parameters, the timer may continue the previous counting logic.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmmi_phone_adaptUpdateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);

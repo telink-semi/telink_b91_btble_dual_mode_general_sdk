@@ -38,7 +38,7 @@
 #include "tlkmmi/btmgr/tlkmmi_btmgrInq.h"
 
 
-#define TLKMMI_BTMGR_NAME_DEF     "TLK DualMode 2.0"
+#define TLKMMI_BTMGR_NAME_DEF     "Telink-BT"
 
 
 tlkmmi_btmgr_ctrl_t gTlkMmiBtmgrCtrl;
@@ -92,7 +92,7 @@ int tlkmmi_btmgr_ctrlInit(void)
 
 	#if (TLK_MDI_BTIAP_ENABLE)
 	tlkmdi_btiap_setAddr(gTlkMmiBtmgrCtrl.btaddr);
-	tlkmdi_btiap_setName(gTlkMmiBtmgrCtrl.btname, strlen(gTlkMmiBtmgrCtrl.btname));
+	tlkmdi_btiap_setName(gTlkMmiBtmgrCtrl.btname, strlen((char*)gTlkMmiBtmgrCtrl.btname));
 	#endif
 	
 	return TLK_ENONE;
@@ -144,7 +144,7 @@ int tlkmmi_btmgr_setName(uint08 *pName, uint08 nameLen)
 	bth_hci_sendWriteLocalNameCmd(gTlkMmiBtmgrCtrl.btname);
 
 	#if (TLK_MDI_BTIAP_ENABLE)
-	tlkmdi_btiap_setName(gTlkMmiBtmgrCtrl.btname, strlen(gTlkMmiBtmgrCtrl.btname));
+	tlkmdi_btiap_setName(gTlkMmiBtmgrCtrl.btname, strlen((char*)gTlkMmiBtmgrCtrl.btname));
 	#endif
 	
 	return TLK_ENONE;

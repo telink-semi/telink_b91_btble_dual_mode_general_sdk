@@ -23,7 +23,7 @@
  *******************************************************************************************************/
 #ifndef TLKDRV_B92_UART_H
 #define TLKDRV_B92_UART_H
-#if (TLKDRV_SERIAL_B92_UART_EANBLE)
+#if (TLKDRV_SERIAL_B92_UART_ENABLE)
 
 
 
@@ -38,6 +38,6 @@ int tlkdrv_b92uart_sendWithoutDma(uint08 port, uint08 rtsPin, uint08 *pData, uin
 void tlkdrv_b92uart_irqHandler(uint08 port);
 
 
-#endif //#if (TLKDRV_SERIAL_B92_UART_EANBLE)
+#endif //#if (TLKDRV_SERIAL_B92_UART_ENABLE)
 #endif //TLKDRV_B92_UART_H
 

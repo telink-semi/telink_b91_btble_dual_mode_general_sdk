@@ -31,7 +31,7 @@
  * Function: tlksys_task_init
  * Descript: Initializes the system task list.
  * Params: None.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_task_init(void);
@@ -55,7 +55,7 @@ int tlksys_task_mount(uint08 procID, uint08 taskID, const tlksys_funcs_t *pFuncs
  * Descript: Unmount the task from the task list.
  * Params:
  *     @taskID--ID of the task to be uninstalled.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_task_unmount(uint08 taskID);
@@ -66,7 +66,7 @@ int tlksys_task_remove(tlksys_task_t *pTask);
  * Descript: Start a system task.
  * Params:
  *     @taskID--ID of the task to be uninstalled.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_task_start(uint08 taskID);
@@ -76,7 +76,7 @@ int tlksys_task_start(uint08 taskID);
  * Descript: Pause a system task.
  * Params:
  *     @taskID--ID of the task to be uninstalled.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_task_pause(uint08 taskID);
@@ -86,7 +86,7 @@ int tlksys_task_pause(uint08 taskID);
  * Descript: Close the system task.
  * Params:
  *     @taskID--ID of the task to be uninstalled.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_task_close(uint08 taskID);
@@ -102,7 +102,7 @@ int tlksys_task_close(uint08 taskID);
  *     @headLen--Message header length.
  *     @pData--Message body data.
  *     @dataLen--Message body length.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others:
  *     1.For message interactions that are not in the same process, the "pHead"
  *       and HeadLen fields must be set to NULL.

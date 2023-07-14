@@ -34,15 +34,15 @@ typedef struct{
 	uint32 curlen;
     uint32 state[8];
     uint08 buff[TLKALG_SHA256_BLOCK_SIZE];
-}tlkalg_sha256_contex_t;
+}tlkalg_sha256_context_t;
 typedef struct{
 	uint08 value[TLKALG_SHA256_DIGEST_SIZE];
 }tlkalg_sha256_digest_t;
 
 
-void tlkalg_sha256_init(tlkalg_sha256_contex_t *pContext);
-void tlkalg_sha256_update(tlkalg_sha256_contex_t *pContext, uint08 *pData, uint16 dataLen);
-void tlkalg_sha256_finish(tlkalg_sha256_contex_t *pContext, tlkalg_sha256_digest_t *pDigest);
+void tlkalg_sha256_init(tlkalg_sha256_context_t *pContext);
+void tlkalg_sha256_update(tlkalg_sha256_context_t *pContext, uint08 *pData, uint16 dataLen);
+void tlkalg_sha256_finish(tlkalg_sha256_context_t *pContext, tlkalg_sha256_digest_t *pDigest);
 
 void tlkalg_sha256_result(uint08 *pData, uint16 dataLen, tlkalg_sha256_digest_t *pDigest);
 

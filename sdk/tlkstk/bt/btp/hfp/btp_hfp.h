@@ -86,7 +86,7 @@ int btp_hfp_init(void);
 int btp_hfp_connect(uint16 aclHandle, uint08 usrID, uint08 channel);
 
 /******************************************************************************
- * Function: HFP Trigger Disonnect interface
+ * Function: HFP Trigger Disconnect interface
  * Descript: Defines trigger the hfp disconnect cmd to peer hfp entity and tear up
  *           a connection with devices.
  * Params:
@@ -101,7 +101,7 @@ void btp_hfp_destroy(uint16 aclHandle);
 
 /******************************************************************************
  * Function: btp_hfphf_getFeature
- * Descript: Get the feaure of suppoted by HF.
+ * Descript: Get the feaure of supported by HF.
  * Params: None.
  * Return: None.
 *******************************************************************************/
@@ -109,7 +109,7 @@ extern uint btp_hfphf_getFeature(void);
 
 /******************************************************************************
  * Function: btp_hfphf_getFeature
- * Descript: Set the feaure of suppoted by HF.
+ * Descript: Set the feaure of supported by HF.
  * Params: 
  *     @feature[IN]--. Refer "HF supported features bitmap" in <HFP_v1.8.pdf>.
  * Return: None.
@@ -297,8 +297,8 @@ extern int btp_hfphf_siri_ctrl(uint16 aclHandle);
 
 
 /******************************************************************************
- * Function: HFP hf verfy IOS device interface
- * Descript: This interface be used by hf to verfy peer device is IOS OS.
+ * Function: HFP hf verify IOS device interface
+ * Descript: This interface be used by hf to verify peer device is IOS OS.
  * Params:
  *         @aclHandle[IN]--The acl link identifier.
  * Return: true(Yes)/false(No).
@@ -306,8 +306,8 @@ extern int btp_hfphf_siri_ctrl(uint16 aclHandle);
 extern bool btp_hfphf_isIosDev(uint16 aclHandle);
 
 /******************************************************************************
- * Function: HFP hf verfy siri interface
- * Descript: This interface be used by hf to verfy peer device is siri enable.
+ * Function: HFP hf verify siri interface
+ * Descript: This interface be used by hf to verify peer device is siri enable.
  * Params:
  *         @aclHandle[IN]--The acl link identifier.
  * Return: true(Yes)/false(No).
@@ -315,8 +315,8 @@ extern bool btp_hfphf_isIosDev(uint16 aclHandle);
 extern bool btp_hfphf_isSiriEnable(uint16 aclHandle);
 
 /******************************************************************************
- * Function: HFP hf verfy support voice recog interface
- * Descript: This interface be used by hf to verfy peer device is supported Voice Recog.
+ * Function: HFP hf verify support voice recog interface
+ * Descript: This interface be used by hf to verify peer device is supported Voice Recog.
  * Params:
  *         @aclHandle[IN]--The acl link identifier.
  * Return: true(Yes)/false(No).
@@ -339,7 +339,7 @@ extern void btp_hfphf_resetSiriRecordState(uint16 aclHandle);
 
 /******************************************************************************
  * Function: btp_hfphf_getFeature
- * Descript: Get the feaure of suppoted by HF.
+ * Descript: Get the feaure of supported by HF.
  * Params: None.
  * Return: None.
 *******************************************************************************/
@@ -347,7 +347,7 @@ extern uint btp_hfphf_getFeature(void);
 
 /******************************************************************************
  * Function: btp_hfpag_getFeature
- * Descript: Set the feaure of suppoted by HF.
+ * Descript: Set the feaure of supported by HF.
  * Params: 
  *     @feature[IN]--. Refer "HF supported features bitmap" in <HFP_v1.8.pdf>.
  * Return: None.

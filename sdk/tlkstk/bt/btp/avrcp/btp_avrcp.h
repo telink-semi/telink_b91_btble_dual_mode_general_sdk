@@ -141,8 +141,8 @@ typedef enum{
 
 typedef enum{
 	BTP_AVRCP_STATUS_CODE_INVALID_CMD              = 0x00, //Invalid command, sent if TG received a PDU that it did not understand.
-	BTP_AVRCP_STATUS_CODE_INVALID_PARAMTER         = 0x01, //Invalid parameter, sent if the TG received a PDU with a parameter ID that it did not understand.
-	BTP_AVRCP_STATUS_CODE_PARAMTER_CONTENT_ERROR   = 0x02, //Parameter content error. Sent if the parameter ID is understood, but content is wrong or corrupted.
+	BTP_AVRCP_STATUS_CODE_INVALID_PARAMETER        = 0x01, //Invalid parameter, sent if the TG received a PDU with a parameter ID that it did not understand.
+	BTP_AVRCP_STATUS_CODE_PARAMETER_CONTENT_ERROR  = 0x02, //Parameter content error. Sent if the parameter ID is understood, but content is wrong or corrupted.
 	BTP_AVRCP_STATUS_CODE_INTERNAL_ERROR           = 0x03, //Internal Error - sent if there are error conditions not covered by a more specific error code.
 	BTP_AVRCP_STATUS_CODE_OPERATE_WITHOUT_ERROR    = 0x04, //Operation completed without error. This is the status that should be returned if the operation was successful.
 	BTP_AVRCP_STATUS_CODE_UID_CHANGE               = 0x05, //UID Changed. The UIDs on the device have changed

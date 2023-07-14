@@ -33,16 +33,16 @@ typedef struct{
 	uint32 state[5];
 	uint32 count[2];
 	uint08 buff[64];
-}tlkalg_sha1_contex_t;
+}tlkalg_sha1_context_t;
 typedef struct{
 	uint08 value[TLKALG_SHA1_HASH_SIZE];
 }tlkalg_sha1_digest_t;
 
 
 
-void tlkalg_sha1_init(tlkalg_sha1_contex_t *pContext);
-void tlkalg_sha1_update(tlkalg_sha1_contex_t *pContext, uint08 *pData, uint32 dataLen);
-void tlkalg_sha1_finish(tlkalg_sha1_contex_t *pContext, tlkalg_sha1_digest_t *pHash);
+void tlkalg_sha1_init(tlkalg_sha1_context_t *pContext);
+void tlkalg_sha1_update(tlkalg_sha1_context_t *pContext, uint08 *pData, uint32 dataLen);
+void tlkalg_sha1_finish(tlkalg_sha1_context_t *pContext, tlkalg_sha1_digest_t *pHash);
 
 void tlkalg_sha1_result(uint08 *pData, uint32 dataLen, tlkalg_sha1_digest_t *pDigest);
 

@@ -42,7 +42,7 @@ extern void tlkos_start_run(void);
 
 extern int tlkos_task_create(tlkos_task_t *pTask, char *pName, uint08 priority, uint16 stackSize, 
 	TlkOsTaskEnterCB enter, void *pUsrArg);
-extern int tlkos_task_destory(tlkos_task_t *pTask);
+extern int tlkos_task_destroy(tlkos_task_t *pTask);
 extern int tlkos_task_delayMs(tlkos_task_t *pTask, uint delayMs);
 extern int tlkos_task_suspend(tlkos_task_t *pTask);
 extern int tlkos_task_resume(tlkos_task_t *pTask);
@@ -54,21 +54,21 @@ extern void tlkos_task_setPriority(tlkos_task_t *pTask, uint priority);
 extern uint tlkos_task_getStackValid(tlkos_task_t *pTask);
 
 extern int tlkos_msgq_create(tlkos_msgq_t *pMsgq, uint numb, uint size);
-extern int tlkos_msgq_destory(tlkos_msgq_t *pMsgq);
+extern int tlkos_msgq_destroy(tlkos_msgq_t *pMsgq);
 extern int tlkos_msgq_send(tlkos_msgq_t *pMsgq, uint08 *pData, uint16 dataLen, uint timeout);
 extern int tlkos_msgq_read(tlkos_msgq_t *pMsgq, uint08 *pBuff, uint16 buffLen, uint timeout);
 extern void tlkos_msgq_clear(tlkos_msgq_t *pMsgq);
 
 
 extern int tlkos_mutex_create(tlkos_mutex_t *pMutex);
-extern int tlkos_mutex_destory(tlkos_mutex_t *pMutex);
+extern int tlkos_mutex_destroy(tlkos_mutex_t *pMutex);
 extern int tlkos_mutex_lock(tlkos_mutex_t *pMutex);
 extern int tlkos_mutex_unlock(tlkos_mutex_t *pMutex);
 
 
 extern int tlkos_timer_create(tlkos_timer_t *pTimer, char *pName, uint period, bool autoReload,
 	TlkOsTimerEnterCB enter, void *pUsrArg);
-extern int tlkos_timer_destory(tlkos_timer_t *pTimer);
+extern int tlkos_timer_destroy(tlkos_timer_t *pTimer);
 extern int tlkos_timer_start(tlkos_timer_t *pTimer, uint delay);
 extern int tlkos_timer_reset(tlkos_timer_t *pTimer);
 extern int tlkos_timer_stop(tlkos_timer_t *pTimer);
@@ -78,7 +78,7 @@ extern int tlkos_timer_setPeriod(tlkos_timer_t *pTimer, uint period);
 extern bool tlkos_sem_isFull(tlkos_sem_t *pSem);
 extern bool tlkos_sem_isEmpty(tlkos_sem_t *pSem);
 extern int tlkos_sem_create(tlkos_sem_t *pSem, uint maxCount, uint iniCount);
-extern int tlkos_sem_destory(tlkos_sem_t *pSem);
+extern int tlkos_sem_destroy(tlkos_sem_t *pSem);
 extern int tlkos_sem_take(tlkos_sem_t *pSem, uint timeout);
 extern int tlkos_sem_post(tlkos_sem_t *pSem);
 

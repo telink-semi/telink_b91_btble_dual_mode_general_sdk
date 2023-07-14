@@ -33,8 +33,8 @@
 
 #define TLKDRV_SERIAL_MAX_NUMB             2
 
-#define TLKDRV_SERIAL_B91_UART_EANBLE      1
-#define TLKDRV_SERIAL_B92_UART_EANBLE      0
+#define TLKDRV_SERIAL_B91_UART_ENABLE      1
+#define TLKDRV_SERIAL_B92_UART_ENABLE      0
 
 
 typedef void(*TlkDrvSerialRecvCB)(uint08 *pFrame, uint16 frmLen);
@@ -46,6 +46,7 @@ typedef enum{
 	TLKDRV_SERIAL_FLAG_OPEN   = 0x4000,
 	TLKDRV_SERIAL_FLAG_SEND   = 0x2000,
 	TLKDRV_SERIAL_FLAG_RECV   = 0x1000,
+	TLKDRV_SERIAL_FLAG_SLEEP  = 0x0800,
 	TLKDRV_SERIAL_FLAG_TX_DMA = 0x0001,
 	TLKDRV_SERIAL_FLAG_RX_DMA = 0x0002,
 	TLKDRV_SERIAL_FLAG_TX_RTS = 0x0004,
@@ -108,6 +109,8 @@ int tlkdrv_serial_setRxQFifo(uint08 port, uint16 fnumb, uint16 fsize, uint08 *pB
 void tlkdrv_serial_clear(uint08 port);
 void tlkdrv_serial_regCB(uint08 port, TlkDrvSerialRecvCB cb);
 bool tlkdrv_serial_isBusy(uint08 port);
+
+void tlkdrv_serial_sleep(uint08 port);
 void tlkdrv_serial_wakeup(uint08 port);
 
 void tlkdrv_serial_handler(uint08 port);

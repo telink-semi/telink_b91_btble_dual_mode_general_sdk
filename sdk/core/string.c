@@ -136,7 +136,7 @@ _attribute_retention_code_ void tmemcpy(void * out, const void * in, unsigned in
 	//return out;
 }
 
-// for performance, assume lenght % 4 == 0,  and no memory overlapped
+// for performance, assume length % 4 == 0,  and no memory overlapped
 _attribute_retention_code_ void tmemcpy4(void * d, const void * s, unsigned int length)
 {
 #if DEBUG_MEM_VIOLATION
@@ -158,7 +158,7 @@ _attribute_retention_code_ void tmemcpy4(void * d, const void * s, unsigned int 
 	int* src = (int*)s;
 	assert((((int)dst) >> 2) << 2 == ((int)dst));			// address must alighn to 4
 	assert((((int)src) >> 2) << 2 == ((int)src));			// address must alighn to 4
-	assert((length >> 2) << 2 == length);					// lenght % 4 == 0
+	assert((length >> 2) << 2 == length);					// length % 4 == 0
 	assert(( ((char*)dst) + length <= (const char*)src) || (((const char*)src) + length <= (char*)dst));	//  no overlapped
 	unsigned int len = length >> 2;
 	while(len --){

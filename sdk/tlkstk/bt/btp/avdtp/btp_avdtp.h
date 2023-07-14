@@ -40,7 +40,7 @@
 
 typedef enum{
 	BTP_AVDTP_MSG_TYPE_COMMAND  = 0x00, //Command
-	BTP_AVDTP_MSG_TYPE_GERNERAL = 0x01, //General Reject
+	BTP_AVDTP_MSG_TYPE_GENERAL = 0x01, //General Reject
 	BTP_AVDTP_MSG_TYPE_ACCEPT   = 0x02, //Response Accept
 	BTP_AVDTP_MSG_TYPE_REJECT   = 0x03, //Response Reject
 }BTP_AVDTP_MSGTYPE_ENUM;
@@ -220,7 +220,7 @@ int btp_avdtp_sendSepDiscoveryRej(uint16 aclHandle, uint16 scid, uint08 label, u
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avdtp_sendGetCapablityCmd(uint16 aclHandle, uint16 scid, uint08 label, uint08 acpSeid);
+int btp_avdtp_sendGetCapabilityCmd(uint16 aclHandle, uint16 scid, uint08 label, uint08 acpSeid);
 
 /******************************************************************************
  * Function: AVDTP Send get capability response interface
@@ -234,12 +234,12 @@ int btp_avdtp_sendGetCapablityCmd(uint16 aclHandle, uint16 scid, uint08 label, u
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avdtp_sendGetCapablityRsp(uint16 aclHandle, uint16 scid, uint08 label, uint08 *pData, uint16 dataLen);
+int btp_avdtp_sendGetCapabilityRsp(uint16 aclHandle, uint16 scid, uint08 label, uint08 *pData, uint16 dataLen);
 
 /******************************************************************************
  * Function: AVDTP Reject get capability interface
  * Descript: Defines trigger the AVDTP send reject to peer AVDTP entity, 
- *           when codec's paramter abnormal.
+ *           when codec's parameter abnormal.
  * Params:
  *        @aclHandle--The Acl Handle identifier.
  *        @scid--The service channel id.
@@ -248,7 +248,7 @@ int btp_avdtp_sendGetCapablityRsp(uint16 aclHandle, uint16 scid, uint08 label, u
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avdtp_sendGetCapablityRej(uint16 aclHandle, uint16 scid, uint08 label, uint08 errID);
+int btp_avdtp_sendGetCapabilityRej(uint16 aclHandle, uint16 scid, uint08 label, uint08 errID);
 
 /******************************************************************************
  * Function: AVDTP Send get all capability command interface
@@ -261,7 +261,7 @@ int btp_avdtp_sendGetCapablityRej(uint16 aclHandle, uint16 scid, uint08 label, u
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avdtp_sendGetAllCapablityCmd(uint16 aclHandle, uint16 scid, uint08 label, uint08 acpSeid);
+int btp_avdtp_sendGetAllCapabilityCmd(uint16 aclHandle, uint16 scid, uint08 label, uint08 acpSeid);
 
 /******************************************************************************
  * Function: AVDTP Send Get all capanility response interface
@@ -275,7 +275,7 @@ int btp_avdtp_sendGetAllCapablityCmd(uint16 aclHandle, uint16 scid, uint08 label
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avdtp_sendGetAllCapablityRsp(uint16 aclHandle, uint16 scid, uint08 label, uint08 *pData, uint16 dataLen);
+int btp_avdtp_sendGetAllCapabilityRsp(uint16 aclHandle, uint16 scid, uint08 label, uint08 *pData, uint16 dataLen);
 
 /******************************************************************************
  * Function: AVDTP Send reject get all capability interface
@@ -288,7 +288,7 @@ int btp_avdtp_sendGetAllCapablityRsp(uint16 aclHandle, uint16 scid, uint08 label
  * Return: Returning TLK_ENONE(0x00) means the send process success.
  *         If others value is returned means the send process fail.
 *******************************************************************************/
-int btp_avdtp_sendGetAllCapablityRej(uint16 aclHandle, uint16 scid, uint08 label, uint08 errID);
+int btp_avdtp_sendGetAllCapabilityRej(uint16 aclHandle, uint16 scid, uint08 label, uint08 errID);
 
 /******************************************************************************
  * Function: AVDTP Send set config interface
@@ -321,7 +321,7 @@ int btp_avdtp_sendSetConfigRsp(uint16 aclHandle, uint16 scid, uint08 label);
 /******************************************************************************
  * Function: AVDTP Send set config reject interface
  * Descript: Defines trigger the AVDTP set configuration reject to peer 
- *           device when paramter abnormal.
+ *           device when parameter abnormal.
  * Params:
  *        @aclHandle--The Acl Handle identifier.
  *        @scid--The service channel id.
@@ -557,7 +557,7 @@ int btp_avdtp_sendSuspendRsp(uint16 aclHandle, uint16 scid, uint08 label);
 /******************************************************************************
  * Function: AVDTP Send suspend reject interface
  * Descript: Defines trigger the AVDTP send suspend reject to peer AVDTP entity 
- *           when the status or paramter error.
+ *           when the status or parameter error.
  * Params:
  *        @aclHandle--The Acl Handle identifier.
  *        @scid--The service channel id.

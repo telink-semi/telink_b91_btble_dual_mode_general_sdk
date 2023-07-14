@@ -53,13 +53,13 @@ int tlkos_mutex_create(tlkos_mutex_t *pMutex)
 #endif
 }
 /******************************************************************************
- * Function: tlkos_mutex_destory
- * Descript: Destory a mutex.
+ * Function: tlkos_mutex_destroy
+ * Descript: Destroy a mutex.
  * Params:
  *     @pSem[IN]--Mutex control structure.
  * Return: Operating results, TLK_ENONE means success and others mean failure.
 *******************************************************************************/
-int tlkos_mutex_destory(tlkos_mutex_t *pMutex)
+int tlkos_mutex_destroy(tlkos_mutex_t *pMutex)
 {
 	if(pMutex == 0) return -TLK_EPARAM;
 #if (TLK_OS_FREERTOS_ENABLE)

@@ -271,7 +271,7 @@ static int tlkmmi_rdt_leHostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 			break;
 		case GAP_EVT_SMP_SECURITY_PROCESS_DONE:
 			break;
-		case GAP_EVT_SMP_TK_DISPALY:
+		case GAP_EVT_SMP_TK_DISPLAY:
 			break;
 		case GAP_EVT_SMP_TK_REQUEST_PASSKEY:
 			break;
@@ -281,7 +281,7 @@ static int tlkmmi_rdt_leHostEventCB(uint32 evtID, uint08 *pData, int dataLen)
 			break;
 		case GAP_EVT_ATT_EXCHANGE_MTU:
 			break;
-		case GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM:
+		case GAP_EVT_GATT_HANDLE_VALUE_CONFIRM:
 			break;
 		default:
 			break;

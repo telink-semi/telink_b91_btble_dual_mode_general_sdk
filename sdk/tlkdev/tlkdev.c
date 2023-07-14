@@ -34,13 +34,9 @@
 #if (TLK_DEV_LCD_ENABLE)
 #include "tlkdev/sys/tlkdev_lcd.h"
 #endif
-#if (TLK_DEV_SENSOR_ENABLE)
-#include "tlkdev/sys/tlkdev_sensor.h"
-#endif 
 #if (TLK_DEV_TOUCH_ENABLE)
 #include "tlkdev/sys/tlkdev_touch.h"
 #endif
-
 
 
 
@@ -57,9 +53,6 @@ int tlkdev_init(void)
 	#endif
 	#if (TLK_DEV_LCD_ENABLE)
 	tlkdev_lcd_init();
-	#endif
-	#if (TLK_DEV_SENSOR_ENABLE)
-	tlkdev_sensor_init();
 	#endif
 	#if (TLK_DEV_TOUCH_ENABLE)
 	tlkdev_touch_init();

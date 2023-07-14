@@ -50,7 +50,7 @@ static void tlkmdi_play_fillHandler(void);
 
 
 typedef struct{
-	uint08 runing;
+	uint08 running;
 	uint08 status;
 	uint08 enable;
 	uint08 curState;
@@ -196,7 +196,7 @@ bool tlkmdi_audplay_switch(uint16 handle, uint08 status)
 	tlkmdi_mp3_startUpdate();
 	
 	sTlkMdiPlayCtrl.enable = enable;
-	sTlkMdiPlayCtrl.runing = enable;
+	sTlkMdiPlayCtrl.running = enable;
 	sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_IDLE;
 //	sTlkMdiPlayCtrl.playIndex = tlkmdi_mp3_getPlayIndex();
 	sTlkMdiPlayCtrl.sampleRate = tlkmdi_mp3_getSampleRate();
@@ -220,7 +220,7 @@ bool tlkmdi_audplay_switch(uint16 handle, uint08 status)
 *******************************************************************************/
 bool tlkmdi_audplay_isBusy(void)
 {
-	return (sTlkMdiPlayCtrl.enable && sTlkMdiPlayCtrl.runing);
+	return (sTlkMdiPlayCtrl.enable && sTlkMdiPlayCtrl.running);
 }
 
 /******************************************************************************
@@ -232,7 +232,7 @@ bool tlkmdi_audplay_isBusy(void)
 *******************************************************************************/
 uint tlkmdi_audplay_intval(void)
 {
-	if(!sTlkMdiPlayCtrl.runing) return 0;
+	if(!sTlkMdiPlayCtrl.running) return 0;
 	if(tlkdev_codec_getSpkDataLen() < (TLK_DEV_SPK_BUFF_SIZE>>1)){
 		return 1000;
 	}else if(tlkmdi_mp3_getPcmDataLen() < 1024){
@@ -255,7 +255,7 @@ bool tlkmdi_audplay_irqProc(void)
 	if(!sTlkMdiPlayCtrl.enable) return false;
 	tlkmdi_play_mp3Handler();
 	tlkmdi_play_fillHandler();
-	if(sTlkMdiPlayCtrl.runing) return true;
+	if(sTlkMdiPlayCtrl.running) return true;
 	else return false;
 }
 
@@ -269,10 +269,10 @@ bool tlkmdi_play_start(uint16 index)
 	isSucc = tlkmdi_mp3_play(index);
 	if(!isSucc){
 		tlkmdi_mp3_updateEnable(false);
-		sTlkMdiPlayCtrl.runing = false;
+		sTlkMdiPlayCtrl.running = false;
 		sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_PLAY;
 	}else{
-		sTlkMdiPlayCtrl.runing = true;
+		sTlkMdiPlayCtrl.running = true;
 		sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_IDLE;
 	}
 	return isSucc;
@@ -281,7 +281,7 @@ bool tlkmdi_play_start(uint16 index)
 
 /******************************************************************************
  * Function: tlkmdi_play_setParam
- * Descript: Set the audio Paramter. 
+ * Descript: Set the audio Parameter. 
  * Params: None.
  * Return: None.
 *******************************************************************************/
@@ -294,11 +294,11 @@ void tlkmdi_play_setParam(uint16 fileIndex)
 
 static void tlkmdi_play_mp3Handler(void)
 {
-	if(!sTlkMdiPlayCtrl.runing) return;
+	if(!sTlkMdiPlayCtrl.running) return;
 	if(sTlkMdiPlayCtrl.curState == TLKMDI_MP3_STATUS_IDLE){
 		tlkapi_trace(TLKMDI_AUDPLAY_DBG_FLAG, TLKMDI_AUDPLAY_DBG_SIGN, "tlkmdi_play_mp3Handler: new play");
 		tlkmdi_play_start(sTlkMdiPlayCtrl.playIndex);
-		if(!sTlkMdiPlayCtrl.runing) return;
+		if(!sTlkMdiPlayCtrl.running) return;
 		if(tlkmdi_mp3_getSampleRate() != sTlkMdiPlayCtrl.sampleRate){
 			sTlkMdiPlayCtrl.sampleRate = tlkmdi_mp3_getSampleRate();
 			tlkdev_codec_close();
@@ -316,7 +316,7 @@ static void tlkmdi_play_mp3Handler(void)
 			uint16 index = tlkmdi_mp3_getPlayIndex();
 			tlkdev_codec_muteSpk();
 			if(sTlkMdiPlayCtrl.curState == TLKMDI_MP3_STATUS_DONE){
-				sTlkMdiPlayCtrl.runing = false;
+				sTlkMdiPlayCtrl.running = false;
 			}else{
 				sTlkMdiPlayCtrl.curState = TLKMDI_MP3_STATUS_IDLE;
 			}
@@ -351,7 +351,7 @@ static void tlkmdi_play_fillHandler(void)
 	uint16 pcm[256];
 	sint16 *ptr = NULL;
 
-	if(!sTlkMdiPlayCtrl.runing) return;
+	if(!sTlkMdiPlayCtrl.running) return;
 //	tlkapi_trace(TLKMDI_AUDPLAY_DBG_FLAG, TLKMDI_AUDPLAY_DBG_SIGN, "tlkmdi_play_fillHandler:");
 	
 	needLen = tlkmdi_mp3_getChannels() == 2 ? 128*4 : 128*2;

@@ -59,13 +59,13 @@ int tlkos_timer_create(tlkos_timer_t *pTimer, char *pName, uint period, bool aut
 }
 
 /******************************************************************************
- * Function: tlkos_timer_destory
- * Descript: Destory a timer.
+ * Function: tlkos_timer_destroy
+ * Descript: Destroy a timer.
  * Params:
  *     @pTimer[IN]--Timer control structure.
  * Return: Operating results, TLK_ENONE means success and others mean failure.
 *******************************************************************************/
-int tlkos_timer_destory(tlkos_timer_t *pTimer)
+int tlkos_timer_destroy(tlkos_timer_t *pTimer)
 {
 	if(pTimer == nullptr) return -TLK_EPARAM;
 #if (TLK_OS_FREERTOS_ENABLE)

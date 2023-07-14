@@ -110,7 +110,7 @@ int tlkdev_store_getSdBlockNumb(void)
 
 void tlkdev_store_enterSleep(uint mode)
 {
-	tlkdev_store_close();
+	tlkdrv_store_shutDown(TLKDEV_STORE_DEV);
 }
 
 

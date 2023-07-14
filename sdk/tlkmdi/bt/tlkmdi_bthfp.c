@@ -43,7 +43,7 @@ static int tlkmdi_bthfp_hfStatusChangedEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_bthfp_hfStatusInquiryEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_bthfp_hfNumberInquiryEvt(uint08 *pData, uint16 dataLen);
 
-static void tlkmdi_bthfp_hfSendStatusEvt(uint08 evtID, uint16 handle, uint08 callNum, uint08 callDir, uint08 numbLen);
+static void tlkmdi_bthfp_hfSendStatusEvt(uint08 evtID, uint16 handle, uint08 callNum, uint08 callDir, uint08 numbLen, uint08* pNumber);
 
 static void tlkmdi_bthfp_hfInquiryStopDeal(uint16 handle);
 static void tlkmdi_bthfp_hfInquiryBusyDeal(uint16 handle,tlkmdi_hfphf_unit_t *pUnit);
@@ -81,7 +81,7 @@ int tlkmdi_bthfp_init(void)
 
 /******************************************************************************
  * Function: tlkmdi_hfphf_destroy.
- * Descript: Reset the HF control block adn release resource.
+ * Descript: Reset the HF control block and release resource.
  * Params: None.
  * Return: None.
  * Others: None.
@@ -162,7 +162,7 @@ static void tlkmdi_bthfp_hfReset(uint16 aclHandle)
 		pUnit->callBusy = TLKMDI_HFPHF_CALL_BUSY_NONE;
 		if((callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_MASK) != 0 && (callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_CLOSE) == 0){
 			tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT: 04");
-			tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT, handle, 0, callDir, numbLen);
+			tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT, handle, 0, callDir, numbLen, pUnit->number);
 		}
 	}
 
@@ -178,11 +178,11 @@ static void tlkmdi_bthfp_hfReset(uint16 aclHandle)
 		pUnit->callBusy = TLKMDI_HFPHF_CALL_BUSY_NONE;
 		if((callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_MASK) != 0 && (callFlag & TLKMDI_HFPHF_CALL_FLAG_REPORT_CLOSE) == 0){
 			tlkapi_warn(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT: 05");
-			tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT, handle, 1, callDir, numbLen);
+			tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT, handle, 1, callDir, numbLen, pUnit->number);
 		}
 	}
 }
-static void tlkmdi_bthfp_hfSendStatusEvt(uint08 evtID, uint16 handle, uint08 callNum, uint08 callDir, uint08 numbLen)
+static void tlkmdi_bthfp_hfSendStatusEvt(uint08 evtID, uint16 handle, uint08 callNum, uint08 callDir, uint08 numbLen, uint08* pNumber)
 {
 	tlkmdi_hfphf_statusEvt_t evt;
 
@@ -193,6 +193,9 @@ static void tlkmdi_bthfp_hfSendStatusEvt(uint08 evtID, uint16 handle, uint08 cal
 	evt.callNum = callNum;
 	evt.callDir = callDir;
 	evt.numbLen = numbLen;
+	if(numbLen > TLKMDI_HFPHF_NUMBER_MAX_LEN) evt.numbLen = TLKMDI_HFPHF_NUMBER_MAX_LEN;
+	else evt.numbLen = numbLen;
+	if(evt.numbLen != 0) tmemcpy(evt.number, pNumber, evt.numbLen);
 	tlksys_sendInnerMsg(TLKSYS_TASKID_PHONE, evtID, (uint08*)&evt, sizeof(tlkmdi_hfphf_statusEvt_t));
 }
 static int tlkmdi_bthfp_hfCodecChangedEvt(uint08 *pData, uint16 dataLen)
@@ -395,7 +398,7 @@ static void tlkmdi_bthfp_hfInquiryCheckDeal(uint16 handle, tlkmdi_hfphf_unit_t *
 				else index = 1;
 			
 			tlkapi_trace(TLKMDI_BTHFP_DBG_FLAG, TLKMDI_BTHFP_DBG_SIGN, "TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT: 02");
-			tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen);
+			tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_CLOSE_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen, pUnit->number);
 		}
 		pUnit->numbLen = 0;
 		pUnit->callDir = 0;
@@ -525,27 +528,27 @@ static void tlkmdi_bthfp_hfInquiryBusyDeal(uint16 handle,tlkmdi_hfphf_unit_t *pU
 		pUnit->callFlag |= TLKMDI_HFPHF_CALL_FLAG_REPORT_WAIT;
 		pUnit->callBusy &= ~TLKMDI_HFPHF_CALL_BUSY_REPORT_START;
 		pUnit->callFlag |= TLKMDI_HFPHF_CALL_FLAG_REPORT_START;
-		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_WAIT_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen);
+		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_WAIT_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen, pUnit->number);
 	}
 	if((pUnit->callBusy & TLKMDI_HFPHF_CALL_BUSY_REPORT_START) != 0){
 		pUnit->callBusy &= ~TLKMDI_HFPHF_CALL_BUSY_REPORT_START;
 		pUnit->callFlag |= TLKMDI_HFPHF_CALL_FLAG_REPORT_START;
-		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_START_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen);
+		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_START_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen, pUnit->number);
 	}
 	if((pUnit->callBusy & TLKMDI_HFPHF_CALL_BUSY_REPORT_ACTIVE) != 0){
 		pUnit->callBusy &= ~TLKMDI_HFPHF_CALL_BUSY_REPORT_ACTIVE;
 		pUnit->callFlag |= TLKMDI_HFPHF_CALL_FLAG_REPORT_ACTIVE;
-		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_ACTIVE_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen);
+		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_ACTIVE_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen, pUnit->number);
 	}
 	if((pUnit->callBusy & TLKMDI_HFPHF_CALL_BUSY_REPORT_PAUSED) != 0){
 		pUnit->callBusy &= ~TLKMDI_HFPHF_CALL_BUSY_REPORT_PAUSED;
 		pUnit->callFlag |= TLKMDI_HFPHF_CALL_FLAG_REPORT_PAUSED;
-		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_HOLD_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen);
+		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_HOLD_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen, pUnit->number);
 	}
 	if((pUnit->callBusy & TLKMDI_HFPHF_CALL_BUSY_REPORT_RESUME) != 0){
 		pUnit->callBusy &= ~TLKMDI_HFPHF_CALL_BUSY_REPORT_RESUME;
 		pUnit->callFlag |= TLKMDI_HFPHF_CALL_FLAG_REPORT_ACTIVE;
-		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_RESUME_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen);
+		tlkmdi_bthfp_hfSendStatusEvt(TLKPTI_PHONE_MSGID_CALL_RESUME_EVT, pItem->handle, index, pUnit->callDir, pUnit->numbLen, pUnit->number);
 	}
 }
 

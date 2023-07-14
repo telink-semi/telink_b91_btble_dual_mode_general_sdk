@@ -34,6 +34,7 @@
 typedef enum{
 	TLKSYS_PROCID_NONE = 0,
 	TLKSYS_PROCID_SYSTEM, //System processes must come first
+	TLKSYS_PROCID_DEVICE,
 	TLKSYS_PROCID_AUDIO,
 	TLKSYS_PROCID_FILEM,
 	TLKSYS_PROCID_STACK,
@@ -44,6 +45,7 @@ typedef enum{
 typedef enum{
 	TLKSYS_TASKID_NONE = 0,
 	TLKSYS_TASKID_SYSTEM, //System task must come first
+	TLKSYS_TASKID_SENSOR,
 	TLKSYS_TASKID_STACK,
 	TLKSYS_TASKID_AUDIO,
 	TLKSYS_TASKID_BTMGR,
@@ -88,7 +90,7 @@ typedef struct{
 		tlkmmi_##name0##_close,\
 		tlkmmi_##name0##_input,\
 		tlkmmi_##name0##_handler\
-	}\
+	}
 
 
 extern int  tlksys_init(void);

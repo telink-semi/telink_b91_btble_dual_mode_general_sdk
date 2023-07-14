@@ -34,11 +34,20 @@ typedef struct{
 	uint16 busys;
 	uint16 flags;
 	uint16 timeout;
+	uint32 connTime;
 	uint16 aclHandle;
-	uint16 pageTimer;
+	uint16 pageTime;
+	uint16 rswTimer; //negetive rsw
 	uint16 authSecrTimer; //negetive auth
 	uint16 exitTimer; //Exit Sniffer wait timer in disconnect acl.
+	uint16 connTimer;
 
+	uint08 reserved00;
+	uint08 sniffReqCount;
+	uint16 sniffReqTimer;
+	uint16 unsniffReqTimer;
+	uint16 leaveSniffTimer;
+	
 	uint08 reason;
 	uint08 othBusys; //Other Busys
 	uint08 btaddr[6];
@@ -47,7 +56,7 @@ typedef struct{
 	uint08 curRole;
 	uint08 airMode;
 	uint08 reserved;
-    uint08 positive; //1:positive connect to the remote or 0: negtive be connected
+    uint08 positive; //1:positive connect to the remote or 0: negative be connected
 	uint08 switchCnt; //role_switch_req_cnt
 	uint08 scanMode; //page_scan_repetition_mode
 	uint16 clkOffs;
@@ -84,7 +93,7 @@ typedef struct{
  * Function: bth_handle_init
  * Descript: Initial the acl handle control block and sco handle control block.
  * Params: None.
- * Reutrn: TLK_ENONE is success, other value if false.
+ * Return: TLK_ENONE is success, other value if false.
 *******************************************************************************/
 int bth_handle_init(void);
 
@@ -93,7 +102,7 @@ int bth_handle_init(void);
  * Function: bth_handle_getIdleAclCount
  * Descript: Get the number of idle acl handle.
  * Params: None.
- * Reutrn: The number of idle acl handle.
+ * Return: The number of idle acl handle.
 *******************************************************************************/
 uint08 bth_handle_getIdleAclCount(void);
 
@@ -101,7 +110,7 @@ uint08 bth_handle_getIdleAclCount(void);
  * Function: bth_handle_getUsedAclCount
  * Descript: Get the number of used acl handle.
  * Params: None.
- * Reutrn: The number of used acl handle.
+ * Return: The number of used acl handle.
 *******************************************************************************/
 uint08 bth_handle_getUsedAclCount(void);
 
@@ -109,7 +118,7 @@ uint08 bth_handle_getUsedAclCount(void);
  * Function: bth_handle_getConnAclCount
  * Descript: Get the number of Connected acl handle.
  * Params: None.
- * Reutrn: The number of connected acl handle.
+ * Return: The number of connected acl handle.
 *******************************************************************************/
 uint08 bth_handle_getConnAclCount(void);
 
@@ -117,7 +126,7 @@ uint08 bth_handle_getConnAclCount(void);
  * Function: bth_handle_getDiscAclCount
  * Descript: Get the number of DisConnected acl handle.
  * Params: None.
- * Reutrn: The number of connected acl handle.
+ * Return: The number of connected acl handle.
 *******************************************************************************/
 uint08 bth_handle_getDiscAclCount(void);
 
@@ -125,7 +134,7 @@ uint08 bth_handle_getDiscAclCount(void);
  * Function: bth_handle_getIdleScoCount
  * Descript: Get the number of idle sco handle.
  * Params: None.
- * Reutrn: The number of idle sco handle.
+ * Return: The number of idle sco handle.
 *******************************************************************************/
 uint08 bth_handle_getIdleScoCount(void);
 
@@ -133,7 +142,7 @@ uint08 bth_handle_getIdleScoCount(void);
  * Function: bth_handle_getUsedScoCount
  * Descript: Get the number of used sco handle.
  * Params: None.
- * Reutrn: The number of used sco handle.
+ * Return: The number of used sco handle.
 *******************************************************************************/
 uint08 bth_handle_getUsedScoCount(void);
 
@@ -141,7 +150,7 @@ uint08 bth_handle_getUsedScoCount(void);
  * Function: bth_handle_getConnScoCount
  * Descript: Get the number of connected sco handle.
  * Params: None.
- * Reutrn: The number of connected sco handle.
+ * Return: The number of connected sco handle.
 *******************************************************************************/
 uint08 bth_handle_getConnScoCount(void);
 
@@ -149,7 +158,7 @@ uint08 bth_handle_getConnScoCount(void);
  * Function: bth_handle_getDiscScoCount
  * Descript: Get the number of disconnected sco handle.
  * Params: None.
- * Reutrn: The number of disconnected sco handle.
+ * Return: The number of disconnected sco handle.
 *******************************************************************************/
 uint08 bth_handle_getDiscScoCount(void);
 
@@ -157,7 +166,7 @@ uint08 bth_handle_getDiscScoCount(void);
  * Function: bth_handle_getAclHandle
  * Descript: Get the acl handle via bt address.
  * Params: None.
- * Reutrn: The acl handle.
+ * Return: The acl handle.
 *******************************************************************************/
 uint16 bth_handle_getAclHandle(uint08 *pBtAddr);
 
@@ -165,7 +174,7 @@ uint16 bth_handle_getAclHandle(uint08 *pBtAddr);
  * Function: bth_handle_getBtAddr
  * Descript: Get the Bt address.
  * Params: @aclHandle[IN]--The acl link handle.
- * Reutrn: The bt address.
+ * Return: The bt address.
 *******************************************************************************/
 uint08 *bth_handle_getBtAddr(uint16 aclHandle);
 
@@ -174,7 +183,7 @@ uint08 *bth_handle_getBtAddr(uint16 aclHandle);
  * Descript: reset the acl handle and release the resource.
  * Params:
  *        @pHandle[IN]--The acl link handle.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_handle_resetAcl(bth_acl_handle_t *pHandle);
 
@@ -183,7 +192,7 @@ void bth_handle_resetAcl(bth_acl_handle_t *pHandle);
  * Descript: reset the sco handle and release the resource.
  * Params:
  *        @pHandle[IN]--The acl link handle.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_handle_resetSco(bth_sco_handle_t *pHandle);
 
@@ -193,7 +202,7 @@ void bth_handle_resetSco(bth_sco_handle_t *pHandle);
  *           via acl handle or bt address
  * Descript: get the acl handle item.
  * Params:
- * Reutrn: acl Hanlde item.
+ * Return: acl Handle item.
 *******************************************************************************/
 bth_acl_handle_t *bth_handle_getIdleAcl(void);
 bth_acl_handle_t *bth_handle_getFirstConnAcl(void);
@@ -209,7 +218,7 @@ bth_acl_handle_t *bth_handle_searchConnAcl(uint08 *pBtAddr);
  *           via sco handle or acl handle.
  * Descript: get the sco handle item.
  * Params:
- * Reutrn: sco Hanlde item.
+ * Return: sco Handle item.
 *******************************************************************************/
 bth_sco_handle_t *bth_handle_getIdleSco(void);
 bth_sco_handle_t *bth_handle_getUsedSco(uint16 scoHandle);

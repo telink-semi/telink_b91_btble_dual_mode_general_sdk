@@ -114,7 +114,7 @@ static uint tlkmdi_bthid_getProtocolCB(uint16 aclHandle, uint08 *pProtoMode)
 
 static uint tlkmdi_bthid_setReportCB(uint16 aclHandle, uint08 reportType, uint08 reportID, uint08 *pData, uint16 dataLen)
 {
-	if(pData == NULL || dataLen < 2){
+	if(pData == NULL || dataLen == 0){
 		tlkapi_error(TLKMDI_BTHID_DBG_FLAG, TLKMDI_BTHID_DBG_SIGN, "tlkmdi_bthid_setReportCB: invalid param");
 		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
 	}

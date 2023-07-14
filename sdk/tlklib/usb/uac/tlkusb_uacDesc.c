@@ -291,7 +291,7 @@ static const tlkusb_uacAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		0, // bNumEndpoints
 		TLKUSB_AUD_CSCP_AudioClass,//Class
 		TLKUSB_AUD_CSCP_AudioStreamingSubclass,//Subclass
-		TLKUSB_AUD_CSCP_StreamingProtocol,//Protocal
+		TLKUSB_AUD_CSCP_StreamingProtocol,//Protocol
 		TLKUSB_NO_DESCRIPTOR
 	},
 	// spk_setting1
@@ -313,7 +313,7 @@ static const tlkusb_uacAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		AUDIO_DSUBTYPE_CSInterface_General,//Subtype
 		1, // bTerminalLink: #1 USB Streaming IN
 		0, // bDelay
-		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}//SudioFormat
+		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}//StdioFormat
 	},
 	// spk_audio_format
 	{
@@ -384,7 +384,7 @@ static const tlkusb_uacAudConfigDesc_t sMmiUsbAudConfigDesc = {
 		AUDIO_DSUBTYPE_CSInterface_General,//Subtype
 		6, // bTerminalLink: #6 USB Streaming OUT
 		1, // FrameDelay
-		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}//SudioFormat
+		{ USB_AUDIO_FORMAT_PCM & 0xff, (USB_AUDIO_FORMAT_PCM >> 8)& 0xff}//StdioFormat
 	},
 	// mic_audio_format
 	{

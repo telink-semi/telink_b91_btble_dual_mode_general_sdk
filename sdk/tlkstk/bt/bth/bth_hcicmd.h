@@ -75,7 +75,7 @@ typedef enum{
  * Descript: Reset controller.
  * Params:
 
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendResetCmd(void);
 
@@ -86,7 +86,7 @@ int bth_hci_sendResetCmd(void);
  * Params:
  *        @period[IN]--The inquiry time.
  *        @numRsp[IN]--The num of response.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendInquiryCmd(uint08 period, uint08 numRsp);
 
@@ -94,7 +94,7 @@ int bth_hci_sendInquiryCmd(uint08 period, uint08 numRsp);
  * Function: bth_hci_sendInquiryCancelCmd
  * Descript: Cancel Inquiry.
  * Params: None.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendInquiryCancelCmd(void);
 
@@ -105,8 +105,8 @@ int bth_hci_sendInquiryCancelCmd(void);
  *        @period[IN]--The inquiry time.
  *        @numRsp[IN]--The num of response.
  *        @maxPeriod[IN]--The maximum time.
- *        @minPeriod[IN]--The minmum time.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ *        @minPeriod[IN]--The minimum time.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendPeriodicInquiryCmd(uint08 period, uint08 numRsp, uint16 maxPeriod, uint16 minPeriod);
 
@@ -114,7 +114,7 @@ int bth_hci_sendPeriodicInquiryCmd(uint08 period, uint08 numRsp, uint16 maxPerio
  * Function: bth_hci_sendPeriodicInquiryCancelCmd
  * Descript: Cancel periodic Inquiry.
  * Params: None.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendPeriodicInquiryCancelCmd(void);
 
@@ -127,7 +127,7 @@ int bth_hci_sendPeriodicInquiryCancelCmd(void);
  *        @mode[IN]--The mode.
  *        @clkOffs[IN]--The clock offset.
  *        @allowRoleSwitch[IN]--allow role switch.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendCreateConnectCmd(uint08 mac[6], uint16 pktType, uint08 mode, uint16 clkOffs, uint08 allowRoleSwitch);
 
@@ -136,7 +136,7 @@ int bth_hci_sendCreateConnectCmd(uint08 mac[6], uint16 pktType, uint08 mode, uin
  * Descript: Cancel the connection.
  * Params: 
  *        @mac[IN]--The bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendCancelConnectCmd(uint08 mac[6]);
 
@@ -146,7 +146,7 @@ int bth_hci_sendCancelConnectCmd(uint08 mac[6]);
  * Params: 
  *        @handle[IN]--The connected acl handle.
  *        @reason[IN]--Disconnect reason.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendDisconnCmd(uint16 handle, uint08 reason);
 
@@ -156,7 +156,7 @@ int bth_hci_sendDisconnCmd(uint16 handle, uint08 reason);
  * Params: 
  *        @handle[IN]--The connected acl handle.
  *        @reason[IN]--Disconnect reason.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendRejectConnReqCmd(uint08 mac[6], uint08 reason);
 
@@ -166,7 +166,7 @@ int bth_hci_sendRejectConnReqCmd(uint08 mac[6], uint08 reason);
  * Params: 
  *        @handle[IN]--The connected acl handle.
  *        @role[IN]--The role of aclHandle.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendAcceptConnReqCmd(uint08 mac[6], uint08 role);
 
@@ -176,16 +176,16 @@ int bth_hci_sendAcceptConnReqCmd(uint08 mac[6], uint08 role);
  * Params: 
  *        @mac[IN]--The Bt address.
  *        @pLinkkey[IN]--The link key.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendLinkkeyReqReplyCmd(uint08 mac[6], uint08 *pLinkkey);
 
 /******************************************************************************
  * Function: bth_hci_sendLinkkeyReqNegReplyCmd
- * Descript: Reply negtive to the link key request.
+ * Descript: Reply negative to the link key request.
  * Params: 
  *        @mac[IN]--The Bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendLinkkeyReqNegReplyCmd(uint08 mac[6]);
 
@@ -196,16 +196,16 @@ int bth_hci_sendLinkkeyReqNegReplyCmd(uint08 mac[6]);
  *        @mac[IN]--The Bt address.
  *        @pPinCode[IN]--The pin code.
  *        @pinLen[In]--The pin code length.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendPinCodeReqReplyCmd(uint08 mac[6], uint08 *pPinCode, uint08 pinlen);
 
 /******************************************************************************
  * Function: bth_hci_sendPinCodeReqNegReplyCmd
- * Descript: Reply negtive to the pin code request.
+ * Descript: Reply negative to the pin code request.
  * Params: 
  *        @mac[IN]--The Bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendPinCodeReqNegReplyCmd(uint08 mac[6]);
 
@@ -214,7 +214,7 @@ int bth_hci_sendPinCodeReqNegReplyCmd(uint08 mac[6]);
  * Descript: start authenticate.
  * Params: 
  *        @aclHandle[IN]--The acl link handle.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendAuthenticationReqCmd(uint16 aclHandle);
 
@@ -224,7 +224,7 @@ int bth_hci_sendAuthenticationReqCmd(uint16 aclHandle);
  * Params: 
  *        @aclHandle[IN]--The acl link handle.
  *        @encryptEnable[IN]--is encrypt enable.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendSetConnectEncryptReqCmd(uint16 aclHandle, uint08 encrytEnable);
 
@@ -235,7 +235,7 @@ int bth_hci_sendSetConnectEncryptReqCmd(uint16 aclHandle, uint08 encrytEnable);
  *        @mac[IN]--The Bt address.
  *        @mode[IN]--The mode.
  *        @clockoffset[IN]--The clock offset.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendRemoteNameReqCmd(uint08 mac[6], uint08 mode, uint16 clockOffset);
 
@@ -244,7 +244,7 @@ int bth_hci_sendRemoteNameReqCmd(uint08 mac[6], uint08 mode, uint16 clockOffset)
  * Descript: Cancel request peer device name.
  * Params: 
  *        @mac[IN]--The Bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendRemoteNameReqCancelCmd(uint08 mac[6]);
 
@@ -259,7 +259,7 @@ int bth_hci_sendRemoteNameReqCancelCmd(uint08 mac[6]);
  *        @voiceSetting[IN]--The voice setting.
  *        @rtnEffort[IN]--Theretransmission effeort.
  *        @pktType[IN]--The packet type.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendCreateSyncConnReqCmd(uint16 aclHandle, uint32 txBandwidth, uint32 rxBandwidth, uint16 maxLatency, uint16 voiceSetting, uint08 rtnEffort, uint16 pktType);
 
@@ -274,7 +274,7 @@ int bth_hci_sendCreateSyncConnReqCmd(uint16 aclHandle, uint32 txBandwidth, uint3
  *        @voiceSetting[IN]--The voice setting.
  *        @rtnEffort[IN]--Theretransmission effeort.
  *        @pktType[IN]--The packet type.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendAcceptSyncConnReqCmd(uint08 mac[6], uint32 txBandwidth, uint32 rxBandwidth, uint16 maxLatency, uint16 voiceSetting, uint08 rtnEffort, uint16 pktType);
 
@@ -284,7 +284,7 @@ int bth_hci_sendAcceptSyncConnReqCmd(uint08 mac[6], uint32 txBandwidth, uint32 r
  * Params: 
  *        @mac[IN]--The Bt address.
  *        @reason[IN]--The reject reason.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendRejectSyncConnReqCmd(uint08 mac[6], uint08 reason);
 
@@ -293,7 +293,7 @@ int bth_hci_sendRejectSyncConnReqCmd(uint08 mac[6], uint08 reason);
  * Descript: Reply a IO capability request.
  * Params: 
  *        @mac[IN]--The Bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendIOCapReqReplyCmd(uint08 mac[6]);
 
@@ -302,16 +302,16 @@ int bth_hci_sendIOCapReqReplyCmd(uint08 mac[6]);
  * Descript: Send a reply user confirm request.
  * Params: 
  *        @mac[IN]--The Bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendUsrConfirmReqReplyCmd(uint08 mac[6]);
 
 /******************************************************************************
  * Function: bth_hci_sendUsrConfirmReqNegReplyCmd
- * Descript: Send a negtive reply user confirm request.
+ * Descript: Send a negative reply user confirm request.
  * Params: 
  *        @mac[IN]--The Bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendUsrConfirmReqNegReplyCmd(uint08 mac[6]);
 
@@ -321,10 +321,10 @@ int bth_hci_sendUsrConfirmReqNegReplyCmd(uint08 mac[6]);
  * Params: 
  *        @connHandle[IN]--The connection handle.
  *        @maxInterval[IN]--The maximum interval.
- *        @minInterval[IN]--The minmum interval.
+ *        @minInterval[IN]--The minimum interval.
  *        @attempt[IN]--The sniff attempt times.
  *        @time[IN]--The sniff time.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendSniffModeCmd(uint16 connHandle, uint16 maxInterval, uint16 minInterval, uint16 attempt, uint16 timeout);
 
@@ -333,7 +333,7 @@ int bth_hci_sendSniffModeCmd(uint16 connHandle, uint16 maxInterval, uint16 minIn
  * Descript: start exit sniff mode request.
  * Params: 
  *        @connHandle[IN]--The connection handle.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendExitSniffModeCmd(uint16 connHandle);
 
@@ -342,7 +342,7 @@ int bth_hci_sendExitSniffModeCmd(uint16 connHandle);
  * Descript: Start role discovery.
  * Params: 
  *        @connHandle[IN]--The connection handle.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendRoleDiscoveryCmd(uint16 connHandle);
 
@@ -352,17 +352,17 @@ int bth_hci_sendRoleDiscoveryCmd(uint16 connHandle);
  * Params: 
  *        @mac[IN]--The Bt address.
  *        @role[IN]--The link role.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendSwitchRoleReqCmd(uint08 mac[6], uint08 role);
 
 /******************************************************************************
  * Function: bth_hci_sendWriteLinkPolicy
- * Descript: Set the link govenor policy.
+ * Descript: Set the link governor policy.
  * Params: 
  *        @connHandle[IN]--The acl handle.
  *        @policySettings[IN]--The link policy.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteLinkPolicy(uint16 connHandle, uint16 policySettings);
 
@@ -373,7 +373,7 @@ int bth_hci_sendWriteLinkPolicy(uint16 connHandle, uint16 policySettings);
  * Params: 
  *        @mac[IN]--The Bt address.
  *        @readAll[IN]--is read all.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendReadStoredLinkkeyCmd(uint08 mac[6], uint08 readAll);
 
@@ -383,7 +383,7 @@ int bth_hci_sendReadStoredLinkkeyCmd(uint08 mac[6], uint08 readAll);
  * Params: 
  *        @mac[IN]--The Bt address.
  *        @pLinkkey[IN]--The link key.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteStoredLinkkeyCmd(uint08 mac[6], uint08 *pLinkkey);
 
@@ -393,7 +393,7 @@ int bth_hci_sendWriteStoredLinkkeyCmd(uint08 mac[6], uint08 *pLinkkey);
  * Params: 
  *        @mac[IN]--The Bt address.
  *        @deleteAll[IN]--is delete all link key.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendDeleteStoredLinkkeyCmd(uint08 mac[6], uint08 deleteAll);
 
@@ -402,7 +402,7 @@ int bth_hci_sendDeleteStoredLinkkeyCmd(uint08 mac[6], uint08 deleteAll);
  * Descript: Write local name.
  * Params: 
  *        @pLocalName[IN]--The Bt device name.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteLocalNameCmd(uint08 *pLocalName);
 
@@ -411,7 +411,7 @@ int bth_hci_sendWriteLocalNameCmd(uint08 *pLocalName);
  * Descript: Set a page time to listen page timeout.
  * Params: 
  *        @timeout[IN]--The time value.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWritePageTimeoutCmd(uint16 timeout);
 
@@ -421,27 +421,27 @@ int bth_hci_sendWritePageTimeoutCmd(uint16 timeout);
  * Descript: Start a Scan.
  * Params: 
  *        @enable[IN]--is scan enable.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteScanEnableCmd(uint08 enable);
 
 /******************************************************************************
  * Function: bth_hci_sendWritePageScanActivityCmd
- * Descript: Set a page Scan paramter.
+ * Descript: Set a page Scan parameter.
  * Params: 
  *        @interval[IN]--is page scan interval.
  *        @window[IN]--The page scan window.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWritePageScanActivityCmd(uint16 interval, uint16 window);
 
 /******************************************************************************
  * Function: bth_hci_sendWriteInquiryScanActivityCmd
- * Descript: Set a inquiry Scan paramter.
+ * Descript: Set a inquiry Scan parameter.
  * Params: 
  *        @interval[IN]--is inquiry scan interval.
  *        @window[IN]--The inquiry scan window.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteInquiryScanActivityCmd(uint16 interval, uint16 window);
 
@@ -450,7 +450,7 @@ int bth_hci_sendWriteInquiryScanActivityCmd(uint16 interval, uint16 window);
  * Descript: Start a anthentication.
  * Params: 
  *        @enable[IN]--is enable authen.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteAuthenEnableCmd(uint08 enable);
 
@@ -459,7 +459,7 @@ int bth_hci_sendWriteAuthenEnableCmd(uint08 enable);
  * Descript: Set the COD.
  * Params: 
  *        @devClass[IN]--the device class.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteClassOfDeviceCmd(uint32 devClass);
 
@@ -469,7 +469,7 @@ int bth_hci_sendWriteClassOfDeviceCmd(uint32 devClass);
  * Params: 
  *        @aclHandle[IN]--the acl handle.
  *        @timeout[IN]--The timeout.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteLinkSupervisionTimeoutCmd(uint16 aclHandle, uint16 timeout);
 
@@ -478,7 +478,7 @@ int bth_hci_sendWriteLinkSupervisionTimeoutCmd(uint16 aclHandle, uint16 timeout)
  * Descript: Set the inquiry mode
  * Params: 
  *        @mode[IN]--the inquiry mode.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteInquiryModeCmd(uint08 mode);
 
@@ -489,7 +489,7 @@ int bth_hci_sendWriteInquiryModeCmd(uint08 mode);
  *        @fec[IN]--the fec.
  *        @pData[IN]--The eir data.
  *        @datalen[IN]--Eir datalen
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteExtendedInquiryRspCmd(uint08 fec, uint08 *pData, uint08 dataLen);
 
@@ -498,7 +498,7 @@ int bth_hci_sendWriteExtendedInquiryRspCmd(uint08 fec, uint08 *pData, uint08 dat
  * Descript: Set SSP mode.
  * Params: 
  *        @spMode[IN]--the mode.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteSimplePairingModeCmd(uint08 spMode);
 
@@ -507,7 +507,7 @@ int bth_hci_sendWriteSimplePairingModeCmd(uint08 spMode);
  * Descript: Set loopback mode.
  * Params: 
  *        @mode[IN]--the mode.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteLookbackModeCmd(uint08 mode);
 
@@ -516,7 +516,7 @@ int bth_hci_sendWriteLookbackModeCmd(uint08 mode);
  * Descript: Set debug mode.
  * Params: 
  *        @debugMode[IN]--the mode.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendWriteSimpleDebugModeCmd(uint08 debugMode);
 
@@ -527,7 +527,7 @@ int bth_hci_sendWriteSimpleDebugModeCmd(uint08 debugMode);
  *        @escoHandle[IN]--the esco handle.
  *        @micSpk[IN]--The mic speaker
  *        @muteEn[IN]--ebable mute.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendSetESCOMuteCmd(uint16 escoHandle, uint08 micSpk, uint08 muteEn);
 
@@ -537,7 +537,7 @@ int bth_hci_sendSetESCOMuteCmd(uint16 escoHandle, uint08 micSpk, uint08 muteEn);
  * Params:
  *        @pBtAddr[IN]--the bt address.
 
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendSetBtAddrCmd(uint08 pBtAddr[6]);
 
@@ -547,7 +547,7 @@ int bth_hci_sendSetBtAddrCmd(uint08 pBtAddr[6]);
  * Descript: set max slot command.
  * Params:
  *        @pBtAddr[IN]--the bt address.
- * Reutrn: TLK_ENONE is success, other value is failure.
+ * Return: TLK_ENONE is success, other value is failure.
 *******************************************************************************/
 int bth_hci_sendSetMaxSlotCmd(uint08 pBtAddr[6]);
 

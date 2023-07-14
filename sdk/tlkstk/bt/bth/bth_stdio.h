@@ -37,6 +37,8 @@
 #include "tlkstk/bt/bth/bth.h"
 
 
+extern void bth_acl_enterSniff(uint16 aclHandle, bool isForce);
+extern void bth_acl_leaveSniff(uint16 aclHandle, uint16 busyTime);
 
 
 #endif //BTH_STDIO_H

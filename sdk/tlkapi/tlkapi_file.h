@@ -104,7 +104,7 @@ int tlkapi_file_seek(FIL *pFile, uint32 ofs);								/* Move file pointer of the
  *      @pFile[IN]--The file.
  *      @buff[IN]--The buff stored the read data.
  *      @btr[IN]--Num of bytes to read.
- *      @bt[IN]--Num of bytes actully to read.
+ *      @bt[IN]--Num of bytes actually to read.
  * Return: Return the result.
  * Others: None.
 *******************************************************************************/
@@ -117,7 +117,7 @@ int tlkapi_file_read(FIL *pFile, void* buff, uint32 btr, uint32* br);			/* Read 
  *      @pFile[IN]--The file.
  *      @buff[IN]--The buff stored the write data.
  *      @btr[IN]--Num of bytes to write.
- *      @bt[IN]--Num of bytes actully to write.
+ *      @bt[IN]--Num of bytes actually to write.
  * Return: Return the result.
  * Others: None.
 *******************************************************************************/

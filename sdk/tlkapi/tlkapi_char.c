@@ -32,7 +32,7 @@
 /******************************************************************************
  * Function: tlkapi_utf8ToUnicode
  * Descript: UTF8 to Unicode(16) format transvert interface. This interface be used by
- *           user transport hte utf8 to unicode.
+ *           user transport the utf8 to unicode.
  * Params:
  * Return: length*sizeof(uint16).
 *******************************************************************************/

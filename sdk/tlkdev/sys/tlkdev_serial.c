@@ -41,6 +41,7 @@ int tlkdev_serial_init(void)
 	tlkdrv_serial_init();
 	#if (TLK_CFG_SYS_ENABLE)
 	tlksys_pm_appendBusyCheckCB(tlkdev_serial_isBusy, "tlkdev_serial");
+	tlksys_pm_appendEnterSleepCB(tlkdev_serial_sleep);
 	tlksys_pm_appendLeaveSleepCB(tlkdev_serial_wakeup);
 	#endif
 
@@ -183,6 +184,12 @@ bool tlkdev_serial_isBusy(void)
 {
 	if(sTlkDevSerialPort == 0xFF || !sTlkDevSerialIsOpen) return false;
 	return tlkdrv_serial_isBusy(sTlkDevSerialPort);
+}
+void tlkdev_serial_sleep(uint mode)
+{
+	if(sTlkDevSerialPort != 0xFF && sTlkDevSerialIsOpen){
+		tlkdrv_serial_sleep(sTlkDevSerialPort);
+	}
 }
 void tlkdev_serial_wakeup(uint wakeSrc)
 {

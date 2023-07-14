@@ -107,8 +107,8 @@ static int tlkdrv_sh8610z_handler(uint16 opcode, uint32 param0, uint32 param1);
 static int tlkdrv_sh8610z_getColorDeal(uint32 param0, uint32 param1);
 static int tlkdrv_sh8610z_getWidthDeal(uint32 param0, uint32 param1);
 static int tlkdrv_sh8610z_getHeightDeal(uint32 param0, uint32 param1);
-static int tlkdrv_sh8610z_setForegroudDeal(uint32 param0, uint32 param1);
-static int tlkdrv_sh8610z_setBackgroudDeal(uint32 param0, uint32 param1);
+static int tlkdrv_sh8610z_setForegroundDeal(uint32 param0, uint32 param1);
+static int tlkdrv_sh8610z_setBackgroundDeal(uint32 param0, uint32 param1);
 
 static int tlkdrv_sh8610z_paintFillRectDeal(void *pParam, uint16 paramLen);
 

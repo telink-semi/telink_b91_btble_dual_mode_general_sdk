@@ -30,7 +30,21 @@
 typedef ulong tlkapi_mem_t;
 
 
-int tlkapi_setSysMemBuffer(bool osIsEn, uint08 *pBuffer, uint16 buffLen);
+/******************************************************************************
+ * Function: tlkapi_setSysMemBuffer
+ * Descript: 
+ * Params:
+ *     @enIrqMask[IN]--Whether to enable interrupt protection. After this 
+ *         function is enabled, interrupts at key points are masked.
+ *     @enSecMask[IN]--Whether to enable the critical section protection. After
+ *         the critical section protection is enabled, the critical section 
+ *         function is called at key points.
+ *     @pBuffer[IN]--Memory to be managed.
+ *     @buffLen[IN]--The size of memory to be managed.
+ * Return: .
+ * Others: None.
+*******************************************************************************/
+int tlkapi_setSysMemBuffer(bool enIrqMask, bool enSecMask, uint08 *pBuffer, uint16 buffLen);
 
 void *tlkapi_malloc(uint32 size);
 void *tlkapi_calloc(uint32 size);
@@ -39,7 +53,21 @@ void  tlkapi_free(void *ptr);
 void  tlkapi_printMem(void);
 
 
-tlkapi_mem_t tlkapi_mem_init(bool osIsEn, uint08 *pBuffer, uint32 buffLen);
+/******************************************************************************
+ * Function: tlkapi_mem_init
+ * Descript: Initializes the memory manager.
+ * Params:
+ *     @enIrqMask[IN]--Whether to enable interrupt protection. After this 
+ *         function is enabled, interrupts at key points are masked.
+ *     @enSecMask[IN]--Whether to enable the critical section protection. After
+ *         the critical section protection is enabled, the critical section 
+ *         function is called at key points.
+ *     @pBuffer[IN]--Memory to be managed.
+ *     @buffLen[IN]--The size of memory to be managed.
+ * Return: Memory management handle, and zero means failure.
+ * Others: None.
+*******************************************************************************/
+tlkapi_mem_t tlkapi_mem_init(bool enIrqMask, bool enSecMask, uint08 *pBuffer, uint32 buffLen);
 void tlkapi_mem_deinit(tlkapi_mem_t mem);
 
 void tlkapi_mem_clean(tlkapi_mem_t mem);

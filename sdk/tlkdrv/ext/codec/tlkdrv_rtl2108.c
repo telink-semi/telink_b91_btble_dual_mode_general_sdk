@@ -34,7 +34,7 @@
 
 extern void audio_codec_adc_power_down(void);
 extern void audio_i2s_set_pin(void);
-extern void aduio_set_chn_wl(audio_channel_wl_mode_e chn_wl);
+extern void audio_set_chn_wl(audio_channel_wl_mode_e chn_wl);
 extern void audio_tx_dma_chain_init (dma_chn_e chn,unsigned short * out_buff,unsigned int buff_size);
 extern void audio_tx_dma_chain_init_abort (dma_chn_e chn,unsigned short * out_buff,unsigned int buff_size);
 extern void audio_rx_dma_chain_init_abort (dma_chn_e chn,unsigned short * in_buff, unsigned int buff_size);
@@ -71,7 +71,7 @@ extern uint16  gTlkDrvCodecSpkBuffLen;
 extern uint16  gTlkDrvCodecMicBuffLen;
 extern uint08 *gpTlkDrvCodecSpkBuffer;
 extern uint08 *gpTlkDrvCodecMicBuffer;
-extern aduio_i2s_codec_config_t audio_i2s_codec_config;
+extern audio_i2s_codec_config_t audio_i2s_codec_config;
 
 
 const tlkdrv_codec_modinf_t gcTlkDrvRtl2108Inf = {
@@ -304,7 +304,7 @@ static int tlkdrv_rtl2108_enable(uint08 bitDepth, uint08 channel, uint32 sampleR
 	}
 
 	audio_i2s_set_pin();
-    aduio_set_chn_wl(bitDepth);
+    audio_set_chn_wl(bitDepth);
     
     audio_mux_config(IO_I2S, audio_i2s_codec_config.audio_in_mode, audio_i2s_codec_config.audio_in_mode, audio_i2s_codec_config.audio_out_mode);
     audio_i2s_config(I2S_I2S_MODE,I2S_BIT_16_DATA, I2S_M_CODEC_S, audio_i2s_codec_config.i2s_data_invert_select);

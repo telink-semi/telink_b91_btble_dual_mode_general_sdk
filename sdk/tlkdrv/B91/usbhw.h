@@ -312,7 +312,7 @@ static inline void usbhw_set_printer_threshold(unsigned char th) {
 
 /**
  * @brief      This function disables the manual interrupt
- *             (Endpont8 is the alias of endpoint0)
+ *             (Endpoint8 is the alias of endpoint0)
  * @param[in]  m - the irq mode needs to set
  * @return     none
  */

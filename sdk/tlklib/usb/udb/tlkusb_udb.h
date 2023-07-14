@@ -37,7 +37,7 @@ int tlkusb_udb_init(void);
 void tlkusb_udb_regEqCB(TlkUsbUsrDebugCB cb);
 void tlkusb_udb_regDbgCB(TlkUsbUsrDebugCB cb);
 
-void tlkusb_udb_recvHander(void);
+void tlkusb_udb_recvHandler(void);
 
 void tlkusb_udb_sendStatus(uint08 status, uint08 buffNumb, uint08 *pData, uint16 dataLen);
 

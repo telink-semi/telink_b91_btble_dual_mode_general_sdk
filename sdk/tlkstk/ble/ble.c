@@ -420,7 +420,7 @@ int blec_init(void)
  * Params:
  *        @evtID[IN]--The event id.
  *        @func[IN]--The callback function.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bleh_event_regCB(ble_evt_t * p_ble_evt)
 {

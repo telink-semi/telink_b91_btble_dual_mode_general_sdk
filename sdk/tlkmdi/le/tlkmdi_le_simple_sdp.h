@@ -79,7 +79,7 @@ typedef struct{
 	u8	rsvd[8];  //very important: 16 byte aligned, to avoid different flash page write for a sequence data
 
 #if (PEER_SLAVE_USE_RPA_EN)
-	u8  irk[16];   //TODO: if peer device mac_adress is RPA(resolvable private address), IRK will be used
+	u8  irk[16];   //TODO: if peer device mac_address is RPA(resolvable private address), IRK will be used
 #endif
 
 	u16	char_handle[CHAR_HANDLE_MAX];
@@ -147,7 +147,7 @@ int 	dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info);
  * @brief       Use for store peer device att handle to flash.
  * @param[in]   dev_char_info    Pointer point to peer device ATT handle info.
  * @return      0: failed
- *             !0: return falsh address
+ *             !0: return flash address
  */
 int		dev_char_info_store_peer_att_handle(dev_char_info_t* dev_char_info);
 
@@ -157,7 +157,7 @@ int		dev_char_info_store_peer_att_handle(dev_char_info_t* dev_char_info);
  * @param[in]   addr             Pointer point to peer address buffer
  * @param[out]  dev_att          Pointer point to dev_att_t
  * @return      0: failed
- *             !0: return falsh address
+ *             !0: return flash address
  */
 int		dev_char_info_search_peer_att_handle_by_peer_mac(u8 adr_type, u8* addr, dev_att_t * dev_att);
 

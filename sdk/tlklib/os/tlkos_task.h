@@ -64,13 +64,13 @@ int tlkos_task_create(tlkos_task_t *pTask, char *pName, uint08 priority, uint16 
 	TlkOsTaskEnterCB enter, void *pUsrArg);
 
 /******************************************************************************
- * Function: tlkos_task_destory
- * Descript: Destory a Task.
+ * Function: tlkos_task_destroy
+ * Descript: Destroy a Task.
  * Params:
  *     @pTask[IN]--Task control structure.
  * Return: Operating results, TLK_ENONE means success and others mean failure.
 *******************************************************************************/
-int tlkos_task_destory(tlkos_task_t *pTask);
+int tlkos_task_destroy(tlkos_task_t *pTask);
 
 /******************************************************************************
  * Function: tlkos_task_delayMs

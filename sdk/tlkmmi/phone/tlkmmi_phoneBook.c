@@ -64,7 +64,7 @@ int tlkmmi_phone_bookInit(void)
 	
 	tlkapi_flash_read(TLK_CFG_FLASH_PBAP_LIST_ADDR, (uint08*)&head, 16);
 	if(head.pbapSign != 0xFFFFFFFF && (head.itemLens != TLKMMI_PHONE_BOOK_ITEM_LENGTH
-		|| head.callFlag != TLKMMI_PHONE_BOOK_FLAG_COMPLATE || head.callNumb == 0xFFFFFFFF)){
+		|| head.callFlag != TLKMMI_PHONE_BOOK_FLAG_COMPLETE || head.callNumb == 0xFFFFFFFF)){
 		tlkmmi_phone_bookCleanInfo();
 	}else{
 		if(head.callNumb > TLKMMI_PHONE_BOOK_MAX_ITEM_NUMB){
@@ -368,7 +368,7 @@ static void tlkmmi_phone_saveBookOver(bool isSucc)
 		sTlkMmmiPhoneBookCtrl.isReady = true;
 		tlkapi_flash_read(TLK_CFG_FLASH_PBAP_LIST_ADDR, (uint08*)&head, 16);
 		head.pbapSign = TLKMMI_PHONE_BOOK_SIGN;
-		head.callFlag = TLKMMI_PHONE_BOOK_FLAG_COMPLATE;
+		head.callFlag = TLKMMI_PHONE_BOOK_FLAG_COMPLETE;
 		head.callNumb = sTlkMmmiPhoneBookCtrl.bookCount;
 		tlkapi_flash_write(TLK_CFG_FLASH_PBAP_LIST_ADDR, (uint08*)&head, 16);
 	}

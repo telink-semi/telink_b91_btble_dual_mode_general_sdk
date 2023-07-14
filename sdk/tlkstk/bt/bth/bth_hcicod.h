@@ -54,7 +54,7 @@
 #define BTH_COD_SERVICE_CLASS_OBJECT           0x100000 //Object Transfer (v-Inbox, v-Folder,)
 #define BTH_COD_SERVICE_CLASS_AUDIO            0x200000 //Audio (Speaker, Microphone, Headset service,)
 #define BTH_COD_SERVICE_CLASS_TELEPHONY        0x400000 //Telephony (Cordless telephony, Modem, Headset service,)
-#define BTH_COD_SERVICE_CLASS_INFOMATION       0x800000 //Information (WEB-server, WAP-server,)
+#define BTH_COD_SERVICE_CLASS_INFORMATION      0x800000 //Information (WEB-server, WAP-server,)
 
 //Major Device Classes
 #define BTH_COD_MAJOR_CLASS_MASK               0x001F00
@@ -93,14 +93,14 @@
 #define BTH_COD_PHONE_WIRED_MODEM              (4 << BTH_COD_MINOR_CLASS_OFFSET) //Wired modem or voice gateway
 #define BTH_COD_PHONE_COMMON_ISDN_ACCESS       (5 << BTH_COD_MINOR_CLASS_OFFSET) //Common ISDN access
 //Minor Device Class field LAN/Network Access Point Major Class
-#define BTH_COD_NETAP_FULL_AVALIABLE           (0 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //Fully available
+#define BTH_COD_NETAP_FULL_AVAILABLE           (0 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //Fully available
 #define BTH_COD_NETAP_01TO17PER_UTILIZED       (1 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //1% to 17% utilized
 #define BTH_COD_NETAP_17TO33PER_UTILIZED       (2 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //17% to 33% utilized
 #define BTH_COD_NETAP_33TO50PER_UTILIZED       (3 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //33% to 50% utilized
 #define BTH_COD_NETAP_50TO67PER_UTILIZED       (4 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //50% to 67% utilized
 #define BTH_COD_NETAP_67TO83PER_UTILIZED       (5 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //67% to 83% utilized
 #define BTH_COD_NETAP_83TO99PER_UTILIZED       (6 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //83% to 99% utilized
-#define BTH_COD_NETAP_NO_SERVICE_AVALIABLE     (7 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //No service available
+#define BTH_COD_NETAP_NO_SERVICE_AVAILABLE     (7 << (BTH_COD_MINOR_CLASS_OFFSET+2)) //No service available
 //Minor Device Class field Audio/Video Major Class
 #define BTH_COD_AUDIO_UNCATEGORIZED            (0 << BTH_COD_MINOR_CLASS_OFFSET) //Uncategorized, code not assigned
 #define BTH_COD_AUDIO_WEARABLE_HEADSET         (1 << BTH_COD_MINOR_CLASS_OFFSET) //Wearable Headset Device
@@ -168,7 +168,7 @@
 #define BTH_COD_HEALTH_MEDICATION_MONITOR      (11 << BTH_COD_MINOR_CLASS_OFFSET) //Medication Monitor
 #define BTH_COD_HEALTH_KNEE_PROSTHESIS         (12 << BTH_COD_MINOR_CLASS_OFFSET) //Knee Prosthesis
 #define BTH_COD_HEALTH_ANKLE_PROSTHESIS        (13 << BTH_COD_MINOR_CLASS_OFFSET) //Ankle Prosthesis
-#define BTH_COD_HEALTH_GERNERIC_MANAGER        (14 << BTH_COD_MINOR_CLASS_OFFSET) //Generic Health Manager
+#define BTH_COD_HEALTH_GENERIC_MANAGER        (14 << BTH_COD_MINOR_CLASS_OFFSET) //Generic Health Manager
 #define BTH_COD_HEALTH_PERSIONAL_DEVICE        (15 << BTH_COD_MINOR_CLASS_OFFSET) //Personal Mobility Device
 
 

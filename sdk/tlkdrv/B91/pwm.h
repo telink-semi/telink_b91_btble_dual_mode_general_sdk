@@ -166,7 +166,7 @@ static inline void pwm_32k_chn_en(pwm_clk_32k_en_chn_e pwm_32K_en_chn){
 
 
 /**
- * @brief     This fuction servers to set pin as pwm0
+ * @brief     This function servers to set pin as pwm0
  * @param[in] pin - selected pin
  * @return	  none.
  */
@@ -400,7 +400,7 @@ static inline void pwm_set_pwm0_pulse_num(unsigned short pulse_num){
 
 
 /**
- * @brief     This function serves to set trigger level of interrupt for IR FiFo mode
+ * @brief     This function serves to set trigger level of interrupt for IR Fifo mode
  * @param[in] trig_level - FIFO  num int trigger level.When fifo numbers is less than this value.It's will take effect.
  * @return	  none
  */
@@ -465,7 +465,7 @@ static inline unsigned short pwm_cal_pwm0_ir_fifo_cfg_data(unsigned short pulse_
 
 
 /**
- * @brief     This function serves to write data into FiFo
+ * @brief     This function serves to write data into Fifo
  * @param[in] pulse_num  - the number of pulse
  * @param[in] use_shadow - determine whether the configuration of shadow cmp and shadow max is used
  * 						   1: use shadow, 0: not use

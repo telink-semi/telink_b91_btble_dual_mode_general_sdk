@@ -28,16 +28,16 @@
 #include "tlkstk/bt/btp/btp_stdio.h"
 #include "tlkstk/bt/btp/iap/btp_iap.h"
 #include "tlkdev/ext/tlkdev_mfi.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2LinkConfig.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2Defines.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2Log.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2FSM.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2Time.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2ListArray.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2BuffPool.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2Packet.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2Link.h"
-#include "tlkstk/bt/btp/iap/iap2/iAP2LinkRunLoop.h"
+#include "tlklib/ios/iap2/iAP2LinkConfig.h"
+#include "tlklib/ios/iap2/iAP2Defines.h"
+#include "tlklib/ios/iap2/iAP2Log.h"
+#include "tlklib/ios/iap2/iAP2FSM.h"
+#include "tlklib/ios/iap2/iAP2Time.h"
+#include "tlklib/ios/iap2/iAP2ListArray.h"
+#include "tlklib/ios/iap2/iAP2BuffPool.h"
+#include "tlklib/ios/iap2/iAP2Packet.h"
+#include "tlklib/ios/iap2/iAP2Link.h"
+#include "tlklib/ios/iap2/iAP2LinkRunLoop.h"
 
 
 #define TLKMDI_BTIAP_DBG_FLAG       ((TLK_MAJOR_DBGID_MDI_BT << 24) | (TLK_MINOR_DBGID_MDI_BT_IAP << 16) | TLK_DEBUG_DBG_FLAG_ALL)
@@ -143,7 +143,9 @@ iAP2PacketSYNData_t test_synParam = { //<Accessory Interface Specification R36.p
 
 int tlkmdi_btiap_init(void)
 {
+	#if (TLK_DEV_MFI_ENABLE)
 	int ret;
+	#endif
 
 	tmemset(&sTlkMdiBtIapCtrl, 0, sizeof(tlkmdi_btiap_t));
 	
@@ -158,7 +160,7 @@ int tlkmdi_btiap_init(void)
 	}
 	#endif
 	
-	tlkmdi_btiap_setName("Telink-IAP", strlen("Telink-IAP"));
+	tlkmdi_btiap_setName((uint08*)"Telink-IAP", strlen("Telink-IAP"));
 	#if (IPA2_CONTROL_SESSION_VERSION == 2)
 	test_synParam.sessionInfo[0].version = 2;
 	#endif
@@ -287,19 +289,21 @@ static BOOL tlkmdi_btiap_eap2RecvDeal(struct iAP2Link_st* link, uint08* data, ui
 	ret = true;
 	if(command == IAP2_RequestAuthenticationCertificate && data[0] == IAP2_SESSION_START_MSB)
 	{
-		 buffer[0] = 0x40;
-         buffer[1] = 0x40;
-         buffer[2] = 0x02;
-         buffer[3] = 0x6a;
-         buffer[4] = 0xaa;
-         buffer[5] = 0x01;
-         buffer[6] = 0x02;
-         buffer[7] = 0x64;
-         buffer[8] = 0x00;
-         buffer[9] = 0x00;
-		 ret = tlkdev_mfi_loadCertificateData(&buffer[10], 608);
-         len = 10 + 608;
-		 ret = iAP2LinkQueueSendData(link, buffer, len, session, NULL, LinkDataSentCB);
+		buffer[0] = 0x40;
+		buffer[1] = 0x40;
+		buffer[2] = 0x02;
+		buffer[3] = 0x6a;
+		buffer[4] = 0xaa;
+		buffer[5] = 0x01;
+		buffer[6] = 0x02;
+		buffer[7] = 0x64;
+		buffer[8] = 0x00;
+		buffer[9] = 0x00;
+		#if (TLK_DEV_MFI_ENABLE)
+		ret = tlkdev_mfi_loadCertificateData(&buffer[10], 608);
+		#endif
+		len = 10 + 608;
+		ret = iAP2LinkQueueSendData(link, buffer, len, session, NULL, LinkDataSentCB);
 	}
 	else if(command == IAP2_RequestAuthenticationChallengeResponse && data[0] == IAP2_SESSION_START_MSB)
 	{
@@ -313,7 +317,9 @@ static BOOL tlkmdi_btiap_eap2RecvDeal(struct iAP2Link_st* link, uint08* data, ui
         buffer[7] = 0x44;
         buffer[8] = 0x00;
         buffer[9] = 0x00;
+		#if (TLK_DEV_MFI_ENABLE)
 		tlkdev_mfi_loadChallengeData(&data[10], ((data[6]<<8)|data[7])-4, &buffer[10], 64);
+		#endif
 		len = 10 + 64;
 		ret = iAP2LinkQueueSendData(link, buffer, len, session, NULL, LinkDataSentCB);
 	}
@@ -331,7 +337,7 @@ static BOOL tlkmdi_btiap_eap2RecvDeal(struct iAP2Link_st* link, uint08* data, ui
         buffer[5] = 0x01;
         buffer[6] = (uint08)((sTlkMdiBtIapCtrl.nameLen+5)>>8);
         buffer[7] = (uint08)(sTlkMdiBtIapCtrl.nameLen+5);
-        //parm id =0 : name
+        //param id =0 : name
         buffer[8] = 0;
         buffer[9] = 0;
         pos = 10;
@@ -481,7 +487,7 @@ static void tlkmdi_btiap_eapRecvDeal(uint16 aclHandle, uint08 rfcHandle, uint08 
             buffer[6] = pData[5];
             buffer[15] = (uint08)((sTlkMdiBtIapCtrl.nameLen+5)>>8);
             buffer[16] = (uint08)(sTlkMdiBtIapCtrl.nameLen+5);
-            //parm id =0 : name
+            //param id =0 : name
             buffer[17] = 0;
             buffer[18] = 0;
             pos = 19;

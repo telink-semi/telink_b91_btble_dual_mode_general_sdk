@@ -42,7 +42,7 @@ typedef enum{
  *        @scid--The service channel id.
  *        @trid--The transaction id.
  *        @pid--product id.
- *        @pHead--The data header which to tranfer.
+ *        @pHead--The data header which to transfer.
  *        @headLen--The header length.
  *        @pData--payload data.
  *        @dataLen--the data length.
@@ -59,7 +59,7 @@ int btp_avrcp_sendCmd(uint16 aclHandle, uint16 scid, uint08 trid, uint16 pid, ui
  *        @scid--The service channel id.
  *        @trid--The transaction id.
  *        @pid--product id.
- *        @pHead--The data header which to tranfer.
+ *        @pHead--The data header which to transfer.
  *        @headLen--The header length.
  *        @pData--payload data.
  *        @dataLen--the data length.
@@ -76,7 +76,7 @@ int btp_avrcp_sendRsp(uint16 aclHandle, uint16 scid, uint08 trid, uint16 pid, ui
  *        @scid--The service channel id.
  *        @trid--The transaction id.
  *        @pid--product id.
- *        @pHead--The data header which to tranfer.
+ *        @pHead--The data header which to transfer.
  *        @headLen--The header length.
  *        @pData--payload data.
  *        @dataLen--the data length.

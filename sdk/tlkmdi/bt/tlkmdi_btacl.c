@@ -45,6 +45,7 @@
 
 extern void bth_acl_clearSniffPolicy(uint16 aclHandle);
 extern void bth_acl_sendUnSniffReq(uint16 aclHandle);
+extern void bth_acl_sendGetNameReq(uint16 handle);
 
 int tlkmdi_btacl_deleteProf(tlkmdi_btacl_item_t *pItem, uint08 ptype, uint08 usrID);
 
@@ -247,7 +248,7 @@ int tlkmdi_btacl_cancel(uint08 *pBtAddr)
  * Params:
  *        @pBtAddr[IN]--The bt address.
  *        @devClass[IN]--The Device type.
- *        @timeout[IN]--The timeout value.
+ *        @timeout[IN]--The timeout value. Unit:ms, Range:3000~3600000.
  * Return: Return TLK_ENONE is success/other value is failure.
  * Others: None.
 *******************************************************************************/
@@ -280,16 +281,13 @@ int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout)
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_connect: failure -- no quota");
 		return -TLK_EBUSY;
 	}
+
+	if(timeout < 3000) timeout = 3000;
+	else if(timeout > 3600000) timeout = 3600000;
 	
-	//Convert the timeout to a count unit
-	timeout /= TLKMDI_BTACL_TIMEOUT_MS;
-	if(timeout == 0) timeout = TLKMDI_BTACL_CONN_MAX_TIMEOUT;
-	else if(timeout > TLKMDI_BTACL_CONN_MAX_TIMEOUT) timeout = TLKMDI_BTACL_CONN_MAX_TIMEOUT;
-	else if(timeout < TLKMDI_BTACL_CONN_MIN_TIMEOUT) timeout = TLKMDI_BTACL_CONN_MIN_TIMEOUT;
-	
-	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "p->initRole: initRole-%d",tlkmdi_btacl_getRole(devClass));
+	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "p->initRole: initRole-%d", tlkmdi_btacl_getRole(devClass));
 	//Initiating an ACL connection
-	ret = bth_acl_connect(pBtAddr, devClass, tlkmdi_btacl_getRole(devClass), timeout*TLKMDI_BTACL_TIMEOUT_MS);
+	ret = bth_acl_connect(pBtAddr, devClass, tlkmdi_btacl_getRole(devClass), timeout);
 	if(ret != TLK_ENONE){
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_connect: failure -- %d", -ret);
 		return -TLK_EBUSY;
@@ -298,11 +296,10 @@ int tlkmdi_btacl_connect(uint08 *pBtAddr, uint32 devClass, uint32 timeout)
 	//Record the initiation status and start the timeout timer
 	pItem->state = TLK_STATE_CONNING;
 	pItem->stage = TLKMDI_BTACL_CONNING_STAGE_NONE;
-	pItem->timeout = timeout;
+	pItem->timeout = 0;
 	pItem->devClass = devClass;
 	tmemcpy(pItem->btaddr, pBtAddr, 6);
 	tlkmdi_btadapt_initTimer(&pItem->timer, tlkmdi_btacl_timer, (uint32)pItem, TLKMDI_BTACL_TIMEOUT);
-	tlkmdi_btadapt_insertTimer(&pItem->timer);
 	
 	return TLK_ENONE;
 }
@@ -326,9 +323,8 @@ int tlkmdi_btacl_disconn(uint16 handle, uint08 reason)
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_disconn: failure -- exist  0x%x", handle);
 		return -TLK_EHANDLE;
 	}
-
-	bth_acl_clearSniffPolicy(handle);
-	bth_acl_sendUnSniffReq(handle);
+	
+	bth_acl_leaveSniff(handle, 60000);
 	tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_disconn: 0x%x %d", handle, reason);
 	if(pItem->state == TLK_STATE_OPENED){
 		tlkmdi_btacl_resetItem(pItem);
@@ -460,7 +456,7 @@ int tlkmdi_btacl_deleteProf(tlkmdi_btacl_item_t *pItem, uint08 ptype, uint08 usr
  * Function: tlkmdi_btacl_getRole
  * Descript: Get the role of acl link.
  * Params:
- *        @devClass[IN]--The device classs.
+ *        @devClass[IN]--The device class.
  * Return: Return TLK_ENONE is success/other value is failure.
  * Others: None.
 *******************************************************************************/
@@ -540,9 +536,9 @@ static int tlkmdi_btacl_requestEvt(uint08 *pData, uint16 dataLen)
 static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 {
 	tlkmdi_btacl_item_t *pItem;
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	pItem = tlkmdi_btacl_searchUsedItem(pEvt->peerMac);
 	if(pItem == nullptr){
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_connectEvt: failure -- no node");
@@ -576,6 +572,8 @@ static int tlkmdi_btacl_connectEvt(uint08 *pData, uint16 dataLen)
 	pItem->active = pEvt->active;
 	pItem->timeout = TLKMDI_BTACL_CONN_DEF_TIMEOUT;
 	tlkmdi_btadapt_insertTimer(&pItem->timer);
+
+	bth_acl_sendGetNameReq(pItem->handle);
 
 	pItem->state = TLK_STATE_CONNECT;
 	pItem->timeout = TLKMDI_BTACL_CONN_DEF_TIMEOUT;
@@ -643,9 +641,9 @@ static int tlkmdi_btacl_encryptEvt(uint08 *pData, uint16 dataLen)
 static int tlkmdi_btacl_disconnEvt(uint08 *pData, uint16 dataLen)
 {
 	tlkmdi_btacl_item_t *pItem;
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	pItem = tlkmdi_btacl_searchUsedItem(pEvt->peerMac);
 	if(pItem == nullptr){
 		tlkapi_error(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_disconnEvt: failure -- no node");
@@ -752,7 +750,9 @@ static int tlkmdi_btacl_profileConnectEvt(uint08 *pData, uint16 dataLen)
 			pItem->busys &= ~TLKMDI_BTACL_WAIT_DISC_ACL;
 		}
 		if(pEvt->ptype == BTP_PTYPE_A2DP){
+			#if (TLK_MDI_BTA2DP_ENABLE)
 			tlkmdi_bta2dp_connectEvt(pEvt->handle, pEvt->usrID);
+			#endif
 		}
 		#if (TLKBTP_CFG_AVRCP_BROWSING_ENABLE)
 		if(pEvt->ptype == BTP_PTYPE_AVRCP_BROWSING){
@@ -937,7 +937,9 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 
 	ret = -TLK_EFAIL;
 	if(pProf->ptype == BTP_PTYPE_RFC){
+		#if (TLKBTP_CFG_RFC_ENABLE)
 		ret = btp_rfcomm_connect(pItem->handle);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_A2DP){
 		#if (TLKBTP_CFG_A2DPSRC_ENABLE)
 		ret = btp_a2dp_connect(pItem->handle, pProf->usrID);
@@ -945,26 +947,40 @@ static bool tlkmdi_btacl_profileConnDeal(tlkmdi_btacl_item_t *pItem, tlkmdi_btac
 		ret = -TLK_ENOSUPPORT;
 		#endif
 	}else if(pProf->ptype == BTP_PTYPE_HFP){
+		#if (TLKBTP_CFG_HFP_ENABLE)
 //		tlkapi_trace(TLKMDI_BTACL_DBG_FLAG, TLKMDI_BTACL_DBG_SIGN, "tlkmdi_btacl_profileConnDeal: hfp Channel-%d connFlag-%d usrId-%d handle-%d",
 //			pItem->hfpChannel, pItem->connFlag, pProf->usrID, pItem->handle);
 		if((pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		if(pItem->agChannel != 0) ret = btp_hfp_connect(pItem->handle, BTP_USRID_CLIENT, pItem->agChannel);
 		else if(pItem->hfChannel != 0) ret = btp_hfp_connect(pItem->handle, BTP_USRID_SERVER, pItem->hfChannel);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_IAP){
+		#if (TLKBTP_CFG_IAP_ENABLE)
 		if(pItem->iapChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		ret = btp_iap_connect(pItem->handle, pItem->iapChannel);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_SPP){
+		#if (TLKBTP_CFG_SPP_ENABLE)
 		if(pItem->sppChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		ret = btp_spp_connect(pItem->handle, pItem->sppChannel);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_HID && (pItem->devClass != BTH_REMOTE_DTYPE_HEADSET)){
+		#if (TLKBTP_CFG_HID_ENABLE)
 		ret = btp_hid_connect(pItem->handle, pProf->usrID);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_ATT){
+		#if (TLKBTP_CFG_ATT_ENABLE)
 		ret = btp_att_connect(pItem->handle, pProf->usrID);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_PBAP){
+		#if (TLKBTP_CFG_PBAP_ENABLE)
 		if(pItem->pbapChannel == 0 || (pItem->connFlag & BTP_PFLAG_RFC) == 0) return true;
 		ret = btp_pbap_connect(pItem->handle, pProf->usrID, pItem->pbapChannel, false);
+		#endif
 	}else if(pProf->ptype == BTP_PTYPE_AVRCP){
+		#if (TLKBTP_CFG_AVRCP_ENABLE)
 		ret = btp_avrcp_connect(pItem->handle, pProf->usrID);
+		#endif
 	}
 	
 	if(ret != TLK_ENONE && ret != -TLK_EBUSY && ret != -TLK_EEXIST){

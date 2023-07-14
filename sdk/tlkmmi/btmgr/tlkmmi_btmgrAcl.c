@@ -43,7 +43,7 @@
 
 
 
-extern int bth_acl_enableSniffSet(uint16 aclHandle, bool enable);
+extern int bth_acl_enableSniff(uint16 aclHandle, bool enable);
 
 #if (TLK_MDI_BTINQ_ENABLE)
 static int tlkmmi_btmgr_reportCB(uint32 devClass, uint08 rssi, uint08 nameLen, uint08 *pBtaddr, uint08 *pBtName);
@@ -286,17 +286,21 @@ int tlkmmi_btmgr_disconn(uint16 handle)
 *******************************************************************************/
 int tlkmmi_btmgr_disconnByAddr(uint08 btaddr[6])
 {
+	uint08 invalidMac[6] = {0};
 	tlkmdi_btacl_item_t *pBtAcl;
-	
-	pBtAcl = tlkmdi_btacl_searchUsedItem(btaddr);
+
+	if(tmemcmp(btaddr, invalidMac, 6) == 0){
+		pBtAcl = tlkmdi_btacl_getBusyItem();
+	}else{
+		pBtAcl = tlkmdi_btacl_searchUsedItem(btaddr);
+	}
 	if(pBtAcl == nullptr){
 		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_disconnByAddr: no acl device");
 		return TLK_ENONE;
 	} 
 	
 	if(pBtAcl->handle == 0){
-		tlkmdi_btacl_cancel(btaddr);
-		return TLK_ENONE;
+		return tlkmdi_btacl_cancel(pBtAcl->btaddr);
 	}else{
 		return tlkmdi_btacl_disconn(pBtAcl->handle, 0x13);
 	}
@@ -385,7 +389,7 @@ static void tlkmmi_btmgr_aclConnectCB(uint16 handle, uint08 status, uint08 *pBtA
 }
 static void tlkmmi_btmgr_aclEncryptCB(uint16 handle, uint08 status, uint08 *pBtAddr)
 {
-	bth_acl_enableSniffSet(handle, true);
+	bth_acl_enableSniff(handle, true);
 }
 static void tlkmmi_btmgr_aclDisconnCB(uint16 handle, uint08 reason, uint08 *pBtAddr)
 {
@@ -509,13 +513,16 @@ static bool tlkmmi_btmgr_timer(tlkapi_timer_t *pTimer, uint32 userArg)
 	if(pCtrl->timeout != 0){
 		tlkmmi_btmgr_procs(pCtrl);
 	}else{
-		tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_timer: over");
 		if((pCtrl->busys & TLKMMI_BTMGR_BUSY_WAIT_DEV) != 0){
+			pCtrl->busys &= ~TLKMMI_BTMGR_BUSY_WAIT_DEV;
 			tlkmdi_btinq_close();
 			tlkmdi_btinq_regCallback(nullptr, nullptr);
 		}
-		pCtrl->busys = TLKMMI_BTMGR_BUSY_NONE;
-		tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_TIMEOUT, sTlkMmiBtMgrAcl.btaddr);
+		if((pCtrl->busys & TLKMMI_BTMGR_BUSY_WAIT_CONN) == 0){
+			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_timer: over");
+			pCtrl->busys = TLKMMI_BTMGR_BUSY_NONE;
+			tlkmmi_btmgr_sendAclConnectEvt(0, TLKMMI_BTMGR_REASON_TIMEOUT, sTlkMmiBtMgrAcl.btaddr);
+		}
 	}
 //	tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_timer 01: %d 0x%x", pCtrl->timeout, pCtrl->busys);
 	if(pCtrl->busys != 0) return true;
@@ -597,8 +604,8 @@ static void tlkmmi_btmgr_appendProfile(uint16 aclHandle)
 			if(ret == TLK_ENONE){
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp success");
 			}else if(ret == -TLK_EALREADY){
-			tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: hfp already");
-		}else{
+				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: hfp already");
+			}else{
 				tlkapi_trace(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_appendProfile: append hfp failure");
 			}
 		}

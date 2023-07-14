@@ -72,7 +72,7 @@
 #define BTP_HID_RPT_DATA_ENTRY(Type, Tag, Data_bits, ...)  \
 			(Type | Tag | BTP_HID_RPT_DATA_BITS(Data_bits)) BTP_HID_RPT_DATA_ENCODE(Data_bits, (__VA_ARGS__))
 
-//data item for Input/Ouput/Feature
+//data item for Input/Output/Feature
 #define BTP_HID_IOF_CONSTANT                          BIT(0)
 #define BTP_HID_IOF_DATA                              (0<<0)
 #define BTP_HID_IOF_VARIABLE                          BIT(1)
@@ -134,7 +134,7 @@ int btp_hid_disconn(uint16 handle, uint08 usrID);
 
 /******************************************************************************
  * Function: HID destroy interface.
- * Descript: Defines destory the hid control block.
+ * Descript: Defines destroy the hid control block.
  * Params: [IN]handle--ACL handle
  * Return: Returning TLK_ENONE is success.
  *******************************************************************************/

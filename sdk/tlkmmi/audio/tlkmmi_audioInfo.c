@@ -38,7 +38,7 @@ tlkmmi_audio_infoCtrl_t gTlkMmiAudioInfoCtrl;
  * Function: tlkmmi_audio_infoInit
  * Descript: Initial the audio info.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_infoInit(void)
@@ -96,7 +96,7 @@ bool tlkmmi_audio_infoIsUpdate(void)
  * Function: tlkmmi_audio_infoLoad
  * Descript: load the audio info.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_infoLoad(void)
@@ -122,7 +122,7 @@ int tlkmmi_audio_infoLoad(void)
  * Function: tlkmmi_audio_infoSave
  * Descript: save the audio info.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_infoSave(void)
@@ -154,7 +154,7 @@ int tlkmmi_audio_infoSave(void)
  * Params:
  *         @voltype[IN]--The Audio operate type.
  *         @pVolume[IN]--The current audio volume.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmdi_audio_infoGetVolume(uint08 voltype, uint08 *pVolume)
@@ -177,7 +177,7 @@ int tlkmdi_audio_infoGetVolume(uint08 voltype, uint08 *pVolume)
  * Descript: Get the audio report.
  * Params: @pEnable[IN]--enable the report or not.
  *         @pInterval[IN]--The interval.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmdi_audio_infoGetReport(uint08 *pEnable, uint16 *pInterval)
@@ -194,7 +194,7 @@ int tlkmdi_audio_infoGetReport(uint08 *pEnable, uint16 *pInterval)
  * Params:
  *         @optype[IN]--The operate type.
  *         @volume[IN]--The volume.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmdi_audio_infoSetVolume(uint08 voltype, uint08 volume)
@@ -223,7 +223,7 @@ int tlkmdi_audio_infoSetVolume(uint08 voltype, uint08 volume)
  * Params:
  *         @enable[IN]--The enable value.
  *         @interval[IN]--The time value.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmdi_audio_infoSetReport(uint08 enable, uint16 interval)

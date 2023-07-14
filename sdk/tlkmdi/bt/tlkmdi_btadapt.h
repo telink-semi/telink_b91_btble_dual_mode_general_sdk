@@ -49,7 +49,7 @@ void tlkmdi_btadapt_handler(void);
 /******************************************************************************
  * Function: tlkmdi_btadapt_isbusy
  * Descript: If there is a process or timer and less than 1ms, the module 
- *           is considered busy, it is the basis of the schdule. 
+ *           is considered busy, it is the basis of the schedule. 
  * Params:  
  * Return: true is busy/false is idle.
  * Others: None.
@@ -105,7 +105,7 @@ int  tlkmdi_btadapt_removeProcs(tlkapi_queue_t *pProcs);
  *     @pAdapt[IN]--The adapt self-manages handle.
  *     @pTimer[IN]--Timer.
  *     @timeout[IN]--Unit: us.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmdi_btadapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
@@ -115,7 +115,7 @@ int  tlkmdi_btadapt_updateTimer(tlkapi_timer_t *pTimer, uint32 timeout, bool isI
  * Params:
  *     @pAdapt[IN]--The adapt self-manages handle.
  *     @pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmdi_btadapt_insertTimer(tlkapi_timer_t *pTimer);
@@ -126,7 +126,7 @@ int  tlkmdi_btadapt_insertTimer(tlkapi_timer_t *pTimer);
  * Params:
  * 	@pAdapt[IN]--The adapt self-manages handle.
  * 	@pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkmdi_btadapt_removeTimer(tlkapi_timer_t *pTimer);

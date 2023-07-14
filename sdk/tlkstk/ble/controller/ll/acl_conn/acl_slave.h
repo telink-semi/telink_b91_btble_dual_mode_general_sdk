@@ -54,7 +54,7 @@ int			blc_ll_setConsecIntvlCnt(unsigned char consecCnt);
 
 /**
  * @brief      for slave, received peer packet but the packet transmitting to peer master is stopped.
- *             for master,transmited packet to peer slave, but not receive the peer slave packet.
+ *             for master,transmitted packet to peer slave, but not receive the peer slave packet.
  *             I name these situation notAck. For other tasks to run, BLE can accept a certain number of such situations,
  *             but the number can not be too much and need to make sure that BLE connection cannot be affected
  * @param	   the value of ignoreNotAckNum.

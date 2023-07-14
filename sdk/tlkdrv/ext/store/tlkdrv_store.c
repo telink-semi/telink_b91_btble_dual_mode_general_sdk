@@ -122,6 +122,13 @@ int tlkdrv_store_handler(TLKDRV_STORE_DEV_ENUM dev, uint16 opcode, uint32 param0
 	if(pModInf == nullptr || pModInf->Handler == nullptr) return -TLK_ENOSUPPORT;
 	return pModInf->Handler(opcode, param0, param1);
 }
+void tlkdrv_store_shutDown(TLKDRV_STORE_DEV_ENUM dev)
+{
+	const tlkdrv_store_modinf_t *pModInf;
+	pModInf = tlkdrv_store_getDev(dev);
+	if(pModInf == nullptr || pModInf->ShutDown == nullptr) return;
+	pModInf->ShutDown();
+}
 
 int tlkdrv_store_getPageSize(TLKDRV_STORE_DEV_ENUM dev)
 {

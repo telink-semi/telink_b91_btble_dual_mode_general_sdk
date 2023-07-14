@@ -45,7 +45,7 @@ typedef struct{
  * Function: tlksys_task_init
  * Descript: Initializes the system process list.
  * Params: None.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_proc_init(void);
@@ -56,7 +56,7 @@ int tlksys_proc_init(void);
  * Params:
  *     @procID--ID of the process to be operated.
  *     @pTask--The task to be inserted.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_proc_appendTask(uint08 procID, tlksys_task_t *pTask);
@@ -67,7 +67,7 @@ int tlksys_proc_appendTask(uint08 procID, tlksys_task_t *pTask);
  * Params:
  *     @procID--ID of the process to be operated.
  *     @pTask--The task to be removed.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: 
  *     1.If procID==0, the system will find the corresponding task from all
  *       processes and remove it.
@@ -93,7 +93,7 @@ int tlksys_proc_mount(uint08 procID, uint08 priority, uint16 stackSize);
  * Descript: Unmount the process from the proc list.
  * Params:
  *     @procID--ID of the process to be uninstalled.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_proc_unmount(uint08 procID);
@@ -103,7 +103,7 @@ int tlksys_proc_unmount(uint08 procID);
  * Descript: Start a system process.
  * Params:
  *     @procID--ID of the task to be operated.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_proc_start(uint08 procID);
@@ -113,7 +113,7 @@ int tlksys_proc_start(uint08 procID);
  * Descript: Pause a system process.
  * Params:
  *     @procID--ID of the process to be operated.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_proc_pause(uint08 procID);
@@ -123,7 +123,7 @@ int tlksys_proc_pause(uint08 procID);
  * Descript: Close the system process.
  * Params:
  *     @procID--ID of the process to be operated.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_proc_close(uint08 procID);

@@ -116,7 +116,7 @@ ble_sts_t 	blc_ll_isAclhdlInvalid (u16 connHandle);
 
 u8 			blc_llms_isAllRolesNotConnected(void);
 
-ble_sts_t 	blc_ll_encryptedData(u8*key, u8*plaintextData, u8* encrypteTextData);
+ble_sts_t 	blc_ll_encryptedData(u8*key, u8*plaintextData, u8* encryptedTextData);
 
 ble_sts_t   blc_ll_getRandomNumber (u8* randomNumber);
 

@@ -139,7 +139,7 @@ typedef struct{
 
 /******************************************************************************
  * Function: tlkmdi_mp3_init
- * Descript: Initial the mp3 codec and reset the control paramter.
+ * Descript: Initial the mp3 codec and reset the control parameter.
  * Params: TLK_ENONE is success,other value is false .
  * Return: None.
 *******************************************************************************/
@@ -148,7 +148,7 @@ int tlkmdi_mp3_init(void);
 /******************************************************************************
  * Function: tlkmdi_mp3_isEnable
  * Descript: Verify the mp3 is Enable.
- * Params: ture is success,other value is false .
+ * Params: true is success,other value is false .
  * Return: None.
 *******************************************************************************/
 bool tlkmdi_mp3_isEnable(void);
@@ -156,7 +156,7 @@ bool tlkmdi_mp3_isEnable(void);
 /******************************************************************************
  * Function: tlkmdi_mp3_enable
  * Descript: Enable the mp3.
- * Params: ture is success,other value is false .
+ * Params: true is success,other value is false .
  * Return: None.
 *******************************************************************************/
 bool tlkmdi_mp3_enable(bool enable);
@@ -233,7 +233,7 @@ void tlkmdi_mp3_setPlayMode(uint08 mode);
 
 /******************************************************************************
  * Function: tlkmdi_mp3_getXXXXXX
- * Descript: Get the music playing paramter,etc, samplerate and volume.
+ * Descript: Get the music playing parameter,etc, samplerate and volume.
  * Params: None.
  * Return: .
 *******************************************************************************/
@@ -256,7 +256,7 @@ uint tlkmdi_mp3_getPcmData(uint08 *pBuff, uint16 buffLen);
 
 /******************************************************************************
  * Function: tlkmdi_mp3_getXXXXXX
- * Descript: Suport the interface to get the music file.
+ * Descript: Support the interface to get the music file.
  * Params: None.
  * Return: TLK_ENONE is success,otherwise is false.
 *******************************************************************************/

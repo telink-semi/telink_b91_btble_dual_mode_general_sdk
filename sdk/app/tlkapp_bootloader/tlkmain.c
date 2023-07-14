@@ -34,7 +34,7 @@
  * Function: main
  * Descript: This is main function.
  * Params: None.
- * Return: 0 is successs.
+ * Return: 0 is success.
  * Others: None.
 *******************************************************************************/
 int main(void)

@@ -82,7 +82,7 @@ static uint08 sTlkMdiMp3FileCache[TLKMDI_MP3_FILE_CACHE_SIZE];
 
 /******************************************************************************
  * Function: tlkmdi_mp3_init
- * Descript: Initial the mp3 codec and reset the control paramter.
+ * Descript: Initial the mp3 codec and reset the control parameter.
  * Params: TLK_ENONE is success,other value is false .
  * Return: None.
 *******************************************************************************/
@@ -121,7 +121,7 @@ int tlkmdi_mp3_init(void)
 /******************************************************************************
  * Function: tlkmdi_mp3_isEnable
  * Descript: Verify the mp3 is Enable.
- * Params: ture is success,other value is false .
+ * Params: true is success,other value is false .
  * Return: None.
 *******************************************************************************/
 bool tlkmdi_mp3_isEnable(void)
@@ -132,7 +132,7 @@ bool tlkmdi_mp3_isEnable(void)
 /******************************************************************************
  * Function: tlkmdi_mp3_enable
  * Descript: Enable the mp3.
- * Params: ture is success,other value is false .
+ * Params: true is success,other value is false .
  * Return: None.
 *******************************************************************************/
 bool tlkmdi_mp3_enable(bool enable)
@@ -389,7 +389,7 @@ void tlkmdi_mp3_setPlayMode(uint08 mode)
 
 /******************************************************************************
  * Function: tlkmdi_mp3_getXXXXXX
- * Descript: Get the music playing paramter,etc, samplerate and volume.
+ * Descript: Get the music playing parameter,etc, samplerate and volume.
  * Params: None.
  * Return: .
 *******************************************************************************/
@@ -659,7 +659,7 @@ int tlkmdi_mp3_decode(void)
 
 /******************************************************************************
  * Function: tlkmdi_mp3_getXXXXXX
- * Descript: Suport the interface to get the music file.
+ * Descript: Support the interface to get the music file.
  * Params: None.
  * Return: TLK_ENONE is success,otherwise is false.
 *******************************************************************************/
@@ -1166,8 +1166,8 @@ static uint32 tlkmdi_mp3_getPlayDuration(uint08 *pData, uint16 dataLen)
 static uint32 tlkmdi_mp3_getPrivateFramePlayDuration(uint32 frameOffs, uint32 frameSize)
 {
 	FRESULT ret;
-	uint32 readed_len = 0;
-	uint32 readed_len_total = 0;
+	uint32 read_len = 0;
+	uint32 read_len_total = 0;
 	uint16 continue_read_len = 0;
 	uint32 buf_valid_len = 0;
 	uint32 value = 0;
@@ -1199,14 +1199,14 @@ static uint32 tlkmdi_mp3_getPrivateFramePlayDuration(uint32 frameOffs, uint32 fr
 	tlkapi_file_seek(&sTlkMdiMp3File, frameOffs + TLKMDI_MP3_LABEL_HLEN);
 
 	if(frameSize > TLKMDI_MP3_INFO_CACHE_SIZE){
-		ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, TLKMDI_MP3_INFO_CACHE_SIZE, &readed_len);
+		ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, TLKMDI_MP3_INFO_CACHE_SIZE, &read_len);
 	}else{
-		ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, frameSize, &readed_len);
+		ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, frameSize, &read_len);
 	}
 	if(ret != FR_OK) return 0;
 
-	readed_len_total += readed_len;
-	buf_valid_len = readed_len;
+	read_len_total += read_len;
+	buf_valid_len = read_len;
 
 	for(i = 0; i < buf_valid_len;)
 	{
@@ -1341,18 +1341,18 @@ static uint32 tlkmdi_mp3_getPrivateFramePlayDuration(uint32 frameOffs, uint32 fr
 
 				if(i >= buf_valid_len - 1)
 				{
-					if(frameSize > readed_len_total)
+					if(frameSize > read_len_total)
 					{
-						if((frameSize - readed_len_total) > TLKMDI_MP3_INFO_CACHE_SIZE)
+						if((frameSize - read_len_total) > TLKMDI_MP3_INFO_CACHE_SIZE)
 							continue_read_len = TLKMDI_MP3_INFO_CACHE_SIZE;
 						else
-							continue_read_len = frameSize - readed_len_total;
+							continue_read_len = frameSize - read_len_total;
 
-						ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, continue_read_len, &readed_len);
+						ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, continue_read_len, &read_len);
 						if(ret != FR_OK) return 0;
 
-						buf_valid_len = readed_len;
-						readed_len_total += readed_len;
+						buf_valid_len = read_len;
+						read_len_total += read_len;
 						i = 0;
 					}
 					else
@@ -1365,19 +1365,19 @@ static uint32 tlkmdi_mp3_getPrivateFramePlayDuration(uint32 frameOffs, uint32 fr
 			}
 			else
 			{	//label not end.
-				if(frameSize > readed_len_total)
+				if(frameSize > read_len_total)
 				{
 					tmemcpy(spTlkMdiMp3DurationTempBuff, spTlkMdiMp3DurationTempBuff + idx, (i - idx));
-					if((frameSize - readed_len_total) > (TLKMDI_MP3_INFO_CACHE_SIZE - idx))
+					if((frameSize - read_len_total) > (TLKMDI_MP3_INFO_CACHE_SIZE - idx))
 						continue_read_len = idx;
 					else
-						continue_read_len = frameSize - readed_len_total;
+						continue_read_len = frameSize - read_len_total;
 					
-					ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff + (i - idx), continue_read_len, &readed_len);
+					ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff + (i - idx), continue_read_len, &read_len);
 					if(ret != FR_OK) return 0;
 
-					buf_valid_len = (i - idx) + readed_len;
-					readed_len_total += readed_len;
+					buf_valid_len = (i - idx) + read_len;
+					read_len_total += read_len;
 					i = 0;
 				}
 				else
@@ -1390,18 +1390,18 @@ static uint32 tlkmdi_mp3_getPrivateFramePlayDuration(uint32 frameOffs, uint32 fr
 		{
 			if(i >= buf_valid_len - 1)
 			{
-				if(frameSize > readed_len_total)
+				if(frameSize > read_len_total)
 				{
-					if((frameSize - readed_len_total) > TLKMDI_MP3_INFO_CACHE_SIZE)
+					if((frameSize - read_len_total) > TLKMDI_MP3_INFO_CACHE_SIZE)
 						continue_read_len = TLKMDI_MP3_INFO_CACHE_SIZE;
 					else
-						continue_read_len = frameSize - readed_len_total;
+						continue_read_len = frameSize - read_len_total;
 
-					ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, continue_read_len, &readed_len);
+					ret = tlkapi_file_read(&sTlkMdiMp3File, spTlkMdiMp3DurationTempBuff, continue_read_len, &read_len);
 					if(ret != FR_OK) return 0;
 
-					buf_valid_len = readed_len;
-					readed_len_total += readed_len;
+					buf_valid_len = read_len;
+					read_len_total += read_len;
 					i = 0;
 				}
 				else

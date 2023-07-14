@@ -428,7 +428,7 @@
 #define HCI_RD_CLK_OFF_CMP_EVT_CODE                0x1C
 #define HCI_CON_PKT_TYPE_CHG_EVT_CODE              0x1D
 #define HCI_QOS_VIOL_EVT_CODE                      0x1E
-#define HCI_PAGE_SCAN_REPET_MODE_CHG_EVT_CODE      0x20
+#define HCI_PAGE_SCAN_REPEAT_MODE_CHG_EVT_CODE     0x20
 #define HCI_FLOW_SPEC_CMP_EVT_CODE                 0x21
 #define HCI_INQ_RES_WITH_RSSI_EVT_CODE             0x22
 #define HCI_RD_REM_EXT_FEATS_CMP_EVT_CODE          0x23

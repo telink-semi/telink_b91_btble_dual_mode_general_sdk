@@ -78,7 +78,7 @@ static float32_t coeff_eq_now[TLKALG_EQ_FILTER_MAX*5];
 static float32_t coeff_Voice_mic_eq_now[TLKALG_EQ_FILTER_VOICE_MAX*5];
 static float32_t coeff_Voice_spk_eq_now[TLKALG_EQ_FILTER_VOICE_MAX*5];
 static int eq_flash_addr;
-static unsigned char eq_save_buff[TLKALG_EQ_TYPE_LENTH_MAX] = {0};
+static unsigned char eq_save_buff[TLKALG_EQ_TYPE_LENGTH_MAX] = {0};
 //volatile static signed short eq_before_gain[8] = {0};
 volatile static signed short eq_after_gain[9] = {0};
 volatile static int eq_updata_flag = 0;
@@ -616,7 +616,7 @@ void tlkalg_eq_loadParam(uint32 adr, uint16 index, uint08 super_listen_flag)
 #if 1		//save eq 	for test
 			eq_index_add = adr;
 			u32 r = irq_disable ();
-			flash_read_page(eq_index_add, TLKALG_EQ_TYPE_LENTH_MAX, (uint08*)&eq_filter);
+			flash_read_page(eq_index_add, TLKALG_EQ_TYPE_LENGTH_MAX, (uint08*)&eq_filter);
 			irq_restore (r);
 			if((index&0x00ff) != eq_filter.eq_header.idx)
 			{
@@ -635,9 +635,9 @@ void tlkalg_eq_loadParam(uint32 adr, uint16 index, uint08 super_listen_flag)
 				}
 			}
 #else
-			eq_index_add = adr + index * TLKALG_EQ_TYPE_LENTH_MAX;
+			eq_index_add = adr + index * TLKALG_EQ_TYPE_LENGTH_MAX;
 			u32 r = irq_disable ();
-			flash_read_page(eq_index_add, TLKALG_EQ_TYPE_LENTH_MAX, &eq_filter);
+			flash_read_page(eq_index_add, TLKALG_EQ_TYPE_LENGTH_MAX, &eq_filter);
 			irq_restore (r);
 			if(eq_filter.eq_header.filter_sum>9)
 			{
@@ -903,19 +903,19 @@ void eq_proc_new(nds_bq_df1_f32_t *para, signed short *ps, signed short *pd, uns
 
 void tlkalg_eq_saveParam(void)
 {
-	unsigned char eq_save_tmp[TLKALG_EQ_TYPE_LENTH_MAX] = {0};
+	unsigned char eq_save_tmp[TLKALG_EQ_TYPE_LENGTH_MAX] = {0};
 
 	if(eq_flash_addr == 0) return;
 
 	u32 r = irq_disable ();
-	flash_read_page(eq_flash_addr,(unsigned long)TLKALG_EQ_TYPE_LENTH_MAX,eq_save_tmp);
+	flash_read_page(eq_flash_addr,(unsigned long)TLKALG_EQ_TYPE_LENGTH_MAX,eq_save_tmp);
 	irq_restore (r);
 
-	if(tmemcmp(eq_save_tmp,eq_save_buff,TLKALG_EQ_TYPE_LENTH_MAX))
+	if(tmemcmp(eq_save_tmp,eq_save_buff,TLKALG_EQ_TYPE_LENGTH_MAX))
 	{
 		r = irq_disable ();
 		flash_erase_sector(eq_flash_addr);
-		flash_write_page(eq_flash_addr, (unsigned long)TLKALG_EQ_TYPE_LENTH_MAX, eq_save_buff);
+		flash_write_page(eq_flash_addr, (unsigned long)TLKALG_EQ_TYPE_LENGTH_MAX, eq_save_buff);
 		irq_restore (r);
 		tlkapi_sendData(TLKALG_EQ_DEBUG_ENABLE,"EQ needs to be saved", 0, 0);
 	}

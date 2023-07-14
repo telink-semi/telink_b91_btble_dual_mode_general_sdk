@@ -78,17 +78,17 @@ static const tlk_debug_info_t scTlkDebugBtcInfo = {
 		{TLK_MINOR_DBGID_BTC_LMP,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_ACL,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_SCO,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_HCI,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_HCI,    true, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_EVT,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_ENC,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_ENC,    false, false, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_RSW,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_QOS,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_AFH,    false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_AFH,    false, false, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_CHN,    true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_AUTH,   false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_PAIR,   false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_TASK,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
-		{TLK_MINOR_DBGID_BTC_NAME,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
+		{TLK_MINOR_DBGID_BTC_NAME,   false,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_PAGE,   true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_SNIFF,  false, true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
 		{TLK_MINOR_DBGID_BTC_TIMER,  true,  true, TLK_DEBUG_DBG_FLAG_ALL, "[BTC]"},
@@ -105,7 +105,7 @@ static const tlk_debug_info_t scTlkDebugBthInfo = {
 		{TLK_MINOR_DBGID_BTH,     true, false, TLK_DEBUG_DBG_FLAG_ALL, "[BTH]"},
 		{TLK_MINOR_DBGID_BTH_ACL, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[ACL]"},
 		{TLK_MINOR_DBGID_BTH_SCO, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SCO]"},
-		{TLK_MINOR_DBGID_BTH_DEV, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[DEV]"},
+		{TLK_MINOR_DBGID_BTH_DEV, false, false, TLK_DEBUG_DBG_FLAG_ALL, "[DEV]"},
 		{TLK_MINOR_DBGID_BTH_CMD, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[CMD]"},
 		{TLK_MINOR_DBGID_BTH_EVT, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[EVT]"},
 		{TLK_MINOR_DBGID_BTH_L2C, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[L2C]"},
@@ -243,7 +243,7 @@ static const tlk_debug_info_t scTlkDebugMdiAudInfo = {
 		{TLK_MINOR_DBGID_MDI_AUD,      true, false, TLK_DEBUG_DBG_FLAG_ALL, "[AUD]"},
 		{TLK_MINOR_DBGID_MDI_AUD_PLAY, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[PLAY]"},
 		{TLK_MINOR_DBGID_MDI_AUD_TONE, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[TONE]"},
-		{TLK_MINOR_DBGID_MDI_AUD_MP3,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MP3]"},
+		{TLK_MINOR_DBGID_MDI_AUD_MP3,  false, false, TLK_DEBUG_DBG_FLAG_ALL, "[MP3]"},
 		{TLK_MINOR_DBGID_MDI_AUD_HFP,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[HFP]"},
 		{TLK_MINOR_DBGID_MDI_AUD_SCO,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SCO]"},
 		{TLK_MINOR_DBGID_MDI_AUD_SNK,  true, false, TLK_DEBUG_DBG_FLAG_ALL, "[SNK]"},
@@ -344,7 +344,15 @@ static const tlk_debug_info_t scTlkDebugMmiSystemInfo = {
 		{TLK_MINOR_DBGID_MMI_SYSTEM, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
 	}
 };
-
+static const tlk_debug_info_t scTlkDebugMmiDeviceInfo = {
+	false, //dbgIsEn
+	false, //vcdIsEn
+	TLK_DEBUG_DBG_FLAG_ALL,
+	TLK_MINOR_DBGID_MMI_DEVICE_MAX,
+	{
+		{TLK_MINOR_DBGID_MMI_DEVICE, true, false, TLK_DEBUG_DBG_FLAG_ALL, "[MMI]"},
+	}
+};
 //static
 static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
 	nullptr, //TLK_MAJOR_DBGID_NONE
@@ -370,6 +378,7 @@ static const tlk_debug_info_t *scTlkDebugInfo[TLK_MAJOR_DBGID_MAX] = {
 	&scTlkDebugMmiViewInfo, //TLK_MAJOR_DBGID_MMI_VIEW
 	&scTlkDebugMmiTestInfo, //TLK_MAJOR_DBGID_MMI_TEST
 	&scTlkDebugMmiSystemInfo, //TLK_MAJOR_DBGID_MMI_SYSTEM
+	&scTlkDebugMmiDeviceInfo, //TLK_MAJOR_DBGID_MMI_DEVICE
 };
 
 static unsigned long sTlkDebugDbgMask[TLK_MAJOR_DBGID_MAX];

@@ -200,25 +200,25 @@ int host_att_service_wait_event (u16 handle, u8 *p, u32 timeout)
 }
 
 //Gaoqiu add ------------------------------------------------------------------
-int app_char_discovery(u8* reslut, u16 connHandle, u16 startAttHandle, u16 endAttHandle, u8*uuid, u8 uuidLen)
+int app_char_discovery(u8* result, u16 connHandle, u16 startAttHandle, u16 endAttHandle, u8*uuid, u8 uuidLen)
 {
 	blc_gatt_pushReadByTypeRequest(connHandle, startAttHandle, endAttHandle, uuid, uuidLen);
 
-	return host_att_service_wait_event(connHandle, reslut, 1000000);
+	return host_att_service_wait_event(connHandle, result, 1000000);
 }
 
-int app_read_char_value(u8* reslut, u16 connHandle, u16 attHandle)
+int app_read_char_value(u8* result, u16 connHandle, u16 attHandle)
 {
 	blc_gatt_pushReadRequest(connHandle, attHandle);
 
-	return host_att_service_wait_event(connHandle, reslut, 1000000);
+	return host_att_service_wait_event(connHandle, result, 1000000);
 }
 
-int app_find_char_info(u8* reslut, u16 connHandle, u16 startAttHandle, u16 endAttHandle)
+int app_find_char_info(u8* result, u16 connHandle, u16 startAttHandle, u16 endAttHandle)
 {
 	blc_gatt_pushFindInformationRequest(connHandle, startAttHandle, endAttHandle);
 
-	return host_att_service_wait_event(connHandle, reslut, 1000000);
+	return host_att_service_wait_event(connHandle, result, 1000000);
 }
 
 
@@ -266,7 +266,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 		dat[6] = ATT_OP_READ_BY_TYPE_REQ;
 		if (app_char_discovery(dat, handle, s, 0xffff, (u8 *)&uuid, 2)) // 1s
 		{
-			return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
+			return  GATT_ERR_SERVICE_DISCOVERY_TIMEOUT;			//timeout
 		}
 
 		// process response data
@@ -321,7 +321,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 			dat[6] = ATT_OP_FIND_INFORMATION_REQ;
 			if (app_find_char_info(dat, handle, p16->handle, 0xffff)) // 1s
 			{
-				return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
+				return  GATT_ERR_SERVICE_DISCOVERY_TIMEOUT;			//timeout
 			}
 
 			ble_att_findInfoRsp_t *p_rsp = (ble_att_findInfoRsp_t *) dat;
@@ -342,7 +342,7 @@ ble_sts_t  host_att_discoveryService (u16 handle, att_db_uuid16_t *p16, int n16,
 					    //-----------		read attribute ----------------
 						dat[6] = ATT_OP_READ_REQ;
 						if(app_read_char_value(dat, handle, pd[0])){
-							return  GATT_ERR_SERVICE_DISCOVERY_TIEMOUT;			//timeout
+							return  GATT_ERR_SERVICE_DISCOVERY_TIMEOUT;			//timeout
 						}
 
 						att_readRsp_t *pr = (att_readRsp_t *) dat;
@@ -413,7 +413,7 @@ int dev_char_info_add_peer_att_handle (dev_char_info_t* dev_char_info)
  * @brief       Use for store peer device att handle to flash.
  * @param[in]   dev_char_info    Pointer point to peer device ATT handle info.
  * @return      0: failed
- *             !0: return falsh address
+ *             !0: return flash address
  */
 int		dev_char_info_store_peer_att_handle(dev_char_info_t* pdev_char)
 {
@@ -467,7 +467,7 @@ int		dev_char_info_store_peer_att_handle(dev_char_info_t* pdev_char)
  * @param[in]   addr             Pointer point to peer address buffer
  * @param[out]  dev_att          Pointer point to dev_att_t
  * @return      0: failed
- *             !0: return falsh address
+ *             !0: return flash address
  */
 int		dev_char_info_search_peer_att_handle_by_peer_mac(u8 adr_type, u8* addr, dev_att_t* pdev_att)
 {

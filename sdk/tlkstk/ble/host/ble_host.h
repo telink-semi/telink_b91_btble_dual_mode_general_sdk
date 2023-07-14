@@ -42,13 +42,6 @@
 #include "tlkstk/ble/host/gap/gap_event.h"
 
 
-/*********************************************************/
-//Remove when file merge to SDK //
-#include "tlkstk/ble/ble_config.h"
-#include "tlkstk/ble/debug.h"
-#include "tlkstk/ble/trace.h"
-
-/*********************************************************/
 
 
 #endif /* STACK_BLE_HOST_BLE_HOST_H_ */

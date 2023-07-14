@@ -156,9 +156,9 @@ static int tlkmmi_rdt_t002DutAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 aut1Addt[6] = TLKMMI_RDT_T002_BTADDR_AUT;
 	uint08 aut2Addt[6] = TLKMMI_RDT_T002_BTADDR_AUT2;
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		bth_hci_sendWriteScanEnableCmd(BOTH_SCAN_ENABLE);
 		return TLK_ENONE;
@@ -207,9 +207,9 @@ static int tlkmmi_rdt_t002DutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 aut1Addt[6] = TLKMMI_RDT_T002_BTADDR_AUT;
 	uint08 aut2Addt[6] = TLKMMI_RDT_T002_BTADDR_AUT2;
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	if(tmemcmp(pEvt->peerMac, aut1Addt, 6) == 0){
 		sTlkMmiRdtT002Dut.aut1Handle = 0;
 		sTlkMmiRdtT002Dut.aut1Busys = TLKMMI_RDT_T002_BUSY_NONE;
@@ -241,9 +241,9 @@ static int tlkmmi_rdt_t002DutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t002DutScoConnectEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoConnComplateEvt_t *pEvt;
+	bth_scoConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_scoConnComplateEvt_t*)pData;
+	pEvt = (bth_scoConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002DutScoConnectEvt: ConnFailure");
 		return -TLK_EFAIL;
@@ -260,10 +260,10 @@ static int tlkmmi_rdt_t002DutScoConnectEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_t002DutScoDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoDiscComplateEvt_t *pEvt;
+	bth_scoDiscCompleteEvt_t *pEvt;
 
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_t002DutScoDisconnEvt");
-	pEvt = (bth_scoDiscComplateEvt_t*)pData;
+	pEvt = (bth_scoDiscCompleteEvt_t*)pData;
 	if(sTlkMmiRdtT002Dut.scoHandle == pEvt->scoHandle){
 		sTlkMmiRdtT002Dut.scoHandle = 0;
 		sTlkMmiRdtT002Dut.sndTimer = 0;

@@ -60,8 +60,8 @@ int tlkdev_lcd_clean(void);
 int tlkdev_lcd_getWidth(void);
 int tlkdev_lcd_getHeight(void);
 int tlkdev_lcd_setBrush(tlkdev_lcd_brush_t *pBrush);
-int tlkdev_lcd_setForegroud(uint08 *pBuffer, uint32 buffLen);
-int tlkdev_lcd_setBackgroud(uint08 *pBuffer, uint32 buffLen);
+int tlkdev_lcd_setForeground(uint08 *pBuffer, uint32 buffLen);
+int tlkdev_lcd_setBackground(uint08 *pBuffer, uint32 buffLen);
 
 int tlkdev_lcd_paintPoint(uint16 x, uint16 y, bool isFlush);
 int tlkdev_lcd_paintImage(tlkdev_lcd_region_t *pRegion, uint08 *pData, uint32 dataLen, bool isFlush);

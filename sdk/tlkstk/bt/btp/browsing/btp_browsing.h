@@ -156,7 +156,7 @@ typedef enum{
 	BTP_BROWSING_CHAR_SET_UTF32    = 0x03F9,
 	BTP_BROWSING_CHAR_SET_GBK      = 0x0071,
 	BTP_BROWSING_CHAR_SET_GBK18030 = 0x0072,
-	BTP_BROWSING_CHAR_SET_UNIOCDE  = 0x03E8,
+	BTP_BROWSING_CHAR_SET_UNICODE  = 0x03E8,
 }BTP_BROWSING_CHAR_SET_ENUM;
 
 typedef struct{
@@ -412,7 +412,7 @@ int btp_browsing_sendGetFolderItemsCmd(uint16 aclHandle, uint08 scope,
  *         If others value is returned means the send process fail.
  * Note: 
  *     1.pUID(Folder UID)-This may be obtained by call btp_avrcp_sendRegEventNotify
- *       (eventID=BTP_AVRCP_EVTID_TRACK_CHANGED). This will reutrn trackID after
+ *       (eventID=BTP_AVRCP_EVTID_TRACK_CHANGED). This will return trackID after
  *       tack status changed. TackID is used for Folder UID.
 *******************************************************************************/
 int btp_browsing_sendGetItemAttrCmd(uint16 aclHandle, uint08 scope, 

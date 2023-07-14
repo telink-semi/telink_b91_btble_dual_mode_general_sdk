@@ -99,7 +99,7 @@ int tlkmmi_audio_itemIndexByOptype(uint08 optype);
  * Descript: Suspend the current audio task when a new audio task insert 
  *           and start running.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_insertItem(uint16 handle, uint08 optype);
@@ -109,7 +109,7 @@ int tlkmmi_audio_insertItem(uint16 handle, uint08 optype);
  * Descript: Suspend the current task and delete it.Then resume the task 
  *           which been suspend before.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_removeItem(uint16 handle, uint08 optype);
@@ -157,7 +157,7 @@ void tlkmmi_audio_printfList(void);
  * Descript: Get the operate type of the Current of audio status control block 
  *           in it's array. 
  * Params: None.
- * Return: Retur the operate type.
+ * Return: Return the operate type.
  * Others: None.
 *******************************************************************************/
 int  tlkmmi_audio_getCurOptype(void);
@@ -167,7 +167,7 @@ int  tlkmmi_audio_getCurOptype(void);
  * Descript: Check the audio status control block array have match 
  *           the special operate type.
  * Params: None.
- * Return: Retur true(there exist a audio control block's 
+ * Return: Return true(there exist a audio control block's 
  *         opertate type equal the optye).
  * Others: None.
 *******************************************************************************/
@@ -177,7 +177,7 @@ bool tlkmmi_audio_isHaveOptype(uint08 optype);
  * Function: tlkmmi_audio_getCurItem
  * Descript: Get the current audio status control block.
  * Params: None.
- * Return: Retur current audio control block.
+ * Return: Return current audio control block.
  * Others: None.
 *******************************************************************************/
 tlkmmi_audio_schItem_t *tlkmmi_audio_getCurItem(void);
@@ -186,7 +186,7 @@ tlkmmi_audio_schItem_t *tlkmmi_audio_getCurItem(void);
  * Function: tlkmmi_audio_getSndItem
  * Descript: Get the 2nd audio status control block.
  * Params: None.
- * Return: Retur 2nd audio control block.
+ * Return: Return 2nd audio control block.
  * Others: None.
 *******************************************************************************/
 tlkmmi_audio_schItem_t *tlkmmi_audio_getSndItem(void);

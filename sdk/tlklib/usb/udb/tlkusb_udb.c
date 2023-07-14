@@ -102,14 +102,14 @@ int tlkusb_udb_sendData(uint08 *pData, uint08 dataLen)
 }
 
 /******************************************************************************
- * Function: tlkusb_udb_recvHander
- * Descript: Receive data hander.
+ * Function: tlkusb_udb_recvHandler
+ * Descript: Receive data handler.
  * Params: None
  * Return: None.
  * Others: None.
 *******************************************************************************/
 _attribute_ram_code_ 
-void tlkusb_udb_recvHander(void)
+void tlkusb_udb_recvHandler(void)
 {
 	bool ready;
 	bool isDown = false;

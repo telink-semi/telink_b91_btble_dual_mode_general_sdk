@@ -40,7 +40,7 @@ int		hci_le_cisReq_evt(u16 aclHandle, u16 cisHandle, u8 cigId, u8 cisId);
 int		hci_le_createBigComplete_evt(u8 status, u8 bigHandle, u8 bigSyncDly[3], u8 transLatyBig[3], u8 phy, u8 nse,
 								     u8 bn, u8 pto, u8 irc, u16 maxPDU, u16 isoIntvl, u8 numBis, u16* bisHandles);
 int		hci_le_terminateBigComplete_evt(u8 bigHandle, u8 reason);
-int		hci_le_bigSyncEstablished_evt(u8 staus, u8 bigHandle, u8 transLatyBig[3], u8 nse, u8 bn, u8 pto, u8 irc,
+int		hci_le_bigSyncEstablished_evt(u8 status, u8 bigHandle, u8 transLatyBig[3], u8 nse, u8 bn, u8 pto, u8 irc,
 		                              u16 maxPDU, u16 isoIntvl,  u8 numBis, u16* bisHandles);
 int		hci_le_bigSyncLost_evt(u8 bigHandle, u8 reason);
 int		hci_le_BigInfoAdvReport_evt(u16 syncHandle, u8 numBis, u8 nse, u16 IsoItvl, u8 bn, u8 pto, u8 irc,
@@ -55,7 +55,7 @@ int		hci_le_enhancedConnectionComplete_evt(u8 status, u16 connHandle, u8 role, u
 int		hci_le_connectionUpdateComplete_evt(u8 status, u16 connHandle, u16 connInterval,
         									u16 connLatency, u16 supervisionTimeout);
 int		hci_le_readRemoteFeaturesComplete_evt(u8 status, u16 connHandle, u8 * feature);
-int		hci_le_chennel_selection_algorithm_evt(u16 connhandle, u8 channel_selection_alg);
+int		hci_le_channel_selection_algorithm_evt(u16 connhandle, u8 channel_selection_alg);
 int		hci_le_phyUpdateComplete_evt(u16 connhandle,u8 status, u8 new_phy);
 int		hci_le_data_len_update_evt(u16 connhandle,u16 effTxOctets, u16 effRxOctets, u16 maxtxtime, u16 maxrxtime);
 int		hci_le_longTermKeyRequest_evt(u16 connHandle, u8* random, u16 ediv, u8* result);

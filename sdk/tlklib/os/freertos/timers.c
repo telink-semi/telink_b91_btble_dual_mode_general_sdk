@@ -821,7 +821,7 @@
                  *  called after the message is received from xTimerQueue so there is no
                  *  possibility of a higher priority task adding a message to the message
                  *  queue with a time that is ahead of the timer daemon task (because it
-                 *  pre-empted the timer daemon task after the xTimeNow value was set). */
+                 *  pre-emptied the timer daemon task after the xTimeNow value was set). */
                 xTimeNow = prvSampleTimeNow( &xTimerListsWereSwitched );
 
                 switch( xMessage.xMessageID )

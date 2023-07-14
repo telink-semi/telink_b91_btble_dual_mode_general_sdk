@@ -99,6 +99,8 @@ uint tlkbt_hci_h2cFifoNumb(void);
 uint tlkbt_hci_h2cFifoUsed(void);
 uint tlkbt_hci_h2cFifoUnused(void);
 
+uint tlkbt_hci_h2cDatFifoUsed(void);
+
 bool tlkbt_hci_h2cCmdFifoIsFull(void);
 bool tlkbt_hci_h2cCmdFifoIsEmpty(void);
 uint tlkbt_hci_h2cCmdFifoSize(void);

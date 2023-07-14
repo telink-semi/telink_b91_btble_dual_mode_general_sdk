@@ -56,7 +56,7 @@ typedef enum{
  * Descript: Verify that SCO is in the connected state.
  * Params: 
  *        @pCodec[IN]--The codec id.
- * Reutrn: True if SCO is connection.
+ * Return: True if SCO is connection.
 *******************************************************************************/
 bool bth_sco_isConn(uint16 aclHandle);
 
@@ -65,7 +65,7 @@ bool bth_sco_isConn(uint16 aclHandle);
  * Descript: Set the time from establishment of the SCO to connection timeout.
  * Params: 
  *     @timeout[IN]--The time of connection timeout. Unit-ms, Range[3000~15000].
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_setConnTimeout(uint16 timeout);
 
@@ -79,7 +79,7 @@ void bth_sco_setConnTimeout(uint16 timeout);
  *        TLK_SCO_LINK_TYPE_ENUM.
  *     @airMode[IN]--The air mode(cvsd or else). Rerfer to
  *        TLK_SCO_AIRMODE_ENUM
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_sco_connect(uint16 aclHandle, uint16 linkType, uint08 airMode);
 
@@ -89,7 +89,7 @@ int  bth_sco_connect(uint16 aclHandle, uint16 linkType, uint08 airMode);
  *           specify by scoHandle.
  * Params: @scoHandle[IN]--The sco link handle.
  *         @reason[IN]--disconnect reason.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int  bth_sco_disconn(uint16 scoHandle, uint08 reason);
 
@@ -99,7 +99,7 @@ int  bth_sco_disconn(uint16 scoHandle, uint08 reason);
  *           specify by scoHandle.
  * Params: @scoHandle[IN]--The sco link handle.
  *         @reason[IN]--disconnect reason.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int bth_sco_disconnByAddr(uint08 btaddr[6], uint08 reason);
 
@@ -107,7 +107,7 @@ int bth_sco_disconnByAddr(uint08 btaddr[6], uint08 reason);
  * Function: bth_sco_destroy
  * Descript: This interface be used to destroy the SCO link resource.
  * Params: @scoHandle[IN]--The sco link handle.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_destroy(uint16 scoHandle);
 
@@ -115,7 +115,7 @@ void bth_sco_destroy(uint16 scoHandle);
  * Function: bth_sco_destroyByAclHandle
  * Descript: This interface be used to destroy the SCO link resource.
  * Params: @scoHandle[IN]--The sco link handle.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_destroyByAclHandle(uint16 aclHandle);
 
@@ -125,7 +125,7 @@ void bth_sco_destroyByAclHandle(uint16 aclHandle);
  * Params: @scoHandle[IN]--The sco link handle.
  *         @micSpk[IN]--is mic or speaker.
  *         @enable[IN]--enable or disable.
- * Reutrn: TLK_ENONE is set sucess, others means failure.
+ * Return: TLK_ENONE is set success, others means failure.
 *******************************************************************************/
 int bth_sco_sendMute(uint16 scoHandle, uint08 micSpk, uint08 enable);
 
@@ -135,7 +135,7 @@ int bth_sco_sendMute(uint16 scoHandle, uint08 micSpk, uint08 enable);
  * Params: 
  *        @status[IN]--The status.
  *        @btaddr[IN]--The bt address.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_connCancelEvt(uint08 status, uint08 btaddr[6]);
 
@@ -145,7 +145,7 @@ void bth_sco_connCancelEvt(uint08 status, uint08 btaddr[6]);
  * Params: 
  *        @btaddr[IN]--The Bt address.
  *        @devClass[IN]--The device class type.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_connectRequestEvt(uint08 btaddr[6], uint32 devClass);
 
@@ -157,7 +157,7 @@ void bth_sco_connectRequestEvt(uint08 btaddr[6], uint32 devClass);
  *        @handle[IN]--The acl handle.
  *        @btaddr[IN]--The Bt address.
  *        @isEncrypt[IN]--is enable encrypt.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_connectCompleteEvt(uint08 status, uint16 handle, uint08 btaddr[6], uint08 isEncrypt);
 
@@ -167,7 +167,7 @@ void bth_sco_connectCompleteEvt(uint08 status, uint16 handle, uint08 btaddr[6], 
  * Params: 
  *        @handle[IN]--The acl handle.
  *        @reason[IN]--The disconnect reason.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_disconnCompleteEvt(uint16 handle, uint08 reason);
 
@@ -179,7 +179,7 @@ void bth_sco_disconnCompleteEvt(uint16 handle, uint08 reason);
  *        @btaddr[IN]--The Bt address.
  *        @devClass[IN]--The device class type.
  *        @linkType[IN]--The link type.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_requestEvt(uint08 btaddr[6], uint32 devClass, uint08 linkType);
 
@@ -192,7 +192,7 @@ void bth_sco_requestEvt(uint08 btaddr[6], uint32 devClass, uint08 linkType);
  *        @btaddr[IN]--The bt address.
  *        @linktype[IN]--The link type.
  *        @airMode[IN]--The air mode.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_connectEvt(uint08 status, uint16 handle, uint08 btaddr[6], uint08 linkType, uint08 airMode);
 
@@ -202,7 +202,7 @@ void bth_sco_connectEvt(uint08 status, uint16 handle, uint08 btaddr[6], uint08 l
  * Params: 
  *        @handle[IN]--The sco handle.
  *        @reason[IN]--The disconnect reason.
- * Reutrn: None.
+ * Return: None.
 *******************************************************************************/
 void bth_sco_disconnEvt(uint16 handle, uint08 reason);
 

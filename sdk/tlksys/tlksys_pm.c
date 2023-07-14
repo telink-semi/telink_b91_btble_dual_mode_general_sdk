@@ -35,7 +35,7 @@ static tlksys_pm_cbCtrl_t sTlkSysPmCbCtrl = {0};
  * Function: tlksys_pm_init
  * Descript: 
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_init(void)
@@ -50,7 +50,7 @@ int tlksys_pm_init(void)
  * Params:
  *     @cb[IN]--Function name of the task function.
  *     @name[IN]--Identification name of the task function.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_appendBusyCheckCB(TlkSysPmBusyCheckCallback cb, const char *name)
@@ -68,7 +68,7 @@ int tlksys_pm_appendBusyCheckCB(TlkSysPmBusyCheckCallback cb, const char *name)
  * Descript: Remove a task function from the 'sTlkSysPmCbCtrl.busyCheck' table.
  * Params:
  *     @cb[IN]--Function name of the task function.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_removeBusyCheckCB(TlkSysPmBusyCheckCallback cb)
@@ -99,7 +99,7 @@ int tlksys_pm_removeBusyCheckCB(TlkSysPmBusyCheckCallback cb)
  * 			 needs to go to sleep.
  * Params:
  *     @cb[IN]--Function name of the task function.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_appendEnterSleepCB(TlkSysPmEnterSleepCallback cb)
@@ -116,7 +116,7 @@ int tlksys_pm_appendEnterSleepCB(TlkSysPmEnterSleepCallback cb)
  * Descript: Remove a task function from the 'sTlkSysPmCbCtrl.enterSleep' table.
  * Params:
  *     @cb[IN]--Function name of the task function.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_removeEnterSleepCB(TlkSysPmEnterSleepCallback cb)
@@ -147,7 +147,7 @@ int tlksys_pm_removeEnterSleepCB(TlkSysPmEnterSleepCallback cb)
  * 			 needs to exit sleep.
  * Params:
  *     @cb[IN]--Function name of the task function.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_appendLeaveSleepCB(TlkSysPmLeaveSleepCallback cb)
@@ -165,7 +165,7 @@ int tlksys_pm_appendLeaveSleepCB(TlkSysPmLeaveSleepCallback cb)
  * 			 'sTlkSysPmCbCtrl.leaveSleep' table.
  * Params:
  *     @cb[IN]--Task functions to be removed.
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlksys_pm_removeLeaveSleepCB(TlkSysPmLeaveSleepCallback cb)
@@ -195,7 +195,7 @@ int tlksys_pm_removeLeaveSleepCB(TlkSysPmLeaveSleepCallback cb)
  * Descript: Get whether the function in the 'sTlkSysPmCbCtrl.busyCheck' table
  * 			 is in the BUSY state.
  * Params:
- * Return: true means success, false means failture.
+ * Return: true means success, false means failure.
  * Others: None.
 *******************************************************************************/
 bool tlksys_pm_isBusy(void)

@@ -208,7 +208,7 @@ int tlkmdi_btacl_cancel(uint08 *pBtAddr);
  * Params:
  *        @pBtAddr[IN]--The bt address.
  *        @devClass[IN]--The Device type.
- *        @timeout[IN]--The timeout value.
+ *        @timeout[IN]--The timeout value. Unit:ms, Range:3000~3600000.
  * Return: Return TLK_ENONE is success/other value is failure.
  * Others: None.
 *******************************************************************************/
@@ -255,7 +255,7 @@ int tlkmdi_btacl_removeProf(uint16 handle, uint08 ptype, uint08 usrID);
  * Function: tlkmdi_btacl_getRole
  * Descript: Get the role of acl link.
  * Params:
- *        @devClass[IN]--The device classs.
+ *        @devClass[IN]--The device class.
  * Return: Return TLK_ENONE is success/other value is failure.
  * Others: None.
 *******************************************************************************/

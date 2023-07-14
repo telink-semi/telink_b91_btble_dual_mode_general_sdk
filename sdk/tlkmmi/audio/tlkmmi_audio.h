@@ -54,7 +54,7 @@ bool tlkmmi_audio_isBusy(void);
  * Descript: Suspend the current audio task when a new audio task insert 
  *           and start running.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 extern int tlkmmi_audio_insertItem(uint16 aclHandle, uint08 optype);
@@ -64,7 +64,7 @@ extern int tlkmmi_audio_insertItem(uint16 aclHandle, uint08 optype);
  * Descript: Suspend the current task and delete it.Then resume the task 
  *           which been suspend before.
  * Params:
- * Return: Operating results. TLK_ENONE means success, others means failture.
+ * Return: Operating results. TLK_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 extern int tlkmmi_audio_removeItem(uint16 aclHandle, uint08 optype);

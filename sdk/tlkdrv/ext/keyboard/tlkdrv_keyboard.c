@@ -110,7 +110,7 @@ int tlkdrv_keyboard_close(void)
 
 void tlkdrv_keyboard_scan(void)
 {
-	bool isRelesed;
+	bool isReleased;
 	uint08 iIndex;
 	uint08 jIndex;
 	uint08 rLevel;
@@ -148,15 +148,15 @@ void tlkdrv_keyboard_scan(void)
 	/* Detects whether a legacy key is released and whether a new key is pressed */
 	oldNumb = 0;
 	for(iIndex=0; iIndex<sTlkDrvKeyboardCtrl.keyNumb; iIndex++){
-		isRelesed = false;
+		isReleased = false;
 		if(keyNumb == 0){
-			isRelesed = true;
+			isReleased = true;
 		}else{
 			for(jIndex=0; jIndex<keyNumb; jIndex++){
 				if(keyRcd[jIndex] == sTlkDrvKeyboardCtrl.keyRcd[iIndex]) break;
 			}
 			if(jIndex != keyNumb){
-				isRelesed = true;
+				isReleased = true;
 				if(jIndex+1 == keyNumb){
 					keyRcd[jIndex] = 0;
 				}else{
@@ -165,7 +165,7 @@ void tlkdrv_keyboard_scan(void)
 				keyNumb --;
 			}
 		}
-		if(isRelesed){
+		if(isReleased){
 			if(iIndex+1 == keyNumb){
 				oldKey[oldNumb++] = sTlkDrvKeyboardCtrl.keyRcd[iIndex];
 				sTlkDrvKeyboardCtrl.keyRcd[iIndex] = 0;

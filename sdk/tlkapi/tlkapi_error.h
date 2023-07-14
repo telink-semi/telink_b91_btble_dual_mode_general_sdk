@@ -34,7 +34,7 @@
 #define TLK_ESEEK       0x05 //"seek error"
 #define TLK_ECTRL       0x06 //"ctrl error"
 #define TLK_EWRITE      0x07 //"write error"
-#define TLK_ECLOSE      0x08 //"close errro"
+#define TLK_ECLOSE      0x08 //"close error"
 #define TLK_EPARAM      0x09 //"param error"
 #define TLK_EALIGN      0x0A //"align error"
 #define TLK_EFAULT      0x0B //"fault error"

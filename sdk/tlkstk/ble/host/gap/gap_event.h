@@ -149,7 +149,7 @@ Situation 2:   SMP Fast Connect																		|
 #define GAP_EVT_SMP_CONN_ENCRYPTION_DONE							 3	// Refer to SMP message sequence and event chart above
 #define GAP_EVT_SMP_SECURITY_PROCESS_DONE							 4	// Refer to SMP message sequence and event chart above
 
-#define GAP_EVT_SMP_TK_DISPALY			                             8
+#define GAP_EVT_SMP_TK_DISPLAY			                             8
 #define GAP_EVT_SMP_TK_REQUEST_PASSKEY								 9
 #define GAP_EVT_SMP_TK_REQUEST_OOB									 10
 #define GAP_EVT_SMP_TK_NUMERIC_COMPARE								 11
@@ -157,7 +157,7 @@ Situation 2:   SMP Fast Connect																		|
 
 
 #define GAP_EVT_ATT_EXCHANGE_MTU									 16
-#define GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM							 17
+#define GAP_EVT_GATT_HANDLE_VALUE_CONFIRM							 17
 
 #define GAP_EVT_L2CAP_CONN_PARAM_UPDATE_REQ                          20
 #define GAP_EVT_L2CAP_CONN_PARAM_UPDATE_RSP                          21
@@ -182,14 +182,14 @@ Situation 2:   SMP Fast Connect																		|
 #define GAP_EVT_MASK_SMP_CONN_ENCRYPTION_DONE                     	 (1<<GAP_EVT_SMP_CONN_ENCRYPTION_DONE)
 #define GAP_EVT_MASK_SMP_SECURITY_PROCESS_DONE                     	 (1<<GAP_EVT_SMP_SECURITY_PROCESS_DONE)
 
-#define GAP_EVT_MASK_SMP_TK_DISPALY                  				 (1<<GAP_EVT_SMP_TK_DISPALY)
+#define GAP_EVT_MASK_SMP_TK_DISPLAY                  				 (1<<GAP_EVT_SMP_TK_DISPLAY)
 #define GAP_EVT_MASK_SMP_TK_REQUEST_PASSKEY                  		 (1<<GAP_EVT_SMP_TK_REQUEST_PASSKEY)
 #define GAP_EVT_MASK_SMP_TK_REQUEST_OOB	                     		 (1<<GAP_EVT_SMP_TK_REQUEST_OOB)
 #define GAP_EVT_MASK_SMP_TK_NUMERIC_COMPARE                     	 (1<<GAP_EVT_SMP_TK_NUMERIC_COMPARE)
 #define GAP_EVT_MASK_SMP_BONDING_INFO_FULL                     	 	 (1<<GAP_EVT_SMP_BONDING_INFO_FULL)
 
 #define GAP_EVT_MASK_ATT_EXCHANGE_MTU                     	 		 (1<<GAP_EVT_ATT_EXCHANGE_MTU)
-#define GAP_EVT_MASK_GATT_HANDLE_VLAUE_CONFIRM                     	 (1<<GAP_EVT_GATT_HANDLE_VLAUE_CONFIRM)
+#define GAP_EVT_MASK_GATT_HANDLE_VALUE_CONFIRM                     	 (1<<GAP_EVT_GATT_HANDLE_VALUE_CONFIRM)
 
 #define GAP_EVT_MASK_L2CAP_CONN_PARAM_UPDATE_REQ                     (1<<GAP_EVT_L2CAP_CONN_PARAM_UPDATE_REQ)
 #define GAP_EVT_MASK_L2CAP_CONN_PARAM_UPDATE_RSP                     (1<<GAP_EVT_L2CAP_CONN_PARAM_UPDATE_RSP)
@@ -203,7 +203,7 @@ Situation 2:   SMP Fast Connect																		|
 #define GAP_EVT_MASK_L2CAP_COC_DATA						 			 (1<<GAP_EVT_L2CAP_COC_DATA)
 #endif
 
-#define GAP_EVT_MASK_DEFAULT										( GAP_EVT_MASK_SMP_TK_DISPALY 			| \
+#define GAP_EVT_MASK_DEFAULT										( GAP_EVT_MASK_SMP_TK_DISPLAY 			| \
 																	  GAP_EVT_MASK_SMP_TK_REQUEST_PASSKEY   | \
 																	  GAP_EVT_MASK_SMP_TK_REQUEST_OOB		| \
 																	  GAP_EVT_MASK_ATT_EXCHANGE_MTU )
@@ -253,7 +253,7 @@ typedef struct {
 
 
 /**
- *  @brief  Event Parameters for "GAP_EVT_SMP_TK_DISPALY"
+ *  @brief  Event Parameters for "GAP_EVT_SMP_TK_DISPLAY"
  */
 typedef struct {
 	u16	connHandle;

@@ -217,10 +217,10 @@ static int tlkmmi_rdt_t005DutAclConnectEvt(uint08 *pData, uint16 dataLen)
 	#if (TLKMMI_RDT_T005_AUT2_ENABLE)
 	uint08 aut2Addt[6] = TLKMMI_RDT_T005_BTADDR_AUT2;
 	#endif
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	tlkmmi_rdt_t005DutUnit_t *pUnit;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(!sTlkMmiRdtT005Dut.isStart){
 		bth_acl_disconn(pEvt->handle, 0x00);
 		return -TLK_EFAIL;
@@ -306,10 +306,10 @@ static int tlkmmi_rdt_t005DutAclDisconnEvt(uint08 *pData, uint16 dataLen)
 	#if (TLKMMI_RDT_T005_AUT2_ENABLE)
 	uint08 aut2Addt[6] = TLKMMI_RDT_T005_BTADDR_AUT2;
 	#endif
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 	tlkmmi_rdt_t005DutUnit_t *pUnit;
 
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 	if(pEvt->handle == sTlkMmiRdtT005Dut.aut1.handle){
 		pUnit = &sTlkMmiRdtT005Dut.aut1;
 	}

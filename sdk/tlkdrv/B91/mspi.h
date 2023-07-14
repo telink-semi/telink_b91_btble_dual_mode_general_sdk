@@ -47,7 +47,7 @@ _attribute_ram_code_sec_ static inline void mspi_wait(void){
 }
 
 /**
- * @brief     This function servers to enable read triggle spi.
+ * @brief     This function servers to enable read trigger spi.
  * @return    none.
  */
 _attribute_ram_code_sec_ static inline void mspi_fm_rd_trig_en(void){
@@ -55,7 +55,7 @@ _attribute_ram_code_sec_ static inline void mspi_fm_rd_trig_en(void){
 }
 
 /**
- * @brief     This function servers to disable read triggle spi.
+ * @brief     This function servers to disable read trigger spi.
  * @return    none.
  */
 _attribute_ram_code_sec_ static inline void mspi_fm_rd_trig_dis(void){

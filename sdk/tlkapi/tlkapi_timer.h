@@ -28,11 +28,20 @@
 
 int tlkapi_timer_init(void);
 
+/******************************************************************************
+ * Function: tlkapi_timer_clear
+ * Descript: Clear timer adapter.
+ * Params:  
+ * Return: None.
+ * Others: None.
+*******************************************************************************/
+void tlkapi_timer_clear(void);
+
 
 /******************************************************************************
  * Function: tlkapi_timer_isbusy, tlkapi_timer_isPmBusy
  * Descript: If there is a process or timer and less than 1ms, the module 
- *           is considered busy, it is the basis of the schdule. 
+ *           is considered busy, it is the basis of the schedule. 
  * Params:  
  * Return: true is busy/false is idle.
  * Others: None.
@@ -85,7 +94,7 @@ bool tlkapi_timer_isHaveNode(tlkapi_timer_t *pTimer);
  *     @pAdapt[IN]--The adapt self-manages handle.
  *     @pTimer[IN]--Timer.
  *     @timeout[IN]--Unit: us.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkapi_timer_updateNode(tlkapi_timer_t *pTimer, uint32 timeout, bool isInsert);
@@ -96,7 +105,7 @@ int  tlkapi_timer_updateNode(tlkapi_timer_t *pTimer, uint32 timeout, bool isInse
  * Params:
  *     @pAdapt[IN]--The adapt self-manages handle.
  *     @pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkapi_timer_insertNode(tlkapi_timer_t *pTimer);
@@ -107,7 +116,7 @@ int  tlkapi_timer_insertNode(tlkapi_timer_t *pTimer);
  * Params:
  * 	@pAdapt[IN]--The adapt self-manages handle.
  * 	@pTimer[IN]--Timer.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int  tlkapi_timer_removeNode(tlkapi_timer_t *pTimer);

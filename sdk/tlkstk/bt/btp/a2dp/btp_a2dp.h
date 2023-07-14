@@ -210,7 +210,7 @@ extern int btp_a2dpsrc_abort(uint16 aclHandle);
 /******************************************************************************
  * Function: A2DP source reconfig interface
  * Descript: Defines the format of the A2dp source trigger reconfig 
- *           the codec's paramter.
+ *           the codec's parameter.
  * Params:
  * 	    @aclHandle[IN]--The ACL link's handle.
  *      @sampleRate[IN]--16K, 32K, 44.1K, 48K
@@ -222,7 +222,7 @@ extern int btp_a2dpsrc_reconfig(uint16 aclHandle, uint32 sampleRate);
 /******************************************************************************
  * Function: btp_a2dpsrc_restart
  * Descript: Defines the format of the A2dp source trigger restart
- *           the codec's paramter.
+ *           the codec's parameter.
  * Params:
  * 	    @aclHandle[IN]--The ACL link's handle.
  * Return: Returning TLK_ENONE(0x00) means the restart process success.
@@ -267,7 +267,7 @@ extern int btp_a2dpsrc_setSampleRate(uint16 aclHandle, uint32 sampleRate);
  * Function: btp_a2dpsnk_getSampleRate
  * Descript: Get Sample Rate for Codec.
  * Params:
- * 	    @pA2dp[IN]--The A2dp control bolck which convey the paramter.
+ * 	    @pA2dp[IN]--The A2dp control bolck which convey the parameter.
  * Return: SampleRate.
  *******************************************************************************/
 extern uint btp_a2dpsrc_getSampleRate(uint16 aclHandle);
@@ -307,13 +307,13 @@ extern int btp_a2dpsnk_start(uint16 aclHandle);
  * Function: btp_a2dpsnk_getSampleRate
  * Descript: Get Sample Rate for Codec.
  * Params:
- * 	    @pA2dp[IN]--The A2dp control bolck which convey the paramter.
+ * 	    @pA2dp[IN]--The A2dp control bolck which convey the parameter.
  * Return: SampleRate.
  *******************************************************************************/
 extern uint btp_a2dpsnk_getSampleRate(uint16 aclHandle);
 
 /******************************************************************************
- * Function: A2DP sink send reconfig service's paramters interface
+ * Function: A2DP sink send reconfig service's parameters interface
  * Descript: Defines the format of the A2dp sink trigger to reconfig 
  *           a2dp codec frequency interface.
  * Params:
@@ -339,7 +339,7 @@ extern void btp_a2dpsnk_regRecvDataCB(BtpA2dpRecvDataCallback datCallback);
 /******************************************************************************
  * Function: A2DP sink send delay report
  * Descript: Defines the delay report function for audio control 
- *           the A2DP stream delay to peer device, becasue there exists 
+ *           the A2DP stream delay to peer device, because there exists 
  *           some time delay including decoding, buffer or else some other reason
  * Params:
  * 	    @aclHandle[IN]--The a2dp sink handle.

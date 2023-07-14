@@ -670,11 +670,13 @@ static void tlkmmi_btmgr_recvStartPairCmdDeal(uint08 *pData, uint08 dataLen)
 		return;
 	}
 	
+	#if (TLKMMI_BTMGR_BTREC_ENABLE)
 	if(!isForce && tlkmmi_btmgr_recIsBusy()){
 		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvStartPairCmdDeal: busy");
 		tlkmmi_btmgr_sendCommRsp(TLKPRT_COMM_CMDID_BT_START_PAIR, TLKPRT_COMM_RSP_STATUE_FAILURE, TLK_EBUSY, nullptr, 0);
 		return;
 	}
+	#endif
 	
 	if(tlkmdi_btacl_getIdleCount() == 0){
 		tlkapi_error(TLKMMI_BTMGR_DBG_FLAG, TLKMMI_BTMGR_DBG_SIGN, "tlkmmi_btmgr_recvStartPairCmdDeal: no quota");

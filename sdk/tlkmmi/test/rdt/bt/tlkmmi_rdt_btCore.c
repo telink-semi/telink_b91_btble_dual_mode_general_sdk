@@ -219,9 +219,9 @@ static int tlkmmi_rdt_btAclRequestEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_btAclConnectEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclConnComplateEvt_t *pEvt;
+	bth_aclConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_aclConnComplateEvt_t*)pData;
+	pEvt = (bth_aclConnCompleteEvt_t*)pData;
 	if(pEvt->status != TLK_ENONE){
 		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_btAclConnectEvt: failure -- %d", pEvt->status);
 		return TLK_ENONE;
@@ -250,9 +250,9 @@ static int tlkmmi_rdt_btAclEncryptEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_btAclDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_aclDiscComplateEvt_t *pEvt;
+	bth_aclDiscCompleteEvt_t *pEvt;
 
-	pEvt = (bth_aclDiscComplateEvt_t*)pData;
+	pEvt = (bth_aclDiscCompleteEvt_t*)pData;
 
 	btp_destroy(pEvt->handle);
 	bth_destroy(pEvt->handle);
@@ -276,9 +276,9 @@ static int tlkmmi_rdt_btScoRequestEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_btScoConnectEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoConnComplateEvt_t *pEvt;
+	bth_scoConnCompleteEvt_t *pEvt;
 	
-	pEvt = (bth_scoConnComplateEvt_t*)pData;
+	pEvt = (bth_scoConnCompleteEvt_t*)pData;
 	if(pEvt->status != TLK_ENONE){
 		tlkapi_error(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_btScoConnectEvt: failure -- %d", pEvt->status);
 		return TLK_ENONE;
@@ -296,9 +296,9 @@ static int tlkmmi_rdt_btScoConnectEvt(uint08 *pData, uint16 dataLen)
 }
 static int tlkmmi_rdt_btScoDisconnEvt(uint08 *pData, uint16 dataLen)
 {
-	bth_scoDiscComplateEvt_t *pEvt;
+	bth_scoDiscCompleteEvt_t *pEvt;
 
-	pEvt = (bth_scoDiscComplateEvt_t*)pData;
+	pEvt = (bth_scoDiscCompleteEvt_t*)pData;
 
 	tlkapi_trace(TLKMMI_RDT_DBG_FLAG, TLKMMI_RDT_DBG_SIGN, "tlkmmi_rdt_btScoDisconnEvt: success - 0x%x", pEvt->scoHandle);
 

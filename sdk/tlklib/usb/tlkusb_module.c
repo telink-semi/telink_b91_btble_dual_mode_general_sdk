@@ -131,7 +131,7 @@ void tlkusb_module_deinit(uint08 modType)
 	sTlkUsbModule[modType]->pCtrl->Deinit();
 }
 /******************************************************************************
- * Function: tlkusb_module_hander
+ * Function: tlkusb_module_handler
  * Descript: This function use to loop through usb device.
  * Params:
  * 		@modType[IN]--USB Module Type.

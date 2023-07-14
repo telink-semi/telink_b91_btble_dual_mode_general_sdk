@@ -91,8 +91,8 @@ static void tlkmdi_sco_freeAlgBuffer(void);
 static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen);
 static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen);
 
-static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *p, int len);
-static void tlkmdi_sco_getMicEncFrame(uint08 id, uint08 *p, int len);
+static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint16 scoHandle, uint08 *p, int len);
+static void tlkmdi_sco_getMicEncFrame(uint08 id, uint16 scoHandle, uint08 *p, int len);
 
 
 const unsigned char sTlkMdiScoMSBCSilencePkt[60] = {0x00,0x00,
@@ -255,9 +255,9 @@ bool tlkmdi_audsco_irqProc(void)
 static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 data[4];
-	bth_scoConnComplateEvt_t *pEvt;
+	bth_scoConnCompleteEvt_t *pEvt;
 
-	pEvt = (bth_scoConnComplateEvt_t*)pData;
+	pEvt = (bth_scoConnCompleteEvt_t*)pData;
 	if(pEvt->status != 0){
 		tlkapi_error(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_connectEvt: failure - %d", pEvt->status);
 		if(sTlkMdiScoConnCB != nullptr){
@@ -283,9 +283,9 @@ static int tlkmdi_sco_connectEvt(uint08 *pData, uint16 dataLen)
 static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
 {
 	uint08 data[4];
-	bth_scoDiscComplateEvt_t *pEvt;
+	bth_scoDiscCompleteEvt_t *pEvt;
 
-	pEvt = (bth_scoDiscComplateEvt_t*)pData;
+	pEvt = (bth_scoDiscCompleteEvt_t*)pData;
 	tlkapi_trace(TLKMDI_AUDSCO_DBG_FLAG, TLKMDI_AUDSCO_DBG_SIGN, "tlkmdi_sco_disconnEvt: {status-%d,handle-%d,scoHandle-%d,linkType-%d}", 
 		pEvt->reason, pEvt->aclHandle, pEvt->scoHandle, pEvt->linkType);
 	tlkmdi_audsco_switch(pEvt->aclHandle, TLK_STATE_CLOSED);
@@ -302,7 +302,7 @@ static int tlkmdi_sco_disconnEvt(uint08 *pData, uint16 dataLen)
 
 
 _attribute_bt_ram_code_
-static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint08 *pData, int dataLen) // NOTE: This is in IRQ
+static void tlkmdi_sco_addSpkEncFrame(uint08 id, uint16 scoHandle, uint08 *pData, int dataLen) // NOTE: This is in IRQ
 {
 	uint08 *pBuffer;
 	
@@ -350,7 +350,7 @@ _attribute_bt_data_retention_ unsigned char sTlkMdiAudScoSilencePkt[64] = {0x00,
 	0xb6,0xdb,0x77,0x6d,0xb6,0xdd,0xdb,0x6d, 0xb7,0x76,0xdb,0x6d,0xdd,0xb6,0xdb,0x77,
 	0x6d,0xb6,0xdd,0xdb,0x6d,0xb7,0x76,0xdb, 0x6c,0x00,0x00,0x00,0x00,0x00};
 _attribute_bt_ram_code_
-static void tlkmdi_sco_getMicEncFrame(uint08 id, uint08 *pBuff, int buffLen) // NOTE: This is in IRQ
+static void tlkmdi_sco_getMicEncFrame(uint08 id, uint16 scoHandle, uint08 *pBuff, int buffLen) // NOTE: This is in IRQ
 {
 	uint08 *pData;
 

@@ -121,7 +121,7 @@ extern int btp_pbapclt_disconn(uint16 aclHandle);
  *        @aclHandle[IN]--The acl link handle.
  * Return:null.
 *******************************************************************************/
-extern void btp_pbapclt_destory(uint16 aclHandle);
+extern void btp_pbapclt_destroy(uint16 aclHandle);
 
 /******************************************************************************
  * Function: btp_pbapclt_getAnyHandle

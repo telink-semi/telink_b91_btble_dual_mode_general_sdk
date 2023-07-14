@@ -51,7 +51,7 @@ static const tlkmmi_audio_modinf_t *tlkmmi_audio_getModinf(TLKPTI_AUD_OPTYPE_ENU
  *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
  *     @handle[IN]--The connection handle of the current audio initiator.
  *     @param[IN]--Control parameters of the current audio initiator.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_modinfStart(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle, uint32 param)
@@ -69,7 +69,7 @@ int tlkmmi_audio_modinfStart(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle, uint3
  * Params:
  *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
  *     @handle[IN]--The connection handle of the current audio initiator.
- * Return: Operating results. LSLP_ENONE means success, others means failture.
+ * Return: Operating results. LSLP_ENONE means success, others means failure.
  * Others: None.
 *******************************************************************************/
 int tlkmmi_audio_modinfClose(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle)
@@ -119,7 +119,7 @@ bool tlkmmi_audio_modinfFPlay(TLKPTI_AUD_OPTYPE_ENUM optype, bool isRewind, bool
  *                  TLK_STATE_OPENED -- The audio is on.
  *                  TLK_STATE_CLOSED -- The audio is off.
  *                  TLK_STATE_PAUSED -- The audio is paused.
- * Return: Operating results. True means success, others means failture.
+ * Return: Operating results. True means success, others means failure.
  * Others: None.
 *******************************************************************************/
 bool tlkmmi_audio_modinfSwitch(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle, uint08 status)
@@ -136,7 +136,7 @@ bool tlkmmi_audio_modinfSwitch(TLKPTI_AUD_OPTYPE_ENUM optype, uint16 handle, uin
  *     to cause the audio to play the next track.
  * Params: 
  *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
- * Return: Operating results. true means success, others means failture.
+ * Return: Operating results. true means success, others means failure.
  * Others: None.
 *******************************************************************************/
 bool tlkmmi_audio_modinfToNext(TLKPTI_AUD_OPTYPE_ENUM optype)
@@ -153,7 +153,7 @@ bool tlkmmi_audio_modinfToNext(TLKPTI_AUD_OPTYPE_ENUM optype)
  *     module to cause the audio to play the previous track.
  * Params: 
  *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
- * Return: Operating results. True means success, others means failture.
+ * Return: Operating results. True means success, others means failure.
  * Others: None.
 *******************************************************************************/
 bool tlkmmi_audio_modinfToPrev(TLKPTI_AUD_OPTYPE_ENUM optype)
@@ -205,7 +205,7 @@ uint tlkmmi_audio_modinfIntval(TLKPTI_AUD_OPTYPE_ENUM optype)
  *     module to input the timing control source for the audio module.
  * Params:
  *     @optype[IN]--Audio type to be operated. Refer TLKPTI_AUD_OPTYPE_ENUM.
- * Return: Operating results. True means success, others means failture.
+ * Return: Operating results. True means success, others means failure.
  * Others: 
  *     tlkmmi_audio_modinfTimer -- Software timer. There's a big time error.
  *     tlkmmi_audio_modinfIrqProc -- Hardware timer, time accuracy is guaranteed.
@@ -375,7 +375,7 @@ static const tlkmmi_audio_modinf_t *spTlkMmiAudioModinfs[TLKPTI_AUD_OPTYPE_MAX] 
  * Function: tlkmmi_audio_getModinf
  * Descript: Get the interface of Tone module 
  * Params:@optype[IN]--The optype of audio.
- * Return: The interface function means success, others means failture.
+ * Return: The interface function means success, others means failure.
  * Others: None.
 *******************************************************************************/
 static const tlkmmi_audio_modinf_t *tlkmmi_audio_getModinf(TLKPTI_AUD_OPTYPE_ENUM optype)

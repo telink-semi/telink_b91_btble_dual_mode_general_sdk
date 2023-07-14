@@ -251,7 +251,7 @@ void generateRandomNum(int len, unsigned char *data);
 
 /**
  * @brief	ACL RX Data buffer length = maxRxOct + 21, then 16 Byte align
- *			maxRxOct + 21 = 4(DMA_len) + 2(BLE header) + maxRxOct + 4(MIC) + 3(CRC) + 8(ExtraInfor)
+ *			maxRxOct + 21 = 4(DMA_len) + 2(BLE header) + maxRxOct + 4(MIC) + 3(CRC) + 8(ExtraInfo)
 			RX buffer size must be be 16*n, due to MCU design
  */
 #define 	CAL_LL_ACL_RX_FIFO_SIZE(maxRxOct)	(((maxRxOct+21) + 15) / 16 *16)
@@ -271,7 +271,7 @@ void generateRandomNum(int len, unsigned char *data);
 
 /*
  * @brief	ISO RX Data buffer length = ISORxOct + 21, then 16 Byte align
- *			ISORxOct + 21 = 4(DMA_len) + 2(BLE header) + ISORxOct + 4(MIC) + 3(CRC) + 8(ExtraInfor)
+ *			ISORxOct + 21 = 4(DMA_len) + 2(BLE header) + ISORxOct + 4(MIC) + 3(CRC) + 8(ExtraInfo)
  *			RX buffer size must be be 16*n, due to MCU design
  */
 #define		CAL_LL_ISO_RX_FIFO_SIZE(n)			(((n + 21) + 15) / 16 * 16)
@@ -289,7 +289,7 @@ void generateRandomNum(int len, unsigned char *data);
 * DMA_LEN(4B)+Hdr(2B)+PLD(251B)+MIC(4B)+CRC(3B)+TLK_PKT_INFO(12B)
 *             **use 2B enough**
 */
-#define		ISO_BIS_RX_PDU_SIZE_ALLIGN16(n)			(((n + 25) + 15) / 16 * 16) //4+2+4+2+4+3+12
+#define		ISO_BIS_RX_PDU_SIZE_ALIGN16(n)			(((n + 25) + 15) / 16 * 16) //4+2+4+2+4+3+12
 
 /******************************* dma_end ********************************************************************/
 

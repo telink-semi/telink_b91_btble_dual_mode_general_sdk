@@ -45,7 +45,7 @@ int tlkmmi_btmgr_inqInit(void);
  *        @rssiThd[IN]--The rssi of signal.
  *        @maxNumb[IN]--How many devices should bt update.
  *        @timeout[IN]--The inquiry timeout.
- *        @isGetName[IN]--whther get the device name or not.
+ *        @isGetName[IN]--whether get the device name or not.
  * Return: Return TLK_ENONE is success, other value is failure.
  * Others: None.
 *******************************************************************************/

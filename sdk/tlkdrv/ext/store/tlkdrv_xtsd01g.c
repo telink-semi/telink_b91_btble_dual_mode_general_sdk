@@ -114,6 +114,7 @@ const tlkdrv_store_modinf_t gcTlkDrvXtsd01gInf = {
 	tlkdrv_xtsd01g_sdread, //SDRead
 	tlkdrv_xtsd01g_sdwrite, //SDWrite
 	tlkdrv_xtsd01g_handler, //Handler
+	tlkdrv_xtsd01g_shutDown, //ShutDown
 };
 
 
@@ -283,6 +284,11 @@ static int tlkdrv_xtsd01g_handler(uint16 opcode, uint32 param0, uint32 param1)
 	}
 	return -TLK_ENOSUPPORT;
 }
+static void tlkdrv_xtsd01g_shutDown(void)
+{
+	gpio_shutdown(GPIO_PC4|GPIO_PC5|GPIO_PC6|GPIO_PC7);	
+	tlkdrv_xtsd01g_powerOff();
+}
 
 
 
@@ -320,11 +326,7 @@ void tlkdrv_xtsd01g_powerOff(void)
 
 	sTlkDevXtsd01gPowerIsOn = false;
 }
-void tlkdrv_xtsd01g_shutDown(void)
-{
-	gpio_shutdown(GPIO_PC4|GPIO_PC5|GPIO_PC6|GPIO_PC7);	
-	tlkdrv_xtsd01g_powerOff();
-}
+
 
 
 

@@ -38,10 +38,10 @@
 #include "tlklib/dbg/tlkdbg_hpudwn.h"
 
 
-
+#if (TLKMMI_PHONE_ENABLE)
 extern int tlkmmi_phone_bookSetParam(uint08 posi, uint08 type, uint08 sort, uint16 offset, uint16 number);
 extern int tlkmmi_phone_startSyncBook(uint16 aclHandle, uint08 *pBtAddr, bool isForce);
-
+#endif
 
 static void tlkmmi_sys_recvDbgStartToneDeal(uint08 *pData, uint08 dataLen);
 static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen);
@@ -80,7 +80,7 @@ static void tlkmmi_sys_recvDbgStartToneDeal(uint08 *pData, uint08 dataLen)
 }
 static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 {
-#if (TLK_STK_BT_ENABLE)
+#if (TLKBTP_CFG_PBAPCLT_ENABLE)
 	uint08 posi;
 	uint08 type;
 	uint08 sort;
@@ -113,8 +113,10 @@ static void tlkmmi_sys_recvDbgGetPhoneBookDeal(uint08 *pData, uint08 dataLen)
 	sort = pData[2];
 	offset = ((uint16)pData[4]<<8)|pData[3];
 	number = ((uint16)pData[6]<<8)|pData[5];
+	#if (TLKMMI_PHONE_ENABLE)
 	tlkmmi_phone_bookSetParam(posi, type, sort, offset, number);
 	tlkmmi_phone_startSyncBook(pHandle->aclHandle, pHandle->btaddr, true);
+	#endif
 #endif
 }
 static void tlkmmi_sys_recvDbgSimulateKeyDeal(uint08 *pData, uint08 dataLen)

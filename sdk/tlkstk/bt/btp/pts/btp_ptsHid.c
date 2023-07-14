@@ -44,10 +44,10 @@ static uint btp_ptshid_getReportCB(uint16 aclHandle, uint08 reportType, uint08 r
 static int btp_ptshid_irqRecvDataCB(uint16 handle, uint08 *pData, uint16 dataLen);
 
 
-#define BTP_PTSHID_MAJOR_SERVICE_CALSS	 (BTH_COD_SERVICE_CLASS_AUDIO | BTH_COD_SERVICE_CLASS_RENDER)
-#define BTP_PTSHID_MAJOR_DEVICE_CALSS    (BTH_COD_MAJOR_CLASS_PERIPHERAL)
-#define BTP_PTSHID_MINOR_DEVICE_CALSS    (BTH_COD_PERIPHERAL_COMBO | BTH_COD_PERIPHERAL_JOYSTICK)
-#define BTP_PTSHID_DEVICE_CLASS          (BTP_PTSHID_MAJOR_SERVICE_CALSS | BTP_PTSHID_MAJOR_DEVICE_CALSS | BTP_PTSHID_MINOR_DEVICE_CALSS)//0x240404//0x5a020c
+#define BTP_PTSHID_MAJOR_SERVICE_CLASS	 (BTH_COD_SERVICE_CLASS_AUDIO | BTH_COD_SERVICE_CLASS_RENDER)
+#define BTP_PTSHID_MAJOR_DEVICE_CLASS    (BTH_COD_MAJOR_CLASS_PERIPHERAL)
+#define BTP_PTSHID_MINOR_DEVICE_CLASS    (BTH_COD_PERIPHERAL_COMBO | BTH_COD_PERIPHERAL_JOYSTICK)
+#define BTP_PTSHID_DEVICE_CLASS          (BTP_PTSHID_MAJOR_SERVICE_CLASS | BTP_PTSHID_MAJOR_DEVICE_CLASS | BTP_PTSHID_MINOR_DEVICE_CLASS)//0x240404//0x5a020c
 
 
 static uint08 sBtpPtsHidIsSuppProto;
@@ -145,7 +145,7 @@ static uint btp_ptshid_setProtocolCB(uint16 aclHandle, uint08 protoMode)
 		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
 	}
 	if(!sBtpPtsHidIsSuppProto){
-		tlkapi_error(BTP_PTSHID_DBG_FLAG, BTP_PTSHID_DBG_SIGN, "btp_ptshid_setProtocolCB: unsupport");
+		tlkapi_error(BTP_PTSHID_DBG_FLAG, BTP_PTSHID_DBG_SIGN, "btp_ptshid_setProtocolCB: unsupported");
 		return BTP_HID_HSHK_ERR_UNSUPPORTED_REQUEST;
 	}
 	tlkapi_trace(BTP_PTSHID_DBG_FLAG, BTP_PTSHID_DBG_SIGN, "btp_ptshid_setProtocolCB");
@@ -159,7 +159,7 @@ static uint btp_ptshid_getProtocolCB(uint16 aclHandle, uint08 *pProtoMode)
 		return BTP_HID_HSHK_ERR_INVALID_PARAMETER;
 	}
 	if(!sBtpPtsHidIsSuppProto){
-		tlkapi_error(BTP_PTSHID_DBG_FLAG, BTP_PTSHID_DBG_SIGN, "btp_ptshid_getProtocolCB: unsupport");
+		tlkapi_error(BTP_PTSHID_DBG_FLAG, BTP_PTSHID_DBG_SIGN, "btp_ptshid_getProtocolCB: unsupported");
 		return BTP_HID_HSHK_ERR_UNSUPPORTED_REQUEST;
 	}
 	tlkapi_trace(BTP_PTSHID_DBG_FLAG, BTP_PTSHID_DBG_SIGN, "btp_ptshid_getProtocolCB");

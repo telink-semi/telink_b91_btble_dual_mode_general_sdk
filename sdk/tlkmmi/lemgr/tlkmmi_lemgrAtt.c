@@ -214,7 +214,7 @@ static const uint08 reportMap[] =
 	0x26,0x8c,0x02,  //global, max  0x28c
 	0x19,0x01,     //local, min   0x01
 	0x2a,0x8c,0x02,  //local, max    0x28c
-	0x81,0x00,     //main,  input data varible, absolute
+	0x81,0x00,     //main,  input data variable, absolute
 	0xc0,        //main, end collection
 
 };
@@ -452,8 +452,8 @@ int spp_onReceiveData(uint16 connHandle, rf_packet_att_write_t *p)
 	return 0;
 }
 
-static uint08 my_devNameLen = 8;
-static uint08 my_devName[18] = { 'T','L','K','W','A','T','C','H'};
+static uint08 my_devNameLen = 9;
+static uint08 my_devName[18] = {'T','E','L','I','N','K','-','L','E',};
 int tlkmmi_lemgr_attSetDevName(uint08 *pName, uint08 nameLen)
 {
 	if(pName == nullptr || nameLen == 0) return -TLK_EPARAM;
