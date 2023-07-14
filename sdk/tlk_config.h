@@ -34,9 +34,9 @@
  * Descr: 
 *******************************************************************************/
 #ifndef TLK_APP_VERSION
-#define TLK_APP_VERSION              0x05010300 //Application, 5.1.2.0
+#define TLK_APP_VERSION              0x05010300 //Application, 5.1.3.0
 #endif
-#define TLK_LIB_VERSION              0x05010300 //Library, 5.1.2.0
+#define TLK_LIB_VERSION              0x05010300 //Library, 5.1.3.0
 #define TLK_DRV_VERSION              0x02000000 //Driver, 2.0.0.0
 #define TLK_PRT_VERSION              0x0100 //Protocol, 1.0.0
 
