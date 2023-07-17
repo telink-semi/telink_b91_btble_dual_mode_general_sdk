@@ -141,7 +141,7 @@ static inline void rf_ble_set_preamble_len(u8 len)
 
 static inline int rf_ble_get_preamble_len(void)
 {
-	return (read_reg8(0x140802)&0x1f); //[4:0]: ble/nordic preamble length
+	return (read_reg8(0x140802)&0x1f); //[4:0]: ble preamble length
 }
 
 
