@@ -1,3 +1,80 @@
+## V5.1.3.0(PR)
+
+### Dependency Updates
+
+- N/A
+
+### Features
+
+- N/A
+
+### Bug Fixs
+- Fixed an issue with music playing outside the phone
+- Fixed issues related to Profile connections
+- Fixes known headset compatibility issues
+- Fixed HID compatibility issues on some computers
+- Fixed an issue with music stuck on headphones
+- Fixed issues related to UART-DMA errors after low power wake up
+- Fixed sniff pm disconnection issue
+- Adjusted access Sniff control mechanism
+- Fixed packet loss caused by the reset mechanism in multiple connections
+- Repair connection problems caused by the role Switch
+
+### KNOWN ISSUES
+
+- N/A
+
+### BREAKING CHANGES
+
+- Typos check
+- license refresh
+- HCI interface update
+- Hfp interface at the MDI layer is updated and supports two HFPS
+- The memory manager interface update ,support interrupt protection and critical section protection
+
+### CodeSize
+
+- Flash: 681KB with log and 487KB without log
+- RAM: I-RAM is 110KB and D-RAM is 94KB (with log);I -RAM is 100KB and D-RAM is 82KB (without log)
+
+### Dependency Updates
+
+- N/A
+
+### Features
+
+- N/A
+
+### Bug Fixs
+- 修复已知手机音乐外放的问题
+- 修复已知Profile连接相关问题
+- 修复已知耳机兼容性问题
+- 修复部分电脑的HID兼容性问题
+- 修复耳机音乐卡顿的问题
+- 修复低功耗唤醒后UART-DMA出错相关问题
+- 修复sniff下pm断连问题
+- 调整进入Sniff的管控机制
+- 修复多连接中reset机制丢包问题
+- 修复role Switch导致的连接问题
+
+### KNOWN ISSUES
+
+- N/A
+
+### BREAKING CHANGES
+
+- 错别字校验
+- License刷新
+- HCI接口更新
+- MDI层hfp接口更新，支持两路hfp
+- 更新内存管理器接口，支持中断保护与临界区保护
+
+### CodeSize
+
+- Flash: 带log版本为681KB，不带log版本为487KB
+- RAM:   带log版本，I-RAM为110KB，D-RAM为94KB；不带log版本，I-RAM为100KB，D-RAM为82KB
+
+
 ## V5.1.1.2(FR)
 
 ### Dependency Updates
